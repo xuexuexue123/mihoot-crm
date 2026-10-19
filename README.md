@@ -1,3 +1,9 @@
+## 联系我
+
+微信扫码添加好友。
+
+<img src="docs/qrcode.JPG" alt="微信二维码：Ninestars" width="280" />
+
 # MihootCRM 系统架构说明书
 
 ## 1. 系统概述
