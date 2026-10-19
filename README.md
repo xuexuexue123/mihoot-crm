@@ -245,6 +245,208 @@ ruoyi-admin
 
 前端源码不在本 Maven 工程中。主要目录包括 `app/`（路由页面）、`components/`、`features/`、`views/`、`stores/`、`hooks/` 与 `lib/`。流程设计数据在后端以 `reactflow_json`（jsonb）保存，供该 React 界面使用。
 
+### 4.3 界面截图
+
+以下截图来自独立 React 前端，文件均在 `docs/`。
+
+#### 工作台与销售
+
+**工作台**
+
+![工作台](docs/dashboard.png)
+
+**晨会**
+
+![晨会](docs/morningmeeting.png)
+
+**线索**
+
+![线索](docs/lead.png)
+
+**客户**
+
+![客户](docs/customer.png)
+
+**客户 360**
+
+![客户 360](docs/customer_360.png)
+
+**销售机会**
+
+![销售机会](docs/opty.png)
+
+**合同**
+
+![合同](docs/contract.png)
+
+**数据表格**
+
+![数据表格](docs/datatable.png)
+
+**数据图表**
+
+![数据图表](docs/datacharts.png)
+
+#### 项目管理
+
+**项目**
+
+![项目](docs/pm.png)
+
+**项目任务**
+
+![项目任务](docs/pm_task.png)
+
+**项目看板**
+
+![项目看板](docs/pm_kanban.png)
+
+**文件预览**
+
+![文件预览](docs/pm_file_preview.png)
+
+#### 工作流与自动化
+
+**流程看板**
+
+![流程看板](docs/workflow_dashboard.png)
+
+**流程设计器**
+
+![流程设计器](docs/workflow_editor.png)
+
+**自动化**
+
+![自动化](docs/automation.png)
+
+#### 营销活动
+
+**活动**
+
+![活动](docs/marketing_event.png)
+
+**活动详情**
+
+![活动详情](docs/marketing_event_detail.png)
+
+**活动详情编辑**
+
+![活动详情编辑](docs/marketing_event_detail_editor.png)
+
+**活动运营**
+
+![活动运营](docs/marketing_event_operation.png)
+
+**活动参会人**
+
+![活动参会人](docs/marketing_event_attendee.png)
+
+**活动图表**
+
+![活动图表](docs/marketing_event_charts.png)
+
+#### 内容与触达
+
+**问卷**
+
+![问卷](docs/marketing_survey.png)
+
+**问卷编辑**
+
+![问卷编辑](docs/marketing_survey_editor.png)
+
+**网站**
+
+![网站](docs/marketing_website.png)
+
+**网页详情**
+
+![网页详情](docs/marketing_webpage_detail.png)
+
+**内容管理**
+
+![内容管理](docs/marketing_cm.png)
+
+**内容编辑**
+
+![内容编辑](docs/marketing_cm_editor.png)
+
+**话术**
+
+![话术](docs/marketing_scripts.png)
+
+**标签**
+
+![标签](docs/marketing_tags.png)
+
+**智能推送**
+
+![智能推送](docs/marketing_smart_push.png)
+
+**邮件**
+
+![邮件](docs/marketing_email.png)
+
+**知识库**
+
+![知识库](docs/marketing_kb.png)
+
+#### 渠道
+
+**企业微信**
+
+![企业微信](docs/marketing_wecom.png)
+
+**企业微信侧边栏**
+
+![企业微信侧边栏](docs/wecom_sidebar.png)
+
+**微信公众号**
+
+![微信公众号](docs/marketing_oa.png)
+
+**WhatsApp**
+
+![WhatsApp](docs/marketing_whatsapp.png)
+
+**WhatsApp 模板**
+
+![WhatsApp 模板](docs/marketing_whatsapp_template.png)
+
+**消息中心**
+
+![消息中心](docs/message_center.png)
+
+**智能助手**
+
+![智能助手](docs/assistant.png)
+
+#### 系统设置
+
+**设置**
+
+![设置](docs/settings.png)
+
+**AI 设置**
+
+![AI 设置](docs/settings_ai.png)
+
+**渠道设置**
+
+![渠道设置](docs/settings_channel.png)
+
+**集成**
+
+![集成](docs/integrations.png)
+
+**深色模式**
+
+![深色模式](docs/darkmode.png)
+
+**多语言**
+
+![多语言](docs/i18n.png)
+
 ---
 
 ## 5. 数据库架构
@@ -475,5 +677,5 @@ MihootCRM 是一个功能完善、技术先进的企业级管理系统，采用�
 
 ---
 
-*文档版本: 1.2*
+*文档版本: 1.3*
 *更新日期: 2026-10-19*
