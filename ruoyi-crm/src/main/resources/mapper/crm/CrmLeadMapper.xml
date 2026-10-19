@@ -1,0 +1,850 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmLeadMapper">
+    
+    <resultMap type="CrmLead" id="CrmLeadResult">
+        <result property="leadId"    column="lead_id"    />
+        <result property="leadType"    column="lead_type"    />
+        <result property="optyId"    column="opty_id"    />
+        <result property="optyName"    column="opty_name"    />
+        <result property="orgId"    column="org_id"    />
+        <result property="leadName"    column="lead_name"    />
+        <result property="fullName"    column="full_name"    />
+        <result property="owner"    column="owner"    />
+        <result property="contactId"    column="contact_id"    />
+        <result property="contactName"    column="contact_name"    />
+        <result property="stage"    column="stage"    />
+        <result property="workPhone"    column="work_phone"    />
+        <result property="mobilePhone"    column="mobile_phone"    />
+        <result property="workEmail"    column="work_email"    />
+        <result property="leadSource"    column="lead_source"    />
+        <result property="leadRating"    column="lead_rating"    />
+        <result property="website"    column="website"    />
+        <result property="territory"    column="territory"    />
+        <result property="industry"    column="industry"    />
+        <result property="employeeCount"    column="employee_count"    />
+        <result property="revenue"    column="revenue"    />
+        <result property="description"    column="description"    />
+        <result property="daysInactive"    column="days_inactive"    />
+        <result property="partner"    column="partner"    />
+        <result property="convertTime"    column="convert_time"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="userId"    column="user_id"    />
+        <result property="deptId"    column="dept_id"    />
+        <result property="province"    column="province"    />
+        <result property="city"    column="city"    />
+        <result property="sid"    column="sid"    />
+        <result property="customField"    column="custom_field"    />
+        <result property="wechatMpOpenid"    column="wechat_mp_openid"    />
+        <result property="wechatMpAppId"    column="wechat_mp_app_id"    />
+        <result property="wecomExternalUserid"    column="wecom_external_userid"    />
+        <result property="wecomFollowUserid"    column="wecom_follow_userid"    />
+        <result property="wecomState"    column="wecom_state"    />
+        <result property="numberOfFounders"    column="number_of_founders"    />
+        <result property="funders"    column="funders"    />
+        <result property="fundersTitle"    column="funders_title"    />
+        <result property="numberOfFundingRounds"    column="number_of_funding_rounds"    />
+        <result property="lastFundingType"    column="last_funding_type"    />
+        <result property="totalFundingAmount"    column="total_funding_amount"    />
+        <result property="fundingCurrency"    column="funding_currency"    />
+        <result property="foundedAt"    column="founded_at"    />
+        <result property="status"    column="status"    />
+        <result property="lastFollowupAt"    column="last_followup_at"    />
+        <result property="assignedAt"    column="assigned_at"    />
+        <result property="shortDescription"    column="short_description"    />
+        <result property="avatar"    column="avatar"    />
+        <result property="tag"    column="tag"    />
+        <result property="surveyJson"    column="survey_json"    />
+    </resultMap>
+
+    <sql id="selectCrmLeadVo">
+        select l.lead_id, l.lead_type, l.opty_id, l.opty_name, l.org_id, l.lead_name, l.full_name, l.owner, l.contact_id, l.contact_name, l.stage, l.work_phone, l.mobile_phone, l.work_email, l.lead_source, l.lead_rating, l.website, l.territory, l.industry, l.employee_count, l.revenue, l.description, l.days_inactive, l.partner, l.convert_time, l.create_by, l.create_time, l.update_by, l.update_time, l.user_id, l.dept_id, l.province, l.city, l.sid, l.custom_field, l.wechat_mp_openid, l.wechat_mp_app_id, l.wecom_external_userid, l.wecom_follow_userid, l.number_of_founders, l.funders, l.funders_title, l.number_of_funding_rounds, l.last_funding_type, l.total_funding_amount, l.funding_currency, l.founded_at, l.status, l.last_followup_at, l.assigned_at, l.short_description, l.avatar, l.tag, l.survey_json,
+        w.wecom_state
+        from crm_lead l
+         left join sys_user u on u.user_id = l.user_id
+         left join sys_dept d on u.dept_id = d.dept_id
+         left join (
+            select crm_lead_id, min(state) as wecom_state
+            from crm_wecom_external_contact
+            where crm_lead_id is not null and trim(crm_lead_id) &lt;&gt; ''
+            group by crm_lead_id
+         ) w on w.crm_lead_id = l.lead_id
+    </sql>
+
+    <!-- 单行锁：不可带 LEFT JOIN，PostgreSQL 禁止 FOR UPDATE 作用于 outer join -->
+    <sql id="selectCrmLeadRowOnly">
+        select lead_id, lead_type, opty_id, opty_name, org_id, lead_name, full_name, owner, contact_id, contact_name, stage, work_phone, mobile_phone, work_email, lead_source, lead_rating, website, territory, industry, employee_count, revenue, description, days_inactive, partner, convert_time, create_by, create_time, update_by, update_time, user_id, dept_id, province, city, sid, custom_field, wechat_mp_openid, wechat_mp_app_id, wecom_external_userid, wecom_follow_userid, number_of_founders, funders, funders_title, number_of_funding_rounds, last_funding_type, total_funding_amount, funding_currency, founded_at, status, last_followup_at, assigned_at, short_description, avatar, tag, survey_json
+        from crm_lead
+    </sql>
+
+    <select id="selectCrmLeadListByRelation" parameterType="CrmAccountrelation" resultMap="CrmLeadResult">
+        <include refid="selectCrmLeadVo"/>
+        left join crm_accountrelation a on a.target_id = l.lead_id
+        where 1=1
+        <if test="targetType != null  and targetType != ''"> and a.target_type = #{targetType}</if>
+        <if test="targetName != null  and targetName != ''"> and a.target_name like concat('%', #{targetName}, '%')</if>
+        <if test="sourceId != null  and sourceId != ''"> and a.source_id = #{sourceId}</if>
+        <if test="sourceName != null  and sourceName != ''"> and a.source_name like concat('%', #{sourceName}, '%')</if>
+        <if test="relateRole != null  and relateRole != ''"> and a.relate_role = #{relateRole}</if>
+        <if test="targetId != null  and targetId != ''"> and a.target_id = #{targetId}</if>
+        <if test="relationDesc != null  and relationDesc != ''"> and a.relation_desc = #{relationDesc}</if>
+        <if test="startDate != null "> and a.start_date = #{startDate}</if>
+        <if test="endDate != null "> and a.end_date = #{endDate}</if>
+
+        <!-- 数据范围过滤 -->
+        ${params.dataScope}
+    </select>
+
+    <select id="selectCrmLeadListByCriteria" parameterType="CrmLead" resultMap="CrmLeadResult">
+        <include refid="selectCrmLeadVo"/>
+        where 1=1
+        <if test="leadName != null  and leadName != ''"> and lead_name like concat('%', #{leadName}, '%')</if>
+        <if test="fullName != null  and fullName != ''"> and full_name like concat('%', #{fullName}, '%')</if>
+        <if test="city != null  and city != ''"> and city like concat('%', #{city}, '%')</if>
+        <if test="industry != null  and industry != ''"> and industry like concat('%', #{industry}, '%')</if>
+        <if test="startDate != null and endDate != null "> and founded_at BETWEEN #{startDate} and #{endDate} </if>
+        <if test="rangeStart != null and rangeEnd != null "> and revenue BETWEEN #{rangeStart} and #{rangeEnd} </if>
+        <!-- 数据范围过滤 -->
+        ${params.dataScope}
+    </select>
+
+    <select id="selectCrmLeadList" parameterType="CrmLead" resultMap="CrmLeadResult">
+        <include refid="selectCrmLeadVo"/>
+        where 1=1
+        <!-- <if test="leadType != null  and leadType != ''"> and lead_type = #{leadType}</if> -->
+        <if test="optyId != null  and optyId != ''"> and opty_id = #{optyId}</if>
+        <if test="optyName != null  and optyName != ''"> and opty_name like concat('%', #{optyName}, '%')</if>
+        <if test="orgId != null  and orgId != ''"> and org_id = #{orgId}</if>
+        <if test="leadName != null  and leadName != ''"> and lead_name like concat('%', #{leadName}, '%')</if>
+        <if test="fullName != null  and fullName != ''"> and full_name like concat('%', #{fullName}, '%')</if>
+        <if test="owner != null  and owner != ''"> and owner = #{owner}</if>
+        <if test="contactId != null  and contactId != ''"> and contact_id = #{contactId}</if>
+        <if test="contactName != null  and contactName != ''"> and contact_name like concat('%', #{contactName}, '%')</if>
+        <if test="stage != null  and stage != ''"> and stage = #{stage}</if>
+        <if test="workPhone != null  and workPhone != ''"> and work_phone = #{workPhone}</if>
+        <if test="mobilePhone != null  and mobilePhone != ''"> and mobile_phone = #{mobilePhone}</if>
+        <if test="workEmail != null  and workEmail != ''"> and work_email = #{workEmail}</if>
+        <if test="leadSource != null  and leadSource != ''"> and lead_source = #{leadSource}</if>
+        <if test="leadRating != null  and leadRating != ''"> and lead_rating = #{leadRating}</if>
+        <if test="website != null  and website != ''"> and website = #{website}</if>
+        <if test="territory != null  and territory != ''"> and territory = #{territory}</if>
+        <if test="industry != null  and industry != ''"> and industry = #{industry}</if>
+        <if test="employeeCount != null "> and employee_count = #{employeeCount}</if>
+        <if test="revenue != null "> and revenue = #{revenue}</if>
+        <if test="description != null  and description != ''"> and description = #{description}</if>
+        <if test="daysInactive != null "> and days_inactive = #{daysInactive}</if>
+        <if test="partner != null  and partner != ''"> and partner = #{partner}</if>
+        <if test="convertTime != null "> and convert_time = #{convertTime}</if>
+        <if test="province != null  and province != ''"> and province = #{province}</if>
+        <if test="city != null  and city != ''"> and city = #{city}</if>
+        <if test="userId != null "> and user_id = #{userId}</if>
+        <if test="deptId != null "> and dept_id = #{deptId}</if>
+        <if test="sid != null  and sid != ''"> and sid = #{sid}</if>
+        <if test="customField != null  and customField != ''"> and custom_field = CAST(NULLIF(TRIM(#{customField}), '') AS jsonb)</if>
+        <if test="numberOfFounders != null "> and number_of_founders = #{numberOfFounders}</if>
+        <if test="funders != null  and funders != ''"> and funders = #{funders}</if>
+        <if test="fundersTitle != null  and fundersTitle != ''"> and funders_title = #{fundersTitle}</if>
+        <if test="numberOfFundingRounds != null "> and number_of_funding_rounds = #{numberOfFundingRounds}</if>
+        <if test="lastFundingType != null  and lastFundingType != ''"> and last_funding_type = #{lastFundingType}</if>
+        <if test="totalFundingAmount != null "> and total_funding_amount = #{totalFundingAmount}</if>
+        <if test="fundingCurrency != null  and fundingCurrency != ''"> and funding_currency = #{fundingCurrency}</if>
+        <if test="foundedAt != null "> and founded_at = #{foundedAt}</if>
+        <if test="status != null  and status != ''"> and status = #{status}</if>
+        <if test="shortDescription != null  and shortDescription != ''"> and short_description = #{shortDescription}</if>
+        <!-- 数据范围过滤 -->
+        ${params.dataScope}
+        order by create_time desc
+    </select>
+
+    <select id="selectCrmLeadListWeekly" parameterType="CrmLead" resultMap="CrmLeadResult">
+        <include refid="selectCrmLeadVo"/>
+        where 1=1
+        and to_char(l.create_time::date, 'IYYYIW') = to_char(CURRENT_DATE, 'IYYYIW')
+        <!-- <if test="leadType != null  and leadType != ''"> and lead_type = #{leadType}</if> -->
+        <if test="optyId != null  and optyId != ''"> and opty_id = #{optyId}</if>
+        <if test="optyName != null  and optyName != ''"> and opty_name like concat('%', #{optyName}, '%')</if>
+        <if test="orgId != null  and orgId != ''"> and org_id = #{orgId}</if>
+        <if test="leadName != null  and leadName != ''"> and lead_name like concat('%', #{leadName}, '%')</if>
+        <if test="fullName != null  and fullName != ''"> and full_name like concat('%', #{fullName}, '%')</if>
+        <if test="owner != null  and owner != ''"> and owner = #{owner}</if>
+        <if test="contactId != null  and contactId != ''"> and contact_id = #{contactId}</if>
+        <if test="contactName != null  and contactName != ''"> and contact_name like concat('%', #{contactName}, '%')</if>
+        <if test="stage != null  and stage != ''"> and stage = #{stage}</if>
+        <if test="workPhone != null  and workPhone != ''"> and work_phone = #{workPhone}</if>
+        <if test="mobilePhone != null  and mobilePhone != ''"> and mobile_phone = #{mobilePhone}</if>
+        <if test="workEmail != null  and workEmail != ''"> and work_email = #{workEmail}</if>
+        <if test="leadSource != null  and leadSource != ''"> and lead_source = #{leadSource}</if>
+        <if test="leadRating != null  and leadRating != ''"> and lead_rating = #{leadRating}</if>
+        <if test="website != null  and website != ''"> and website = #{website}</if>
+        <if test="territory != null  and territory != ''"> and territory = #{territory}</if>
+        <if test="industry != null  and industry != ''"> and industry = #{industry}</if>
+        <if test="employeeCount != null "> and employee_count = #{employeeCount}</if>
+        <if test="revenue != null "> and revenue = #{revenue}</if>
+        <if test="description != null  and description != ''"> and description = #{description}</if>
+        <if test="daysInactive != null "> and days_inactive = #{daysInactive}</if>
+        <if test="partner != null  and partner != ''"> and partner = #{partner}</if>
+        <if test="convertTime != null "> and convert_time = #{convertTime}</if>
+        <if test="province != null  and province != ''"> and province = #{province}</if>
+        <if test="city != null  and city != ''"> and city = #{city}</if>
+        <if test="userId != null "> and user_id = #{userId}</if>
+        <if test="deptId != null "> and dept_id = #{deptId}</if>
+        <if test="sid != null  and sid != ''"> and sid = #{sid}</if>
+        <if test="customField != null  and customField != ''"> and custom_field = CAST(NULLIF(TRIM(#{customField}), '') AS jsonb)</if>
+        <if test="numberOfFounders != null "> and number_of_founders = #{numberOfFounders}</if>
+        <if test="funders != null  and funders != ''"> and funders = #{funders}</if>
+        <if test="fundersTitle != null  and fundersTitle != ''"> and funders_title = #{fundersTitle}</if>
+        <if test="numberOfFundingRounds != null "> and number_of_funding_rounds = #{numberOfFundingRounds}</if>
+        <if test="lastFundingType != null  and lastFundingType != ''"> and last_funding_type = #{lastFundingType}</if>
+        <if test="totalFundingAmount != null "> and total_funding_amount = #{totalFundingAmount}</if>
+        <if test="fundingCurrency != null  and fundingCurrency != ''"> and funding_currency = #{fundingCurrency}</if>
+        <if test="foundedAt != null "> and founded_at = #{foundedAt}</if>
+        <if test="status != null  and status != ''"> and status = #{status}</if>
+        <if test="shortDescription != null  and shortDescription != ''"> and short_description = #{shortDescription}</if>
+        <!-- 数据范围过滤 -->
+        ${params.dataScope}
+        order by create_time desc
+    </select>
+    <select id="selectCrmLeadListWeeklyConverted" parameterType="CrmLead" resultMap="CrmLeadResult">
+        <include refid="selectCrmLeadVo"/>
+        where 1=1
+        and to_char(convert_time::date, 'IYYYIW') = to_char(CURRENT_DATE, 'IYYYIW')
+        <!-- <if test="leadType != null  and leadType != ''"> and lead_type = #{leadType}</if> -->
+        <if test="optyId != null  and optyId != ''"> and opty_id = #{optyId}</if>
+        <if test="optyName != null  and optyName != ''"> and opty_name like concat('%', #{optyName}, '%')</if>
+        <if test="orgId != null  and orgId != ''"> and org_id = #{orgId}</if>
+        <if test="leadName != null  and leadName != ''"> and lead_name like concat('%', #{leadName}, '%')</if>
+        <if test="fullName != null  and fullName != ''"> and full_name like concat('%', #{fullName}, '%')</if>
+        <if test="owner != null  and owner != ''"> and owner = #{owner}</if>
+        <if test="contactId != null  and contactId != ''"> and contact_id = #{contactId}</if>
+        <if test="contactName != null  and contactName != ''"> and contact_name like concat('%', #{contactName}, '%')</if>
+        <if test="stage != null  and stage != ''"> and stage = #{stage}</if>
+        <if test="workPhone != null  and workPhone != ''"> and work_phone = #{workPhone}</if>
+        <if test="mobilePhone != null  and mobilePhone != ''"> and mobile_phone = #{mobilePhone}</if>
+        <if test="workEmail != null  and workEmail != ''"> and work_email = #{workEmail}</if>
+        <if test="leadSource != null  and leadSource != ''"> and lead_source = #{leadSource}</if>
+        <if test="leadRating != null  and leadRating != ''"> and lead_rating = #{leadRating}</if>
+        <if test="website != null  and website != ''"> and website = #{website}</if>
+        <if test="territory != null  and territory != ''"> and territory = #{territory}</if>
+        <if test="industry != null  and industry != ''"> and industry = #{industry}</if>
+        <if test="employeeCount != null "> and employee_count = #{employeeCount}</if>
+        <if test="revenue != null "> and revenue = #{revenue}</if>
+        <if test="description != null  and description != ''"> and description = #{description}</if>
+        <if test="daysInactive != null "> and days_inactive = #{daysInactive}</if>
+        <if test="partner != null  and partner != ''"> and partner = #{partner}</if>
+        <if test="convertTime != null "> and convert_time = #{convertTime}</if>
+        <if test="province != null  and province != ''"> and province = #{province}</if>
+        <if test="city != null  and city != ''"> and city = #{city}</if>
+        <if test="userId != null "> and user_id = #{userId}</if>
+        <if test="deptId != null "> and dept_id = #{deptId}</if>
+        <if test="sid != null  and sid != ''"> and sid = #{sid}</if>
+        <if test="customField != null  and customField != ''"> and custom_field = CAST(NULLIF(TRIM(#{customField}), '') AS jsonb)</if>
+        <if test="numberOfFounders != null "> and number_of_founders = #{numberOfFounders}</if>
+        <if test="funders != null  and funders != ''"> and funders = #{funders}</if>
+        <if test="fundersTitle != null  and fundersTitle != ''"> and funders_title = #{fundersTitle}</if>
+        <if test="numberOfFundingRounds != null "> and number_of_funding_rounds = #{numberOfFundingRounds}</if>
+        <if test="lastFundingType != null  and lastFundingType != ''"> and last_funding_type = #{lastFundingType}</if>
+        <if test="totalFundingAmount != null "> and total_funding_amount = #{totalFundingAmount}</if>
+        <if test="fundingCurrency != null  and fundingCurrency != ''"> and funding_currency = #{fundingCurrency}</if>
+        <if test="foundedAt != null "> and founded_at = #{foundedAt}</if>
+        <if test="status != null  and status != ''"> and status = #{status}</if>
+        <if test="shortDescription != null  and shortDescription != ''"> and short_description = #{shortDescription}</if>
+        <!-- 数据范围过滤 -->
+        ${params.dataScope}
+        order by create_time desc
+    </select>
+
+    <select id="selectCrmLeadListQuarterly" parameterType="CrmLead" resultMap="CrmLeadResult">
+        <include refid="selectCrmLeadVo"/>
+        where 1=1
+        and extract(quarter from l.create_time::timestamp) = extract(quarter from CURRENT_DATE)
+        <!-- <if test="leadType != null  and leadType != ''"> and lead_type = #{leadType}</if> -->
+        <if test="optyId != null  and optyId != ''"> and opty_id = #{optyId}</if>
+        <if test="optyName != null  and optyName != ''"> and opty_name like concat('%', #{optyName}, '%')</if>
+        <if test="orgId != null  and orgId != ''"> and org_id = #{orgId}</if>
+        <if test="leadName != null  and leadName != ''"> and lead_name like concat('%', #{leadName}, '%')</if>
+        <if test="fullName != null  and fullName != ''"> and full_name like concat('%', #{fullName}, '%')</if>
+        <if test="owner != null  and owner != ''"> and owner = #{owner}</if>
+        <if test="contactId != null  and contactId != ''"> and contact_id = #{contactId}</if>
+        <if test="contactName != null  and contactName != ''"> and contact_name like concat('%', #{contactName}, '%')</if>
+        <if test="stage != null  and stage != ''"> and stage = #{stage}</if>
+        <if test="workPhone != null  and workPhone != ''"> and work_phone = #{workPhone}</if>
+        <if test="mobilePhone != null  and mobilePhone != ''"> and mobile_phone = #{mobilePhone}</if>
+        <if test="workEmail != null  and workEmail != ''"> and work_email = #{workEmail}</if>
+        <if test="leadSource != null  and leadSource != ''"> and lead_source = #{leadSource}</if>
+        <if test="leadRating != null  and leadRating != ''"> and lead_rating = #{leadRating}</if>
+        <if test="website != null  and website != ''"> and website = #{website}</if>
+        <if test="territory != null  and territory != ''"> and territory = #{territory}</if>
+        <if test="industry != null  and industry != ''"> and industry = #{industry}</if>
+        <if test="employeeCount != null "> and employee_count = #{employeeCount}</if>
+        <if test="revenue != null "> and revenue = #{revenue}</if>
+        <if test="description != null  and description != ''"> and description = #{description}</if>
+        <if test="daysInactive != null "> and days_inactive = #{daysInactive}</if>
+        <if test="partner != null  and partner != ''"> and partner = #{partner}</if>
+        <if test="convertTime != null "> and convert_time = #{convertTime}</if>
+        <if test="province != null  and province != ''"> and province = #{province}</if>
+        <if test="city != null  and city != ''"> and city = #{city}</if>
+        <if test="userId != null "> and user_id = #{userId}</if>
+        <if test="deptId != null "> and dept_id = #{deptId}</if>
+        <if test="sid != null  and sid != ''"> and sid = #{sid}</if>
+        <if test="customField != null  and customField != ''"> and custom_field = CAST(NULLIF(TRIM(#{customField}), '') AS jsonb)</if>
+        <if test="numberOfFounders != null "> and number_of_founders = #{numberOfFounders}</if>
+        <if test="funders != null  and funders != ''"> and funders = #{funders}</if>
+        <if test="fundersTitle != null  and fundersTitle != ''"> and funders_title = #{fundersTitle}</if>
+        <if test="numberOfFundingRounds != null "> and number_of_funding_rounds = #{numberOfFundingRounds}</if>
+        <if test="lastFundingType != null  and lastFundingType != ''"> and last_funding_type = #{lastFundingType}</if>
+        <if test="totalFundingAmount != null "> and total_funding_amount = #{totalFundingAmount}</if>
+        <if test="fundingCurrency != null  and fundingCurrency != ''"> and funding_currency = #{fundingCurrency}</if>
+        <if test="foundedAt != null "> and founded_at = #{foundedAt}</if>
+        <if test="status != null  and status != ''"> and status = #{status}</if>
+        <if test="shortDescription != null  and shortDescription != ''"> and short_description = #{shortDescription}</if>
+        <!-- 数据范围过滤 -->
+        ${params.dataScope}
+        order by create_time desc
+    </select>
+
+    <select id="selectCrmLeadListExport" parameterType="CrmLead" resultMap="CrmLeadResult">
+        SELECT l.lead_id, l.lead_type, l.opty_id, l.opty_name, l.org_id, l.lead_name, l.full_name, l.owner, l.contact_id, o.contact_name, o.stage, o.work_phone, l.mobile_phone, l.work_email, l.lead_source, l.lead_rating, l.website, l.territory, l.industry, l.employee_count, l.revenue, l.description, l.days_inactive, l.partner, l.convert_time, l.create_by, l.create_time, l.update_by, l.update_time, l.user_id, l.dept_id, l.province, l.city, l.sid, l.custom_field, l.number_of_founders, l.funders, l.funders_title, l.number_of_funding_rounds, l.last_funding_type, l.total_funding_amount, l.funding_currency, l.founded_at, l.status, l.short_description, l.avatar
+        from crm_lead l
+        left join crm_opty o on o.lead_id=l.lead_id
+        left join sys_user u on u.user_id = l.user_id
+        left join sys_dept d on u.dept_id = d.dept_id
+        <!-- 数据范围过滤 -->
+        ${params.dataScope}
+    </select>
+
+    <select id="selectCrmLeadByLeadId" parameterType="String" resultMap="CrmLeadResult">
+        <include refid="selectCrmLeadVo"/>
+        where lead_id = #{leadId}
+    </select>
+
+    <select id="selectByLeadIdForUpdate" parameterType="String" resultMap="CrmLeadResult">
+        <include refid="selectCrmLeadRowOnly"/>
+        where lead_id = #{leadId}
+        FOR UPDATE
+    </select>
+
+    <select id="selectCrmLeadPendingList" parameterType="CrmLead" resultMap="CrmLeadResult">
+        <include refid="selectCrmLeadVo"/>
+        where 1=1
+        <!-- <if test="leadType != null  and leadType != ''"> and lead_type = #{leadType}</if> -->
+        <if test="optyId != null  and optyId != ''"> and opty_id = #{optyId}</if>
+        <if test="optyName != null  and optyName != ''"> and opty_name like concat('%', #{optyName}, '%')</if>
+        <if test="orgId != null  and orgId != ''"> and org_id = #{orgId}</if>
+        <if test="leadName != null  and leadName != ''"> and lead_name like concat('%', #{leadName}, '%')</if>
+        <if test="fullName != null  and fullName != ''"> and full_name like concat('%', #{fullName}, '%')</if>
+        <if test="owner != null  and owner != ''"> and owner = #{owner}</if>
+        <if test="contactId != null  and contactId != ''"> and contact_id = #{contactId}</if>
+        <if test="contactName != null  and contactName != ''"> and contact_name like concat('%', #{contactName}, '%')</if>
+        <if test="stage != null  and stage != ''"> and stage = #{stage}</if>
+        <if test="workPhone != null  and workPhone != ''"> and work_phone = #{workPhone}</if>
+        <if test="mobilePhone != null  and mobilePhone != ''"> and mobile_phone = #{mobilePhone}</if>
+        <if test="workEmail != null  and workEmail != ''"> and work_email = #{workEmail}</if>
+        <if test="leadSource != null  and leadSource != ''"> and lead_source = #{leadSource}</if>
+        <if test="leadRating != null  and leadRating != ''"> and lead_rating = #{leadRating}</if>
+        <if test="website != null  and website != ''"> and website = #{website}</if>
+        <if test="territory != null  and territory != ''"> and territory = #{territory}</if>
+        <if test="industry != null  and industry != ''"> and industry = #{industry}</if>
+        <if test="employeeCount != null "> and employee_count = #{employeeCount}</if>
+        <if test="revenue != null "> and revenue = #{revenue}</if>
+        <if test="description != null  and description != ''"> and description = #{description}</if>
+        <if test="daysInactive != null "> and days_inactive = #{daysInactive}</if>
+        <if test="partner != null  and partner != ''"> and partner = #{partner}</if>
+        <if test="convertTime != null "> and convert_time = #{convertTime}</if>
+        <if test="province != null  and province != ''"> and province = #{province}</if>
+        <if test="city != null  and city != ''"> and city = #{city}</if>
+        <if test="userId != null "> and user_id = #{userId}</if>
+        <if test="deptId != null "> and dept_id = #{deptId}</if>
+        <if test="sid != null  and sid != ''"> and sid = #{sid}</if>
+        <if test="customField != null  and customField != ''"> and custom_field = CAST(NULLIF(TRIM(#{customField}), '') AS jsonb)</if>
+        <if test="numberOfFounders != null "> and number_of_founders = #{numberOfFounders}</if>
+        <if test="funders != null  and funders != ''"> and funders = #{funders}</if>
+        <if test="fundersTitle != null  and fundersTitle != ''"> and funders_title = #{fundersTitle}</if>
+        <if test="numberOfFundingRounds != null "> and number_of_funding_rounds = #{numberOfFundingRounds}</if>
+        <if test="lastFundingType != null  and lastFundingType != ''"> and last_funding_type = #{lastFundingType}</if>
+        <if test="totalFundingAmount != null "> and total_funding_amount = #{totalFundingAmount}</if>
+        <if test="fundingCurrency != null  and fundingCurrency != ''"> and funding_currency = #{fundingCurrency}</if>
+        <if test="foundedAt != null "> and founded_at = #{foundedAt}</if>
+        <if test="shortDescription != null  and shortDescription != ''"> and short_description = #{shortDescription}</if>
+        <!-- 销售线索池：Open + Assigned，不含 Initial / Converted -->
+        and lower(trim(coalesce(l.status, ''))) in ('open', 'assigned')
+        <!-- 数据范围过滤 -->
+        ${params.dataScope}
+        order by l.create_time desc
+    </select>
+
+    <insert id="insertCrmLead" parameterType="CrmLead">
+        insert into crm_lead
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="leadId != null">lead_id,</if>
+            <if test="leadType != null and leadType != ''">lead_type,</if>
+            <if test="optyId != null">opty_id,</if>
+            <if test="optyName != null">opty_name,</if>
+            <if test="orgId != null and orgId != ''">org_id,</if>
+            <if test="leadName != null">lead_name,</if>
+            <if test="fullName != null">full_name,</if>
+            <if test="owner != null">owner,</if>
+            <if test="contactId != null">contact_id,</if>
+            <if test="contactName != null">contact_name,</if>
+            <if test="stage != null">stage,</if>
+            <if test="workPhone != null">work_phone,</if>
+            <if test="mobilePhone != null">mobile_phone,</if>
+            <if test="workEmail != null">work_email,</if>
+            <if test="leadSource != null">lead_source,</if>
+            <if test="leadRating != null">lead_rating,</if>
+            <if test="website != null">website,</if>
+            <if test="territory != null">territory,</if>
+            <if test="industry != null">industry,</if>
+            <if test="employeeCount != null">employee_count,</if>
+            <if test="revenue != null">revenue,</if>
+            <if test="description != null">description,</if>
+            <if test="daysInactive != null">days_inactive,</if>
+            <if test="partner != null">partner,</if>
+            <if test="convertTime != null">convert_time,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="province != null">province,</if>
+            <if test="city != null">city,</if>
+            <if test="userId != null">user_id,</if>
+            <if test="deptId != null">dept_id,</if>
+            <if test="sid != null">sid,</if>
+            <if test="customField != null">custom_field,</if>
+            <if test="wechatMpOpenid != null">wechat_mp_openid,</if>
+            <if test="wechatMpAppId != null">wechat_mp_app_id,</if>
+            <if test="wecomExternalUserid != null">wecom_external_userid,</if>
+            <if test="wecomFollowUserid != null">wecom_follow_userid,</if>
+            <if test="numberOfFounders != null">number_of_founders,</if>
+            <if test="funders != null">funders,</if>
+            <if test="fundersTitle != null">funders_title,</if>
+            <if test="numberOfFundingRounds != null">number_of_funding_rounds,</if>
+            <if test="lastFundingType != null">last_funding_type,</if>
+            <if test="totalFundingAmount != null">total_funding_amount,</if>
+            <if test="fundingCurrency != null">funding_currency,</if>
+            <if test="foundedAt != null">founded_at,</if>
+            <if test="status != null">status,</if>
+            <if test="lastFollowupAt != null">last_followup_at,</if>
+            <if test="assignedAt != null">assigned_at,</if>
+            <if test="shortDescription != null">short_description,</if>
+            <if test="avatar != null">avatar,</if>
+            <if test="tag != null">tag,</if>
+            <if test="surveyJson != null">survey_json,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="leadId != null">#{leadId},</if>
+            <if test="leadType != null and leadType != ''">#{leadType},</if>
+            <if test="optyId != null">#{optyId},</if>
+            <if test="optyName != null">#{optyName},</if>
+            <if test="orgId != null and orgId != ''">#{orgId},</if>
+            <if test="leadName != null">#{leadName},</if>
+            <if test="fullName != null">#{fullName},</if>
+            <if test="owner != null">#{owner},</if>
+            <if test="contactId != null">#{contactId},</if>
+            <if test="contactName != null">#{contactName},</if>
+            <if test="stage != null">#{stage},</if>
+            <if test="workPhone != null">#{workPhone},</if>
+            <if test="mobilePhone != null">#{mobilePhone},</if>
+            <if test="workEmail != null">#{workEmail},</if>
+            <if test="leadSource != null">#{leadSource},</if>
+            <if test="leadRating != null">#{leadRating},</if>
+            <if test="website != null">#{website},</if>
+            <if test="territory != null">#{territory},</if>
+            <if test="industry != null">#{industry},</if>
+            <if test="employeeCount != null">#{employeeCount},</if>
+            <if test="revenue != null">#{revenue},</if>
+            <if test="description != null">#{description},</if>
+            <if test="daysInactive != null">#{daysInactive},</if>
+            <if test="partner != null">#{partner},</if>
+            <if test="convertTime != null">#{convertTime},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="province != null">#{province},</if>
+            <if test="city != null">#{city},</if>
+            <if test="userId != null">#{userId},</if>
+            <if test="deptId != null">#{deptId},</if>
+            <if test="sid != null">#{sid},</if>
+            <if test="customField != null">CAST(NULLIF(TRIM(#{customField}), '') AS jsonb),</if>
+            <if test="wechatMpOpenid != null">#{wechatMpOpenid},</if>
+            <if test="wechatMpAppId != null">#{wechatMpAppId},</if>
+            <if test="wecomExternalUserid != null">#{wecomExternalUserid},</if>
+            <if test="wecomFollowUserid != null">#{wecomFollowUserid},</if>
+            <if test="numberOfFounders != null">#{numberOfFounders},</if>
+            <if test="funders != null">#{funders},</if>
+            <if test="fundersTitle != null">#{fundersTitle},</if>
+            <if test="numberOfFundingRounds != null">#{numberOfFundingRounds},</if>
+            <if test="lastFundingType != null">#{lastFundingType},</if>
+            <if test="totalFundingAmount != null">#{totalFundingAmount},</if>
+            <if test="fundingCurrency != null">#{fundingCurrency},</if>
+            <if test="foundedAt != null">#{foundedAt},</if>
+            <if test="status != null">#{status},</if>
+            <if test="lastFollowupAt != null">#{lastFollowupAt},</if>
+            <if test="assignedAt != null">#{assignedAt},</if>
+            <if test="shortDescription != null">#{shortDescription},</if>
+            <if test="avatar != null">#{avatar},</if>
+            <if test="tag != null">CAST(NULLIF(TRIM(#{tag}), '') AS jsonb),</if>
+            <if test="surveyJson != null">CAST(NULLIF(TRIM(#{surveyJson}), '') AS jsonb),</if>
+         </trim>
+    </insert>
+
+    <update id="updateCrmLead" parameterType="CrmLead">
+        update crm_lead
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="leadType != null and leadType != ''">lead_type = #{leadType},</if>
+            <if test="optyId != null">opty_id = #{optyId},</if>
+            <if test="optyName != null">opty_name = #{optyName},</if>
+            <if test="orgId != null and orgId != ''">org_id = #{orgId},</if>
+            <if test="leadName != null">lead_name = #{leadName},</if>
+            <if test="fullName != null">full_name = #{fullName},</if>
+            <if test="owner != null">owner = #{owner},</if>
+            <if test="contactId != null">contact_id = #{contactId},</if>
+            <if test="contactName != null">contact_name = #{contactName},</if>
+            <if test="stage != null">stage = #{stage},</if>
+            <if test="workPhone != null">work_phone = #{workPhone},</if>
+            <if test="mobilePhone != null">mobile_phone = #{mobilePhone},</if>
+            <if test="workEmail != null">work_email = #{workEmail},</if>
+            <if test="leadSource != null">lead_source = #{leadSource},</if>
+            <if test="leadRating != null">lead_rating = #{leadRating},</if>
+            <if test="website != null">website = #{website},</if>
+            <if test="territory != null">territory = #{territory},</if>
+            <if test="industry != null">industry = #{industry},</if>
+            <if test="employeeCount != null">employee_count = #{employeeCount},</if>
+            <if test="revenue != null">revenue = #{revenue},</if>
+            <if test="description != null">description = #{description},</if>
+            <if test="daysInactive != null">days_inactive = #{daysInactive},</if>
+            <if test="partner != null">partner = #{partner},</if>
+            <if test="convertTime != null">convert_time = #{convertTime},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="province != null">province = #{province},</if>
+            <if test="city != null">city = #{city},</if>
+            <if test="userId != null">user_id = #{userId},</if>
+            <if test="deptId != null">dept_id = #{deptId},</if>
+            <if test="sid != null">sid = #{sid},</if>
+            <if test="customField != null">custom_field = CAST(NULLIF(TRIM(#{customField}), '') AS jsonb),</if>
+            <if test="wechatMpOpenid != null">wechat_mp_openid = #{wechatMpOpenid},</if>
+            <if test="wechatMpAppId != null">wechat_mp_app_id = #{wechatMpAppId},</if>
+            <if test="wecomExternalUserid != null">wecom_external_userid = #{wecomExternalUserid},</if>
+            <if test="wecomFollowUserid != null">wecom_follow_userid = #{wecomFollowUserid},</if>
+            <if test="numberOfFounders != null">number_of_founders = #{numberOfFounders},</if>
+            <if test="funders != null">funders = #{funders},</if>
+            <if test="fundersTitle != null">funders_title = #{fundersTitle},</if>
+            <if test="numberOfFundingRounds != null">number_of_funding_rounds = #{numberOfFundingRounds},</if>
+            <if test="lastFundingType != null">last_funding_type = #{lastFundingType},</if>
+            <if test="totalFundingAmount != null">total_funding_amount = #{totalFundingAmount},</if>
+            <if test="fundingCurrency != null">funding_currency = #{fundingCurrency},</if>
+            <if test="foundedAt != null">founded_at = #{foundedAt},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="lastFollowupAt != null">last_followup_at = #{lastFollowupAt},</if>
+            <if test="assignedAt != null">assigned_at = #{assignedAt},</if>
+            <if test="shortDescription != null">short_description = #{shortDescription},</if>
+            <if test="avatar != null">avatar = #{avatar},</if>
+            <if test="tag != null">tag = CAST(NULLIF(TRIM(#{tag}), '') AS jsonb),</if>
+            <if test="surveyJson != null">survey_json = CAST(NULLIF(TRIM(#{surveyJson}), '') AS jsonb),</if>
+        </trim>
+        where lead_id = #{leadId}
+    </update>
+
+    <delete id="deleteCrmLeadByLeadId" parameterType="String">
+        delete from crm_lead where lead_id = #{leadId}
+    </delete>
+
+    <delete id="deleteCrmLeadByLeadIds" parameterType="String">
+        delete from crm_lead where lead_id in 
+        <foreach item="leadId" collection="array" open="(" separator="," close=")">
+            #{leadId}
+        </foreach>
+    </delete>
+
+    <select id="selectByWecomExternalUserid" resultMap="CrmLeadResult">
+        <include refid="selectCrmLeadVo"/>
+        WHERE l.wecom_external_userid = #{wecomExternalUserid}
+        ORDER BY l.create_time DESC
+        LIMIT 1
+    </select>
+
+    <select id="selectByWecomExternalUserids" resultMap="CrmLeadResult">
+        <include refid="selectCrmLeadVo"/>
+        WHERE l.wecom_external_userid IN
+        <foreach item="id" collection="externalUserids" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+
+    <select id="selectBySidAndMobilePhone" resultMap="CrmLeadResult">
+        <include refid="selectCrmLeadVo"/>
+        WHERE sid = #{sid} AND mobile_phone = #{mobilePhone}
+        ORDER BY create_time DESC
+        LIMIT 1
+    </select>
+
+    <select id="selectInitialByMobilePhone" resultMap="CrmLeadResult">
+        <include refid="selectCrmLeadVo"/>
+        WHERE l.mobile_phone = #{mobilePhone}
+          AND LOWER(TRIM(l.status)) IN ('initial', 'assigned')
+        ORDER BY l.create_time DESC
+        LIMIT 1
+    </select>
+
+    <select id="selectActiveUnconvertedByMobilePhone" resultMap="CrmLeadResult">
+        <include refid="selectCrmLeadVo"/>
+        WHERE l.mobile_phone = #{mobilePhone}
+          AND LOWER(TRIM(COALESCE(l.status, ''))) IN ('initial', 'assigned', 'open')
+        ORDER BY l.create_time DESC
+        LIMIT 1
+    </select>
+
+    <select id="selectLatestByMobilePhone" resultMap="CrmLeadResult">
+        <include refid="selectCrmLeadVo"/>
+        WHERE l.mobile_phone = #{mobilePhone}
+        ORDER BY l.create_time DESC
+        LIMIT 1
+    </select>
+
+    <select id="selectBySidAndMpOpenId" resultMap="CrmLeadResult">
+        <include refid="selectCrmLeadVo"/>
+        WHERE l.sid = #{sid}
+          AND (
+              (l.wechat_mp_openid = #{openId}
+               <if test="appId != null and appId != ''">
+               AND l.wechat_mp_app_id = #{appId}
+               </if>
+              )
+              OR l.custom_field::jsonb->>'wechat_mp_openid' = #{openId}
+              OR l.contact_id IN (
+                  SELECT contact_id FROM crm_customer_identity
+                  WHERE identity_type = 'wechat_mp_openid' AND identity_value = #{openId}
+              )
+          )
+        ORDER BY l.create_time DESC
+        LIMIT 1
+    </select>
+
+    <select id="countAssignedLeadsByUserId" resultType="int">
+        SELECT COUNT(*)
+        FROM crm_lead
+        WHERE user_id = #{userId}
+          AND lower(trim(coalesce(status, ''))) = 'assigned'
+    </select>
+
+    <select id="countActiveLeadsByUserId" resultType="int">
+        SELECT COUNT(*)
+        FROM crm_lead
+        WHERE user_id = #{userId}
+          AND lower(trim(coalesce(status, ''))) IN ('open', 'assigned')
+    </select>
+
+    <select id="countAssignedLeadByMobileExcludeLead" resultType="int">
+        SELECT COUNT(*)
+        FROM crm_lead
+        WHERE mobile_phone = #{mobilePhone}
+          AND lower(trim(coalesce(status, ''))) = 'assigned'
+          AND user_id IS NOT NULL
+          <if test="excludeLeadId != null and excludeLeadId != ''">
+              AND lead_id &lt;&gt; #{excludeLeadId}
+          </if>
+    </select>
+
+    <select id="selectCrmLeadPoolList" parameterType="com.ruoyi.crm.domain.dto.CrmLeadPoolQuery" resultMap="CrmLeadResult">
+        <include refid="selectCrmLeadVo"/>
+        <where>
+            <!-- <if test="leadType != null and leadType != ''"> and l.lead_type = #{leadType}</if> -->
+            <if test="orgId != null and orgId != ''"> and l.org_id = #{orgId}</if>
+            <if test="deptId != null"> and l.dept_id = #{deptId}</if>
+            <if test="leadName != null and leadName != ''"> and l.lead_name ILIKE concat('%', #{leadName}, '%')</if>
+            <if test="mobilePhone != null and mobilePhone != ''"> and l.mobile_phone = #{mobilePhone}</if>
+            <if test="leadSource != null and leadSource != ''"> and l.lead_source = #{leadSource}</if>
+            <if test="stage != null and stage != ''"> and l.stage = #{stage}</if>
+            <if test="poolScope == 'open'">
+                and lower(trim(coalesce(l.status, ''))) in ('open', 'initial')
+            </if>
+            <if test="poolScope == 'mine'">
+                and l.user_id = #{currentUserId}
+                and lower(trim(coalesce(l.status, ''))) not in ('converted', 'open', 'initial')
+            </if>
+            <if test="poolScope == 'team'">
+                and lower(trim(coalesce(l.status, ''))) = 'assigned'
+            </if>
+            <if test="poolScope == 'pending'">
+                and lower(trim(coalesce(l.status, ''))) in ('open', 'assigned')
+            </if>
+            <if test="poolScope == 'converted'">
+                and lower(trim(coalesce(l.status, ''))) = 'converted'
+                and l.user_id = #{currentUserId}
+            </if>
+            <if test="poolScope == 'all'">
+                and 1=1
+            </if>
+            ${params.dataScope}
+        </where>
+        order by l.create_time desc
+    </select>
+
+    <select id="selectCrmLeadConvertedList" parameterType="com.ruoyi.crm.domain.dto.CrmLeadConvertedQuery" resultMap="CrmLeadResult">
+        <include refid="selectCrmLeadVo"/>
+        <where>
+            and lower(trim(coalesce(l.status, ''))) = 'converted'
+            <if test="currentUserId != null"> and l.user_id = #{currentUserId}</if>
+            <if test="leadType != null and leadType != ''"> and l.lead_type = #{leadType}</if>
+            <if test="leadName != null and leadName != ''"> and l.lead_name ILIKE concat('%', #{leadName}, '%')</if>
+            <if test="mobilePhone != null and mobilePhone != ''"> and l.mobile_phone = #{mobilePhone}</if>
+            <if test="owner != null and owner != ''"> and l.owner ILIKE concat('%', #{owner}, '%')</if>
+            <if test="contactId != null and contactId != ''"> and l.contact_id = #{contactId}</if>
+            <if test="convertTimeFrom != null"> and l.convert_time &gt;= #{convertTimeFrom}</if>
+            <if test="convertTimeTo != null"> and l.convert_time &lt;= #{convertTimeTo}</if>
+            ${params.dataScope}
+        </where>
+        order by l.convert_time desc nulls last, l.create_time desc
+    </select>
+
+    <select id="selectLeadsForAutoRecycle" resultMap="CrmLeadResult">
+        SELECT l.lead_id, l.status, l.user_id, l.owner, l.mobile_phone, l.last_followup_at, l.assigned_at, l.create_time
+        FROM crm_lead l
+        WHERE lower(trim(coalesce(l.status, ''))) = 'assigned'
+          AND l.user_id IS NOT NULL
+          AND COALESCE(l.last_followup_at, l.assigned_at, l.create_time)
+                &lt; (CURRENT_TIMESTAMP - (#{idleHours} || ' hours')::interval)
+        ORDER BY COALESCE(l.last_followup_at, l.assigned_at, l.create_time) ASC
+        LIMIT #{limit}
+    </select>
+
+    <select id="selectUserIdsOverHold" resultType="long">
+        SELECT user_id
+        FROM crm_lead
+        WHERE lower(trim(coalesce(status, ''))) = 'assigned'
+          AND user_id IS NOT NULL
+        GROUP BY user_id
+        HAVING COUNT(*) &gt; #{maxHold}
+    </select>
+
+    <select id="selectAssignedLeadsOverHold" resultMap="CrmLeadResult">
+        SELECT lead_id, status, user_id, owner, last_followup_at, assigned_at, create_time
+        FROM crm_lead
+        WHERE lower(trim(coalesce(status, ''))) = 'assigned'
+          AND user_id = #{userId}
+        ORDER BY last_followup_at ASC NULLS FIRST, assigned_at ASC NULLS FIRST, create_time ASC
+        LIMIT #{excess}
+    </select>
+
+    <update id="updateLeadPoolAssignment" parameterType="CrmLead">
+        UPDATE crm_lead
+        SET status = #{status},
+            user_id = #{userId},
+            dept_id = #{deptId},
+            owner = #{owner},
+            wecom_follow_userid = #{wecomFollowUserid},
+            assigned_at = #{assignedAt},
+            update_time = #{updateTime},
+            update_by = #{updateBy}
+        WHERE lead_id = #{leadId}
+    </update>
+
+    <update id="touchLastFollowupAt">
+        UPDATE crm_lead
+        SET last_followup_at = #{lastFollowupAt}
+        WHERE lead_id = #{leadId}
+    </update>
+
+    <select id="selectAssignedByContactId" resultMap="CrmLeadResult">
+        <include refid="selectCrmLeadVo"/>
+        WHERE l.contact_id = #{contactId}
+          AND lower(trim(coalesce(l.status, ''))) = 'assigned'
+        ORDER BY l.assigned_at DESC NULLS LAST, l.create_time DESC
+        LIMIT 1
+    </select>
+
+    <select id="selectAssignedByWecomExternalUserid" resultMap="CrmLeadResult">
+        <include refid="selectCrmLeadVo"/>
+        WHERE l.wecom_external_userid = #{wecomExternalUserid}
+          AND lower(trim(coalesce(l.status, ''))) = 'assigned'
+        ORDER BY l.assigned_at DESC NULLS LAST, l.create_time DESC
+        LIMIT 1
+    </select>
+
+    <select id="selectUnconvertedDuplicate" resultMap="CrmLeadResult"
+            parameterType="com.ruoyi.crm.domain.dto.LeadDedupeQuery">
+        <include refid="selectCrmLeadVo"/>
+        WHERE lower(trim(coalesce(l.status, ''))) &lt;&gt; 'converted'
+        <if test="excludeLeadId != null and excludeLeadId != ''">
+            AND l.lead_id &lt;&gt; #{excludeLeadId}
+        </if>
+        AND (
+            1 = 0
+            <if test="mobilePhone != null and mobilePhone != ''">
+                OR regexp_replace(coalesce(l.mobile_phone, ''), '[^0-9]', '', 'g') = #{mobilePhone}
+            </if>
+            <if test="wecomExternalUserid != null and wecomExternalUserid != ''">
+                OR l.wecom_external_userid = #{wecomExternalUserid}
+            </if>
+            <if test="workPhone != null and workPhone != ''">
+                OR regexp_replace(coalesce(l.work_phone, ''), '[^0-9]', '', 'g') = #{workPhone}
+            </if>
+            <if test="workEmail != null and workEmail != ''">
+                OR lower(trim(coalesce(l.work_email, ''))) = #{workEmail}
+            </if>
+            <if test="wechat != null and wechat != ''">
+                OR l.custom_field::jsonb->>'wechat' = #{wechat}
+                OR l.custom_field::jsonb->>'wechat_id' = #{wechat}
+            </if>
+        )
+        ORDER BY l.create_time DESC
+        LIMIT 1
+    </select>
+
+    <select id="selectConvertedLeadByContactId" resultType="CrmLead" resultMap="CrmLeadResult">
+        <include refid="selectCrmLeadVo"/>
+        where l.contact_id = #{contactId}
+          and lower(trim(coalesce(l.status, ''))) = 'converted'
+        order by l.convert_time desc nulls last
+        limit 1
+    </select>
+
+    <select id="selectContactsByConvertedLeadDaysAgo" resultMap="com.ruoyi.crm.mapper.CrmContactMapper.CrmContactResult">
+        SELECT DISTINCT
+            c.contact_id, c.name, c.mobile_phone, c.work_phone,
+            c.birthdate, c.account_name, c.gender,
+            c.user_id, c.wecom_external_userid, c.wecom_follow_userid,
+            c.full_name, c.org_id, c.account_id, c.salutation, c.title,
+            c.marital_status, c.birthDate, c.age, c.personal_email,
+            c.client_type, c.territory, c.owner, c.management_level,
+            c.department, c.reports_to, c.reports_to_id, c.favorability_rating,
+            c.influence_rating, c.assistant, c.assistant_phone, c.assistant_email,
+            c.allow_call, c.allow_email, c.is_customer, c.is_org_customer,
+            c.responsibility, c.active_opty_count, c.active_lead_count,
+            c.active_opty_amount, c.status, c.working_years, c.is_active,
+            c.degree, c.major, c.origin, c.original_source, c.sid,
+            c.source_lead_id, c.first_visit_clinic_id, c.imaging_portal_url,
+            c.imaging_patient_external_id, c.first_visit_at, c.last_visit_at,
+            c.visit_count, c.acquisition_cost, c.wecom_name, c.wecom_avatar,
+            c.wecom_gender, c.wecom_type, c.wechat, c.location, c.school, c.tag,
+            c.create_by, c.create_time, c.update_by, c.update_time,
+            c.user_id, c.dept_id, c.custom_field, c.resources, c.requirement,
+            c.rr_description, c.name_card, c.avatar, c.priority
+        FROM crm_contact c
+        JOIN crm_lead l ON l.contact_id = c.contact_id
+        WHERE lower(trim(coalesce(l.status, ''))) = 'converted'
+          AND l.convert_time::date = CURRENT_DATE - #{daysAfter}
+    </select>
+
+    <select id="selectCreatedBetween" resultMap="CrmLeadResult">
+        SELECT lead_id, lead_name, full_name, contact_id, contact_name, mobile_phone, work_phone,
+               stage, status, create_time, update_time, user_id, owner
+        FROM crm_lead
+        WHERE create_time &gt;= #{createdFrom}
+          AND create_time &lt; #{createdTo}
+          AND (
+              (contact_id IS NOT NULL AND TRIM(contact_id) &lt;&gt; '')
+              OR (mobile_phone IS NOT NULL AND TRIM(mobile_phone) &lt;&gt; '')
+          )
+        ORDER BY create_time ASC
+        LIMIT #{limit}
+    </select>
+</mapper>

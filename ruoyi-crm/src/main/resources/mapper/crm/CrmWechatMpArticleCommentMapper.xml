@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.wechatmp.mapper.CrmWechatMpArticleCommentMapper">
+
+    <resultMap id="ArticleCommentResult" type="com.ruoyi.crm.wechatmp.domain.CrmWechatMpArticleComment">
+        <id property="id" column="id"/>
+        <result property="appId" column="app_id"/>
+        <result property="msgDataId" column="msg_data_id"/>
+        <result property="indexInMsg" column="index_in_msg"/>
+        <result property="articleId" column="article_id"/>
+        <result property="articleTitle" column="article_title"/>
+        <result property="articleUrl" column="article_url"/>
+        <result property="userCommentId" column="user_comment_id"/>
+        <result property="openid" column="openid"/>
+        <result property="content" column="content"/>
+        <result property="commentType" column="comment_type"/>
+        <result property="commentTime" column="comment_time"/>
+        <result property="replyContent" column="reply_content"/>
+        <result property="replyTime" column="reply_time"/>
+        <result property="status" column="status"/>
+        <result property="isRead" column="is_read"/>
+        <result property="contactId" column="contact_id"/>
+        <result property="leadId" column="lead_id"/>
+        <result property="syncedAt" column="synced_at"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+        <result property="reviewRequired" column="review_required"/>
+        <result property="autoReplyRuleId" column="auto_reply_rule_id"/>
+        <result property="accountName" column="account_name"/>
+        <result property="contactName" column="contact_name"/>
+        <result property="nickname" column="nickname"/>
+        <result property="avatarUrl" column="avatar_url"/>
+    </resultMap>
+
+    <sql id="upsertColumns">
+        app_id, msg_data_id, index_in_msg, article_id, article_title, article_url,
+        user_comment_id, openid, content, comment_type, comment_time,
+        reply_content, reply_time, status, contact_id, synced_at
+    </sql>
+
+    <sql id="upsertConflict">
+        ON CONFLICT (app_id, msg_data_id, index_in_msg, user_comment_id) DO UPDATE SET
+            article_id = COALESCE(EXCLUDED.article_id, crm_wechat_mp_article_comment.article_id),
+            article_title = COALESCE(EXCLUDED.article_title, crm_wechat_mp_article_comment.article_title),
+            article_url = COALESCE(EXCLUDED.article_url, crm_wechat_mp_article_comment.article_url),
+            openid = COALESCE(EXCLUDED.openid, crm_wechat_mp_article_comment.openid),
+            content = EXCLUDED.content,
+            comment_type = EXCLUDED.comment_type,
+            comment_time = EXCLUDED.comment_time,
+            reply_content = EXCLUDED.reply_content,
+            reply_time = EXCLUDED.reply_time,
+            status = EXCLUDED.status,
+            contact_id = COALESCE(EXCLUDED.contact_id, crm_wechat_mp_article_comment.contact_id),
+            synced_at = now(),
+            updated_at = now()
+    </sql>
+
+    <insert id="upsert">
+        INSERT INTO crm_wechat_mp_article_comment (
+            <include refid="upsertColumns"/>
+        ) VALUES (
+            #{appId}, #{msgDataId}, #{indexInMsg}, #{articleId}, #{articleTitle}, #{articleUrl},
+            #{userCommentId}, #{openid}, #{content}, #{commentType}, #{commentTime},
+            #{replyContent}, #{replyTime}, #{status}, #{contactId}, now()
+        )
+        <include refid="upsertConflict"/>
+    </insert>
+
+    <insert id="batchUpsert">
+        INSERT INTO crm_wechat_mp_article_comment (
+            <include refid="upsertColumns"/>
+        ) VALUES
+        <foreach collection="list" item="row" separator=",">
+        (
+            #{row.appId}, #{row.msgDataId}, #{row.indexInMsg}, #{row.articleId}, #{row.articleTitle}, #{row.articleUrl},
+            #{row.userCommentId}, #{row.openid}, #{row.content}, #{row.commentType}, #{row.commentTime},
+            #{row.replyContent}, #{row.replyTime}, #{row.status}, #{row.contactId}, now()
+        )
+        </foreach>
+        <include refid="upsertConflict"/>
+    </insert>
+
+    <select id="selectById" resultMap="ArticleCommentResult">
+        SELECT c.*,
+               cfg.account_name AS account_name,
+               ct.name AS contact_name,
+               f.nickname AS nickname,
+               f.avatar_url AS avatar_url
+        FROM crm_wechat_mp_article_comment c
+        LEFT JOIN crm_wechat_mp_config cfg ON cfg.app_id = c.app_id
+        LEFT JOIN crm_contact ct ON ct.contact_id = c.contact_id
+        LEFT JOIN crm_wechat_mp_fan f
+          ON f.app_id = c.app_id
+         AND c.openid IS NOT NULL
+         AND c.openid &lt;&gt; ''
+         AND f.open_id = c.openid
+        WHERE c.id = #{id}
+        LIMIT 1
+    </select>
+
+    <select id="selectList" resultMap="ArticleCommentResult">
+        SELECT c.*,
+               cfg.account_name AS account_name,
+               ct.name AS contact_name,
+               f.nickname AS nickname,
+               f.avatar_url AS avatar_url
+        FROM crm_wechat_mp_article_comment c
+        LEFT JOIN crm_wechat_mp_config cfg ON cfg.app_id = c.app_id
+        LEFT JOIN crm_contact ct ON ct.contact_id = c.contact_id
+        LEFT JOIN crm_wechat_mp_fan f
+          ON f.app_id = c.app_id
+         AND c.openid IS NOT NULL
+         AND c.openid &lt;&gt; ''
+         AND f.open_id = c.openid
+        <where>
+            <if test="appId != null and appId != ''">
+                AND c.app_id = #{appId}
+            </if>
+            <if test="appIds != null and appIds.size() &gt; 0">
+                AND c.app_id IN
+                <foreach collection="appIds" item="aid" open="(" separator="," close=")">
+                    #{aid}
+                </foreach>
+            </if>
+            <if test="status != null and status != ''">
+                AND c.status = #{status}
+            </if>
+            <if test="msgDataId != null and msgDataId != ''">
+                AND c.msg_data_id = #{msgDataId}
+            </if>
+            <if test="indexInMsg != null">
+                AND c.index_in_msg = #{indexInMsg}
+            </if>
+            <if test="keyword != null and keyword != ''">
+                AND (
+                    c.content ILIKE ('%' || #{keyword} || '%')
+                    OR c.article_title ILIKE ('%' || #{keyword} || '%')
+                )
+            </if>
+        </where>
+        ORDER BY c.comment_time DESC
+    </select>
+
+    <update id="updateReply">
+        UPDATE crm_wechat_mp_article_comment SET
+            reply_content = #{replyContent},
+            reply_time = #{replyTime},
+            status = #{status},
+            updated_at = now()
+        WHERE id = #{id}
+    </update>
+
+    <update id="clearReply">
+        UPDATE crm_wechat_mp_article_comment SET
+            reply_content = NULL,
+            reply_time = NULL,
+            status = 'pending',
+            updated_at = now()
+        WHERE id = #{id}
+    </update>
+
+    <update id="updateCommentType">
+        UPDATE crm_wechat_mp_article_comment SET
+            comment_type = #{commentType},
+            updated_at = now()
+        WHERE id = #{id}
+    </update>
+
+    <update id="markRead">
+        UPDATE crm_wechat_mp_article_comment SET
+            is_read = true,
+            updated_at = now()
+        WHERE id = #{id}
+    </update>
+
+    <update id="updateCrmLinks">
+        UPDATE crm_wechat_mp_article_comment SET
+            contact_id = CASE WHEN #{touchContact} THEN #{contactId} ELSE contact_id END,
+            lead_id    = CASE WHEN #{touchLead} THEN #{leadId} ELSE lead_id END,
+            updated_at = now()
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM crm_wechat_mp_article_comment WHERE id = #{id}
+    </delete>
+
+    <update id="markReviewRequired">
+        UPDATE crm_wechat_mp_article_comment SET
+            review_required = true,
+            auto_reply_rule_id = #{ruleId},
+            updated_at = now()
+        WHERE id = #{id}
+    </update>
+
+    <select id="selectPendingForAutoReply" resultMap="ArticleCommentResult">
+        SELECT c.*,
+               cfg.account_name AS account_name,
+               NULL::varchar AS contact_name,
+               NULL::varchar AS nickname,
+               NULL::varchar AS avatar_url
+        FROM crm_wechat_mp_article_comment c
+        LEFT JOIN crm_wechat_mp_config cfg ON cfg.app_id = c.app_id
+        WHERE c.status = 'pending'
+          AND COALESCE(c.review_required, false) = false
+        ORDER BY c.comment_time ASC
+        LIMIT #{limit}
+    </select>
+
+</mapper>

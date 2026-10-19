@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmFundpaidMapper">
+    
+    <resultMap type="CrmFundpaid" id="CrmFundpaidResult">
+        <result property="paidId"    column="paid_id"    />
+        <result property="orgId"    column="org_id"    />
+        <result property="fullName"    column="full_name"    />
+        <result property="optyId"    column="opty_id"    />
+        <result property="optyName"    column="opty_name"    />
+        <result property="interestId"    column="interest_id"    />
+        <result property="accountId"    column="account_id"    />
+        <result property="accountName"    column="account_name"    />
+        <result property="category"    column="category"    />
+        <result property="turn"    column="turn"    />
+        <result property="investAmount"    column="invest_amount"    />
+        <result property="chiyouZiben"    column="chiyou_ziben"    />
+        <result property="chiyouPercentage"    column="chiyou_percentage"    />
+        <result property="chiyouValue"    column="chiyou_value"    />
+        <result property="paidDate"    column="paid_date"    />
+        <result property="comment"    column="comment"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectCrmFundpaidVo">
+        select paid_id, org_id, full_name, opty_id, opty_name, interest_id, account_id, account_name, category, turn, invest_amount, chiyou_ziben, chiyou_percentage, chiyou_value, paid_date, comment, create_by, create_time, update_by, update_time from crm_fundpaid
+    </sql>
+
+    <select id="selectCrmFundpaidList" parameterType="CrmFundpaid" resultMap="CrmFundpaidResult">
+        <include refid="selectCrmFundpaidVo"/>
+        <where>  
+            <if test="orgId != null  and orgId != ''"> and org_id = #{orgId}</if>
+            <if test="fullName != null  and fullName != ''"> and full_name like concat('%', #{fullName}, '%')</if>
+            <if test="optyId != null  and optyId != ''"> and opty_id = #{optyId}</if>
+            <if test="optyName != null  and optyName != ''"> and opty_name like concat('%', #{optyName}, '%')</if>
+            <if test="interestId != null  and interestId != ''"> and interest_id = #{interestId}</if>
+            <if test="accountId != null  and accountId != ''"> and account_id = #{accountId}</if>
+            <if test="accountName != null  and accountName != ''"> and account_name like concat('%', #{accountName}, '%')</if>
+            <if test="category != null  and category != ''"> and category = #{category}</if>
+            <if test="turn != null  and turn != ''"> and turn = #{turn}</if>
+            <if test="investAmount != null "> and invest_amount = #{investAmount}</if>
+            <if test="chiyouZiben != null "> and chiyou_ziben = #{chiyouZiben}</if>
+            <if test="chiyouPercentage != null "> and chiyou_percentage = #{chiyouPercentage}</if>
+            <if test="chiyouValue != null "> and chiyou_value = #{chiyouValue}</if>
+            <if test="paidDate != null "> and paid_date = #{paidDate}</if>
+            <if test="comment != null  and comment != ''"> and comment = #{comment}</if>
+        </where>
+    </select>
+    
+    <select id="selectCrmFundpaidByPaidId" parameterType="String" resultMap="CrmFundpaidResult">
+        <include refid="selectCrmFundpaidVo"/>
+        where paid_id = #{paidId}
+    </select>
+
+    <select id="selectCrmFundpaidByInterestId" parameterType="String" resultMap="CrmFundpaidResult">
+        <include refid="selectCrmFundpaidVo"/>
+        where interest_id = #{interestId}
+    </select>
+        
+    <insert id="insertCrmFundpaid" parameterType="CrmFundpaid">
+        insert into crm_fundpaid
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="paidId != null">paid_id,</if>
+            <if test="orgId != null">org_id,</if>
+            <if test="fullName != null">full_name,</if>
+            <if test="optyId != null">opty_id,</if>
+            <if test="optyName != null">opty_name,</if>
+            <if test="interestId != null">interest_id,</if>
+            <if test="accountId != null">account_id,</if>
+            <if test="accountName != null">account_name,</if>
+            <if test="category != null">category,</if>
+            <if test="turn != null">turn,</if>
+            <if test="investAmount != null">invest_amount,</if>
+            <if test="chiyouZiben != null">chiyou_ziben,</if>
+            <if test="chiyouPercentage != null">chiyou_percentage,</if>
+            <if test="chiyouValue != null">chiyou_value,</if>
+            <if test="paidDate != null">paid_date,</if>
+            <if test="comment != null">comment,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="paidId != null">#{paidId},</if>
+            <if test="orgId != null">#{orgId},</if>
+            <if test="fullName != null">#{fullName},</if>
+            <if test="optyId != null">#{optyId},</if>
+            <if test="optyName != null">#{optyName},</if>
+            <if test="interestId != null">#{interestId},</if>
+            <if test="accountId != null">#{accountId},</if>
+            <if test="accountName != null">#{accountName},</if>
+            <if test="category != null">#{category},</if>
+            <if test="turn != null">#{turn},</if>
+            <if test="investAmount != null">#{investAmount},</if>
+            <if test="chiyouZiben != null">#{chiyouZiben},</if>
+            <if test="chiyouPercentage != null">#{chiyouPercentage},</if>
+            <if test="chiyouValue != null">#{chiyouValue},</if>
+            <if test="paidDate != null">#{paidDate},</if>
+            <if test="comment != null">#{comment},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateCrmFundpaid" parameterType="CrmFundpaid">
+        update crm_fundpaid
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="orgId != null">org_id = #{orgId},</if>
+            <if test="fullName != null">full_name = #{fullName},</if>
+            <if test="optyId != null">opty_id = #{optyId},</if>
+            <if test="optyName != null">opty_name = #{optyName},</if>
+            <if test="interestId != null">interest_id = #{interestId},</if>
+            <if test="accountId != null">account_id = #{accountId},</if>
+            <if test="accountName != null">account_name = #{accountName},</if>
+            <if test="category != null">category = #{category},</if>
+            <if test="turn != null">turn = #{turn},</if>
+            <if test="investAmount != null">invest_amount = #{investAmount},</if>
+            <if test="chiyouZiben != null">chiyou_ziben = #{chiyouZiben},</if>
+            <if test="chiyouPercentage != null">chiyou_percentage = #{chiyouPercentage},</if>
+            <if test="chiyouValue != null">chiyou_value = #{chiyouValue},</if>
+            <if test="paidDate != null">paid_date = #{paidDate},</if>
+            <if test="comment != null">comment = #{comment},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where paid_id = #{paidId}
+    </update>
+
+    <delete id="deleteCrmFundpaidByPaidId" parameterType="String">
+        delete from crm_fundpaid where paid_id = #{paidId}
+    </delete>
+
+    <delete id="deleteCrmFundpaidByPaidIds" parameterType="String">
+        delete from crm_fundpaid where paid_id in 
+        <foreach item="paidId" collection="array" open="(" separator="," close=")">
+            #{paidId}
+        </foreach>
+    </delete>
+</mapper>

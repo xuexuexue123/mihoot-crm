@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmOptytaskMapper">
+    
+    <resultMap type="CrmOptytask" id="CrmOptytaskResult">
+        <result property="taskId"    column="task_id"    />
+        <result property="optyId"    column="opty_id"    />
+        <result property="optyName"    column="opty_name"    />
+        <result property="stageId"    column="stage_id"    />
+        <result property="stageName"    column="stage_name"    />
+        <result property="taskName"    column="task_name"    />
+        <result property="casetypeId"    column="casetype_id"    />
+        <result property="taskChecked"    column="task_checked"    />
+        <result property="taskOrder"    column="task_order"    />
+        <result property="description"    column="description"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectCrmOptytaskVo">
+        select task_id, opty_id, opty_name, stage_id, stage_name, task_name, casetype_id, task_checked, task_order, description, create_by, create_time, update_by, update_time from crm_optytask
+    </sql>
+
+    <select id="selectCrmOptytaskList" parameterType="CrmOptytask" resultMap="CrmOptytaskResult">
+        <include refid="selectCrmOptytaskVo"/>
+        <where>  
+            <if test="optyId != null  and optyId != ''"> and opty_id = #{optyId}</if>
+            <if test="optyName != null  and optyName != ''"> and opty_name like concat('%', #{optyName}, '%')</if>
+            <if test="stageId != null  and stageId != ''"> and stage_id = #{stageId}</if>
+            <if test="stageName != null  and stageName != ''"> and stage_name like concat('%', #{stageName}, '%')</if>
+            <if test="taskName != null  and taskName != ''"> and task_name like concat('%', #{taskName}, '%')</if>
+            <if test="casetypeId != null  and casetypeId != ''"> and casetype_id = #{casetypeId}</if>
+            <if test="taskChecked != null "> and task_checked = #{taskChecked}</if>
+            <if test="taskOrder != null "> and task_order = #{taskOrder}</if>
+            <if test="description != null  and description != ''"> and description = #{description}</if>
+        </where>
+        order by task_order
+    </select>
+    
+    <select id="selectCrmOptytaskByTaskId" parameterType="String" resultMap="CrmOptytaskResult">
+        <include refid="selectCrmOptytaskVo"/>
+        where task_id = #{taskId}
+    </select>
+        
+    <insert id="insertCrmOptytask" parameterType="CrmOptytask">
+        insert into crm_optytask
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="taskId != null">task_id,</if>
+            <if test="optyId != null">opty_id,</if>
+            <if test="optyName != null">opty_name,</if>
+            <if test="stageId != null">stage_id,</if>
+            <if test="stageName != null">stage_name,</if>
+            <if test="taskName != null">task_name,</if>
+            <if test="casetypeId != null">casetype_id,</if>
+            <if test="taskChecked != null">task_checked,</if>
+            <if test="taskOrder != null">task_order,</if>
+            <if test="description != null">description,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="taskId != null">#{taskId},</if>
+            <if test="optyId != null">#{optyId},</if>
+            <if test="optyName != null">#{optyName},</if>
+            <if test="stageId != null">#{stageId},</if>
+            <if test="stageName != null">#{stageName},</if>
+            <if test="taskName != null">#{taskName},</if>
+            <if test="casetypeId != null">#{casetypeId},</if>
+            <if test="taskChecked != null">#{taskChecked},</if>
+            <if test="taskOrder != null">#{taskOrder},</if>
+            <if test="description != null">#{description},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateCrmOptytask" parameterType="CrmOptytask">
+        update crm_optytask
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="optyId != null">opty_id = #{optyId},</if>
+            <if test="optyName != null">opty_name = #{optyName},</if>
+            <if test="stageId != null">stage_id = #{stageId},</if>
+            <if test="stageName != null">stage_name = #{stageName},</if>
+            <if test="taskName != null">task_name = #{taskName},</if>
+            <if test="casetypeId != null">casetype_id = #{casetypeId},</if>
+            <if test="taskChecked != null">task_checked = #{taskChecked},</if>
+            <if test="taskOrder != null">task_order = #{taskOrder},</if>
+            <if test="description != null">description = #{description},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where task_id = #{taskId}
+    </update>
+
+    <delete id="deleteCrmOptytaskByTaskId" parameterType="String">
+        delete from crm_optytask where task_id = #{taskId}
+    </delete>
+
+    <delete id="deleteCrmOptytaskByTaskIds" parameterType="String">
+        delete from crm_optytask where task_id in 
+        <foreach item="taskId" collection="array" open="(" separator="," close=")">
+            #{taskId}
+        </foreach>
+    </delete>
+</mapper>

@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmTimeperiodMapper">
+    
+    <resultMap type="CrmTimeperiod" id="CrmTimeperiodResult">
+        <result property="periodId"    column="period_id"    />
+        <result property="periodName"    column="period_name"    />
+        <result property="periodType"    column="period_type"    />
+        <result property="startDate"    column="start_date"    />
+        <result property="endDate"    column="end_date"    />
+        <result property="quarterId"    column="quarter_id"    />
+        <result property="quarterName"    column="quarter_name"    />
+        <result property="fiscalId"    column="fiscal_id"    />
+        <result property="fiscalName"    column="fiscal_name"    />
+        <result property="isActive"    column="is_active"    />
+        <result property="comment"    column="comment"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectCrmTimeperiodVo">
+        select period_id, period_name, period_type, start_date, end_date, quarter_id, quarter_name, fiscal_id, fiscal_name, is_active, comment, create_by, create_time, update_by, update_time from crm_timeperiod
+    </sql>
+
+    <select id="selectCrmTimeperiodList" parameterType="CrmTimeperiod" resultMap="CrmTimeperiodResult">
+        <include refid="selectCrmTimeperiodVo"/>
+        <where>  
+            <if test="periodName != null  and periodName != ''"> and period_name like concat('%', #{periodName}, '%')</if>
+            <if test="periodType != null  and periodType != ''"> and period_type = #{periodType}</if>
+            <if test="startDate != null "> and start_date = #{startDate}</if>
+            <if test="endDate != null "> and end_date = #{endDate}</if>
+            <if test="quarterId != null  and quarterId != ''"> and quarter_id = #{quarterId}</if>
+            <if test="quarterName != null  and quarterName != ''"> and quarter_name like concat('%', #{quarterName}, '%')</if>
+            <if test="fiscalId != null  and fiscalId != ''"> and fiscal_id = #{fiscalId}</if>
+            <if test="fiscalName != null  and fiscalName != ''"> and fiscal_name like concat('%', #{fiscalName}, '%')</if>
+            <if test="isActive != null "> and is_active = #{isActive}</if>
+            <if test="comment != null  and comment != ''"> and comment = #{comment}</if>
+        </where>
+        order by start_date
+    </select>
+    
+    <select id="selectCrmTimeperiodByPeriodId" parameterType="String" resultMap="CrmTimeperiodResult">
+        <include refid="selectCrmTimeperiodVo"/>
+        where period_id = #{periodId}
+    </select>
+        
+    <insert id="insertCrmTimeperiod" parameterType="CrmTimeperiod">
+        insert into crm_timeperiod
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="periodId != null">period_id,</if>
+            <if test="periodName != null">period_name,</if>
+            <if test="periodType != null">period_type,</if>
+            <if test="startDate != null">start_date,</if>
+            <if test="endDate != null">end_date,</if>
+            <if test="quarterId != null">quarter_id,</if>
+            <if test="quarterName != null">quarter_name,</if>
+            <if test="fiscalId != null">fiscal_id,</if>
+            <if test="fiscalName != null">fiscal_name,</if>
+            <if test="isActive != null">is_active,</if>
+            <if test="comment != null">comment,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="periodId != null">#{periodId},</if>
+            <if test="periodName != null">#{periodName},</if>
+            <if test="periodType != null">#{periodType},</if>
+            <if test="startDate != null">#{startDate},</if>
+            <if test="endDate != null">#{endDate},</if>
+            <if test="quarterId != null">#{quarterId},</if>
+            <if test="quarterName != null">#{quarterName},</if>
+            <if test="fiscalId != null">#{fiscalId},</if>
+            <if test="fiscalName != null">#{fiscalName},</if>
+            <if test="isActive != null">#{isActive},</if>
+            <if test="comment != null">#{comment},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateCrmTimeperiod" parameterType="CrmTimeperiod">
+        update crm_timeperiod
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="periodName != null">period_name = #{periodName},</if>
+            <if test="periodType != null">period_type = #{periodType},</if>
+            <if test="startDate != null">start_date = #{startDate},</if>
+            <if test="endDate != null">end_date = #{endDate},</if>
+            <if test="quarterId != null">quarter_id = #{quarterId},</if>
+            <if test="quarterName != null">quarter_name = #{quarterName},</if>
+            <if test="fiscalId != null">fiscal_id = #{fiscalId},</if>
+            <if test="fiscalName != null">fiscal_name = #{fiscalName},</if>
+            <if test="isActive != null">is_active = #{isActive},</if>
+            <if test="comment != null">comment = #{comment},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where period_id = #{periodId}
+    </update>
+
+
+    <update id="updateCrmTimeperiodToNotActive" parameterType="CrmTimeperiod">
+        update crm_timeperiod
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="isActive != null">is_active = #{isActive},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+
+        <where>
+            <if test="periodType == 'Yearly'"> fiscal_id = #{periodId}</if>
+            <if test="periodType == 'Quarterly'"> quarter_id = #{periodId}</if>
+        </where>
+    </update>
+
+    <delete id="deleteCrmTimeperiodByPeriodId" parameterType="String">
+        delete from crm_timeperiod where period_id = #{periodId}
+    </delete>
+
+    <delete id="deleteCrmTimeperiodByPeriodIds" parameterType="String">
+        delete from crm_timeperiod where period_id in 
+        <foreach item="periodId" collection="array" open="(" separator="," close=")">
+            #{periodId}
+        </foreach>
+    </delete>
+</mapper>

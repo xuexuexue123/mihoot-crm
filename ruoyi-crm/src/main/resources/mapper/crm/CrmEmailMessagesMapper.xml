@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmEmailMessagesMapper">
+
+    <resultMap type="CrmEmailMessages" id="CrmEmailMessagesResult">
+        <result property="id"    column="id"    />
+        <result property="userId"    column="user_id"    />
+        <result property="provider"    column="provider"    />
+        <result property="messageExternalId"    column="message_external_id"    />
+        <result property="threadId"    column="thread_id"    />
+        <result property="subject"    column="subject"    />
+        <result property="sender"    column="sender"    />
+        <result property="recipients"    column="recipients"    />
+        <result property="snippet"    column="snippet"    />
+        <result property="hasAttachment"    column="has_attachment"    />
+        <result property="bodyPlain"    column="body_plain"    />
+        <result property="bodyHtml"    column="body_html"    />
+        <result property="labels"    column="labels"    />
+        <result property="isRead"    column="is_read"    />
+        <result property="isDownloaded"    column="is_downloaded"    />
+        <result property="receivedAt"    column="received_at"    />
+        <result property="syncedAt"    column="synced_at"    />
+        <result property="rawJson"    column="raw_json"    />
+        <result property="folder"    column="folder"    />
+        <result property="isDeleted"    column="is_deleted"    />
+        <result property="externalName"    column="external_name"    />
+    </resultMap>
+
+    <resultMap id="CrmEmailMessagesCrmEmailAttachmentsResult" type="CrmEmailMessages" extends="CrmEmailMessagesResult">
+        <collection property="crmEmailAttachmentsList" notNullColumn="sub_id" javaType="java.util.List" resultMap="CrmEmailAttachmentsResult" />
+    </resultMap>
+
+    <resultMap type="CrmEmailAttachments" id="CrmEmailAttachmentsResult">
+        <result property="id"    column="sub_id"    />
+        <result property="messageId"    column="sub_message_id"    />
+        <result property="attachmentId"    column="sub_attachment_id"    />
+        <result property="filename"    column="sub_filename"    />
+        <result property="mimeType"    column="sub_mime_type"    />
+        <result property="size"    column="sub_size"    />
+        <result property="contentId"    column="sub_content_id"    />
+        <result property="isInline"    column="sub_is_inline"    />
+        <result property="downloaded"    column="sub_downloaded"    />
+        <result property="storageUrl"    column="sub_storage_url"    />
+        <result property="createdAt"    column="sub_created_at"    />
+        <result property="updatedAt"    column="sub_updated_at"    />
+    </resultMap>
+
+    <sql id="selectCrmEmailMessagesVo">
+        select id, user_id, provider, message_external_id, thread_id, subject, sender, recipients, snippet, has_attachment, body_plain, body_html, labels, is_read, is_downloaded, received_at, synced_at, raw_json, folder, is_deleted, external_name from crm_email_messages
+    </sql>
+
+    <select id="selectCrmEmailMessagesList" parameterType="CrmEmailMessages" resultMap="CrmEmailMessagesResult">
+        <include refid="selectCrmEmailMessagesVo"/>
+        <where>
+            <if test="userId != null  and userId != ''"> and user_id = #{userId}</if>
+            <if test="provider != null  and provider != ''"> and provider = #{provider}</if>
+            <if test="messageExternalId != null  and messageExternalId != ''"> and message_external_id = #{messageExternalId}</if>
+            <if test="threadId != null  and threadId != ''"> and thread_id = #{threadId}</if>
+            <if test="subject != null  and subject != ''"> and subject = #{subject}</if>
+            <if test="sender != null  and sender != ''"> and sender = #{sender}</if>
+            <if test="recipients != null  and recipients != ''"> and recipients = #{recipients}</if>
+            <if test="snippet != null  and snippet != ''"> and snippet = #{snippet}</if>
+            <if test="hasAttachment != null "> and has_attachment = #{hasAttachment}</if>
+            <if test="bodyPlain != null  and bodyPlain != ''"> and body_plain = #{bodyPlain}</if>
+            <if test="bodyHtml != null  and bodyHtml != ''"> and body_html = #{bodyHtml}</if>
+            <if test="labels != null  and labels != ''"> and labels = CAST(NULLIF(TRIM(#{labels}), '') AS jsonb)</if>
+            <if test="isRead != null "> and is_read = #{isRead}</if>
+            <if test="isDownloaded != null "> and is_downloaded = #{isDownloaded}</if>
+            <if test="receivedAt != null "> and received_at = #{receivedAt}</if>
+            <if test="syncedAt != null "> and synced_at = #{syncedAt}</if>
+            <if test="rawJson != null  and rawJson != ''"> and raw_json = #{rawJson}</if>
+            <if test="folder != null  and folder != ''"> and folder = #{folder}</if>
+            <if test="isDeleted != null"> and is_deleted = #{isDeleted}</if>
+            <if test="externalName != null  and externalName != ''"> and external_name = #{externalName}</if>
+            <if test="subjectLike != null and subjectLike != ''"> and subject ILIKE concat('%', #{subjectLike}, '%')</if>
+            <if test="senderLike != null and senderLike != ''"> and sender ILIKE concat('%', #{senderLike}, '%')</if>
+            <if test="bodyLike != null and bodyLike != ''"> and (snippet ILIKE concat('%', #{bodyLike}, '%') OR body_plain ILIKE concat('%', #{bodyLike}, '%'))</if>
+        </where>
+    </select>
+
+    <select id="selectCrmEmailMessagesById" parameterType="String" resultMap="CrmEmailMessagesCrmEmailAttachmentsResult">
+        select a.id, a.user_id, a.provider, a.message_external_id, a.thread_id, a.subject, a.sender, a.recipients, a.snippet, a.has_attachment, a.body_plain, a.body_html, a.labels, a.is_read, a.is_downloaded, a.received_at, a.synced_at, a.raw_json, a.folder, a.isDeleted, a.external_name,
+               b.id as sub_id, b.message_id as sub_message_id, b.attachment_id as sub_attachment_id, b.filename as sub_filename, b.mime_type as sub_mime_type, b.size as sub_size, b.content_id as sub_content_id, b.is_inline as sub_is_inline, b.downloaded as sub_downloaded, b.storage_url as sub_storage_url, b.created_at as sub_created_at, b.updated_at as sub_updated_at
+        from crm_email_messages a
+                 left join crm_email_attachments b on b.message_id = a.id
+        where a.id = #{id}
+    </select>
+
+    <select id="existsByMessageId" parameterType="String" resultMap="CrmEmailMessagesResult">
+        <include refid="selectCrmEmailMessagesVo"/>
+        where message_external_id = #{messageExternalId}
+    </select>
+
+    <insert id="insertCrmEmailMessages" parameterType="CrmEmailMessages">
+        <selectKey keyProperty="id" resultType="String" order="BEFORE">
+            SELECT (COALESCE(MAX(id), 0) + 1)::varchar FROM crm_email_messages
+        </selectKey>
+        insert into crm_email_messages
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null and id != ''">id,</if>
+            <if test="userId != null and userId != ''">user_id,</if>
+            <if test="provider != null and provider != ''">provider,</if>
+            <if test="messageExternalId != null and messageExternalId != ''">message_external_id,</if>
+            <if test="threadId != null">thread_id,</if>
+            <if test="subject != null">subject,</if>
+            <if test="sender != null">sender,</if>
+            <if test="recipients != null">recipients,</if>
+            <if test="snippet != null">snippet,</if>
+            <if test="hasAttachment != null">has_attachment,</if>
+            <if test="bodyPlain != null">body_plain,</if>
+            <if test="bodyHtml != null">body_html,</if>
+            <if test="labels != null">labels,</if>
+            <if test="isRead != null">is_read,</if>
+            <if test="isDownloaded != null">is_downloaded,</if>
+            <if test="receivedAt != null">received_at,</if>
+            <if test="syncedAt != null">synced_at,</if>
+            <if test="rawJson != null">raw_json,</if>
+            <if test="folder != null">folder,</if>
+            <if test="isDeleted != null">is_deleted,</if>
+            <if test="externalName != null">external_name,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null and id != ''">CAST(#{id} AS numeric),</if>
+            <if test="userId != null and userId != ''">#{userId},</if>
+            <if test="provider != null and provider != ''">#{provider},</if>
+            <if test="messageExternalId != null and messageExternalId != ''">#{messageExternalId},</if>
+            <if test="threadId != null">#{threadId},</if>
+            <if test="subject != null">#{subject},</if>
+            <if test="sender != null">#{sender},</if>
+            <if test="recipients != null">#{recipients},</if>
+            <if test="snippet != null">#{snippet},</if>
+            <if test="hasAttachment != null">#{hasAttachment},</if>
+            <if test="bodyPlain != null">#{bodyPlain},</if>
+            <if test="bodyHtml != null">#{bodyHtml},</if>
+            <if test="labels != null">CAST(NULLIF(TRIM(#{labels}), '') AS jsonb),</if>
+            <if test="isRead != null">#{isRead},</if>
+            <if test="isDownloaded != null">#{isDownloaded},</if>
+            <if test="receivedAt != null">#{receivedAt},</if>
+            <if test="syncedAt != null">#{syncedAt},</if>
+            <if test="rawJson != null">#{rawJson},</if>
+            <if test="folder != null">#{folder},</if>
+            <if test="isDeleted != null">#{isDeleted},</if>
+            <if test="externalName != null">#{externalName},</if>
+        </trim>
+    </insert>
+
+    <update id="updateCrmEmailMessages" parameterType="CrmEmailMessages">
+        update crm_email_messages
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="userId != null and userId != ''">user_id = #{userId},</if>
+            <if test="provider != null and provider != ''">provider = #{provider},</if>
+<!--            <if test="messageExternalId != null and messageExternalId != ''">message_external_id = #{messageExternalId},</if>-->
+            <if test="threadId != null">thread_id = #{threadId},</if>
+            <if test="subject != null">subject = #{subject},</if>
+            <if test="sender != null">sender = #{sender},</if>
+            <if test="recipients != null">recipients = #{recipients},</if>
+            <if test="snippet != null">snippet = #{snippet},</if>
+            <if test="hasAttachment != null">has_attachment = #{hasAttachment},</if>
+            <if test="bodyPlain != null">body_plain = #{bodyPlain},</if>
+            <if test="bodyHtml != null">body_html = #{bodyHtml},</if>
+            <if test="labels != null">labels = CAST(NULLIF(TRIM(#{labels}), '') AS jsonb),</if>
+            <if test="isRead != null">is_read = #{isRead},</if>
+            <if test="isDownloaded != null">is_downloaded = #{isDownloaded},</if>
+            <if test="receivedAt != null">received_at = #{receivedAt},</if>
+            <if test="syncedAt != null">synced_at = #{syncedAt},</if>
+            <if test="rawJson != null">raw_json = #{rawJson},</if>
+            <if test="folder != null">folder = #{folder},</if>
+            <if test="isDeleted != null">is_deleted = #{isDeleted},</if>
+            <if test="externalName != null">external_name = #{externalName},</if>
+        </trim>
+        where message_external_id = #{messageExternalId}
+    </update>
+
+    <delete id="deleteCrmEmailMessagesById" parameterType="String">
+        delete from crm_email_messages where message_external_id = #{id}
+    </delete>
+
+    <delete id="deleteCrmEmailMessagesByIds" parameterType="String">
+        delete from crm_email_messages where message_external_id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <delete id="deleteCrmEmailAttachmentsByMessageIds" parameterType="String">
+        delete from crm_email_attachments where message_id in
+        <foreach item="messageId" collection="array" open="(" separator="," close=")">
+            #{messageId}
+        </foreach>
+    </delete>
+
+    <delete id="deleteCrmEmailAttachmentsByMessageId" parameterType="String">
+        delete from crm_email_attachments where message_id = #{messageId}
+    </delete>
+
+    <insert id="batchCrmEmailAttachments">
+        insert into crm_email_attachments( id, message_id, attachment_id, filename, mime_type, size, content_id, is_inline, downloaded, storage_url, created_at, updated_at) values
+        <foreach item="item" index="index" collection="list" separator=",">
+            ( #{item.id}, #{item.messageId}, #{item.attachmentId}, #{item.filename}, #{item.mimeType}, #{item.size}, #{item.contentId}, #{item.isInline}, #{item.downloaded}, #{item.storageUrl}, #{item.createdAt}, #{item.updatedAt})
+        </foreach>
+    </insert>
+</mapper>

@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.ems.mapper.SysReWhenMapper">
+    
+    <resultMap type="SysReWhen" id="SysReWhenResult">
+        <result property="pyId"    column="py_id"    />
+        <result property="caseTypeId"    column="case_type_id"    />
+        <result property="pyLabel"    column="py_label"    />
+        <result property="pyName"    column="py_name"    />
+        <result property="version"    column="version"    />
+        <result property="resultProperty"    column="result_property"    />
+        <result property="whenLogicString"    column="when_logic_string"    />
+        <result property="whenExpression"    column="when_expression"    />
+        <result property="whenRelationship"    column="when_relationship"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectSysReWhenVo">
+        select py_id, case_type_id, py_label, py_name, version, result_property, when_logic_string, when_expression, when_relationship, create_by, create_time, update_by, update_time from sys_re_when
+    </sql>
+
+    <select id="selectSysReWhenList" parameterType="SysReWhen" resultMap="SysReWhenResult">
+        <include refid="selectSysReWhenVo"/>
+        <where>  
+            <if test="pyId != null  and pyId != ''"> and py_id = #{pyId}</if>
+            <if test="caseTypeId != null  and caseTypeId != ''"> and case_type_id = #{caseTypeId}</if>
+        </where>
+    </select>
+    
+    <select id="selectSysReWhenByPyId" parameterType="String" resultMap="SysReWhenResult">
+        <include refid="selectSysReWhenVo"/>
+        where py_id = #{pyId}
+    </select>
+        
+    <insert id="insertSysReWhen" parameterType="SysReWhen">
+        insert into sys_re_when
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="pyId != null">py_id,</if>
+            <if test="caseTypeId != null">case_type_id,</if>
+            <if test="pyLabel != null">py_label,</if>
+            <if test="pyName != null">py_name,</if>
+            <if test="version != null">version,</if>
+            <if test="resultProperty != null">result_property,</if>
+            <if test="whenLogicString != null">when_logic_string,</if>
+            <if test="whenExpression != null">when_expression,</if>
+            <if test="whenRelationship != null">when_relationship,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="pyId != null">#{pyId},</if>
+            <if test="caseTypeId != null">#{caseTypeId},</if>
+            <if test="pyLabel != null">#{pyLabel},</if>
+            <if test="pyName != null">#{pyName},</if>
+            <if test="version != null">#{version},</if>
+            <if test="resultProperty != null">#{resultProperty},</if>
+            <if test="whenLogicString != null">#{whenLogicString},</if>
+            <if test="whenExpression != null">#{whenExpression},</if>
+            <if test="whenRelationship != null">#{whenRelationship},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateSysReWhen" parameterType="SysReWhen">
+        update sys_re_when
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="caseTypeId != null">case_type_id = #{caseTypeId},</if>
+            <if test="pyLabel != null">py_label = #{pyLabel},</if>
+            <if test="pyName != null">py_name = #{pyName},</if>
+            <if test="version != null">version = #{version},</if>
+            <if test="resultProperty != null">result_property = #{resultProperty},</if>
+            <if test="whenLogicString != null">when_logic_string = #{whenLogicString},</if>
+            <if test="whenExpression != null">when_expression = #{whenExpression},</if>
+            <if test="whenRelationship != null">when_relationship = #{whenRelationship},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where py_id = #{pyId}
+    </update>
+
+    <delete id="deleteSysReWhenByPyId" parameterType="String">
+        delete from sys_re_when where py_id = #{pyId}
+    </delete>
+
+    <delete id="deleteSysReWhenByPyIds" parameterType="String">
+        delete from sys_re_when where py_id in 
+        <foreach item="pyId" collection="array" open="(" separator="," close=")">
+            #{pyId}
+        </foreach>
+    </delete>
+</mapper>

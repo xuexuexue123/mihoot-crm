@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.ems.mapper.SysSequenceIdMapper">
+    
+    <resultMap type="SysSequenceId" id="SysSequenceIdResult">
+        <result property="sequenceid"    column="sequenceid"    />
+        <result property="prefix"    column="prefix"    />
+        <result property="currentNumber"    column="current_number"    />
+    </resultMap>
+
+    <sql id="selectSysSequenceIdVo">
+        select sequenceid, prefix, current_number from sys_sequence_id
+    </sql>
+
+    <select id="selectSysSequenceIdList" parameterType="SysSequenceId" resultMap="SysSequenceIdResult">
+        <include refid="selectSysSequenceIdVo"/>
+        <where>  
+            <if test="prefix != null  and prefix != ''"> and prefix = #{prefix}</if>
+            <if test="currentNumber != null "> and current_number = #{currentNumber}</if>
+        </where>
+    </select>
+    
+    <select id="selectSysSequenceIdBySequenceid" parameterType="Long" resultMap="SysSequenceIdResult">
+        <include refid="selectSysSequenceIdVo"/>
+        where sequenceid = #{sequenceid}
+    </select>
+
+    <select id="selectSysSequenceIdByPrefix" parameterType="String" resultMap="SysSequenceIdResult">
+        <include refid="selectSysSequenceIdVo"/>
+        where prefix = #{prefix}
+    </select>
+
+    <!-- PG: if sequenceid uses SERIAL, bulk/migrated rows with explicit ids can leave the sequence behind MAX(sequenceid); run sql/postgresql/repair_sys_sequence_id_serial.sql -->
+    <insert id="insertSysSequenceId" parameterType="SysSequenceId" useGeneratedKeys="true" keyProperty="sequenceid">
+        insert into sys_sequence_id
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="prefix != null and prefix != ''">prefix,</if>
+            <if test="currentNumber != null">current_number,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="prefix != null and prefix != ''">#{prefix},</if>
+            <if test="currentNumber != null">#{currentNumber},</if>
+         </trim>
+    </insert>
+
+    <update id="updateSysSequenceId" parameterType="SysSequenceId">
+        update sys_sequence_id
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="prefix != null and prefix != ''">prefix = #{prefix},</if>
+            <if test="currentNumber != null">current_number = #{currentNumber},</if>
+        </trim>
+        where sequenceid = #{sequenceid}
+    </update>
+
+    <delete id="deleteSysSequenceIdBySequenceid" parameterType="Long">
+        delete from sys_sequence_id where sequenceid = #{sequenceid}
+    </delete>
+
+    <delete id="deleteSysSequenceIdBySequenceids" parameterType="String">
+        delete from sys_sequence_id where sequenceid in 
+        <foreach item="sequenceid" collection="array" open="(" separator="," close=")">
+            #{sequenceid}
+        </foreach>
+    </delete>
+</mapper>

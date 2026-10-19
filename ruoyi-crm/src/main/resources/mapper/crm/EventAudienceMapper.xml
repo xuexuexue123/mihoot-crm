@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.EventAudienceMapper">
+
+    <resultMap id="AudienceSourceRowResult" type="com.ruoyi.crm.service.support.AudienceSourceRow">
+        <result property="channel" column="channel"/>
+        <result property="sourceId" column="source_id"/>
+        <result property="displayName" column="display_name"/>
+        <result property="mobilePhone" column="mobile_phone"/>
+        <result property="contactId" column="contact_id"/>
+        <result property="leadId" column="lead_id"/>
+        <result property="leadStatus" column="lead_status"/>
+        <result property="leadStage" column="lead_stage"/>
+        <result property="registrationStatus" column="registration_status"/>
+        <result property="wecomExternalUserid" column="wecom_external_userid"/>
+        <result property="wechatMpOpenid" column="wechat_mp_openid"/>
+        <result property="wechatMpAppId" column="wechat_mp_app_id"/>
+        <result property="wecomName" column="wecom_name"/>
+        <result property="mpNickname" column="mp_nickname"/>
+        <result property="owner" column="owner"/>
+        <result property="followUserid" column="follow_userid"/>
+        <result property="rawJson" column="raw_json"/>
+        <result property="touchedAt" column="touched_at"/>
+        <result property="lastActivityAt" column="last_activity_at"/>
+    </resultMap>
+
+    <select id="selectH5Sources" resultMap="AudienceSourceRowResult">
+        SELECT DISTINCT ON (r.audience_key)
+               'h5' AS channel,
+               r.registration_id AS source_id,
+               r.display_name,
+               r.mobile_phone,
+               COALESCE(r.contact_id, l.contact_id) AS contact_id,
+               r.lead_id,
+               l.status AS lead_status,
+               l.stage AS lead_stage,
+               r.registration_status,
+               NULL AS wecom_external_userid,
+               COALESCE(l.wechat_mp_openid, l.custom_field::jsonb->>'wechat_mp_openid') AS wechat_mp_openid,
+               COALESCE(l.wechat_mp_app_id, l.custom_field::jsonb->>'wechat_mp_app_id') AS wechat_mp_app_id,
+               NULL AS wecom_name,
+               NULL AS mp_nickname,
+               l.owner,
+               NULL AS follow_userid,
+               NULL AS raw_json,
+               r.registered_at AS touched_at,
+               COALESCE(r.update_time, r.registered_at) AS last_activity_at
+        FROM crm_event_registration r
+        LEFT JOIN crm_lead l ON l.lead_id = r.lead_id
+        WHERE r.event_id = #{eventId}
+          AND r.registration_source = 'h5'
+          AND r.registration_status IN ('confirmed', 'waitlist')
+        ORDER BY r.audience_key, r.registered_at DESC
+    </select>
+
+    <select id="selectWebsiteSources" resultMap="AudienceSourceRowResult">
+        SELECT DISTINCT ON (r.audience_key)
+               'website' AS channel,
+               r.registration_id AS source_id,
+               r.display_name,
+               r.mobile_phone,
+               COALESCE(r.contact_id, l.contact_id) AS contact_id,
+               r.lead_id,
+               l.status AS lead_status,
+               l.stage AS lead_stage,
+               r.registration_status,
+               NULL AS wecom_external_userid,
+               COALESCE(l.wechat_mp_openid, l.custom_field::jsonb->>'wechat_mp_openid') AS wechat_mp_openid,
+               COALESCE(l.wechat_mp_app_id, l.custom_field::jsonb->>'wechat_mp_app_id') AS wechat_mp_app_id,
+               NULL AS wecom_name,
+               NULL AS mp_nickname,
+               l.owner,
+               NULL AS follow_userid,
+               NULL AS raw_json,
+               r.registered_at AS touched_at,
+               COALESCE(r.update_time, r.registered_at) AS last_activity_at
+        FROM crm_event_registration r
+        LEFT JOIN crm_lead l ON l.lead_id = r.lead_id
+        WHERE r.event_id = #{eventId}
+          AND r.registration_source = 'website'
+          AND r.registration_status IN ('confirmed', 'waitlist')
+        ORDER BY r.audience_key, r.registered_at DESC
+    </select>
+
+    <select id="selectWecomSources" resultMap="AudienceSourceRowResult">
+        SELECT DISTINCT ON (w.external_userid)
+               'wecom' AS channel,
+               w.external_userid AS source_id,
+               ld.lead_name AS display_name,
+               ld.mobile_phone,
+               COALESCE(w.crm_contact_id, ld.contact_id) AS contact_id,
+               COALESCE(w.crm_lead_id, ld.lead_id) AS lead_id,
+               ld.status AS lead_status,
+               ld.stage AS lead_stage,
+               w.external_userid AS wecom_external_userid,
+               NULL AS wechat_mp_openid,
+               NULL AS wecom_name,
+               NULL AS mp_nickname,
+               ld.owner,
+               w.follow_userid,
+               w.raw_json,
+               w.create_time AS touched_at,
+               COALESCE(w.update_time, w.create_time) AS last_activity_at
+        FROM crm_wecom_external_contact w
+        LEFT JOIN crm_lead ld ON ld.lead_id = w.crm_lead_id
+        WHERE w.crm_event_id = #{eventId}
+        ORDER BY w.external_userid, w.create_time ASC
+    </select>
+
+    <select id="selectMpSources" resultMap="AudienceSourceRowResult">
+        SELECT 'mp' AS channel,
+               agg.openid AS source_id,
+               f.nickname AS display_name,
+               NULL AS mobile_phone,
+               COALESCE(agg.subject_id, f.contact_id, id_ci.contact_id) AS contact_id,
+               NULL AS lead_id,
+               NULL AS lead_status,
+               NULL AS lead_stage,
+               NULL AS wecom_external_userid,
+               agg.openid AS wechat_mp_openid,
+               agg.app_id AS wechat_mp_app_id,
+               NULL AS wecom_name,
+               f.nickname AS mp_nickname,
+               NULL AS owner,
+               NULL AS follow_userid,
+               NULL AS raw_json,
+               agg.first_touch_at AS touched_at,
+               agg.last_activity_at
+        FROM (
+            SELECT COALESCE(
+                       a.context->>'openid',
+                       a.context->>'open_id',
+                       a.payload->>'open_id',
+                       a.payload->>'openId'
+                   ) AS openid,
+                   MAX(a.context->>'app_id') AS app_id,
+                   a.subject_id,
+                   MIN(a.started_date) AS first_touch_at,
+                   MAX(COALESCE(a.update_time, a.started_date)) AS last_activity_at
+            FROM crm_activity a
+            WHERE a.channel = 'wechat_mp'
+              AND a.event_type IN ('channel.wechat_mp.follow', 'channel.wechat_mp.scan')
+              AND COALESCE(
+                      a.context->>'openid',
+                      a.context->>'open_id',
+                      a.payload->>'open_id',
+                      a.payload->>'openId'
+                  ) IS NOT NULL
+              AND (
+                  a.context->>'crm_event_id' = #{eventId}
+                  OR EXISTS (
+                      SELECT 1 FROM crm_wechat_mp_qrcode q
+                      WHERE q.crm_event_id = #{eventId}
+                        AND (
+                            a.context->>'qr_code_id' = q.id::text
+                            OR a.context->>'scene_str' = q.scene_str
+                            OR a.payload->>'event_key' = 'qrscene_' || q.scene_str
+                            OR a.payload->>'scene_str' = q.scene_str
+                        )
+                  )
+              )
+            GROUP BY COALESCE(
+                         a.context->>'openid',
+                         a.context->>'open_id',
+                         a.payload->>'open_id',
+                         a.payload->>'openId'
+                     ), a.subject_id
+        ) agg
+        LEFT JOIN crm_wechat_mp_fan f ON f.open_id = agg.openid
+            AND (agg.app_id IS NULL OR f.app_id = agg.app_id)
+        LEFT JOIN crm_customer_identity id_ci
+            ON id_ci.identity_type = 'wechat_mp_openid'
+           AND id_ci.identity_value = agg.openid
+    </select>
+
+    <select id="selectContactNames" resultType="com.ruoyi.crm.service.support.ContactNameRow">
+        SELECT contact_id AS contactId, name
+        FROM crm_contact
+        WHERE contact_id IN
+        <foreach collection="contactIds" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+
+    <select id="selectUnionidByOpenids" resultType="com.ruoyi.crm.service.support.AudienceIdentityUnionRow">
+        SELECT mp.identity_value AS channelValue, u.identity_value AS unionid
+        FROM crm_customer_identity mp
+        LEFT JOIN crm_customer_identity u
+            ON u.contact_id = mp.contact_id AND u.identity_type = 'wechat_unionid'
+        WHERE mp.identity_type = 'wechat_mp_openid'
+          AND mp.identity_value IN
+        <foreach collection="openids" item="oid" open="(" separator="," close=")">
+            #{oid}
+        </foreach>
+    </select>
+
+    <select id="selectUnionidByExternalUserids" resultType="com.ruoyi.crm.service.support.AudienceIdentityUnionRow">
+        SELECT wc.identity_value AS channelValue, u.identity_value AS unionid
+        FROM crm_customer_identity wc
+        LEFT JOIN crm_customer_identity u
+            ON u.contact_id = wc.contact_id AND u.identity_type = 'wechat_unionid'
+        WHERE wc.identity_type = 'wecom_external_userid'
+          AND wc.identity_value IN
+        <foreach collection="externalUserids" item="eid" open="(" separator="," close=")">
+            #{eid}
+        </foreach>
+    </select>
+</mapper>

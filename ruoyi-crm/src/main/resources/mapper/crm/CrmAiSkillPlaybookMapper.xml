@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmAiSkillPlaybookMapper">
+
+    <resultMap type="com.ruoyi.crm.domain.CrmAiSkillPlaybook" id="CrmAiSkillPlaybookResult">
+        <id property="id" column="id"/>
+        <result property="tenantId" column="tenant_id"/>
+        <result property="name" column="name"/>
+        <result property="description" column="description"/>
+        <result property="triggerKeywords" column="trigger_keywords"/>
+        <result property="entrySkillId" column="entry_skill_id"/>
+        <result property="outputSchema" column="output_schema"/>
+        <result property="enabled" column="enabled"/>
+        <result property="version" column="version"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <sql id="selectColumns">
+        id, tenant_id, name, description, trigger_keywords, entry_skill_id, output_schema,
+        enabled, version, create_by, create_time, update_by, update_time
+    </sql>
+
+    <select id="selectListByTenant" resultMap="CrmAiSkillPlaybookResult">
+        select <include refid="selectColumns"/>
+        from crm_ai_skill_playbook
+        where tenant_id = #{tenantId}
+        order by id desc
+    </select>
+
+    <select id="selectByIdAndTenant" resultMap="CrmAiSkillPlaybookResult">
+        select <include refid="selectColumns"/>
+        from crm_ai_skill_playbook
+        where id = #{id} and tenant_id = #{tenantId}
+    </select>
+
+    <select id="selectByNameVersionAndTenant" resultMap="CrmAiSkillPlaybookResult">
+        select <include refid="selectColumns"/>
+        from crm_ai_skill_playbook
+        where name = #{name} and version = #{version} and tenant_id = #{tenantId}
+    </select>
+
+    <insert id="insert" parameterType="com.ruoyi.crm.domain.CrmAiSkillPlaybook" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
+        insert into crm_ai_skill_playbook (
+            tenant_id, name, description, trigger_keywords, entry_skill_id, output_schema,
+            enabled, version, create_by, create_time, update_by, update_time
+        ) values (
+            #{tenantId}, #{name}, #{description}, #{triggerKeywords}, #{entrySkillId}, #{outputSchema},
+            #{enabled}, #{version}, #{createBy}, #{createTime}, #{updateBy}, #{updateTime}
+        )
+    </insert>
+
+    <update id="update" parameterType="com.ruoyi.crm.domain.CrmAiSkillPlaybook">
+        update crm_ai_skill_playbook
+        set name = #{name},
+            description = #{description},
+            trigger_keywords = #{triggerKeywords},
+            entry_skill_id = #{entrySkillId},
+            output_schema = #{outputSchema},
+            enabled = #{enabled},
+            version = #{version},
+            update_by = #{updateBy},
+            update_time = #{updateTime}
+        where id = #{id} and tenant_id = #{tenantId}
+    </update>
+
+    <delete id="deleteByIdAndTenant">
+        delete from crm_ai_skill_playbook where id = #{id} and tenant_id = #{tenantId}
+    </delete>
+</mapper>

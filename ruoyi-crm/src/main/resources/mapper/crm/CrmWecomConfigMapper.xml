@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmWecomConfigMapper">
+
+    <resultMap id="CrmWecomConfigResult" type="com.ruoyi.crm.domain.CrmWecomConfig">
+        <id property="id" column="id"/>
+        <result property="corpId" column="corp_id"/>
+        <result property="agentId" column="agent_id"/>
+        <result property="agentSecretEnc" column="agent_secret_enc"/>
+        <result property="callbackToken" column="callback_token"/>
+        <result property="encodingAesKey" column="encoding_aes_key"/>
+        <result property="connected" column="connected"/>
+        <result property="lastError" column="last_error"/>
+        <result property="welcomeEnabled" column="welcome_enabled"/>
+        <result property="welcomeText" column="welcome_text"/>
+        <result property="defaultLeadUserId" column="default_lead_user_id"/>
+        <result property="defaultLeadDeptId" column="default_lead_dept_id"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <select id="selectFirst" resultMap="CrmWecomConfigResult">
+        SELECT id, corp_id, agent_id, agent_secret_enc, callback_token, encoding_aes_key, connected, last_error,
+               welcome_enabled, welcome_text, default_lead_user_id, default_lead_dept_id,
+               create_by, create_time, update_by, update_time
+        FROM crm_wecom_config ORDER BY id ASC LIMIT 1
+    </select>
+
+    <select id="selectByCorpId" resultMap="CrmWecomConfigResult">
+        SELECT id, corp_id, agent_id, agent_secret_enc, callback_token, encoding_aes_key, connected, last_error,
+               welcome_enabled, welcome_text, default_lead_user_id, default_lead_dept_id,
+               create_by, create_time, update_by, update_time
+        FROM crm_wecom_config WHERE corp_id = #{corpId} LIMIT 1
+    </select>
+
+    <insert id="insert" parameterType="com.ruoyi.crm.domain.CrmWecomConfig" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO crm_wecom_config (
+            corp_id, agent_id, agent_secret_enc, callback_token, encoding_aes_key, connected, last_error,
+            welcome_enabled, welcome_text, default_lead_user_id, default_lead_dept_id,
+            create_by, create_time, update_by, update_time
+        ) VALUES (
+            #{corpId}, #{agentId}, #{agentSecretEnc}, #{callbackToken}, #{encodingAesKey},
+            CASE WHEN #{connected,jdbcType=BOOLEAN} THEN 1 ELSE 0 END, #{lastError},
+            #{welcomeEnabled,jdbcType=BOOLEAN}, #{welcomeText},
+            #{defaultLeadUserId}, #{defaultLeadDeptId},
+            #{createBy}, #{createTime}, #{updateBy}, #{updateTime}
+        )
+    </insert>
+
+    <update id="update" parameterType="com.ruoyi.crm.domain.CrmWecomConfig">
+        UPDATE crm_wecom_config
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="corpId != null">corp_id = #{corpId},</if>
+            <if test="agentId != null">agent_id = #{agentId},</if>
+            <if test="agentSecretEnc != null">agent_secret_enc = #{agentSecretEnc},</if>
+            <if test="callbackToken != null">callback_token = #{callbackToken},</if>
+            <if test="encodingAesKey != null">encoding_aes_key = #{encodingAesKey},</if>
+            <if test="connected != null">connected = CASE WHEN #{connected,jdbcType=BOOLEAN} THEN 1 ELSE 0 END,</if>
+            <if test="lastError != null">last_error = #{lastError},</if>
+            <if test="welcomeEnabled != null">welcome_enabled = #{welcomeEnabled,jdbcType=BOOLEAN},</if>
+            <if test="welcomeText != null">welcome_text = #{welcomeText},</if>
+            <if test="defaultLeadOwnerDirty != null and defaultLeadOwnerDirty">
+                default_lead_user_id = #{defaultLeadUserId},
+                default_lead_dept_id = #{defaultLeadDeptId},
+            </if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        WHERE id = #{id}
+    </update>
+</mapper>

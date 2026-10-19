@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmConversionHistoryMapper">
+    
+    <resultMap type="CrmConversionHistory" id="CrmConversionHistoryResult">
+        <result property="id"    column="id"    />
+        <result property="leadId"    column="lead_id"    />
+        <result property="leadName"    column="lead_name"    />
+        <result property="conversionType"    column="conversion_type"    />
+        <result property="targetId"    column="target_id"    />
+        <result property="targetName"    column="target_name"    />
+        <result property="convertedBy"    column="converted_by"    />
+        <result property="remark"    column="remark"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="userId"    column="user_id"    />
+        <result property="deptId"    column="dept_id"    />
+    </resultMap>
+
+    <sql id="selectCrmConversionHistoryVo">
+        select id, lead_id, lead_name, conversion_type, target_id, target_name, converted_by, remark, create_by, create_time, update_by, update_time, user_id, dept_id from crm_conversion_history
+    </sql>
+
+    <select id="selectCrmConversionHistoryList" parameterType="CrmConversionHistory" resultMap="CrmConversionHistoryResult">
+        <include refid="selectCrmConversionHistoryVo"/>
+        <where>  
+            <if test="leadId != null  and leadId != ''"> and lead_id = #{leadId}</if>
+            <if test="leadName != null  and leadName != ''"> and lead_name like concat('%', #{leadName}, '%')</if>
+            <if test="conversionType != null  and conversionType != ''"> and conversion_type = #{conversionType}</if>
+            <if test="targetId != null  and targetId != ''"> and target_id = #{targetId}</if>
+            <if test="targetName != null  and targetName != ''"> and target_name like concat('%', #{targetName}, '%')</if>
+            <if test="convertedBy != null  and convertedBy != ''"> and converted_by = #{convertedBy}</if>
+            <if test="userId != null "> and user_id = #{userId}</if>
+            <if test="deptId != null "> and dept_id = #{deptId}</if>
+        </where>
+    </select>
+    
+    <select id="selectCrmConversionHistoryById" parameterType="String" resultMap="CrmConversionHistoryResult">
+        <include refid="selectCrmConversionHistoryVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertCrmConversionHistory" parameterType="CrmConversionHistory">
+        insert into crm_conversion_history
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">id,</if>
+            <if test="leadId != null">lead_id,</if>
+            <if test="leadName != null">lead_name,</if>
+            <if test="conversionType != null and conversionType != ''">conversion_type,</if>
+            <if test="targetId != null">target_id,</if>
+            <if test="targetName != null">target_name,</if>
+            <if test="convertedBy != null">converted_by,</if>
+            <if test="remark != null">remark,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="userId != null">user_id,</if>
+            <if test="deptId != null">dept_id,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">#{id},</if>
+            <if test="leadId != null">#{leadId},</if>
+            <if test="leadName != null">#{leadName},</if>
+            <if test="conversionType != null and conversionType != ''">#{conversionType},</if>
+            <if test="targetId != null">#{targetId},</if>
+            <if test="targetName != null">#{targetName},</if>
+            <if test="convertedBy != null">#{convertedBy},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="userId != null">#{userId},</if>
+            <if test="deptId != null">#{deptId},</if>
+         </trim>
+    </insert>
+
+    <update id="updateCrmConversionHistory" parameterType="CrmConversionHistory">
+        update crm_conversion_history
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="leadId != null">lead_id = #{leadId},</if>
+            <if test="leadName != null">lead_name = #{leadName},</if>
+            <if test="conversionType != null and conversionType != ''">conversion_type = #{conversionType},</if>
+            <if test="targetId != null">target_id = #{targetId},</if>
+            <if test="targetName != null">target_name = #{targetName},</if>
+            <if test="convertedBy != null">converted_by = #{convertedBy},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="userId != null">user_id = #{userId},</if>
+            <if test="deptId != null">dept_id = #{deptId},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteCrmConversionHistoryById" parameterType="String">
+        delete from crm_conversion_history where id = #{id}
+    </delete>
+
+    <delete id="deleteCrmConversionHistoryByIds" parameterType="String">
+        delete from crm_conversion_history where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

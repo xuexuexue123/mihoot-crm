@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmAnalyticsQueryLogMapper">
+
+    <insert id="insertCrmAnalyticsQueryLog" parameterType="com.ruoyi.crm.domain.CrmAnalyticsQueryLog">
+        insert into crm_analytics_query_log (
+            log_id, tenant_id, user_id, metric, request_json, response_json, duration_ms, create_time
+        ) values (
+            #{logId}, #{tenantId}, #{userId}, #{metric}, #{requestJson}, #{responseJson}, #{durationMs}, CURRENT_TIMESTAMP
+        )
+    </insert>
+</mapper>

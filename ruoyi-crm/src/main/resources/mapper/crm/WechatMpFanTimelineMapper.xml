@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.wechatmp.mapper.WechatMpFanTimelineMapper">
+
+    <resultMap type="CrmActivity" id="CrmActivityResult">
+        <result property="activityId"       column="activity_id"    />
+        <result property="activitySubject"  column="activity_subject"    />
+        <result property="communicationType" column="communication_type"    />
+        <result property="startedDate"      column="started_date"    />
+        <result property="assignedTo"       column="assigned_to"    />
+        <result property="assignedToid"     column="assigned_toid"    />
+        <result property="statusDetail"     column="status_detail"    />
+        <result property="contacts"         column="contacts"    />
+        <result property="internalStaff"    column="internal_staff"    />
+        <result property="tasks"            column="tasks"    />
+        <result property="outcome"          column="outcome"    />
+        <result property="comments"         column="comments"    />
+        <result property="createBy"         column="create_by"    />
+        <result property="createTime"       column="create_time"    />
+        <result property="updateBy"         column="update_by"    />
+        <result property="updateTime"       column="update_time"    />
+        <result property="userId"           column="user_id"    />
+        <result property="deptId"           column="dept_id"    />
+        <result property="pulseId"          column="pulse_id"    />
+        <result property="parentId"         column="parent_id"    />
+        <result property="orderId"          column="order_id"    />
+        <result property="pulseType"        column="pulse_type"    />
+        <result property="subjectType"      column="subject_type"    />
+        <result property="subjectId"        column="subject_id"    />
+        <result property="eventType"        column="event_type"    />
+        <result property="eventName"        column="event_name"    />
+        <result property="importance"       column="importance"    />
+        <result property="endedDate"        column="ended_date"    />
+        <result property="source"           column="source"    />
+        <result property="payload"          column="payload"    />
+        <result property="status"           column="status"    />
+        <result property="parentEventId"    column="parent_event_id"    />
+        <result property="relateType"       column="relate_type"    />
+        <result property="relateId"         column="relate_id"    />
+        <result property="relateName"       column="relate_name"    />
+        <result property="messageData"      column="message_data"    />
+        <result property="avatar"           column="avatar"    />
+        <result property="creatorId"        column="creator_id"    />
+        <result property="eventCategory"    column="event_category"    />
+        <result property="channel"          column="channel"    />
+        <result property="channelEventId"   column="channel_event_id"    />
+        <result property="isAggregated"     column="is_aggregated"    />
+        <result property="aggregatedAt"     column="aggregated_at"    />
+        <result property="context"          column="context"    />
+    </resultMap>
+
+    <sql id="openIdFilter">
+        COALESCE(
+            a.payload::jsonb ->> 'open_id',
+            a.payload::jsonb ->> 'openId',
+            a.payload::jsonb ->> 'openid',
+            a.context::jsonb ->> 'open_id',
+            a.context::jsonb ->> 'openId',
+            a.context::jsonb ->> 'openid'
+        ) = #{openId}
+    </sql>
+
+    <select id="selectActivitiesByOpenId" resultMap="CrmActivityResult">
+        SELECT a.activity_id, a.activity_subject, a.communication_type, a.started_date,
+               a.assigned_to, a.assigned_toid, a.status_detail, a.contacts, a.internal_staff,
+               a.tasks, a.outcome, a.comments, a.create_by, a.create_time, a.update_by,
+               a.update_time, a.user_id, a.dept_id, a.pulse_id, a.parent_id, a.order_id,
+               a.pulse_type, a.subject_type, a.subject_id, a.event_type, a.event_name,
+               a.importance, a.ended_date, a.source, a.payload::text AS payload, a.status,
+               a.parent_event_id, a.relate_type, a.relate_id, a.relate_name, a.message_data,
+               a.avatar, a.creator_id, a.event_category, a.channel, a.channel_event_id,
+               a.is_aggregated, a.aggregated_at, a.context::text AS context
+        FROM crm_activity a
+        WHERE a.channel = 'wechat_mp'
+          AND COALESCE(a.context::jsonb ->> 'app_id', a.context::jsonb ->> 'appId') = #{appId}
+          AND <include refid="openIdFilter"/>
+        ORDER BY COALESCE(a.started_date, a.create_time) DESC
+    </select>
+
+    <select id="selectUnmatchedByOpenId" resultType="com.ruoyi.crm.wechatmp.domain.ActivityUnmatched">
+        SELECT id, pulse_id AS pulseId, identity_type AS identityType,
+               identity_value AS identityValue, union_id AS unionId,
+               union_id_source AS unionIdSource, app_id AS appId,
+               retry_count AS retryCount, max_retries AS maxRetries,
+               next_retry_at AS nextRetryAt, matched_at AS matchedAt,
+               contact_id AS contactId, abandoned, raw_payload AS rawPayload,
+               create_time AS createTime, update_time AS updateTime
+        FROM crm_activity_unmatched
+        WHERE identity_type = 'wechat_mp_openid'
+          AND identity_value = #{openId}
+          AND app_id = #{appId}
+        ORDER BY COALESCE(create_time, matched_at) DESC
+    </select>
+</mapper>

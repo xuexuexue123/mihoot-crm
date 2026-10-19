@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.EventNurtureEnrollmentMapper">
+
+    <resultMap type="com.ruoyi.crm.domain.CrmEventNurtureEnrollment" id="EventNurtureEnrollmentResult">
+        <result property="id" column="id"/>
+        <result property="tenantId" column="tenant_id"/>
+        <result property="eventId" column="event_id"/>
+        <result property="sequenceId" column="sequence_id"/>
+        <result property="audienceKey" column="audience_key"/>
+        <result property="leadId" column="lead_id"/>
+        <result property="contactId" column="contact_id"/>
+        <result property="wechatMpOpenid" column="wechat_mp_openid"/>
+        <result property="wechatMpAppId" column="wechat_mp_app_id"/>
+        <result property="wecomExternalUserid" column="wecom_external_userid"/>
+        <result property="displayName" column="display_name"/>
+        <result property="mobilePhone" column="mobile_phone"/>
+        <result property="status" column="status"/>
+        <result property="currentStepOrder" column="current_step_order"/>
+        <result property="nextRunAt" column="next_run_at"/>
+        <result property="enrolledAt" column="enrolled_at"/>
+        <result property="exitedAt" column="exited_at"/>
+        <result property="exitReason" column="exit_reason"/>
+    </resultMap>
+
+    <select id="selectById" resultMap="EventNurtureEnrollmentResult">
+        SELECT * FROM crm_event_nurture_enrollment WHERE id = #{id}
+    </select>
+
+    <select id="selectBySequenceAndAudienceKey" resultMap="EventNurtureEnrollmentResult">
+        SELECT * FROM crm_event_nurture_enrollment
+        WHERE tenant_id = #{tenantId}
+          AND sequence_id = #{sequenceId}
+          AND audience_key = #{audienceKey}
+        LIMIT 1
+    </select>
+
+    <select id="selectDue" resultMap="EventNurtureEnrollmentResult">
+        SELECT * FROM crm_event_nurture_enrollment
+        WHERE tenant_id = #{tenantId}
+          AND status = 'active'
+          AND next_run_at &lt;= #{now}
+        ORDER BY next_run_at ASC
+        LIMIT #{limit}
+    </select>
+
+    <select id="countActiveBySequenceId" resultType="int">
+        SELECT COUNT(*) FROM crm_event_nurture_enrollment
+        WHERE sequence_id = #{sequenceId} AND status = 'active'
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
+        INSERT INTO crm_event_nurture_enrollment (
+            tenant_id, event_id, sequence_id, audience_key, lead_id, contact_id,
+            wechat_mp_openid, wechat_mp_app_id, wecom_external_userid,
+            display_name, mobile_phone, status, current_step_order, next_run_at, enrolled_at
+        ) VALUES (
+            #{tenantId}, #{eventId}, #{sequenceId}, #{audienceKey}, #{leadId}, #{contactId},
+            #{wechatMpOpenid}, #{wechatMpAppId}, #{wecomExternalUserid},
+            #{displayName}, #{mobilePhone}, #{status}, #{currentStepOrder}, #{nextRunAt}, COALESCE(#{enrolledAt}, NOW())
+        )
+    </insert>
+
+    <update id="updateProgress">
+        UPDATE crm_event_nurture_enrollment
+        SET current_step_order = #{currentStepOrder},
+            next_run_at = #{nextRunAt}
+        WHERE id = #{id}
+    </update>
+
+    <update id="markExited">
+        UPDATE crm_event_nurture_enrollment
+        SET status = 'exited',
+            exited_at = COALESCE(#{exitedAt}, NOW()),
+            exit_reason = #{exitReason}
+        WHERE id = #{id}
+    </update>
+
+    <update id="markCompleted">
+        UPDATE crm_event_nurture_enrollment
+        SET status = 'completed',
+            next_run_at = NOW()
+        WHERE id = #{id}
+    </update>
+
+</mapper>

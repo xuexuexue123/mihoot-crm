@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmResearchMapper">
+    
+    <resultMap type="CrmResearch" id="CrmResearchResult">
+        <result property="researchId"    column="research_id"    />
+        <result property="category"    column="category"    />
+        <result property="subject"    column="subject"    />
+        <result property="releaseDate"    column="release_date"    />
+        <result property="industry"    column="industry"    />
+        <result property="favorite"    column="favorite"    />
+        <result property="aiSummary"    column="ai_summary"    />
+        <result property="catalog"    column="catalog"    />
+        <result property="commentFile"    column="comment_file"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectCrmResearchVo">
+        select research_id, category, subject, release_date, industry, favorite, ai_summary, catalog, comment_file, create_by, create_time, update_by, update_time from crm_research
+    </sql>
+
+    <select id="selectCrmResearchList" parameterType="CrmResearch" resultMap="CrmResearchResult">
+        <include refid="selectCrmResearchVo"/>
+        <where>  
+            <if test="category != null  and category != ''"> and category = #{category}</if>
+            <if test="subject != null  and subject != ''"> and subject = #{subject}</if>
+            <if test="releaseDate != null "> and release_date = #{releaseDate}</if>
+            <if test="industry != null  and industry != ''"> and industry = #{industry}</if>
+            <if test="favorite != null "> and favorite = #{favorite}</if>
+            <if test="aiSummary != null  and aiSummary != ''"> and ai_summary = #{aiSummary}</if>
+            <if test="catalog != null  and catalog != ''"> and catalog = #{catalog}</if>
+            <if test="commentFile != null  and commentFile != ''"> and comment_file = #{commentFile}</if>
+        </where>
+    </select>
+    
+    <select id="selectCrmResearchByResearchId" parameterType="String" resultMap="CrmResearchResult">
+        <include refid="selectCrmResearchVo"/>
+        where research_id = #{researchId}
+    </select>
+        
+    <insert id="insertCrmResearch" parameterType="CrmResearch">
+        insert into crm_research
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="researchId != null">research_id,</if>
+            <if test="category != null and category != ''">category,</if>
+            <if test="subject != null and subject != ''">subject,</if>
+            <if test="releaseDate != null">release_date,</if>
+            <if test="industry != null and industry != ''">industry,</if>
+            <if test="favorite != null">favorite,</if>
+            <if test="aiSummary != null">ai_summary,</if>
+            <if test="catalog != null">catalog,</if>
+            <if test="commentFile != null">comment_file,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="researchId != null">#{researchId},</if>
+            <if test="category != null and category != ''">#{category},</if>
+            <if test="subject != null and subject != ''">#{subject},</if>
+            <if test="releaseDate != null">#{releaseDate},</if>
+            <if test="industry != null and industry != ''">#{industry},</if>
+            <if test="favorite != null">#{favorite},</if>
+            <if test="aiSummary != null">#{aiSummary},</if>
+            <if test="catalog != null">#{catalog},</if>
+            <if test="commentFile != null">#{commentFile},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateCrmResearch" parameterType="CrmResearch">
+        update crm_research
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="category != null and category != ''">category = #{category},</if>
+            <if test="subject != null and subject != ''">subject = #{subject},</if>
+            <if test="releaseDate != null">release_date = #{releaseDate},</if>
+            <if test="industry != null and industry != ''">industry = #{industry},</if>
+            <if test="favorite != null">favorite = #{favorite},</if>
+            <if test="aiSummary != null">ai_summary = #{aiSummary},</if>
+            <if test="catalog != null">catalog = #{catalog},</if>
+            <if test="commentFile != null">comment_file = #{commentFile},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where research_id = #{researchId}
+    </update>
+
+    <delete id="deleteCrmResearchByResearchId" parameterType="String">
+        delete from crm_research where research_id = #{researchId}
+    </delete>
+
+    <delete id="deleteCrmResearchByResearchIds" parameterType="String">
+        delete from crm_research where research_id in 
+        <foreach item="researchId" collection="array" open="(" separator="," close=")">
+            #{researchId}
+        </foreach>
+    </delete>
+</mapper>

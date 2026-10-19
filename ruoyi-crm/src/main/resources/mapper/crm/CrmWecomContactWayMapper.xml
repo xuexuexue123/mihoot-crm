@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmWecomContactWayMapper">
+
+    <resultMap id="ResultSimple" type="com.ruoyi.crm.domain.CrmWecomContactWay">
+        <id property="id" column="id"/>
+        <result property="configId" column="config_id"/>
+        <result property="state" column="state"/>
+        <result property="remark" column="remark"/>
+        <result property="scene" column="scene"/>
+        <result property="type" column="type"/>
+        <result property="skipVerify" column="skip_verify"/>
+        <result property="userListJson" column="user_list"/>
+        <result property="qrCode" column="qr_code"/>
+        <result property="welcomeText" column="welcome_text"/>
+        <result property="crmEventId" column="crm_event_id"/>
+        <result property="rawRequestJson" column="raw_request"/>
+        <result property="rawResponseJson" column="raw_response"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <select id="selectList" resultMap="ResultSimple">
+        SELECT id, config_id, state, remark, scene, type, skip_verify,
+               CAST(user_list AS TEXT) AS user_list, qr_code, welcome_text, crm_event_id,
+               CAST(raw_request AS TEXT) AS raw_request, CAST(raw_response AS TEXT) AS raw_response,
+               create_by, create_time, update_by, update_time
+        FROM crm_wecom_contact_way
+        <where>
+            <if test="state != null and state != ''">AND state = #{state}</if>
+            <if test="statePrefix != null and statePrefix != ''">AND state LIKE concat(#{statePrefix}, '%')</if>
+            <if test="crmEventId != null and crmEventId != ''">AND crm_event_id = #{crmEventId}</if>
+            <if test="remark != null and remark != ''">AND remark LIKE concat('%', #{remark}, '%')</if>
+        </where>
+        ORDER BY id DESC
+    </select>
+
+    <select id="selectById" resultMap="ResultSimple">
+        SELECT id, config_id, state, remark, scene, type, skip_verify,
+               CAST(user_list AS TEXT) AS user_list, qr_code, welcome_text, crm_event_id,
+               CAST(raw_request AS TEXT) AS raw_request, CAST(raw_response AS TEXT) AS raw_response,
+               create_by, create_time, update_by, update_time
+        FROM crm_wecom_contact_way WHERE id = #{id}
+    </select>
+
+    <select id="selectByConfigId" resultMap="ResultSimple">
+        SELECT id, config_id, state, remark, scene, type, skip_verify,
+               CAST(user_list AS TEXT) AS user_list, qr_code, welcome_text, crm_event_id,
+               CAST(raw_request AS TEXT) AS raw_request, CAST(raw_response AS TEXT) AS raw_response,
+               create_by, create_time, update_by, update_time
+        FROM crm_wecom_contact_way WHERE config_id = #{configId}
+    </select>
+
+    <select id="selectByState" resultMap="ResultSimple">
+        SELECT id, config_id, state, remark, scene, type, skip_verify,
+               CAST(user_list AS TEXT) AS user_list, qr_code, welcome_text, crm_event_id,
+               CAST(raw_request AS TEXT) AS raw_request, CAST(raw_response AS TEXT) AS raw_response,
+               create_by, create_time, update_by, update_time
+        FROM crm_wecom_contact_way WHERE state = #{state} LIMIT 1
+    </select>
+
+    <insert id="insert" parameterType="com.ruoyi.crm.domain.CrmWecomContactWay" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
+        INSERT INTO crm_wecom_contact_way (
+            config_id, state, remark, scene, type, skip_verify, user_list, qr_code, welcome_text, crm_event_id,
+            raw_request, raw_response,
+            create_by, create_time, update_by, update_time
+        ) VALUES (
+            #{configId}, #{state}, #{remark}, #{scene}, #{type},
+            CASE WHEN #{skipVerify,jdbcType=BOOLEAN} THEN 1 ELSE 0 END,
+            CAST(NULLIF(TRIM(#{userListJson,jdbcType=VARCHAR}), '') AS jsonb),
+            #{qrCode}, #{welcomeText}, #{crmEventId},
+            CAST(NULLIF(TRIM(#{rawRequestJson,jdbcType=VARCHAR}), '') AS jsonb),
+            CAST(NULLIF(TRIM(#{rawResponseJson,jdbcType=VARCHAR}), '') AS jsonb),
+            #{createBy}, #{createTime}, #{updateBy}, #{updateTime}
+        )
+    </insert>
+
+    <update id="updatePartial">
+        UPDATE crm_wecom_contact_way
+        <set>
+            <if test="row.remark != null">remark = #{row.remark},</if>
+            <if test="welcomeTextSet">welcome_text = #{row.welcomeText,jdbcType=VARCHAR},</if>
+            update_by = #{row.updateBy},
+            update_time = #{row.updateTime}
+        </set>
+        WHERE id = #{row.id}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM crm_wecom_contact_way WHERE id = #{id}
+    </delete>
+</mapper>

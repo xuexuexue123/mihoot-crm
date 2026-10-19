@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.ems.mapper.SysCaseinstanceMapper">
+    
+    <resultMap type="SysCaseinstance" id="SysCaseinstanceResult">
+        <result property="id"    column="id"    />
+        <result property="pyCaseId"    column="py_case_id"    />
+        <result property="pyLabel"    column="py_label"    />
+        <result property="pyName"    column="py_name"    />
+        <result property="caseTypeId"    column="case_type_id"    />
+        <result property="pyUrgency"    column="py_urgency"    />
+        <result property="pyCurrentStage"    column="py_current_stage"    />
+        <result property="pyStatusWork"    column="py_status_work"    />
+        <result property="pyCaseStructure"    column="py_case_structure"    />
+        <result property="pyWorkPage"    column="py_work_page"    />
+        <result property="pxCreateBy"    column="px_create_by"    />
+        <result property="pxCreateTime"    column="px_create_time"    />
+        <result property="pyUpdateBy"    column="py_update_by"    />
+        <result property="pyUpdateTime"    column="py_update_time"    />
+        <result property="pyDescription"    column="py_description"    />
+    </resultMap>
+
+    <sql id="selectSysCaseinstanceVo">
+        select id, py_case_id, py_label, py_name, case_type_id, py_urgency, py_current_stage, py_status_work, py_case_structure, py_work_page, px_create_by, px_create_time, py_update_by, py_update_time, py_description from sys_ru_caseinstance
+    </sql>
+
+    <select id="selectSysCaseinstanceList" parameterType="SysCaseinstance" resultMap="SysCaseinstanceResult">
+        <include refid="selectSysCaseinstanceVo"/>
+        <where>  
+            <if test="pyCaseId != null  and pyCaseId != ''"> and py_case_id = #{pyCaseId}</if>
+            <if test="pyLabel != null  and pyLabel != ''"> and py_label = #{pyLabel}</if>
+            <if test="pyName != null  and pyName != ''"> and py_name like concat('%', #{pyName}, '%')</if>
+            <if test="caseTypeId != null  and caseTypeId != ''"> and case_type_id = #{caseTypeId}</if>
+            <if test="pyUrgency != null "> and py_urgency = #{pyUrgency}</if>
+            <if test="pyCurrentStage != null  and pyCurrentStage != ''"> and py_current_stage = #{pyCurrentStage}</if>
+            <if test="pyStatusWork != null  and pyStatusWork != ''"> and py_status_work = #{pyStatusWork}</if>
+            <if test="pyCaseStructure != null  and pyCaseStructure != ''"> and py_case_structure = #{pyCaseStructure}</if>
+            <if test="pyWorkPage != null  and pyWorkPage != ''"> and py_work_page = #{pyWorkPage}</if>
+            <if test="pxCreateBy != null  and pxCreateBy != ''"> and px_create_by = #{pxCreateBy}</if>
+            <if test="pxCreateTime != null "> and px_create_time = #{pxCreateTime}</if>
+            <if test="pyUpdateBy != null  and pyUpdateBy != ''"> and py_update_by = #{pyUpdateBy}</if>
+            <if test="pyUpdateTime != null "> and py_update_time = #{pyUpdateTime}</if>
+            <if test="pyDescription != null  and pyDescription != ''"> and py_description = #{pyDescription}</if>
+        </where>
+    </select>
+    
+    <select id="selectSysCaseinstanceById" parameterType="Long" resultMap="SysCaseinstanceResult">
+        <include refid="selectSysCaseinstanceVo"/>
+        where id = #{id}
+    </select>
+
+    <select id="selectSysCaseinstanceByCaseId" parameterType="String" resultMap="SysCaseinstanceResult">
+        <include refid="selectSysCaseinstanceVo"/>
+        where py_case_id = #{pyCaseId}
+    </select>
+        
+    <insert id="insertSysCaseinstance" parameterType="SysCaseinstance" useGeneratedKeys="true" keyProperty="id">
+        insert into sys_ru_caseinstance
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="pyCaseId != null">py_case_id,</if>
+            <if test="pyLabel != null">py_label,</if>
+            <if test="pyName != null">py_name,</if>
+            <if test="caseTypeId != null">case_type_id,</if>
+            <if test="pyUrgency != null">py_urgency,</if>
+            <if test="pyCurrentStage != null">py_current_stage,</if>
+            <if test="pyStatusWork != null">py_status_work,</if>
+            <if test="pyCaseStructure != null">py_case_structure,</if>
+            <if test="pyWorkPage != null">py_work_page,</if>
+            <if test="pxCreateBy != null">px_create_by,</if>
+            <if test="pxCreateTime != null">px_create_time,</if>
+            <if test="pyUpdateBy != null">py_update_by,</if>
+            <if test="pyUpdateTime != null">py_update_time,</if>
+            <if test="pyDescription != null">py_description,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="pyCaseId != null">#{pyCaseId},</if>
+            <if test="pyLabel != null">#{pyLabel},</if>
+            <if test="pyName != null">#{pyName},</if>
+            <if test="caseTypeId != null">#{caseTypeId},</if>
+            <if test="pyUrgency != null">#{pyUrgency},</if>
+            <if test="pyCurrentStage != null">#{pyCurrentStage},</if>
+            <if test="pyStatusWork != null">#{pyStatusWork},</if>
+            <if test="pyCaseStructure != null">#{pyCaseStructure},</if>
+            <if test="pyWorkPage != null">#{pyWorkPage},</if>
+            <if test="pxCreateBy != null">#{pxCreateBy},</if>
+            <if test="pxCreateTime != null">#{pxCreateTime},</if>
+            <if test="pyUpdateBy != null">#{pyUpdateBy},</if>
+            <if test="pyUpdateTime != null">#{pyUpdateTime},</if>
+            <if test="pyDescription != null">#{pyDescription},</if>
+         </trim>
+    </insert>
+
+    <update id="updateSysCaseinstance" parameterType="SysCaseinstance">
+        update sys_ru_caseinstance
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="pyCaseId != null">py_case_id = #{pyCaseId},</if>
+            <if test="pyLabel != null">py_label = #{pyLabel},</if>
+            <if test="pyName != null">py_name = #{pyName},</if>
+            <if test="caseTypeId != null">case_type_id = #{caseTypeId},</if>
+            <if test="pyUrgency != null">py_urgency = #{pyUrgency},</if>
+            <if test="pyCurrentStage != null">py_current_stage = #{pyCurrentStage},</if>
+            <if test="pyStatusWork != null">py_status_work = #{pyStatusWork},</if>
+            <if test="pyCaseStructure != null">py_case_structure = #{pyCaseStructure},</if>
+            <if test="pyWorkPage != null">py_work_page = #{pyWorkPage},</if>
+            <if test="pxCreateBy != null">px_create_by = #{pxCreateBy},</if>
+            <if test="pxCreateTime != null">px_create_time = #{pxCreateTime},</if>
+            <if test="pyUpdateBy != null">py_update_by = #{pyUpdateBy},</if>
+            <if test="pyUpdateTime != null">py_update_time = #{pyUpdateTime},</if>
+            <if test="pyDescription != null">py_description = #{pyDescription},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteSysCaseinstanceById" parameterType="Long">
+        delete from sys_ru_caseinstance where id = #{id}
+    </delete>
+
+    <delete id="deleteSysCaseinstanceByIds" parameterType="String">
+        delete from sys_ru_caseinstance where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

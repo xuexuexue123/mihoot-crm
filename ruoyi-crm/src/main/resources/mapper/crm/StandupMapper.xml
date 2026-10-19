@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.StandupMapper">
+
+    <!-- 今日/昨日预约按 user_id 计数；默认排除 cancelled；noshow 计入 -->
+    <select id="countBookingsByOwner" resultType="com.ruoyi.crm.domain.dto.StandupBookingCountRow">
+        SELECT b.user_id::text AS ownerId,
+               COUNT(*)::numeric AS bookingCount
+        FROM crm_booking b
+        WHERE b.user_id IS NOT NULL
+          AND b.user_id::text IN
+        <foreach collection="ownerIds" item="oid" open="(" separator="," close=")">
+            #{oid}
+        </foreach>
+          AND b.start_time &gt;= #{dayStart}
+          AND b.start_time &lt; #{dayEnd}
+        <if test="includeCancelled == null or includeCancelled == false">
+          AND b.status &lt;&gt; 'cancelled'
+        </if>
+        GROUP BY b.user_id
+    </select>
+
+    <select id="selectAgendaBookings" resultType="com.ruoyi.crm.domain.dto.StandupBookingAgendaRow">
+        SELECT b.booking_id AS bookingId,
+               b.lead_id AS leadId,
+               b.contact_id AS contactId,
+               b.org_id AS orgId,
+               COALESCE(o.short_name, o.full_name) AS orgName,
+               b.booking_name AS bookingName,
+               b.start_time AS startTime,
+               b.end_time AS endTime,
+               b.status AS status,
+               b.mobile_phone AS mobilePhone,
+               b.owner AS owner,
+               b.user_id AS userId,
+               COALESCE(c.full_name, c.name, l.full_name, l.lead_name, b.booking_name) AS subjectName
+        FROM crm_booking b
+        LEFT JOIN crm_org o ON o.org_id = b.org_id
+        LEFT JOIN crm_contact c ON c.contact_id = b.contact_id
+        LEFT JOIN crm_lead l ON l.lead_id = b.lead_id
+        WHERE b.start_time &gt;= #{dayStart}
+          AND b.start_time &lt; #{dayEnd}
+        <if test="ownerIds != null and ownerIds.size() &gt; 0">
+          AND b.user_id IS NOT NULL
+          AND b.user_id::text IN
+          <foreach collection="ownerIds" item="oid" open="(" separator="," close=")">
+              #{oid}
+          </foreach>
+        </if>
+        <if test="userId != null">
+          AND b.user_id = #{userId}
+        </if>
+        <if test="includeCancelled == null or includeCancelled == false">
+          AND b.status &lt;&gt; 'cancelled'
+        </if>
+        ORDER BY b.start_time ASC
+    </select>
+
+    <!-- 签约明细：仅 sign_amount；日期 COALESCE(sign_time, create_time)；排除 Draft/Terminated -->
+    <select id="selectWins" resultType="com.ruoyi.crm.domain.dto.StandupContractWinRow">
+        SELECT c.contract_id AS contractId,
+               c.contract_name AS contractName,
+               COALESCE(c.sign_amount, 0) AS signAmount,
+               COALESCE(c.sign_time, c.create_time) AS signTime,
+               c.owner_id AS ownerId,
+               c.owner AS ownerName,
+               c.contact_id AS contactId,
+               c.contact_name AS contactName,
+               c.account_name AS accountName
+        FROM crm_contract c
+        WHERE COALESCE(c.contract_status, '') NOT IN ('Draft', 'Terminated')
+          AND COALESCE(c.sign_time, c.create_time)::date &gt;= #{startDate}::date
+          AND COALESCE(c.sign_time, c.create_time)::date &lt;= #{endDate}::date
+        <if test="ownerIds != null and ownerIds.size() &gt; 0">
+          AND c.owner_id IN
+          <foreach collection="ownerIds" item="oid" open="(" separator="," close=")">
+              #{oid}
+          </foreach>
+        </if>
+        ORDER BY COALESCE(c.sign_time, c.create_time) DESC
+    </select>
+
+    <!-- Assigned 且闲置超过 idleHours -->
+    <select id="selectIdleLeads" resultType="com.ruoyi.crm.domain.dto.StandupIdleLeadRow">
+        SELECT l.lead_id AS leadId,
+               COALESCE(l.full_name, l.lead_name) AS leadName,
+               l.user_id::text AS ownerId,
+               l.owner AS ownerName,
+               COALESCE(l.last_followup_at, l.assigned_at, l.create_time) AS lastFollowupAt,
+               EXTRACT(EPOCH FROM (CURRENT_TIMESTAMP - COALESCE(l.last_followup_at, l.assigned_at, l.create_time))) / 3600.0 AS idleHours,
+               NULL::float8 AS poolEtaHours
+        FROM crm_lead l
+        WHERE lower(trim(coalesce(l.status, ''))) = 'assigned'
+          AND l.user_id IS NOT NULL
+        <if test="ownerIds != null and ownerIds.size() &gt; 0">
+          AND l.user_id::text IN
+          <foreach collection="ownerIds" item="oid" open="(" separator="," close=")">
+              #{oid}
+          </foreach>
+        </if>
+          AND COALESCE(l.last_followup_at, l.assigned_at, l.create_time)
+                &lt; (CURRENT_TIMESTAMP - (#{idleHours} || ' hours')::interval)
+        ORDER BY COALESCE(l.last_followup_at, l.assigned_at, l.create_time) ASC
+        LIMIT #{limit}
+    </select>
+
+    <!-- 剩余回收时间 &lt; imminentHours 且尚未超时 -->
+    <select id="selectPoolImminentLeads" resultType="com.ruoyi.crm.domain.dto.StandupIdleLeadRow">
+        SELECT l.lead_id AS leadId,
+               COALESCE(l.full_name, l.lead_name) AS leadName,
+               l.user_id::text AS ownerId,
+               l.owner AS ownerName,
+               COALESCE(l.last_followup_at, l.assigned_at, l.create_time) AS lastFollowupAt,
+               EXTRACT(EPOCH FROM (CURRENT_TIMESTAMP - COALESCE(l.last_followup_at, l.assigned_at, l.create_time))) / 3600.0 AS idleHours,
+               EXTRACT(EPOCH FROM (
+                   COALESCE(l.last_followup_at, l.assigned_at, l.create_time)
+                   + (#{idleHours} || ' hours')::interval
+                   - CURRENT_TIMESTAMP
+               )) / 3600.0 AS poolEtaHours
+        FROM crm_lead l
+        WHERE lower(trim(coalesce(l.status, ''))) = 'assigned'
+          AND l.user_id IS NOT NULL
+        <if test="ownerIds != null and ownerIds.size() &gt; 0">
+          AND l.user_id::text IN
+          <foreach collection="ownerIds" item="oid" open="(" separator="," close=")">
+              #{oid}
+          </foreach>
+        </if>
+          AND COALESCE(l.last_followup_at, l.assigned_at, l.create_time)
+                &gt;= (CURRENT_TIMESTAMP - (#{idleHours} || ' hours')::interval)
+          AND COALESCE(l.last_followup_at, l.assigned_at, l.create_time)
+                &lt; (CURRENT_TIMESTAMP - ((#{idleHours} - #{imminentHours}) || ' hours')::interval)
+        ORDER BY poolEtaHours ASC
+        LIMIT #{limit}
+    </select>
+
+    <!-- 非终态筛选在 Java；SQL 取 update_time 超过 staleDays -->
+    <select id="selectStaleOpties" resultType="com.ruoyi.crm.domain.dto.StandupStaleOptyRow">
+        SELECT o.opty_id AS optyId,
+               COALESCE(o.name, o.full_name) AS optyName,
+               COALESCE(o.user_id::text, o.owner) AS ownerId,
+               o.owner AS ownerName,
+               o.stage AS stage,
+               o.close_reason AS closeReason,
+               COALESCE(o.amount, 0) AS amount,
+               COALESCE(o.update_time, o.create_time) AS lastFollowupAt
+        FROM crm_opty o
+        WHERE COALESCE(o.update_time, o.create_time)
+                &lt; (CURRENT_TIMESTAMP - (#{staleDays} || ' days')::interval)
+        <if test="ownerIds != null and ownerIds.size() &gt; 0">
+          AND (
+            (o.user_id IS NOT NULL AND o.user_id::text IN
+              <foreach collection="ownerIds" item="oid" open="(" separator="," close=")">
+                  #{oid}
+              </foreach>
+            )
+            OR (o.user_id IS NULL AND o.owner IN
+              <foreach collection="ownerIds" item="oid" open="(" separator="," close=")">
+                  #{oid}
+              </foreach>
+            )
+          )
+        </if>
+        ORDER BY COALESCE(o.update_time, o.create_time) ASC
+        LIMIT #{limit}
+    </select>
+
+    <select id="selectYesterdayActivities" resultType="com.ruoyi.crm.domain.dto.StandupActivityRow">
+        SELECT a.pulse_id AS pulseId,
+               a.event_type AS eventType,
+               a.event_category AS eventCategory,
+               a.started_date AS startedDate,
+               a.relate_name AS relateName,
+               a.subject_type AS subjectType,
+               a.subject_id AS subjectId
+        FROM crm_activity a
+        WHERE a.user_id::text = #{ownerId}
+          AND a.started_date &gt;= #{dayStart}
+          AND a.started_date &lt; #{dayEnd}
+        ORDER BY a.started_date DESC, a.create_time DESC
+        LIMIT #{limit}
+    </select>
+
+</mapper>

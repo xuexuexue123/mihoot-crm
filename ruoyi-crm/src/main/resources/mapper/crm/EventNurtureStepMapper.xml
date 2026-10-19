@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.EventNurtureStepMapper">
+
+    <resultMap type="com.ruoyi.crm.domain.CrmEventNurtureStep" id="EventNurtureStepResult">
+        <result property="id" column="id"/>
+        <result property="tenantId" column="tenant_id"/>
+        <result property="sequenceId" column="sequence_id"/>
+        <result property="stepOrder" column="step_order"/>
+        <result property="actionType" column="action_type"/>
+        <result property="actionJson" column="action_json"/>
+        <result property="delaySeconds" column="delay_seconds"/>
+        <result property="createTime" column="create_time"/>
+    </resultMap>
+
+    <select id="selectBySequenceId" resultMap="EventNurtureStepResult">
+        SELECT id, tenant_id, sequence_id, step_order, action_type,
+               action_json::text AS action_json, delay_seconds, create_time
+        FROM crm_event_nurture_step
+        WHERE sequence_id = #{sequenceId}
+        ORDER BY step_order ASC
+    </select>
+
+    <select id="selectBySequenceAndOrder" resultMap="EventNurtureStepResult">
+        SELECT id, tenant_id, sequence_id, step_order, action_type,
+               action_json::text AS action_json, delay_seconds, create_time
+        FROM crm_event_nurture_step
+        WHERE sequence_id = #{sequenceId} AND step_order = #{stepOrder}
+        LIMIT 1
+    </select>
+
+    <delete id="deleteBySequenceId">
+        DELETE FROM crm_event_nurture_step WHERE sequence_id = #{sequenceId}
+    </delete>
+
+    <insert id="insertBatch">
+        INSERT INTO crm_event_nurture_step (
+            tenant_id, sequence_id, step_order, action_type, action_json, delay_seconds, create_time
+        ) VALUES
+        <foreach collection="steps" item="item" separator=",">
+            (#{item.tenantId}, #{item.sequenceId}, #{item.stepOrder}, #{item.actionType},
+             COALESCE(#{item.actionJson}::jsonb, '{}'::jsonb), #{item.delaySeconds}, NOW())
+        </foreach>
+    </insert>
+
+</mapper>

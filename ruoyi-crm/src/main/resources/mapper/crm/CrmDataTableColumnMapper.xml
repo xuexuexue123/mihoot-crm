@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmDataTableColumnMapper">
+
+    <resultMap type="com.ruoyi.crm.domain.CrmDataTableColumn" id="CrmDataTableColumnResult">
+        <result property="id" column="id"/>
+        <result property="dataTableId" column="data_table_id"/>
+        <result property="name" column="name"/>
+        <result property="type" column="type"/>
+        <result property="required" column="required"/>
+        <result property="defaultValue" column="default_value"/>
+        <result property="sortOrder" column="sort_order"/>
+        <result property="isSystem" column="is_system"/>
+        <result property="options" column="options"/>
+        <result property="unit" column="unit"/>
+        <result property="format" column="format"/>
+        <result property="section" column="section"/>
+    </resultMap>
+
+    <sql id="selectColumnVo">
+        select id, data_table_id, name, type, required, default_value, sort_order, is_system,
+               options, unit, format, section
+        from crm_data_table_column
+    </sql>
+
+    <select id="selectByDataTableId" resultMap="CrmDataTableColumnResult">
+        <include refid="selectColumnVo"/>
+        where data_table_id = #{dataTableId}
+        order by sort_order asc, name asc
+    </select>
+
+    <select id="selectById" resultMap="CrmDataTableColumnResult">
+        <include refid="selectColumnVo"/>
+        where id = #{id}
+    </select>
+
+    <select id="selectByDataTableIdAndName" resultMap="CrmDataTableColumnResult">
+        <include refid="selectColumnVo"/>
+        where data_table_id = #{dataTableId} and name = #{name}
+        limit 1
+    </select>
+
+    <insert id="insert" parameterType="com.ruoyi.crm.domain.CrmDataTableColumn">
+        insert into crm_data_table_column
+            (id, data_table_id, name, type, required, default_value, sort_order, is_system,
+             options, unit, format, section)
+        values
+            (#{id}, #{dataTableId}, #{name}, #{type},
+             coalesce(#{required}, false), #{defaultValue},
+             coalesce(#{sortOrder}, 0), coalesce(#{isSystem}, false),
+             #{options}, #{unit}, #{format}, #{section})
+    </insert>
+
+    <insert id="batchInsert">
+        insert into crm_data_table_column
+            (id, data_table_id, name, type, required, default_value, sort_order, is_system,
+             options, unit, format, section)
+        values
+        <foreach collection="list" item="item" separator=",">
+            (#{item.id}, #{item.dataTableId}, #{item.name}, #{item.type},
+             coalesce(#{item.required}, false), #{item.defaultValue},
+             coalesce(#{item.sortOrder}, 0), coalesce(#{item.isSystem}, false),
+             #{item.options}, #{item.unit}, #{item.format}, #{item.section})
+        </foreach>
+    </insert>
+
+    <update id="update" parameterType="com.ruoyi.crm.domain.CrmDataTableColumn">
+        update crm_data_table_column
+        set name = #{name},
+            type = #{type},
+            required = #{required},
+            default_value = #{defaultValue},
+            sort_order = #{sortOrder},
+            options = #{options},
+            unit = #{unit},
+            format = #{format},
+            section = #{section}
+        where id = #{id}
+    </update>
+
+    <delete id="deleteById">
+        delete from crm_data_table_column where id = #{id}
+    </delete>
+
+    <delete id="deleteNonSystemByDataTableId">
+        delete from crm_data_table_column
+        where data_table_id = #{dataTableId} and is_system = false
+    </delete>
+
+    <delete id="deleteByDataTableId">
+        delete from crm_data_table_column where data_table_id = #{dataTableId}
+    </delete>
+
+    <select id="countNonSystemByDataTableId" resultType="int">
+        select count(*) from crm_data_table_column
+        where data_table_id = #{dataTableId} and is_system = false
+    </select>
+</mapper>

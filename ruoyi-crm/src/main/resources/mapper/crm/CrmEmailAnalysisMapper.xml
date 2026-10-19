@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmEmailAnalysisMapper">
+
+    <resultMap type="com.ruoyi.crm.domain.CrmEmailAnalysis" id="CrmEmailAnalysisResult">
+        <result property="analysisId" column="analysis_id"/>
+        <result property="tenantId" column="tenant_id"/>
+        <result property="userId" column="user_id"/>
+        <result property="messageExternalId" column="message_external_id"/>
+        <result property="provider" column="provider"/>
+        <result property="externalName" column="external_name"/>
+        <result property="locale" column="locale"/>
+        <result property="subject" column="subject"/>
+        <result property="sender" column="sender"/>
+        <result property="bodyHash" column="body_hash"/>
+        <result property="executiveSummary" column="executive_summary"/>
+        <result property="category" column="category"/>
+        <result property="urgency" column="urgency"/>
+        <result property="sentimentLabel" column="sentiment_label"/>
+        <result property="sentimentScore" column="sentiment_score"/>
+        <result property="sentimentDescription" column="sentiment_description"/>
+        <result property="detectedIntent" column="detected_intent"/>
+        <result property="suggestedAction" column="suggested_action"/>
+        <result property="entitiesJson" column="entities_json"/>
+        <result property="suggestedTicketJson" column="suggested_ticket_json"/>
+        <result property="suggestedLeadJson" column="suggested_lead_json"/>
+        <result property="analysisJson" column="analysis_json"/>
+        <result property="model" column="model"/>
+        <result property="delFlag" column="del_flag"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <select id="selectLatestByKey" resultMap="CrmEmailAnalysisResult">
+        select analysis_id, tenant_id, user_id, message_external_id, provider, external_name,
+               locale, subject, sender, body_hash,
+               executive_summary, category, urgency,
+               sentiment_label, sentiment_score, sentiment_description,
+               detected_intent, suggested_action,
+               entities_json, suggested_ticket_json, suggested_lead_json, analysis_json, model,
+               del_flag, create_by, create_time, update_by, update_time
+        from crm_email_analysis
+        where tenant_id = #{tenantId}
+          and message_external_id = #{messageExternalId}
+          and locale = #{locale}
+          and del_flag = '0'
+        <if test="provider != null and provider != ''">
+          and provider = #{provider}
+        </if>
+        <if test="externalName != null and externalName != ''">
+          and external_name = #{externalName}
+        </if>
+        order by update_time desc
+        limit 1
+    </select>
+
+    <insert id="upsert" parameterType="com.ruoyi.crm.domain.CrmEmailAnalysis">
+        INSERT INTO crm_email_analysis (
+            analysis_id, tenant_id, user_id, message_external_id, provider, external_name,
+            locale, subject, sender, body_hash,
+            executive_summary, category, urgency,
+            sentiment_label, sentiment_score, sentiment_description,
+            detected_intent, suggested_action,
+            entities_json, suggested_ticket_json, suggested_lead_json, analysis_json, model,
+            create_by, create_time, update_by, update_time, del_flag
+        ) VALUES (
+            #{analysisId}, #{tenantId}, #{userId}, #{messageExternalId}, #{provider}, #{externalName},
+            #{locale}, #{subject}, #{sender}, #{bodyHash},
+            #{executiveSummary}, #{category}, #{urgency},
+            #{sentimentLabel}, #{sentimentScore}, #{sentimentDescription},
+            #{detectedIntent}, #{suggestedAction},
+            #{entitiesJson}, #{suggestedTicketJson}, #{suggestedLeadJson}, #{analysisJson}, #{model},
+            #{createBy}, #{createTime}, #{updateBy}, #{updateTime}, '0'
+        )
+        ON CONFLICT (tenant_id, message_external_id, locale)
+        DO UPDATE SET
+            user_id = EXCLUDED.user_id,
+            provider = EXCLUDED.provider,
+            external_name = EXCLUDED.external_name,
+            subject = EXCLUDED.subject,
+            sender = EXCLUDED.sender,
+            body_hash = EXCLUDED.body_hash,
+            executive_summary = EXCLUDED.executive_summary,
+            category = EXCLUDED.category,
+            urgency = EXCLUDED.urgency,
+            sentiment_label = EXCLUDED.sentiment_label,
+            sentiment_score = EXCLUDED.sentiment_score,
+            sentiment_description = EXCLUDED.sentiment_description,
+            detected_intent = EXCLUDED.detected_intent,
+            suggested_action = EXCLUDED.suggested_action,
+            entities_json = EXCLUDED.entities_json,
+            suggested_ticket_json = EXCLUDED.suggested_ticket_json,
+            suggested_lead_json = EXCLUDED.suggested_lead_json,
+            analysis_json = EXCLUDED.analysis_json,
+            model = EXCLUDED.model,
+            update_by = EXCLUDED.update_by,
+            update_time = EXCLUDED.update_time,
+            del_flag = '0'
+    </insert>
+
+    <update id="logicalDeleteById">
+        update crm_email_analysis
+        set del_flag = '1',
+            update_by = #{updateBy},
+            update_time = CURRENT_TIMESTAMP
+        where analysis_id = #{analysisId}
+          and tenant_id = #{tenantId}
+          and del_flag = '0'
+    </update>
+</mapper>

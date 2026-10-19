@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmAnalyticsAggregateMapper">
+
+    <sql id="optyAnalyticsFrom">
+        from crm_opty o
+        left join sys_user u on u.user_id = o.user_id
+        left join sys_dept d on u.dept_id = d.dept_id
+    </sql>
+
+    <sql id="optyAnalyticsFilters">
+        where 1=1
+        <if test="filterOwnerId != null and filterOwnerId != ''"> and o.user_id = #{filterOwnerId}</if>
+        <if test="filterOrgId != null and filterOrgId != ''"> and o.org_id = #{filterOrgId}</if>
+        <if test="filterStage != null and filterStage != ''"> and o.stage = #{filterStage}</if>
+        <if test="dateFrom != null and dateFrom != '' and dateTo != null and dateTo != ''">
+            and o.close_date::date between #{dateFrom}::date and #{dateTo}::date
+        </if>
+        <if test="excludeStages != null and excludeStages.size() > 0">
+            and o.stage not in
+            <foreach item="s" collection="excludeStages" open="(" separator="," close=")">#{s}</foreach>
+        </if>
+        ${params.dataScope}
+    </sql>
+
+    <select id="selectOptyPipelineTotal" parameterType="com.ruoyi.crm.domain.AnalyticsQueryScope" resultType="java.math.BigDecimal">
+        select COALESCE(SUM(COALESCE(o.amount, 0)), 0)
+        <include refid="optyAnalyticsFrom"/>
+        <include refid="optyAnalyticsFilters"/>
+    </select>
+
+    <select id="selectOptyCountByStage" parameterType="com.ruoyi.crm.domain.AnalyticsQueryScope" resultType="java.util.HashMap">
+        select o.stage as stage_key,
+               COUNT(*)::bigint as cnt,
+               COALESCE(SUM(COALESCE(o.amount, 0)), 0) as stage_amount
+        <include refid="optyAnalyticsFrom"/>
+        <include refid="optyAnalyticsFilters"/>
+        group by o.stage
+        order by cnt desc
+    </select>
+
+    <sql id="taskAnalyticsFrom">
+        from crm_task t
+        left join sys_user u on u.user_id = t.user_id
+        left join sys_dept d on u.dept_id = d.dept_id
+    </sql>
+
+    <select id="selectTaskOverdueCount" parameterType="com.ruoyi.crm.domain.AnalyticsQueryScope" resultType="java.lang.Long">
+        select COUNT(*)::bigint
+        <include refid="taskAnalyticsFrom"/>
+        where t.due_date is not null
+          and t.due_date::date &lt; CURRENT_DATE
+          and (t.status_detail is null or t.status_detail != 'Completed')
+        <if test="filterOwnerId != null and filterOwnerId != ''"> and t.user_id = #{filterOwnerId}</if>
+        ${params.dataScope}
+    </select>
+
+    <sql id="leadAnalyticsFrom">
+        from crm_lead l
+        left join sys_user u on u.user_id = l.user_id
+        left join sys_dept d on u.dept_id = d.dept_id
+    </sql>
+
+    <sql id="leadDateRangeFilter">
+        <if test="dateFrom != null and dateFrom != '' and dateTo != null and dateTo != ''">
+            and l.create_time::date between #{dateFrom}::date and #{dateTo}::date
+        </if>
+    </sql>
+
+    <select id="selectLeadCreatedCount" parameterType="com.ruoyi.crm.domain.AnalyticsQueryScope" resultType="java.lang.Long">
+        select COUNT(*)::bigint
+        <include refid="leadAnalyticsFrom"/>
+        where 1=1
+        <include refid="leadDateRangeFilter"/>
+        <if test="filterOrgId != null and filterOrgId != ''"> and l.org_id = #{filterOrgId}</if>
+        <if test="filterOwnerId != null and filterOwnerId != ''"> and l.user_id = #{filterOwnerId}</if>
+        ${params.dataScope}
+    </select>
+
+    <select id="selectLeadConvertedCount" parameterType="com.ruoyi.crm.domain.AnalyticsQueryScope" resultType="java.lang.Long">
+        select COUNT(*)::bigint
+        <include refid="leadAnalyticsFrom"/>
+        where l.convert_time is not null
+        <include refid="leadDateRangeFilter"/>
+        <if test="filterOrgId != null and filterOrgId != ''"> and l.org_id = #{filterOrgId}</if>
+        <if test="filterOwnerId != null and filterOwnerId != ''"> and l.user_id = #{filterOwnerId}</if>
+        ${params.dataScope}
+    </select>
+
+    <select id="selectClvSummary" parameterType="com.ruoyi.crm.domain.AnalyticsQueryScope" resultType="java.util.HashMap">
+        select COALESCE(SUM(v.booked_total), 0) as booked_total,
+               COALESCE(SUM(v.inflight_total), 0) as inflight_total,
+               COALESCE(SUM(v.refund_total), 0) as refund_total,
+               COALESCE(SUM(v.net_clv), 0) as net_clv,
+               COALESCE(SUM(v.paid_total), 0) as paid_total,
+               COUNT(*)::bigint as account_count
+        from crm_account_value v
+        inner join crm_account a on a.account_id = v.account_id
+        left join sys_user u on u.user_id = a.user_id
+        left join sys_dept d on u.dept_id = d.dept_id
+        where v.del_flag = '0'
+        <if test="filterOrgId != null and filterOrgId != ''"> and a.org_id = #{filterOrgId}</if>
+        <if test="filterAccountId != null and filterAccountId != ''"> and a.account_id = #{filterAccountId}</if>
+        <if test="filterOwnerId != null and filterOwnerId != ''"> and a.user_id = #{filterOwnerId}</if>
+        ${params.dataScope}
+    </select>
+</mapper>

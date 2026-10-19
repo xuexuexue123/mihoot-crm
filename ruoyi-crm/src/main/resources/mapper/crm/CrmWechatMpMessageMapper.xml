@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.wechatmp.mapper.CrmWechatMpMessageMapper">
+
+    <resultMap id="MsgResult" type="com.ruoyi.crm.wechatmp.domain.CrmWechatMpMessage">
+        <id property="id" column="id"/>
+        <result property="appId" column="app_id"/>
+        <result property="openId" column="open_id"/>
+        <result property="direction" column="direction"/>
+        <result property="msgType" column="msg_type"/>
+        <result property="content" column="content"/>
+        <result property="mediaId" column="media_id"/>
+        <result property="picUrl" column="pic_url"/>
+        <result property="templateId" column="template_id"/>
+        <result property="wxMsgId" column="wx_msg_id"/>
+        <result property="activityPulseId" column="activity_pulse_id"/>
+        <result property="errcode" column="errcode"/>
+        <result property="errmsg" column="errmsg"/>
+        <result property="createTime" column="create_time"/>
+        <result property="source" column="source"/>
+    </resultMap>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO crm_wechat_mp_message (
+            app_id, open_id, direction, msg_type, content, media_id, pic_url, template_id,
+            wx_msg_id, activity_pulse_id, errcode, errmsg, create_time, source
+        ) VALUES (
+            #{appId}, #{openId}, #{direction}, #{msgType}, #{content}, #{mediaId}, #{picUrl}, #{templateId},
+            #{wxMsgId}, #{activityPulseId}, #{errcode}, #{errmsg}, COALESCE(#{createTime}, now()), #{source}
+        )
+        ON CONFLICT (app_id, wx_msg_id) WHERE (wx_msg_id IS NOT NULL) DO NOTHING
+    </insert>
+
+    <select id="selectByConversation" resultMap="MsgResult">
+        SELECT * FROM crm_wechat_mp_message
+        WHERE app_id = #{appId} AND open_id = #{openId}
+        ORDER BY create_time DESC
+    </select>
+
+    <select id="selectConversations" resultType="java.util.HashMap">
+        SELECT m.open_id AS "openId",
+               MAX(m.create_time) AS "lastMessageAt",
+               (SELECT content FROM crm_wechat_mp_message m2
+                WHERE m2.app_id = #{appId} AND m2.open_id = m.open_id
+                ORDER BY create_time DESC LIMIT 1) AS "lastContent",
+               SUM(CASE WHEN m.direction = 'inbound' THEN 1 ELSE 0 END) AS "messageCount"
+        FROM crm_wechat_mp_message m
+        WHERE m.app_id = #{appId}
+        GROUP BY m.open_id
+        ORDER BY "lastMessageAt" DESC
+    </select>
+
+    <select id="selectLastInbound" resultMap="MsgResult">
+        SELECT * FROM crm_wechat_mp_message
+        WHERE app_id = #{appId} AND open_id = #{openId} AND direction = 'inbound'
+        ORDER BY create_time DESC LIMIT 1
+    </select>
+</mapper>

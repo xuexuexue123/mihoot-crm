@@ -1,0 +1,276 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmAppointmentMapper">
+    
+    <resultMap type="CrmAppointment" id="CrmAppointmentResult">
+        <result property="appointmentId"    column="appointment_id"    />
+        <result property="appointmentName"    column="appointment_name"    />
+        <result property="owner"    column="owner"    />
+        <result property="ownerId"    column="owner_id"    />
+        <result property="location"    column="location"    />
+        <result property="isVirtual"    column="is_virtual"    />
+        <result property="isAllday"    column="is_allday"    />
+        <result property="repeatType"    column="repeat_type"    />
+        <result property="endRepeat"    column="end_repeat"    />
+        <result property="duration"    column="duration"    />
+        <result property="reminder"    column="reminder"    />
+        <result property="startTime"    column="start_time"    />
+        <result property="endTime"    column="end_time"    />
+        <result property="relateId"    column="relate_id"    />
+        <result property="relateName"    column="relate_name"    />
+        <result property="relateType"    column="relate_type"    />
+        <result property="appointmentStatus"    column="appointment_status"    />
+        <result property="agenda"    column="agenda"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="userId"    column="user_id"    />
+        <result property="deptId"    column="dept_id"    />
+        <result property="notes"    column="notes"    />
+        <result property="conclusion"    column="conclusion"    />
+    </resultMap>
+
+    <resultMap id="CrmAppointmentCrmAttendeeResult" type="CrmAppointment" extends="CrmAppointmentResult">
+        <collection property="crmAttendeeList" notNullColumn="sub_attendee_id" javaType="java.util.List" resultMap="CrmAttendeeResult" />
+    </resultMap>
+
+    <resultMap type="CrmAttendee" id="CrmAttendeeResult">
+        <result property="attendeeId"    column="sub_attendee_id"    />
+        <result property="appointmentId"    column="sub_appointment_id"    />
+        <result property="attendeeName"    column="sub_attendee_name"    />
+        <result property="attendeeType"    column="sub_attendee_type"    />
+        <result property="attendeeRefid"    column="sub_attendee_refid"    />
+        <result property="createBy"    column="sub_create_by"    />
+        <result property="createTime"    column="sub_create_time"    />
+        <result property="updateBy"    column="sub_update_by"    />
+        <result property="updateTime"    column="sub_update_time"    />
+        <result property="orgId"    column="sub_org_id"    />
+        <result property="fullName"    column="sub_full_name"    />
+    </resultMap>
+
+    <sql id="selectCrmAppointmentVo">
+        select a.appointment_id, a.appointment_name, a.owner, a.owner_id, a.location, a.is_virtual, a.is_allday, a.repeat_type, a.end_repeat, a.duration, a.reminder, a.start_time, a.end_time, a.relate_id, a.relate_name, a.relate_type, a.appointment_status, a.agenda, a.create_by, a.create_time, a.update_by, a.update_time, a.user_id, a.dept_id, a.notes, a.conclusion
+        from crm_appointment a
+         left join sys_user u on u.user_id = a.user_id
+         left join sys_dept d on u.dept_id = d.dept_id
+    </sql>
+
+    <select id="selectCrmAppointmentList" parameterType="CrmAppointment" resultMap="CrmAppointmentResult">
+        <include refid="selectCrmAppointmentVo"/>
+        where 1=1
+        <if test="appointmentName != null  and appointmentName != ''"> and appointment_name like concat('%', #{appointmentName}, '%')</if>
+        <if test="owner != null  and owner != ''"> and owner = #{owner}</if>
+        <if test="ownerId != null  and ownerId != ''"> and owner_id = #{ownerId}</if>
+        <if test="location != null  and location != ''"> and location = #{location}</if>
+        <if test="isVirtual != null  and isVirtual != ''"> and is_virtual = #{isVirtual}</if>
+        <if test="isAllday != null  and isAllday != ''"> and is_allday = #{isAllday}</if>
+        <if test="repeatType != null  and repeatType != ''"> and repeat_type = #{repeatType}</if>
+        <if test="endRepeat != null "> and end_repeat = #{endRepeat}</if>
+        <if test="duration != null "> and duration = #{duration}</if>
+        <if test="reminder != null "> and reminder = #{reminder}</if>
+<!--        <if test="startTime != null "> and start_time = #{startTime}</if>-->
+<!--        <if test="endTime != null "> and end_time = #{endTime}</if>-->
+
+        <if test="startTime != null and endTime != null"> and start_time BETWEEN #{startTime} and #{endTime} </if>
+        <if test="relateId != null  and relateId != ''"> and relate_id = #{relateId}</if>
+        <if test="relateName != null  and relateName != ''"> and relate_name like concat('%', #{relateName}, '%')</if>
+        <if test="relateType != null  and relateType != ''"> and relate_type = #{relateType}</if>
+        <if test="appointmentStatus != null  and appointmentStatus != ''"> and appointment_status = #{appointmentStatus}</if>
+        <if test="agenda != null  and agenda != ''"> and agenda = #{agenda}</if>
+        <if test="userId != null "> and user_id = #{userId}</if>
+        <if test="deptId != null "> and dept_id = #{deptId}</if>
+
+        <!-- 数据范围过滤 -->
+        ${params.dataScope}
+        order by start_time desc
+    </select>
+
+    <select id="selectCrmAppointmentListMonthly" parameterType="CrmAppointment" resultMap="CrmAppointmentResult">
+        <include refid="selectCrmAppointmentVo"/>
+        where 1=1
+        and extract(month from start_time::timestamp) = extract(month from CURRENT_DATE) AND extract(year from start_time::timestamp) = extract(year from CURRENT_DATE)
+        <if test="appointmentName != null  and appointmentName != ''"> and appointment_name like concat('%', #{appointmentName}, '%')</if>
+        <if test="owner != null  and owner != ''"> and owner = #{owner}</if>
+        <if test="ownerId != null  and ownerId != ''"> and owner_id = #{ownerId}</if>
+        <if test="location != null  and location != ''"> and location = #{location}</if>
+        <if test="isVirtual != null  and isVirtual != ''"> and is_virtual = #{isVirtual}</if>
+        <if test="isAllday != null  and isAllday != ''"> and is_allday = #{isAllday}</if>
+        <if test="repeatType != null  and repeatType != ''"> and repeat_type = #{repeatType}</if>
+        <if test="endRepeat != null "> and end_repeat = #{endRepeat}</if>
+        <if test="duration != null "> and duration = #{duration}</if>
+        <if test="reminder != null "> and reminder = #{reminder}</if>
+        <if test="startTime != null "> and start_time = #{startTime}</if>
+        <if test="endTime != null "> and end_time = #{endTime}</if>
+        <if test="relateId != null  and relateId != ''"> and relate_id = #{relateId}</if>
+        <if test="relateName != null  and relateName != ''"> and relate_name like concat('%', #{relateName}, '%')</if>
+        <if test="relateType != null  and relateType != ''"> and relate_type = #{relateType}</if>
+        <if test="appointmentStatus != null  and appointmentStatus != ''"> and appointment_status = #{appointmentStatus}</if>
+        <if test="agenda != null  and agenda != ''"> and agenda = #{agenda}</if>
+        <if test="userId != null "> and user_id = #{userId}</if>
+        <if test="deptId != null "> and dept_id = #{deptId}</if>
+
+        <!-- 数据范围过滤 -->
+        ${params.dataScope}
+        order by start_time desc
+    </select>
+
+    <select id="selectCrmAppointmentByAppointmentId" parameterType="String" resultMap="CrmAppointmentCrmAttendeeResult">
+        select a.appointment_id, a.appointment_name, a.owner, a.owner_id, a.location, a.is_virtual, a.is_allday, a.repeat_type, a.end_repeat, a.duration, a.reminder, a.start_time, a.end_time, a.relate_id, a.relate_name, a.relate_type, a.appointment_status, a.agenda, a.create_by, a.create_time, a.update_by, a.update_time, a.user_id, a.dept_id, a.notes,
+ b.attendee_id as sub_attendee_id, b.appointment_id as sub_appointment_id, b.attendee_name as sub_attendee_name, b.attendee_type as sub_attendee_type, b.attendee_refid as sub_attendee_refid, b.create_by as sub_create_by, b.create_time as sub_create_time, b.update_by as sub_update_by, b.update_time as sub_update_time, b.org_id as sub_org_id, b.full_name as sub_full_name
+        from crm_appointment a
+        left join crm_attendee b on b.appointment_id = a.appointment_id
+        where a.appointment_id = #{appointmentId}
+    </select>
+        
+    <insert id="insertCrmAppointment" parameterType="CrmAppointment">
+        insert into crm_appointment
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="appointmentId != null">appointment_id,</if>
+            <if test="appointmentName != null">appointment_name,</if>
+            <if test="owner != null">owner,</if>
+            <if test="ownerId != null">owner_id,</if>
+            <if test="location != null and location != ''">location,</if>
+            <if test="isVirtual != null">is_virtual,</if>
+            <if test="isAllday != null">is_allday,</if>
+            <if test="repeatType != null">repeat_type,</if>
+            <if test="endRepeat != null">end_repeat,</if>
+            <if test="duration != null">duration,</if>
+            <if test="reminder != null">reminder,</if>
+            <if test="startTime != null">start_time,</if>
+            <if test="endTime != null">end_time,</if>
+            <if test="relateId != null">relate_id,</if>
+            <if test="relateName != null">relate_name,</if>
+            <if test="relateType != null">relate_type,</if>
+            <if test="appointmentStatus != null">appointment_status,</if>
+            <if test="agenda != null">agenda,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="userId != null">user_id,</if>
+            <if test="deptId != null">dept_id,</if>
+            <if test="notes != null">notes,</if>
+            <if test="conclusion != null">conclusion,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="appointmentId != null">#{appointmentId},</if>
+            <if test="appointmentName != null">#{appointmentName},</if>
+            <if test="owner != null">#{owner},</if>
+            <if test="ownerId != null">#{ownerId},</if>
+            <if test="location != null and location != ''">#{location},</if>
+            <if test="isVirtual != null">#{isVirtual},</if>
+            <if test="isAllday != null">#{isAllday},</if>
+            <if test="repeatType != null">#{repeatType},</if>
+            <if test="endRepeat != null">#{endRepeat},</if>
+            <if test="duration != null">#{duration},</if>
+            <if test="reminder != null">#{reminder},</if>
+            <if test="startTime != null">#{startTime},</if>
+            <if test="endTime != null">#{endTime},</if>
+            <if test="relateId != null">#{relateId},</if>
+            <if test="relateName != null">#{relateName},</if>
+            <if test="relateType != null">#{relateType},</if>
+            <if test="appointmentStatus != null">#{appointmentStatus},</if>
+            <if test="agenda != null">#{agenda},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="userId != null">#{userId},</if>
+            <if test="deptId != null">#{deptId},</if>
+            <if test="notes != null">#{notes},</if>
+            <if test="conclusion != null">#{conclusion},</if>
+         </trim>
+    </insert>
+
+    <update id="updateCrmAppointment" parameterType="CrmAppointment">
+        update crm_appointment
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="appointmentName != null">appointment_name = #{appointmentName},</if>
+            <if test="owner != null">owner = #{owner},</if>
+            <if test="ownerId != null">owner_id = #{ownerId},</if>
+            <if test="location != null and location != ''">location = #{location},</if>
+            <if test="isVirtual != null">is_virtual = #{isVirtual},</if>
+            <if test="isAllday != null">is_allday = #{isAllday},</if>
+            <if test="repeatType != null">repeat_type = #{repeatType},</if>
+            <if test="endRepeat != null">end_repeat = #{endRepeat},</if>
+            <if test="duration != null">duration = #{duration},</if>
+            <if test="reminder != null">reminder = #{reminder},</if>
+            <if test="startTime != null">start_time = #{startTime},</if>
+            <if test="endTime != null">end_time = #{endTime},</if>
+            <if test="relateId != null">relate_id = #{relateId},</if>
+            <if test="relateName != null">relate_name = #{relateName},</if>
+            <if test="relateType != null">relate_type = #{relateType},</if>
+            <if test="appointmentStatus != null">appointment_status = #{appointmentStatus},</if>
+            <if test="agenda != null">agenda = #{agenda},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="userId != null">user_id = #{userId},</if>
+            <if test="deptId != null">dept_id = #{deptId},</if>
+            <if test="notes != null">notes = #{notes},</if>
+            <if test="conclusion != null">conclusion = #{conclusion},</if>
+        </trim>
+        where appointment_id = #{appointmentId}
+    </update>
+
+    <delete id="deleteCrmAppointmentByAppointmentId" parameterType="String">
+        delete from crm_appointment where appointment_id = #{appointmentId}
+    </delete>
+
+    <delete id="deleteCrmAppointmentByAppointmentIds" parameterType="String">
+        delete from crm_appointment where appointment_id in 
+        <foreach item="appointmentId" collection="array" open="(" separator="," close=")">
+            #{appointmentId}
+        </foreach>
+    </delete>
+    
+    <delete id="deleteCrmAttendeeByAppointmentIds" parameterType="String">
+        delete from crm_attendee where appointment_id in 
+        <foreach item="appointmentId" collection="array" open="(" separator="," close=")">
+            #{appointmentId}
+        </foreach>
+    </delete>
+
+    <delete id="deleteCrmAttendeeByAppointmentId" parameterType="String">
+        delete from crm_attendee where appointment_id = #{appointmentId}
+    </delete>
+
+    <insert id="batchCrmAttendee">
+        insert into crm_attendee( attendee_id, appointment_id, attendee_name, attendee_type, attendee_refid, create_by, create_time, update_by, update_time, org_id, full_name) values
+		<foreach item="item" index="index" collection="list" separator=",">
+            ( #{item.attendeeId}, #{item.appointmentId}, #{item.attendeeName}, #{item.attendeeType}, #{item.attendeeRefid}, #{item.createBy}, #{item.createTime}, #{item.updateBy}, #{item.updateTime}, #{item.orgId}, #{item.fullName})
+        </foreach>
+    </insert>
+
+    <select id="selectContactsWithNoRecentCompletedAppointment" resultMap="com.ruoyi.crm.mapper.CrmContactMapper.CrmContactResult">
+        select c.contact_id, c.org_id, c.account_id, c.name, c.full_name, c.account_name, c.salutation, c.title, c.marital_status, c.birthDate, c.age, c.work_phone, c.work_email, c.gender, c.personal_email, c.mobile_phone, c.client_type, c.territory, c.owner, c.management_level, c.department, c.reports_to, c.reports_to_id, c.favorability_rating, c.influence_rating, c.assistant, c.assistant_phone, c.assistant_email, c.allow_call, c.allow_email, c.is_customer, c.is_org_customer, c.responsibility, c.active_opty_count, c.active_lead_count, c.active_opty_amount, c.status, c.working_years, c.is_active, c.degree, c.major, c.origin, c.original_source, c.sid, c.source_lead_id, c.first_visit_clinic_id, c.imaging_portal_url, c.imaging_patient_external_id, c.first_visit_at, c.last_visit_at, c.visit_count, c.acquisition_cost, c.wecom_external_userid, c.wecom_follow_userid, c.wecom_name, c.wecom_avatar, c.wecom_gender, c.wecom_type, c.wechat, c.location, c.school, c.tag, c.create_by, c.create_time, c.update_by, c.update_time, c.user_id, c.dept_id, c.custom_field, c.sid, c.resources, c.requirement, c.rr_description, c.name_card, c.avatar, c.priority
+        from crm_contact c
+        left join sys_user u on u.user_id = c.user_id
+        left join sys_dept d on u.dept_id = d.dept_id
+        where NOT EXISTS (
+            SELECT 1 FROM crm_appointment a
+            WHERE a.relate_id = c.contact_id
+              AND a.appointment_status = 'completed'
+              AND a.start_time >= CURRENT_DATE - #{daysThreshold} * INTERVAL '1 day'
+        )
+    </select>
+
+    <select id="selectForReminderWindow" resultMap="CrmAppointmentResult">
+        SELECT appointment_id, appointment_name, owner, owner_id, location, is_virtual, is_allday,
+               repeat_type, end_repeat, duration, reminder, start_time, end_time,
+               relate_id, relate_name, relate_type, appointment_status, agenda,
+               create_by, create_time, update_by, update_time, user_id, dept_id, notes, conclusion
+        FROM crm_appointment
+        WHERE start_time &gt;= #{windowStart}
+          AND start_time &lt; #{windowEnd}
+          AND relate_id IS NOT NULL
+          AND TRIM(relate_id) &lt;&gt; ''
+          AND (appointment_status IS NULL OR LOWER(appointment_status) NOT IN ('cancelled', 'canceled', 'completed'))
+        ORDER BY start_time ASC
+        LIMIT 200
+    </select>
+</mapper>

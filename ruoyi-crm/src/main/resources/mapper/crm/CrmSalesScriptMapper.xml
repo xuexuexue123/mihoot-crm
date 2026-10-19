@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmSalesScriptMapper">
+
+    <resultMap type="CrmSalesScript" id="CrmSalesScriptResult">
+        <result property="scriptId" column="script_id"/>
+        <result property="scriptType" column="script_type"/>
+        <result property="category" column="category"/>
+        <result property="title" column="title"/>
+        <result property="content" column="content"/>
+        <result property="materialId" column="material_id"/>
+        <result property="sortOrder" column="sort_order"/>
+        <result property="status" column="status"/>
+        <result property="delFlag" column="del_flag"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <sql id="selectCrmSalesScriptVo">
+        select script_id, script_type, category, title, content, material_id, sort_order,
+               status, del_flag, create_by, create_time, update_by, update_time
+        from crm_sales_script
+    </sql>
+
+    <select id="selectCrmSalesScriptByScriptId" parameterType="String" resultMap="CrmSalesScriptResult">
+        <include refid="selectCrmSalesScriptVo"/>
+        where script_id = #{scriptId}
+          and del_flag = '0'
+    </select>
+
+    <select id="selectCrmSalesScriptList" parameterType="CrmSalesScript" resultMap="CrmSalesScriptResult">
+        <include refid="selectCrmSalesScriptVo"/>
+        <where>
+            del_flag = '0'
+            <if test="scriptType != null and scriptType != ''">
+                and script_type = #{scriptType}
+            </if>
+            <if test="category != null and category != ''">
+                and category = #{category}
+            </if>
+            <if test="status != null and status != ''">
+                and status = #{status}
+            </if>
+            <if test="keyword != null and keyword != ''">
+                and (title ILIKE CONCAT('%', #{keyword}, '%')
+                  or content ILIKE CONCAT('%', #{keyword}, '%'))
+            </if>
+        </where>
+        order by sort_order desc, update_time desc
+    </select>
+
+    <select id="selectDistinctCategories" resultType="String">
+        select category
+        from crm_sales_script
+        where del_flag = '0'
+          and category is not null
+          and category &lt;&gt; ''
+        group by category
+        order by category
+    </select>
+
+    <insert id="insertCrmSalesScript" parameterType="CrmSalesScript">
+        insert into crm_sales_script
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="scriptId != null and scriptId != ''">script_id,</if>
+            <if test="scriptType != null and scriptType != ''">script_type,</if>
+            <if test="category != null">category,</if>
+            <if test="title != null and title != ''">title,</if>
+            <if test="content != null">content,</if>
+            <if test="materialId != null">material_id,</if>
+            <if test="sortOrder != null">sort_order,</if>
+            <if test="status != null and status != ''">status,</if>
+            <if test="delFlag != null and delFlag != ''">del_flag,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="scriptId != null and scriptId != ''">#{scriptId},</if>
+            <if test="scriptType != null and scriptType != ''">#{scriptType},</if>
+            <if test="category != null">#{category},</if>
+            <if test="title != null and title != ''">#{title},</if>
+            <if test="content != null">#{content},</if>
+            <if test="materialId != null">#{materialId},</if>
+            <if test="sortOrder != null">#{sortOrder},</if>
+            <if test="status != null and status != ''">#{status},</if>
+            <if test="delFlag != null and delFlag != ''">#{delFlag},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+        </trim>
+    </insert>
+
+    <update id="updateCrmSalesScript" parameterType="CrmSalesScript">
+        update crm_sales_script
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="scriptType != null and scriptType != ''">script_type = #{scriptType},</if>
+            category = #{category},
+            <if test="title != null and title != ''">title = #{title},</if>
+            <if test="content != null">content = #{content},</if>
+            material_id = #{materialId},
+            <if test="sortOrder != null">sort_order = #{sortOrder},</if>
+            <if test="status != null and status != ''">status = #{status},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where script_id = #{scriptId}
+          and del_flag = '0'
+    </update>
+
+    <update id="logicalDeleteByScriptId">
+        update crm_sales_script
+        set del_flag = '1',
+            update_by = #{updateBy},
+            update_time = CURRENT_TIMESTAMP
+        where script_id = #{scriptId}
+          and del_flag = '0'
+    </update>
+</mapper>

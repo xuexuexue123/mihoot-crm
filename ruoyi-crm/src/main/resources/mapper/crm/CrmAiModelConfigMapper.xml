@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmAiModelConfigMapper">
+
+    <resultMap type="com.ruoyi.crm.domain.vo.AiModelConfigVo" id="AiModelConfigVoResult">
+        <result property="configId" column="config_id"/>
+        <result property="provider" column="provider"/>
+        <result property="credentialId" column="credential_id"/>
+        <result property="credentialName" column="credential_name"/>
+        <result property="model" column="model"/>
+        <result property="temperature" column="temperature"/>
+        <result property="defaultTranslationLanguage" column="default_translation_language"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <resultMap type="com.ruoyi.crm.domain.CrmAiModelConfig" id="CrmAiModelConfigResult">
+        <result property="configId" column="config_id"/>
+        <result property="tenantId" column="tenant_id"/>
+        <result property="provider" column="provider"/>
+        <result property="credentialId" column="credential_id"/>
+        <result property="model" column="model"/>
+        <result property="temperature" column="temperature"/>
+        <result property="defaultTranslationLanguage" column="default_translation_language"/>
+        <result property="delFlag" column="del_flag"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <select id="selectByTenantId" resultMap="AiModelConfigVoResult">
+        select c.config_id, c.provider, c.credential_id, w.name as credential_name,
+               c.model, c.temperature, c.default_translation_language, c.update_time
+        from crm_ai_model_config c
+        left join w_credential w on w.id = c.credential_id
+        where c.del_flag = '0'
+          and c.tenant_id = #{tenantId}
+        limit 1
+    </select>
+
+    <select id="selectEntityByTenantIdAny" resultMap="CrmAiModelConfigResult">
+        select config_id, tenant_id, provider, credential_id, model, temperature,
+               default_translation_language, del_flag, create_by, create_time, update_by, update_time
+        from crm_ai_model_config
+        where tenant_id = #{tenantId}
+        limit 1
+    </select>
+
+    <insert id="insertCrmAiModelConfig" parameterType="com.ruoyi.crm.domain.CrmAiModelConfig">
+        insert into crm_ai_model_config
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="configId != null and configId != ''">config_id,</if>
+            <if test="tenantId != null and tenantId != ''">tenant_id,</if>
+            <if test="provider != null and provider != ''">provider,</if>
+            <if test="credentialId != null and credentialId != ''">credential_id,</if>
+            <if test="model != null and model != ''">model,</if>
+            <if test="temperature != null">temperature,</if>
+            <if test="defaultTranslationLanguage != null and defaultTranslationLanguage != ''">default_translation_language,</if>
+            <if test="delFlag != null and delFlag != ''">del_flag,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="configId != null and configId != ''">#{configId},</if>
+            <if test="tenantId != null and tenantId != ''">#{tenantId},</if>
+            <if test="provider != null and provider != ''">#{provider},</if>
+            <if test="credentialId != null and credentialId != ''">#{credentialId},</if>
+            <if test="model != null and model != ''">#{model},</if>
+            <if test="temperature != null">#{temperature},</if>
+            <if test="defaultTranslationLanguage != null and defaultTranslationLanguage != ''">#{defaultTranslationLanguage},</if>
+            <if test="delFlag != null and delFlag != ''">#{delFlag},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+        </trim>
+    </insert>
+
+    <update id="updateCrmAiModelConfig" parameterType="com.ruoyi.crm.domain.CrmAiModelConfig">
+        update crm_ai_model_config
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="provider != null and provider != ''">provider = #{provider},</if>
+            <if test="credentialId != null and credentialId != ''">credential_id = #{credentialId},</if>
+            <if test="model != null and model != ''">model = #{model},</if>
+            <if test="temperature != null">temperature = #{temperature},</if>
+            <if test="defaultTranslationLanguage != null and defaultTranslationLanguage != ''">default_translation_language = #{defaultTranslationLanguage},</if>
+            <if test="delFlag != null and delFlag != ''">del_flag = #{delFlag},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where config_id = #{configId}
+    </update>
+</mapper>

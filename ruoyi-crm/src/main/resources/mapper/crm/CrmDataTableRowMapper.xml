@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmDataTableRowMapper">
+
+    <resultMap type="com.ruoyi.crm.domain.CrmDataTableRow" id="CrmDataTableRowResult">
+        <result property="id" column="id"/>
+        <result property="dataTableId" column="data_table_id"/>
+        <result property="data" column="data"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <sql id="selectRowVo">
+        select id, data_table_id, data::text as data, create_time, update_time
+        from crm_data_table_row
+    </sql>
+
+    <select id="selectByDataTableId" resultMap="CrmDataTableRowResult">
+        <include refid="selectRowVo"/>
+        where data_table_id = #{dataTableId}
+        order by create_time desc
+    </select>
+
+    <select id="selectPageByDataTableId" resultMap="CrmDataTableRowResult">
+        <include refid="selectRowVo"/>
+        where data_table_id = #{dataTableId}
+        order by create_time desc
+    </select>
+
+    <select id="selectById" resultMap="CrmDataTableRowResult">
+        <include refid="selectRowVo"/>
+        where id = #{id}
+    </select>
+
+    <select id="selectByIdAndDataTableId" resultMap="CrmDataTableRowResult">
+        <include refid="selectRowVo"/>
+        where id = #{id} and data_table_id = #{dataTableId}
+    </select>
+
+    <select id="countByDataTableId" resultType="long">
+        select count(*) from crm_data_table_row where data_table_id = #{dataTableId}
+    </select>
+
+    <insert id="insert" parameterType="com.ruoyi.crm.domain.CrmDataTableRow">
+        insert into crm_data_table_row (id, data_table_id, data, create_time, update_time)
+        values (#{id}, #{dataTableId}, #{data}::jsonb,
+                coalesce(#{createTime}, now()), coalesce(#{updateTime}, now()))
+    </insert>
+
+    <update id="update" parameterType="com.ruoyi.crm.domain.CrmDataTableRow">
+        update crm_data_table_row
+        set data = #{data}::jsonb,
+            update_time = coalesce(#{updateTime}, now())
+        where id = #{id}
+    </update>
+
+    <delete id="deleteById">
+        delete from crm_data_table_row where id = #{id}
+    </delete>
+
+    <delete id="deleteByDataTableId">
+        delete from crm_data_table_row where data_table_id = #{dataTableId}
+    </delete>
+
+    <select id="selectByConditions" resultMap="CrmDataTableRowResult">
+        <include refid="selectRowVo"/>
+        where data_table_id = #{dataTableId}
+        <if test="conditions != null and conditions.size() > 0">
+            and (
+            <foreach collection="conditions" item="cond" separator=" ${combineWith} ">
+                <choose>
+                    <when test="cond.operator == 'equals'">
+                        jsonb_extract_path_text(data, #{cond.field}) = cast(#{cond.value} as text)
+                    </when>
+                    <when test="cond.operator == 'not_equals'">
+                        (jsonb_extract_path_text(data, #{cond.field}) is null or jsonb_extract_path_text(data, #{cond.field}) != cast(#{cond.value} as text))
+                    </when>
+                    <when test="cond.operator == 'contains'">
+                        jsonb_extract_path_text(data, #{cond.field}) like concat('%', cast(#{cond.value} as text), '%')
+                    </when>
+                    <when test="cond.operator == 'not_contains'">
+                        (jsonb_extract_path_text(data, #{cond.field}) is null or jsonb_extract_path_text(data, #{cond.field}) not like concat('%', cast(#{cond.value} as text), '%'))
+                    </when>
+                    <when test="cond.operator == 'starts_with'">
+                        jsonb_extract_path_text(data, #{cond.field}) like concat(cast(#{cond.value} as text), '%')
+                    </when>
+                    <when test="cond.operator == 'ends_with'">
+                        jsonb_extract_path_text(data, #{cond.field}) like concat('%', cast(#{cond.value} as text))
+                    </when>
+                    <when test="cond.operator == 'gt'">
+                        (jsonb_extract_path_text(data, #{cond.field}))::numeric &gt; cast(#{cond.value} as numeric)
+                    </when>
+                    <when test="cond.operator == 'gte'">
+                        (jsonb_extract_path_text(data, #{cond.field}))::numeric &gt;= cast(#{cond.value} as numeric)
+                    </when>
+                    <when test="cond.operator == 'lt'">
+                        (jsonb_extract_path_text(data, #{cond.field}))::numeric &lt; cast(#{cond.value} as numeric)
+                    </when>
+                    <when test="cond.operator == 'lte'">
+                        (jsonb_extract_path_text(data, #{cond.field}))::numeric &lt;= cast(#{cond.value} as numeric)
+                    </when>
+                    <when test="cond.operator == 'exists'">
+                        (data ? #{cond.field} and jsonb_extract_path_text(data, #{cond.field}) is not null)
+                    </when>
+                    <otherwise>
+                        1=1
+                    </otherwise>
+                </choose>
+            </foreach>
+            )
+        </if>
+        order by create_time desc
+        <if test="limit != null">
+            limit #{limit}
+        </if>
+    </select>
+</mapper>

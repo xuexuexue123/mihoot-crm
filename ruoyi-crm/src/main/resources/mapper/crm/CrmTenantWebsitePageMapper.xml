@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmTenantWebsitePageMapper">
+
+    <resultMap id="CrmTenantWebsitePageResult" type="com.ruoyi.crm.domain.CrmTenantWebsitePage">
+        <id property="id" column="id"/>
+        <result property="path" column="path"/>
+        <result property="title" column="title"/>
+        <result property="draftSchema" column="draft_schema"/>
+        <result property="publishedSchema" column="published_schema"/>
+        <result property="status" column="status"/>
+        <result property="schemaVersion" column="schema_version"/>
+        <result property="publishedAt" column="published_at"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+    </resultMap>
+
+    <resultMap id="TenantWebsitePageSummaryVoResult" type="com.ruoyi.crm.domain.vo.TenantWebsitePageSummaryVo">
+        <result property="id" column="id"/>
+        <result property="path" column="path"/>
+        <result property="title" column="title"/>
+        <result property="status" column="status"/>
+        <result property="publishedAt" column="published_at"/>
+        <result property="updatedAt" column="updated_at"/>
+    </resultMap>
+
+    <sql id="selectPageColumns">
+        id, path, title, draft_schema, published_schema, status, schema_version,
+        published_at, created_at, updated_at
+    </sql>
+
+    <select id="selectSummaryList" resultMap="TenantWebsitePageSummaryVoResult">
+        SELECT id, path, title, status, published_at, updated_at
+        FROM crm_tenant_website_page
+        ORDER BY path
+    </select>
+
+    <select id="selectById" parameterType="String" resultMap="CrmTenantWebsitePageResult">
+        SELECT <include refid="selectPageColumns"/>
+        FROM crm_tenant_website_page
+        WHERE id = #{id}::uuid
+    </select>
+
+    <select id="selectByPath" parameterType="String" resultMap="CrmTenantWebsitePageResult">
+        SELECT <include refid="selectPageColumns"/>
+        FROM crm_tenant_website_page
+        WHERE path = #{path}
+        LIMIT 1
+    </select>
+
+    <select id="selectPublishedByPath" parameterType="String" resultMap="CrmTenantWebsitePageResult">
+        SELECT <include refid="selectPageColumns"/>
+        FROM crm_tenant_website_page
+        WHERE path = #{path}
+          AND status = 'published'
+          AND published_schema IS NOT NULL
+        LIMIT 1
+    </select>
+
+    <select id="selectPublishedSummaryList" resultMap="TenantWebsitePageSummaryVoResult">
+        SELECT path, title, published_at
+        FROM crm_tenant_website_page
+        WHERE status = 'published'
+          AND published_schema IS NOT NULL
+        ORDER BY path
+    </select>
+
+    <select id="countByPath" parameterType="String" resultType="int">
+        SELECT COUNT(1)
+        FROM crm_tenant_website_page
+        WHERE path = #{path}
+    </select>
+
+    <insert id="insert" parameterType="com.ruoyi.crm.domain.CrmTenantWebsitePage">
+        INSERT INTO crm_tenant_website_page (
+            id, path, title, draft_schema, published_schema, status, schema_version,
+            published_at, created_at, updated_at
+        ) VALUES (
+            #{id}::uuid,
+            #{path},
+            #{title},
+            <choose>
+                <when test="draftSchema != null">CAST(#{draftSchema} AS jsonb),</when>
+                <otherwise>NULL,</otherwise>
+            </choose>
+            <choose>
+                <when test="publishedSchema != null">CAST(#{publishedSchema} AS jsonb),</when>
+                <otherwise>NULL,</otherwise>
+            </choose>
+            #{status},
+            #{schemaVersion},
+            #{publishedAt},
+            #{createdAt},
+            #{updatedAt}
+        )
+    </insert>
+
+    <update id="update" parameterType="com.ruoyi.crm.domain.CrmTenantWebsitePage">
+        UPDATE crm_tenant_website_page
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="title != null">title = #{title},</if>
+            <if test="draftSchema != null">draft_schema = CAST(#{draftSchema} AS jsonb),</if>
+            <if test="publishedSchema != null">published_schema = CAST(#{publishedSchema} AS jsonb),</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="schemaVersion != null">schema_version = #{schemaVersion},</if>
+            <if test="publishedAt != null">published_at = #{publishedAt},</if>
+            <if test="updatedAt != null">updated_at = #{updatedAt},</if>
+        </trim>
+        WHERE id = #{id}::uuid
+    </update>
+
+    <delete id="deleteById" parameterType="String">
+        DELETE FROM crm_tenant_website_page WHERE id = #{id}::uuid
+    </delete>
+</mapper>

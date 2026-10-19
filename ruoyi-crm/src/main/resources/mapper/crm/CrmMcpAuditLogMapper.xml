@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmMcpAuditLogMapper">
+
+    <insert id="insert" parameterType="com.ruoyi.crm.domain.CrmMcpAuditLog" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
+        insert into crm_mcp_audit_log (
+            tenant_id, api_key_id, bound_user_id, tool_name, ok, error_code, latency_ms, create_time
+        ) values (
+            #{tenantId}, #{apiKeyId}, #{boundUserId}, #{toolName}, #{ok}, #{errorCode}, #{latencyMs},
+            COALESCE(#{createTime}, CURRENT_TIMESTAMP)
+        )
+    </insert>
+</mapper>

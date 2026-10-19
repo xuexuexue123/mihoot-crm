@@ -1,0 +1,252 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmEventRegistrationMapper">
+
+    <resultMap type="com.ruoyi.crm.domain.CrmEventRegistration" id="RegistrationResult">
+        <result property="registrationId" column="registration_id"/>
+        <result property="eventId" column="event_id"/>
+        <result property="sessionId" column="session_id"/>
+        <result property="tenantId" column="tenant_id"/>
+        <result property="leadId" column="lead_id"/>
+        <result property="contactId" column="contact_id"/>
+        <result property="audienceKey" column="audience_key"/>
+        <result property="displayName" column="display_name"/>
+        <result property="mobilePhone" column="mobile_phone"/>
+        <result property="registrationStatus" column="registration_status"/>
+        <result property="registrationSource" column="registration_source"/>
+        <result property="ticketTokenHash" column="ticket_token_hash"/>
+        <result property="formData" column="form_data"/>
+        <result property="customField" column="custom_field"/>
+        <result property="registeredAt" column="registered_at"/>
+        <result property="cancelledAt" column="cancelled_at"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <select id="selectByRegistrationId" resultMap="RegistrationResult">
+        SELECT * FROM crm_event_registration
+        WHERE tenant_id = #{tenantId} AND registration_id = #{registrationId}
+    </select>
+
+    <select id="selectActiveBySlot" resultMap="RegistrationResult">
+        SELECT * FROM crm_event_registration
+        WHERE tenant_id = #{tenantId} AND event_id = #{eventId}
+          AND session_id = #{sessionId} AND audience_key = #{audienceKey}
+          AND registration_status IN ('confirmed', 'waitlist')
+        LIMIT 1
+    </select>
+
+    <select id="countConfirmedBySession" resultType="int">
+        SELECT COUNT(*) FROM crm_event_registration
+        WHERE tenant_id = #{tenantId} AND event_id = #{eventId} AND session_id = #{sessionId}
+          AND registration_status = 'confirmed'
+          AND registration_source &lt;&gt; 'market_event'
+    </select>
+
+    <select id="countWaitlistBySession" resultType="int">
+        SELECT COUNT(*) FROM crm_event_registration
+        WHERE tenant_id = #{tenantId} AND event_id = #{eventId} AND session_id = #{sessionId}
+          AND registration_status = 'waitlist'
+          AND registration_source &lt;&gt; 'market_event'
+    </select>
+
+    <select id="countDistinctConfirmedByEvent" resultType="int">
+        SELECT COUNT(DISTINCT audience_key) FROM crm_event_registration
+        WHERE tenant_id = #{tenantId} AND event_id = #{eventId}
+          AND registration_status = 'confirmed'
+          AND registration_source &lt;&gt; 'market_event'
+        <if test="sessionId != null and sessionId != ''">
+            AND session_id = #{sessionId}
+        </if>
+    </select>
+
+    <select id="countWaitlistByEvent" resultType="int">
+        SELECT COUNT(DISTINCT audience_key) FROM crm_event_registration
+        WHERE tenant_id = #{tenantId} AND event_id = #{eventId}
+          AND registration_status = 'waitlist'
+          AND registration_source &lt;&gt; 'market_event'
+        <if test="sessionId != null and sessionId != ''">
+            AND session_id = #{sessionId}
+        </if>
+    </select>
+
+    <select id="countConfirmedRegistrationsBySession" resultType="int">
+        SELECT COUNT(*) FROM crm_event_registration
+        WHERE tenant_id = #{tenantId} AND session_id = #{sessionId}
+          AND registration_status = 'confirmed'
+          AND registration_source &lt;&gt; 'market_event'
+    </select>
+
+    <select id="countConfirmedOrCheckedInBySession" resultType="int">
+        SELECT COUNT(DISTINCT r.registration_id) FROM crm_event_registration r
+        LEFT JOIN crm_event_check_in c ON c.registration_id = r.registration_id
+        WHERE r.tenant_id = #{tenantId} AND r.session_id = #{sessionId}
+          AND r.registration_source &lt;&gt; 'market_event'
+          AND (r.registration_status = 'confirmed' OR c.check_in_id IS NOT NULL)
+    </select>
+
+    <insert id="insert" parameterType="com.ruoyi.crm.domain.CrmEventRegistration">
+        INSERT INTO crm_event_registration (
+            registration_id, event_id, session_id, tenant_id, lead_id, contact_id, audience_key,
+            display_name, mobile_phone, registration_status, registration_source,
+            ticket_token_hash, form_data, custom_field, registered_at, create_by, create_time
+        ) VALUES (
+            #{registrationId}, #{eventId}, #{sessionId}, #{tenantId}, #{leadId}, #{contactId}, #{audienceKey},
+            #{displayName}, #{mobilePhone}, #{registrationStatus}, #{registrationSource},
+            #{ticketTokenHash},
+            <choose>
+                <when test="formData != null and formData != ''">CAST(#{formData} AS jsonb)</when>
+                <otherwise>NULL</otherwise>
+            </choose>,
+            #{customField},
+            #{registeredAt}, #{createBy}, #{createTime}
+        )
+    </insert>
+
+    <update id="update" parameterType="com.ruoyi.crm.domain.CrmEventRegistration">
+        UPDATE crm_event_registration
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="registrationStatus != null">registration_status = #{registrationStatus},</if>
+            <if test="displayName != null">display_name = #{displayName},</if>
+            <if test="mobilePhone != null">mobile_phone = #{mobilePhone},</if>
+            <if test="formData != null">form_data = CAST(#{formData} AS jsonb),</if>
+            <if test="customField != null">custom_field = #{customField},</if>
+            <if test="ticketTokenHash != null">ticket_token_hash = #{ticketTokenHash},</if>
+            <if test="cancelledAt != null">cancelled_at = #{cancelledAt},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        WHERE tenant_id = #{tenantId} AND registration_id = #{registrationId}
+    </update>
+
+    <select id="selectRegistrationRows" resultType="com.ruoyi.crm.domain.vo.EventRegistrationRowVo">
+        SELECT r.registration_id AS registrationId, r.event_id AS eventId, r.session_id AS sessionId,
+               s.name AS sessionName, r.lead_id AS leadId, r.contact_id AS contactId,
+               r.audience_key AS audienceKey,
+               r.display_name AS displayName, r.mobile_phone AS mobilePhone,
+               r.registration_status AS registrationStatus, r.registration_source AS registrationSource,
+               r.registered_at AS registeredAt,
+               CASE WHEN c.check_in_id IS NOT NULL THEN 'checked_in' ELSE 'not_checked_in' END AS checkInStatus,
+               c.checked_in_at AS checkedInAt
+        FROM crm_event_registration r
+        JOIN crm_event_session s ON s.session_id = r.session_id AND s.tenant_id = r.tenant_id
+        LEFT JOIN crm_event_check_in c ON c.event_id = r.event_id AND c.session_id = r.session_id
+            AND c.audience_key = r.audience_key AND c.tenant_id = r.tenant_id
+        WHERE r.tenant_id = #{tenantId} AND r.event_id = #{eventId}
+          AND r.registration_source &lt;&gt; 'market_event'
+        <if test="query != null and query.sessionId != null and query.sessionId != ''">
+            AND r.session_id = #{query.sessionId}
+        </if>
+        <if test="query != null and query.registrationStatus != null and query.registrationStatus != ''">
+            AND r.registration_status = #{query.registrationStatus}
+        </if>
+        <if test="query != null and query.keyword != null and query.keyword != ''">
+            AND (r.display_name ILIKE CONCAT('%', #{query.keyword}, '%')
+                 OR r.mobile_phone ILIKE CONCAT('%', #{query.keyword}, '%'))
+        </if>
+        <if test="query != null and query.checkInStatus == 'checked_in'">
+            AND c.check_in_id IS NOT NULL
+        </if>
+        <if test="query != null and query.checkInStatus == 'not_checked_in'">
+            AND c.check_in_id IS NULL
+        </if>
+        ORDER BY r.registered_at DESC
+    </select>
+
+    <select id="selectRegistrationDetail" resultType="com.ruoyi.crm.domain.vo.EventRegistrationDetailVo">
+        SELECT r.registration_id AS registrationId, r.event_id AS eventId, r.session_id AS sessionId,
+               s.name AS sessionName, r.lead_id AS leadId, r.contact_id AS contactId,
+               r.audience_key AS audienceKey,
+               r.display_name AS displayName, r.mobile_phone AS mobilePhone,
+               r.registration_status AS registrationStatus, r.registration_source AS registrationSource,
+               r.registered_at AS registeredAt,
+               r.form_data::text AS formDataJson,
+               r.custom_field AS customField,
+               CASE WHEN c.check_in_id IS NOT NULL THEN 'checked_in' ELSE 'not_checked_in' END AS checkInStatus,
+               c.checked_in_at AS checkedInAt
+        FROM crm_event_registration r
+        JOIN crm_event_session s ON s.session_id = r.session_id AND s.tenant_id = r.tenant_id
+        LEFT JOIN crm_event_check_in c ON c.event_id = r.event_id AND c.session_id = r.session_id
+            AND c.audience_key = r.audience_key AND c.tenant_id = r.tenant_id
+        WHERE r.tenant_id = #{tenantId} AND r.event_id = #{eventId}
+          AND r.registration_id = #{registrationId}
+          AND r.registration_source &lt;&gt; 'market_event'
+        LIMIT 1
+    </select>
+
+    <select id="selectBestRegistrationByEvent" resultType="com.ruoyi.crm.service.support.EventRegistrationBestRow">
+        SELECT DISTINCT ON (r.audience_key)
+               r.audience_key AS audienceKey,
+               r.registration_status AS registrationStatus,
+               s.name AS sessionName
+        FROM crm_event_registration r
+        JOIN crm_event_session s ON s.session_id = r.session_id AND s.tenant_id = r.tenant_id
+        WHERE r.tenant_id = #{tenantId} AND r.event_id = #{eventId}
+          AND r.registration_source &lt;&gt; 'market_event'
+        ORDER BY r.audience_key,
+                 CASE r.registration_status
+                     WHEN 'confirmed' THEN 1
+                     WHEN 'waitlist' THEN 2
+                     WHEN 'cancelled' THEN 3
+                 END,
+                 r.registered_at DESC
+    </select>
+
+    <delete id="deleteByEventIds">
+        DELETE FROM crm_event_registration WHERE event_id IN
+        <foreach item="eventId" collection="eventIds" open="(" separator="," close=")">
+            #{eventId}
+        </foreach>
+    </delete>
+
+    <!-- Lead / Contact 反查：LEFT JOIN 标题，勿 INNER JOIN session（market_event 占位场次） -->
+    <sql id="subjectRegistrationSelect">
+        SELECT r.registration_id AS registrationId,
+               r.registration_source AS registrationSource,
+               r.event_id AS eventId,
+               CASE
+                   WHEN r.registration_source = 'market_event' THEN
+                       COALESCE(me.title_cn, r.form_data->>'event_name')
+                   ELSE
+                       COALESCE(e.subject, r.form_data->>'event_name')
+               END AS eventTitle,
+               r.session_id AS sessionId,
+               s.name AS sessionName,
+               r.lead_id AS leadId,
+               r.contact_id AS contactId,
+               r.registration_status AS registrationStatus,
+               r.registered_at AS registeredAt,
+               CASE WHEN c.check_in_id IS NOT NULL THEN 'checked_in' ELSE 'not_checked_in' END AS checkInStatus,
+               c.checked_in_at AS checkedInAt,
+               r.form_data::text AS formDataJson,
+               r.custom_field AS customField,
+               r.display_name AS displayName,
+               r.mobile_phone AS mobilePhone
+        FROM crm_event_registration r
+        LEFT JOIN crm_market_event me ON me.id = r.event_id AND r.registration_source = 'market_event'
+        LEFT JOIN crm_event e ON e.event_id = r.event_id AND r.registration_source &lt;&gt; 'market_event'
+        LEFT JOIN crm_event_session s ON s.session_id = r.session_id AND s.tenant_id = r.tenant_id
+            AND r.registration_source &lt;&gt; 'market_event'
+        LEFT JOIN crm_event_check_in c ON c.registration_id = r.registration_id
+    </sql>
+
+    <select id="selectByLeadId" resultType="com.ruoyi.crm.domain.vo.SubjectRegistrationRowVo">
+        <include refid="subjectRegistrationSelect"/>
+        WHERE r.tenant_id = #{tenantId} AND r.lead_id = #{leadId}
+        <if test="registrationSource != null and registrationSource != ''">
+            AND r.registration_source = #{registrationSource}
+        </if>
+        ORDER BY r.registered_at DESC
+    </select>
+
+    <select id="selectByContactId" resultType="com.ruoyi.crm.domain.vo.SubjectRegistrationRowVo">
+        <include refid="subjectRegistrationSelect"/>
+        WHERE r.tenant_id = #{tenantId} AND r.contact_id = #{contactId}
+        <if test="registrationSource != null and registrationSource != ''">
+            AND r.registration_source = #{registrationSource}
+        </if>
+        ORDER BY r.registered_at DESC
+    </select>
+</mapper>

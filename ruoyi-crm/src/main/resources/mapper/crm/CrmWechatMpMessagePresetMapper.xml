@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.wechatmp.mapper.CrmWechatMpMessagePresetMapper">
+
+    <resultMap id="PresetResult" type="com.ruoyi.crm.wechatmp.domain.CrmWechatMpMessagePreset">
+        <id property="id" column="id"/>
+        <result property="presetName" column="preset_name"/>
+        <result property="description" column="description"/>
+        <result property="appId" column="app_id"/>
+        <result property="wechatTemplateId" column="wechat_template_id"/>
+        <result property="urlTemplate" column="url_template"/>
+        <result property="dataJsonRaw" column="data_json"/>
+        <result property="tags" column="tags"/>
+        <result property="status" column="status"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <select id="selectList" resultMap="PresetResult">
+        SELECT * FROM crm_wechat_mp_message_preset
+        <where>
+            <if test="appId != null and appId != ''">AND app_id = #{appId}</if>
+            <if test="keyword != null and keyword != ''">
+                AND (preset_name ILIKE '%' || #{keyword} || '%'
+                     OR description ILIKE '%' || #{keyword} || '%')
+            </if>
+            <if test="tag != null and tag != ''">
+                AND (',' || COALESCE(tags, '') || ',') LIKE '%,' || #{tag} || ',%'
+            </if>
+            <choose>
+                <when test="status != null and status != ''">
+                    AND status = #{status}
+                </when>
+                <otherwise>
+                    AND status = '0'
+                </otherwise>
+            </choose>
+        </where>
+        ORDER BY update_time DESC, id DESC
+    </select>
+
+    <select id="selectById" resultMap="PresetResult">
+        SELECT * FROM crm_wechat_mp_message_preset WHERE id = #{id}
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO crm_wechat_mp_message_preset (
+            preset_name, description, app_id, wechat_template_id, url_template,
+            data_json, tags, status, create_by, create_time, update_by, update_time
+        ) VALUES (
+            #{presetName}, #{description}, #{appId}, #{wechatTemplateId}, #{urlTemplate},
+            #{dataJsonRaw}::jsonb, #{tags}, #{status}, #{createBy}, #{createTime}, #{updateBy}, #{updateTime}
+        )
+    </insert>
+
+    <update id="update">
+        UPDATE crm_wechat_mp_message_preset SET
+            preset_name = #{presetName},
+            description = #{description},
+            app_id = #{appId},
+            wechat_template_id = #{wechatTemplateId},
+            url_template = #{urlTemplate},
+            data_json = #{dataJsonRaw}::jsonb,
+            tags = #{tags},
+            status = #{status},
+            update_by = #{updateBy},
+            update_time = #{updateTime}
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM crm_wechat_mp_message_preset WHERE id = #{id}
+    </delete>
+</mapper>

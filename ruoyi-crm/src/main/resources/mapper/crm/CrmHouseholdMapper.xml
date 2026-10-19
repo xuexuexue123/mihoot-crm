@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmHouseholdMapper">
+    
+    <resultMap type="CrmHousehold" id="CrmHouseholdResult">
+        <result property="householdId"    column="household_id"    />
+        <result property="name"    column="name"    />
+        <result property="memberCount"    column="member_count"    />
+        <result property="territory"    column="territory"    />
+        <result property="owner"    column="owner"    />
+        <result property="headOfHousehold"    column="head_of_household"    />
+        <result property="workPhone"    column="work_phone"    />
+        <result property="description"    column="description"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="userId"    column="user_id"    />
+        <result property="deptId"    column="dept_id"    />
+    </resultMap>
+
+    <resultMap id="CrmHouseholdCrmHouseholdmemberResult" type="CrmHousehold" extends="CrmHouseholdResult">
+        <collection property="crmHouseholdmemberList" notNullColumn="sub_member_id" javaType="java.util.List" resultMap="CrmHouseholdmemberResult" />
+    </resultMap>
+
+    <resultMap type="CrmHouseholdmember" id="CrmHouseholdmemberResult">
+        <result property="memberId"    column="sub_member_id"    />
+        <result property="householdId"    column="sub_household_id"    />
+        <result property="householdName"    column="sub_household_name"    />
+        <result property="contactId"    column="sub_contact_id"    />
+        <result property="name"    column="sub_name"    />
+        <result property="role"    column="sub_role"    />
+        <result property="owner"    column="sub_owner"    />
+        <result property="headOfHousehold"    column="sub_head_of_household"    />
+        <result property="workPhone"    column="sub_work_phone"    />
+        <result property="startDate"    column="sub_start_date"    />
+        <result property="endDate"    column="sub_end_date"    />
+        <result property="description"    column="sub_description"    />
+        <result property="isActive"    column="sub_is_active"    />
+        <result property="createBy"    column="sub_create_by"    />
+        <result property="createTime"    column="sub_create_time"    />
+        <result property="updateBy"    column="sub_update_by"    />
+        <result property="updateTime"    column="sub_update_time"    />
+    </resultMap>
+
+    <sql id="selectCrmHouseholdVo">
+        select h.household_id, h.name, h.member_count, h.territory, h.owner, h.head_of_household, h.work_phone, h.description, h.create_by, h.create_time, h.update_by, h.update_time, h.user_id, h.dept_id
+        from crm_household h
+         left join sys_user u on u.user_id = h.user_id
+         left join sys_dept d on u.dept_id = d.dept_id
+    </sql>
+
+    <select id="selectCrmHouseholdList" parameterType="CrmHousehold" resultMap="CrmHouseholdResult">
+        <include refid="selectCrmHouseholdVo"/>
+        where 1=1
+            <if test="name != null  and name != ''"> and name like concat('%', #{name}, '%')</if>
+            <if test="memberCount != null "> and member_count = #{memberCount}</if>
+            <if test="territory != null  and territory != ''"> and territory = #{territory}</if>
+            <if test="owner != null  and owner != ''"> and owner = #{owner}</if>
+            <if test="headOfHousehold != null  and headOfHousehold != ''"> and head_of_household = #{headOfHousehold}</if>
+            <if test="workPhone != null  and workPhone != ''"> and work_phone = #{workPhone}</if>
+            <if test="description != null  and description != ''"> and description = #{description}</if>
+            <if test="userId != null "> and user_id = #{userId}</if>
+            <if test="deptId != null "> and dept_id = #{deptId}</if>
+        <!-- 数据范围过滤 -->
+        ${params.dataScope}
+    </select>
+    
+    <select id="selectCrmHouseholdByHouseholdId" parameterType="String" resultMap="CrmHouseholdCrmHouseholdmemberResult">
+        select a.household_id, a.name, a.member_count, a.territory, a.owner, a.head_of_household, a.work_phone, a.description, a.create_by, a.create_time, a.update_by, a.update_time, a.user_id, a.dept_id,
+ b.member_id as sub_member_id, b.household_id as sub_household_id, b.household_name as sub_household_name, b.contact_id as sub_contact_id, b.name as sub_name, b.role as sub_role, b.owner as sub_owner, b.head_of_household as sub_head_of_household, b.work_phone as sub_work_phone, b.start_date as sub_start_date, b.end_date as sub_end_date, b.description as sub_description, b.is_active as sub_is_active, b.create_by as sub_create_by, b.create_time as sub_create_time, b.update_by as sub_update_by, b.update_time as sub_update_time
+        from crm_household a
+        left join crm_householdmember b on b.household_id = a.household_id
+        where a.household_id = #{householdId}
+    </select>
+        
+    <insert id="insertCrmHousehold" parameterType="CrmHousehold">
+        insert into crm_household
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="householdId != null">household_id,</if>
+            <if test="name != null">name,</if>
+            <if test="memberCount != null">member_count,</if>
+            <if test="territory != null">territory,</if>
+            <if test="owner != null">owner,</if>
+            <if test="headOfHousehold != null">head_of_household,</if>
+            <if test="workPhone != null">work_phone,</if>
+            <if test="description != null">description,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="userId != null">user_id,</if>
+            <if test="deptId != null">dept_id,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="householdId != null">#{householdId},</if>
+            <if test="name != null">#{name},</if>
+            <if test="memberCount != null">#{memberCount},</if>
+            <if test="territory != null">#{territory},</if>
+            <if test="owner != null">#{owner},</if>
+            <if test="headOfHousehold != null">#{headOfHousehold},</if>
+            <if test="workPhone != null">#{workPhone},</if>
+            <if test="description != null">#{description},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="userId != null">#{userId},</if>
+            <if test="deptId != null">#{deptId},</if>
+         </trim>
+    </insert>
+
+    <update id="updateCrmHousehold" parameterType="CrmHousehold">
+        update crm_household
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="name != null">name = #{name},</if>
+            <if test="memberCount != null">member_count = #{memberCount},</if>
+            <if test="territory != null">territory = #{territory},</if>
+            <if test="owner != null">owner = #{owner},</if>
+            <if test="headOfHousehold != null">head_of_household = #{headOfHousehold},</if>
+            <if test="workPhone != null">work_phone = #{workPhone},</if>
+            <if test="description != null">description = #{description},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="userId != null">user_id = #{userId},</if>
+            <if test="deptId != null">dept_id = #{deptId},</if>
+        </trim>
+        where household_id = #{householdId}
+    </update>
+
+    <delete id="deleteCrmHouseholdByHouseholdId" parameterType="String">
+        delete from crm_household where household_id = #{householdId}
+    </delete>
+
+    <delete id="deleteCrmHouseholdByHouseholdIds" parameterType="String">
+        delete from crm_household where household_id in 
+        <foreach item="householdId" collection="array" open="(" separator="," close=")">
+            #{householdId}
+        </foreach>
+    </delete>
+    
+    <delete id="deleteCrmHouseholdmemberByHouseholdIds" parameterType="String">
+        delete from crm_householdmember where household_id in 
+        <foreach item="householdId" collection="array" open="(" separator="," close=")">
+            #{householdId}
+        </foreach>
+    </delete>
+
+    <delete id="deleteCrmHouseholdmemberByHouseholdId" parameterType="String">
+        delete from crm_householdmember where household_id = #{householdId}
+    </delete>
+
+    <insert id="batchCrmHouseholdmember">
+        insert into crm_householdmember( member_id, household_id, household_name, contact_id, name, role, owner, head_of_household, work_phone, start_date, end_date, description, is_active, create_by, create_time, update_by, update_time) values
+		<foreach item="item" index="index" collection="list" separator=",">
+            ( #{item.memberId}, #{item.householdId}, #{item.householdName}, #{item.contactId}, #{item.name}, #{item.role}, #{item.owner}, #{item.headOfHousehold}, #{item.workPhone}, #{item.startDate}, #{item.endDate}, #{item.description}, #{item.isActive}, #{item.createBy}, #{item.createTime}, #{item.updateBy}, #{item.updateTime})
+        </foreach>
+    </insert>
+</mapper>

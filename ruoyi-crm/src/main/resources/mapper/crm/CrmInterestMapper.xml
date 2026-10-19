@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmInterestMapper">
+    
+    <resultMap type="CrmInterest" id="CrmInterestResult">
+        <result property="interestId"    column="interest_id"    />
+        <result property="orgId"    column="org_id"    />
+        <result property="fullName"    column="full_name"    />
+        <result property="optyId"    column="opty_id"    />
+        <result property="optyName"    column="opty_name"    />
+        <result property="changeDate"    column="change_date"    />
+        <result property="turn"    column="turn"    />
+        <result property="turnAmount"    column="turn_amount"    />
+        <result property="touqianValue"    column="touqian_value"    />
+        <result property="touhouValue"    column="touhou_value"    />
+        <result property="zhuceZiben"    column="zhuce_ziben"    />
+        <result property="chiyouZiben"    column="chiyou_ziben"    />
+        <result property="chiyouPercentage"    column="chiyou_percentage"    />
+        <result property="chiyouValue"    column="chiyou_value"    />
+        <result property="investAmount"    column="invest_amount"    />
+        <result property="comment"    column="comment"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="category"    column="category"    />
+        <result property="accountName"    column="account_name"    />
+        <result property="accountId"    column="account_id"    />
+    </resultMap>
+
+    <resultMap id="CrmInterestCrmFundpaidResult" type="CrmInterest" extends="CrmInterestResult">
+        <collection property="crmFundpaidList" notNullColumn="sub_paid_id" javaType="java.util.List" resultMap="CrmFundpaidResult" />
+    </resultMap>
+
+    <resultMap type="CrmFundpaid" id="CrmFundpaidResult">
+        <result property="paidId"    column="sub_paid_id"    />
+        <result property="orgId"    column="sub_org_id"    />
+        <result property="fullName"    column="sub_full_name"    />
+        <result property="optyId"    column="sub_opty_id"    />
+        <result property="optyName"    column="sub_opty_name"    />
+        <result property="interestId"    column="sub_interest_id"    />
+        <result property="accountId"    column="sub_account_id"    />
+        <result property="accountName"    column="sub_account_name"    />
+        <result property="category"    column="sub_category"    />
+        <result property="turn"    column="sub_turn"    />
+        <result property="investAmount"    column="sub_invest_amount"    />
+        <result property="chiyouZiben"    column="sub_chiyou_ziben"    />
+        <result property="chiyouPercentage"    column="sub_chiyou_percentage"    />
+        <result property="chiyouValue"    column="sub_chiyou_value"    />
+        <result property="paidDate"    column="sub_paid_date"    />
+        <result property="comment"    column="sub_comment"    />
+        <result property="createBy"    column="sub_create_by"    />
+        <result property="createTime"    column="sub_create_time"    />
+        <result property="updateBy"    column="sub_update_by"    />
+        <result property="updateTime"    column="sub_update_time"    />
+    </resultMap>
+
+    <sql id="selectCrmInterestVo">
+        select interest_id, org_id, full_name, opty_id, opty_name, change_date, turn, turn_amount, touqian_value, touhou_value, zhuce_ziben, chiyou_ziben, chiyou_percentage, chiyou_value, invest_amount, comment, create_by, create_time, update_by, update_time, category, account_name, account_id from crm_interest
+    </sql>
+
+    <select id="selectCrmInterestList" parameterType="CrmInterest" resultMap="CrmInterestResult">
+        <include refid="selectCrmInterestVo"/>
+        <where>  
+            <if test="orgId != null  and orgId != ''"> and org_id = #{orgId}</if>
+            <if test="fullName != null  and fullName != ''"> and full_name like concat('%', #{fullName}, '%')</if>
+            <if test="optyId != null  and optyId != ''"> and opty_id = #{optyId}</if>
+            <if test="optyName != null  and optyName != ''"> and opty_name like concat('%', #{optyName}, '%')</if>
+            <if test="changeDate != null "> and change_date = #{changeDate}</if>
+            <if test="turn != null  and turn != ''"> and turn = #{turn}</if>
+            <if test="turnAmount != null "> and turn_amount = #{turnAmount}</if>
+            <if test="touqianValue != null "> and touqian_value = #{touqianValue}</if>
+            <if test="touhouValue != null "> and touhou_value = #{touhouValue}</if>
+            <if test="zhuceZiben != null "> and zhuce_ziben = #{zhuceZiben}</if>
+            <if test="chiyouZiben != null "> and chiyou_ziben = #{chiyouZiben}</if>
+            <if test="chiyouPercentage != null "> and chiyou_percentage = #{chiyouPercentage}</if>
+            <if test="chiyouValue != null "> and chiyou_value = #{chiyouValue}</if>
+            <if test="investAmount != null "> and invest_amount = #{investAmount}</if>
+            <if test="comment != null  and comment != ''"> and comment = #{comment}</if>
+            <if test="category != null  and category != ''"> and category = #{category}</if>
+            <if test="accountName != null  and accountName != ''"> and account_name like concat('%', #{accountName}, '%')</if>
+            <if test="accountId != null  and accountId != ''"> and account_id = #{accountId}</if>
+        </where>
+    </select>
+    
+    <select id="selectCrmInterestByInterestId" parameterType="String" resultMap="CrmInterestCrmFundpaidResult">
+        select a.interest_id, a.org_id, a.full_name, a.opty_id, a.opty_name, a.change_date, a.turn, a.turn_amount, a.touqian_value, a.touhou_value, a.zhuce_ziben, a.chiyou_ziben, a.chiyou_percentage, a.chiyou_value, a.invest_amount, a.comment, a.create_by, a.create_time, a.update_by, a.update_time, a.category, a.account_name, a.account_id,
+ b.paid_id as sub_paid_id, b.org_id as sub_org_id, b.full_name as sub_full_name, b.opty_id as sub_opty_id, b.opty_name as sub_opty_name, b.interest_id as sub_interest_id, b.account_id as sub_account_id, b.account_name as sub_account_name, b.category as sub_category, b.turn as sub_turn, b.invest_amount as sub_invest_amount, b.chiyou_ziben as sub_chiyou_ziben, b.chiyou_percentage as sub_chiyou_percentage, b.chiyou_value as sub_chiyou_value, b.paid_date as sub_paid_date, b.comment as sub_comment, b.create_by as sub_create_by, b.create_time as sub_create_time, b.update_by as sub_update_by, b.update_time as sub_update_time
+        from crm_interest a
+        left join crm_fundpaid b on b.interest_id = a.interest_id
+        where a.interest_id = #{interestId}
+    </select>
+        
+    <insert id="insertCrmInterest" parameterType="CrmInterest">
+        insert into crm_interest
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="interestId != null">interest_id,</if>
+            <if test="orgId != null">org_id,</if>
+            <if test="fullName != null">full_name,</if>
+            <if test="optyId != null">opty_id,</if>
+            <if test="optyName != null">opty_name,</if>
+            <if test="changeDate != null">change_date,</if>
+            <if test="turn != null">turn,</if>
+            <if test="turnAmount != null">turn_amount,</if>
+            <if test="touqianValue != null">touqian_value,</if>
+            <if test="touhouValue != null">touhou_value,</if>
+            <if test="zhuceZiben != null">zhuce_ziben,</if>
+            <if test="chiyouZiben != null">chiyou_ziben,</if>
+            <if test="chiyouPercentage != null">chiyou_percentage,</if>
+            <if test="chiyouValue != null">chiyou_value,</if>
+            <if test="investAmount != null">invest_amount,</if>
+            <if test="comment != null">comment,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="category != null">category,</if>
+            <if test="accountName != null">account_name,</if>
+            <if test="accountId != null">account_id,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="interestId != null">#{interestId},</if>
+            <if test="orgId != null">#{orgId},</if>
+            <if test="fullName != null">#{fullName},</if>
+            <if test="optyId != null">#{optyId},</if>
+            <if test="optyName != null">#{optyName},</if>
+            <if test="changeDate != null">#{changeDate},</if>
+            <if test="turn != null">#{turn},</if>
+            <if test="turnAmount != null">#{turnAmount},</if>
+            <if test="touqianValue != null">#{touqianValue},</if>
+            <if test="touhouValue != null">#{touhouValue},</if>
+            <if test="zhuceZiben != null">#{zhuceZiben},</if>
+            <if test="chiyouZiben != null">#{chiyouZiben},</if>
+            <if test="chiyouPercentage != null">#{chiyouPercentage},</if>
+            <if test="chiyouValue != null">#{chiyouValue},</if>
+            <if test="investAmount != null">#{investAmount},</if>
+            <if test="comment != null">#{comment},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="category != null">#{category},</if>
+            <if test="accountName != null">#{accountName},</if>
+            <if test="accountId != null">#{accountId},</if>
+         </trim>
+    </insert>
+
+    <update id="updateCrmInterest" parameterType="CrmInterest">
+        update crm_interest
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="orgId != null">org_id = #{orgId},</if>
+            <if test="fullName != null">full_name = #{fullName},</if>
+            <if test="optyId != null">opty_id = #{optyId},</if>
+            <if test="optyName != null">opty_name = #{optyName},</if>
+            <if test="changeDate != null">change_date = #{changeDate},</if>
+            <if test="turn != null">turn = #{turn},</if>
+            <if test="turnAmount != null">turn_amount = #{turnAmount},</if>
+            <if test="touqianValue != null">touqian_value = #{touqianValue},</if>
+            <if test="touhouValue != null">touhou_value = #{touhouValue},</if>
+            <if test="zhuceZiben != null">zhuce_ziben = #{zhuceZiben},</if>
+            <if test="chiyouZiben != null">chiyou_ziben = #{chiyouZiben},</if>
+            <if test="chiyouPercentage != null">chiyou_percentage = #{chiyouPercentage},</if>
+            <if test="chiyouValue != null">chiyou_value = #{chiyouValue},</if>
+            <if test="investAmount != null">invest_amount = #{investAmount},</if>
+            <if test="comment != null">comment = #{comment},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="category != null">category = #{category},</if>
+            <if test="accountName != null">account_name = #{accountName},</if>
+            <if test="accountId != null">account_id = #{accountId},</if>
+        </trim>
+        where interest_id = #{interestId}
+    </update>
+
+    <delete id="deleteCrmInterestByInterestId" parameterType="String">
+        delete from crm_interest where interest_id = #{interestId}
+    </delete>
+
+    <delete id="deleteCrmInterestByInterestIds" parameterType="String">
+        delete from crm_interest where interest_id in 
+        <foreach item="interestId" collection="array" open="(" separator="," close=")">
+            #{interestId}
+        </foreach>
+    </delete>
+    
+    <delete id="deleteCrmFundpaidByInterestIds" parameterType="String">
+        delete from crm_fundpaid where interest_id in 
+        <foreach item="interestId" collection="array" open="(" separator="," close=")">
+            #{interestId}
+        </foreach>
+    </delete>
+
+    <delete id="deleteCrmFundpaidByInterestId" parameterType="String">
+        delete from crm_fundpaid where interest_id = #{interestId}
+    </delete>
+
+    <insert id="batchCrmFundpaid">
+        insert into crm_fundpaid( paid_id, org_id, full_name, opty_id, opty_name, interest_id, account_id, account_name, category, turn, invest_amount, chiyou_ziben, chiyou_percentage, chiyou_value, paid_date, comment, create_by, create_time, update_by, update_time) values
+		<foreach item="item" index="index" collection="list" separator=",">
+            ( #{item.paidId}, #{item.orgId}, #{item.fullName}, #{item.optyId}, #{item.optyName}, #{item.interestId}, #{item.accountId}, #{item.accountName}, #{item.category}, #{item.turn}, #{item.investAmount}, #{item.chiyouZiben}, #{item.chiyouPercentage}, #{item.chiyouValue}, #{item.paidDate}, #{item.comment}, #{item.createBy}, #{item.createTime}, #{item.updateBy}, #{item.updateTime})
+        </foreach>
+    </insert>
+</mapper>

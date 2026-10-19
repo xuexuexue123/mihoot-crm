@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.wechatmp.mapper.CrmWechatMpArticleMapper">
+
+    <resultMap id="ArticleResult" type="com.ruoyi.crm.wechatmp.domain.CrmWechatMpArticle">
+        <id property="id" column="id"/>
+        <result property="appId" column="app_id"/>
+        <result property="articleId" column="article_id"/>
+        <result property="title" column="title"/>
+        <result property="url" column="url"/>
+        <result property="thumbUrl" column="thumb_url"/>
+        <result property="digest" column="digest"/>
+        <result property="author" column="author"/>
+        <result property="indexInMsg" column="index_in_msg"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="content" column="content"/>
+        <result property="contentSourceUrl" column="content_source_url"/>
+        <result property="thumbMediaId" column="thumb_media_id"/>
+        <result property="needOpenComment" column="need_open_comment"/>
+        <result property="onlyFansCanComment" column="only_fans_can_comment"/>
+        <result property="isDeleted" column="is_deleted"/>
+        <result property="detailFetched" column="detail_fetched"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+    </resultMap>
+
+    <select id="selectMaxUpdateTime" resultType="java.time.OffsetDateTime">
+        SELECT MAX(update_time) FROM crm_wechat_mp_article WHERE app_id = #{appId}
+    </select>
+
+    <select id="selectPageByAppId" resultMap="ArticleResult">
+        SELECT * FROM crm_wechat_mp_article
+        WHERE app_id = #{appId} AND (is_deleted IS NULL OR is_deleted = FALSE)
+        ORDER BY update_time DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="countByAppId" resultType="long">
+        SELECT COUNT(*) FROM crm_wechat_mp_article
+        WHERE app_id = #{appId} AND (is_deleted IS NULL OR is_deleted = FALSE)
+    </select>
+
+    <select id="existsByArticleId" resultType="boolean">
+        SELECT EXISTS (
+            SELECT 1 FROM crm_wechat_mp_article
+            WHERE app_id = #{appId} AND article_id = #{articleId} AND index_in_msg = #{indexInMsg}
+        )
+    </select>
+
+    <select id="selectByArticleId" resultMap="ArticleResult">
+        SELECT * FROM crm_wechat_mp_article
+        WHERE app_id = #{appId} AND article_id = #{articleId} AND index_in_msg = #{indexInMsg}
+        LIMIT 1
+    </select>
+
+    <insert id="batchUpsert">
+        INSERT INTO crm_wechat_mp_article (
+            app_id, article_id, title, url, thumb_url, digest, author,
+            index_in_msg, update_time, is_deleted
+        ) VALUES
+        <foreach collection="list" item="row" separator=",">
+        (
+            #{row.appId}, #{row.articleId}, #{row.title}, #{row.url},
+            #{row.thumbUrl}, #{row.digest}, #{row.author},
+            #{row.indexInMsg}, #{row.updateTime}, #{row.isDeleted}
+        )
+        </foreach>
+        ON CONFLICT (app_id, article_id, index_in_msg) DO UPDATE SET
+            title = EXCLUDED.title,
+            url = EXCLUDED.url,
+            thumb_url = EXCLUDED.thumb_url,
+            digest = EXCLUDED.digest,
+            author = EXCLUDED.author,
+            update_time = EXCLUDED.update_time,
+            is_deleted = EXCLUDED.is_deleted,
+            updated_at = now()
+    </insert>
+
+    <update id="updateDetail">
+        UPDATE crm_wechat_mp_article SET
+            content = #{row.content},
+            content_source_url = #{row.contentSourceUrl},
+            thumb_media_id = #{row.thumbMediaId},
+            need_open_comment = #{row.needOpenComment},
+            only_fans_can_comment = #{row.onlyFansCanComment},
+            is_deleted = #{row.isDeleted},
+            detail_fetched = TRUE,
+            updated_at = now()
+        WHERE app_id = #{row.appId} AND article_id = #{row.articleId}
+            AND index_in_msg = #{row.indexInMsg}
+    </update>
+
+</mapper>

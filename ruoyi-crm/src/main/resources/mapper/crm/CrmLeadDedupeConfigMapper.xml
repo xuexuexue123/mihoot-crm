@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmLeadDedupeConfigMapper">
+
+    <resultMap id="CrmLeadDedupeConfigResult" type="com.ruoyi.crm.domain.CrmLeadDedupeConfig">
+        <id property="configId" column="config_id"/>
+        <result property="leadMatchFields" column="lead_match_fields"/>
+        <result property="contactMatchFields" column="contact_match_fields"/>
+        <result property="matchMode" column="match_mode"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <select id="selectFirst" resultMap="CrmLeadDedupeConfigResult">
+        SELECT config_id, lead_match_fields, contact_match_fields, match_mode, create_time, update_time
+        FROM crm_lead_dedupe_config
+        ORDER BY create_time ASC
+        LIMIT 1
+    </select>
+
+    <insert id="insertCrmLeadDedupeConfig" parameterType="com.ruoyi.crm.domain.CrmLeadDedupeConfig">
+        INSERT INTO crm_lead_dedupe_config (
+            config_id, lead_match_fields, contact_match_fields, match_mode, create_time, update_time
+        ) VALUES (
+            #{configId}, #{leadMatchFields}, #{contactMatchFields}, #{matchMode}, #{createTime}, #{updateTime}
+        )
+    </insert>
+
+    <update id="updateCrmLeadDedupeConfig" parameterType="com.ruoyi.crm.domain.CrmLeadDedupeConfig">
+        UPDATE crm_lead_dedupe_config
+        SET lead_match_fields = #{leadMatchFields},
+            contact_match_fields = #{contactMatchFields},
+            match_mode = #{matchMode},
+            update_time = #{updateTime}
+        WHERE config_id = #{configId}
+    </update>
+</mapper>

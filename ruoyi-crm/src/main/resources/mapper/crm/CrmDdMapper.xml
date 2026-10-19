@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmDdMapper">
+    
+    <resultMap type="CrmDd" id="CrmDdResult">
+        <result property="ddId"    column="dd_id"    />
+        <result property="ddCode"    column="dd_code"    />
+        <result property="relateId"    column="relate_id"    />
+        <result property="category"    column="category"    />
+        <result property="groupName"    column="group_name"    />
+        <result property="keyPoints"    column="key_points"    />
+        <result property="question"    column="question"    />
+        <result property="questionOrder"    column="question_order"    />
+        <result property="fieldType"    column="field_type"    />
+        <result property="fieldConfig"    column="field_config"    />
+        <result property="answer"    column="answer"    />
+        <result property="answerFilename"    column="answer_filename"    />
+        <result property="answerCorresid"    column="answer_corresid"    />
+        <result property="description"    column="description"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="scenario"    column="scenario"    />
+    </resultMap>
+
+    <sql id="selectCrmDdVo">
+        select dd_id, dd_code, relate_id, category, group_name, key_points, question, question_order, field_type, field_config, answer, answer_filename, answer_corresid, description, create_by, create_time, update_by, update_time, scenario from crm_dd
+    </sql>
+
+    <select id="selectCrmDdList" parameterType="CrmDd" resultMap="CrmDdResult">
+        <include refid="selectCrmDdVo"/>
+        where 1=1
+            <if test="ddCode != null  and ddCode != ''"> and dd_code = #{ddCode}</if>
+            <if test="relateId != null  and relateId != ''"> and relate_id = #{relateId}</if>
+            <if test="category != null  and category != ''"> and category = #{category}</if>
+            <if test="groupName != null  and groupName != ''"> and group_name like concat('%', #{groupName}, '%')</if>
+            <if test="keyPoints != null  and keyPoints != ''"> and key_points = #{keyPoints}</if>
+            <if test="question != null  and question != ''"> and question = #{question}</if>
+            <if test="questionOrder != null "> and question_order = #{questionOrder}</if>
+            <if test="fieldType != null  and fieldType != ''"> and field_type = #{fieldType}</if>
+            <if test="fieldConfig != null  and fieldConfig != ''"> and field_config = #{fieldConfig}</if>
+            <if test="answer != null  and answer != ''"> and answer = #{answer}</if>
+            <if test="answerFilename != null  and answerFilename != ''"> and answer_filename like concat('%', #{answerFilename}, '%')</if>
+            <if test="answerCorresid != null  and answerCorresid != ''"> and answer_corresid = #{answerCorresid}</if>
+            <if test="description != null  and description != ''"> and description = #{description}</if>
+            <if test="scenario != null  and scenario != ''"> and scenario = #{scenario}</if>
+        order by create_time, category, group_name
+    </select>
+    
+    <select id="selectCrmDdByDdId" parameterType="String" resultMap="CrmDdResult">
+        <include refid="selectCrmDdVo"/>
+        where dd_id = #{ddId}
+    </select>
+        
+    <insert id="insertCrmDd" parameterType="CrmDd">
+        insert into crm_dd
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="ddId != null">dd_id,</if>
+            <if test="ddCode != null">dd_code,</if>
+            <if test="relateId != null">relate_id,</if>
+            <if test="category != null">category,</if>
+            <if test="groupName != null">group_name,</if>
+            <if test="keyPoints != null">key_points,</if>
+            <if test="question != null">question,</if>
+            <if test="questionOrder != null">question_order,</if>
+            <if test="fieldType != null">field_type,</if>
+            <if test="fieldConfig != null">field_config,</if>
+            <if test="answer != null">answer,</if>
+            <if test="answerFilename != null">answer_filename,</if>
+            <if test="answerCorresid != null">answer_corresid,</if>
+            <if test="description != null">description,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="scenario != null">scenario,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="ddId != null">#{ddId},</if>
+            <if test="ddCode != null">#{ddCode},</if>
+            <if test="relateId != null">#{relateId},</if>
+            <if test="category != null">#{category},</if>
+            <if test="groupName != null">#{groupName},</if>
+            <if test="keyPoints != null">#{keyPoints},</if>
+            <if test="question != null">#{question},</if>
+            <if test="questionOrder != null">#{questionOrder},</if>
+            <if test="fieldType != null">#{fieldType},</if>
+            <if test="fieldConfig != null">#{fieldConfig},</if>
+            <if test="answer != null">#{answer},</if>
+            <if test="answerFilename != null">#{answerFilename},</if>
+            <if test="answerCorresid != null">#{answerCorresid},</if>
+            <if test="description != null">#{description},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="scenario != null">#{scenario},</if>
+         </trim>
+    </insert>
+
+    <update id="updateCrmDd" parameterType="CrmDd">
+        update crm_dd
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="ddCode != null">dd_code = #{ddCode},</if>
+            <if test="relateId != null">relate_id = #{relateId},</if>
+            <if test="category != null">category = #{category},</if>
+            <if test="groupName != null">group_name = #{groupName},</if>
+            <if test="keyPoints != null">key_points = #{keyPoints},</if>
+            <if test="question != null">question = #{question},</if>
+            <if test="questionOrder != null">question_order = #{questionOrder},</if>
+            <if test="fieldType != null">field_type = #{fieldType},</if>
+            <if test="fieldConfig != null">field_config = #{fieldConfig},</if>
+            <if test="answer != null">answer = #{answer},</if>
+            <if test="answerFilename != null">answer_filename = #{answerFilename},</if>
+            <if test="answerCorresid != null">answer_corresid = #{answerCorresid},</if>
+            <if test="description != null">description = #{description},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="scenario != null">scenario = #{scenario},</if>
+        </trim>
+        where dd_id = #{ddId}
+    </update>
+
+    <delete id="deleteCrmDdByDdId" parameterType="String">
+        delete from crm_dd where dd_id = #{ddId}
+    </delete>
+
+    <delete id="deleteCrmDdByDdIds" parameterType="String">
+        delete from crm_dd where dd_id in 
+        <foreach item="ddId" collection="array" open="(" separator="," close=")">
+            #{ddId}
+        </foreach>
+    </delete>
+</mapper>

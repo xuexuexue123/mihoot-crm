@@ -1,0 +1,604 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmContactMapper">
+    
+    <resultMap type="CrmContact" id="CrmContactResult">
+        <result property="contactId"    column="contact_id"    />
+        <result property="orgId"    column="org_id"    />
+        <result property="accountId"    column="account_id"    />
+        <result property="name"    column="name"    />
+        <result property="fullName"    column="full_name"    />
+        <result property="accountName"    column="account_name"    />
+        <result property="salutation"    column="salutation"    />
+        <result property="title"    column="title"    />
+        <result property="maritalStatus"    column="marital_status"    />
+        <result property="birthdate"    column="birthDate"    />
+        <result property="age"    column="age"    />
+        <result property="workPhone"    column="work_phone"    />
+        <result property="workEmail"    column="work_email"    />
+        <result property="gender"    column="gender"    />
+        <result property="personalEmail"    column="personal_email"    />
+        <result property="mobilePhone"    column="mobile_phone"    />
+        <result property="clientType"    column="client_type"    />
+        <result property="territory"    column="territory"    />
+        <result property="owner"    column="owner"    />
+        <result property="managementLevel"    column="management_level"    />
+        <result property="department"    column="department"    />
+        <result property="reportsTo"    column="reports_to"    />
+        <result property="reportsToId"    column="reports_to_id"    />
+        <result property="favorabilityRating"    column="favorability_rating"    />
+        <result property="influenceRating"    column="influence_rating"    />
+        <result property="assistant"    column="assistant"    />
+        <result property="assistantPhone"    column="assistant_phone"    />
+        <result property="assistantEmail"    column="assistant_email"    />
+        <result property="allowCall"    column="allow_call"    />
+        <result property="allowEmail"    column="allow_email"    />
+        <result property="isCustomer"    column="is_customer"    />
+        <result property="isOrgCustomer"    column="is_org_customer"    />
+        <result property="responsibility"    column="responsibility"    />
+        <result property="activeOptyCount"    column="active_opty_count"    />
+        <result property="activeLeadCount"    column="active_lead_count"    />
+        <result property="activeOptyAmount"    column="active_opty_amount"    />
+        <result property="status"    column="status"    />
+        <result property="workingYears"    column="working_years"    />
+        <result property="isActive"    column="is_active"    />
+        <result property="degree"    column="degree"    />
+        <result property="major"    column="major"    />
+        <result property="origin"    column="origin"    />
+        <result property="wechat"    column="wechat"    />
+        <result property="location"    column="location"    />
+        <result property="school"    column="school"    />
+        <result property="tag"    column="tag"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="userId"    column="user_id"    />
+        <result property="deptId"    column="dept_id"    />
+        <result property="customField"    column="custom_field"    />
+        <result property="sid"    column="sid"    />
+        <result property="sourceLeadId"    column="source_lead_id"    />
+        <result property="resources"    column="resources"    />
+        <result property="requirement"    column="requirement"    />
+        <result property="rrDescription"    column="rr_description"    />
+        <result property="nameCard"    column="name_card"    />
+        <result property="avatar"    column="avatar"    />
+        <result property="priority"    column="priority"    />
+        <result property="originalSource"    column="original_source"    />
+        <result property="firstVisitClinicId"    column="first_visit_clinic_id"    />
+        <result property="imagingPortalUrl"    column="imaging_portal_url"    />
+        <result property="imagingPatientExternalId"    column="imaging_patient_external_id"    />
+        <result property="firstVisitAt"    column="first_visit_at"    />
+        <result property="lastVisitAt"    column="last_visit_at"    />
+        <result property="visitCount"    column="visit_count"    />
+        <result property="acquisitionCost"    column="acquisition_cost"    />
+        <result property="wecomExternalUserid" column="wecom_external_userid"/>
+        <result property="wecomFollowUserid" column="wecom_follow_userid"/>
+        <result property="wecomName"           column="wecom_name"/>
+        <result property="wecomAvatar"         column="wecom_avatar"/>
+        <result property="wecomGender"         column="wecom_gender"/>
+        <result property="wecomType"           column="wecom_type"/>
+    </resultMap>
+
+    <sql id="selectCrmContactVo">
+        select c.contact_id, c.org_id, c.account_id, c.name, c.full_name, c.account_name, c.salutation, c.title, c.marital_status, c.birthDate, c.age, c.work_phone, c.work_email, c.gender, c.personal_email, c.mobile_phone, c.client_type, c.territory, c.owner, c.management_level, c.department, c.reports_to, c.reports_to_id, c.favorability_rating, c.influence_rating, c.assistant, c.assistant_phone, c.assistant_email, c.allow_call, c.allow_email, c.is_customer, c.is_org_customer, c.responsibility, c.active_opty_count, c.active_lead_count, c.active_opty_amount, c.status, c.working_years, c.is_active, c.degree, c.major, c.origin, c.original_source, c.sid, c.source_lead_id, c.first_visit_clinic_id, c.imaging_portal_url, c.imaging_patient_external_id, c.first_visit_at, c.last_visit_at, c.visit_count, c.acquisition_cost, c.wecom_external_userid, c.wecom_follow_userid, c.wecom_name, c.wecom_avatar, c.wecom_gender, c.wecom_type, c.wechat, c.location, c.school, c.tag, c.create_by, c.create_time, c.update_by, c.update_time, c.user_id, c.dept_id, c.custom_field, c.sid, c.resources, c.requirement, c.rr_description, c.name_card, c.avatar, c.priority
+        from crm_contact c
+        left join sys_user u on u.user_id = c.user_id
+        left join sys_dept d on u.dept_id = d.dept_id
+    </sql>
+
+    <select id="selectCrmContactBirthdayList" parameterType="CrmContact" resultMap="CrmContactResult">
+    <include refid="selectCrmContactVo"/>
+    where 1=1
+        and c.birthdate is not null
+        and extract(month from c.birthdate::date) = extract(month from current_date)
+        and extract(day from c.birthdate::date) = extract(day from current_date)
+        <!-- 数据范围过滤 -->
+        ${params.dataScope}
+    </select>
+
+
+    <select id="selectCrmContactFromJSON" parameterType="CrmInvestor" resultMap="CrmContactResult">
+        <include refid="selectCrmContactVo"/>
+        where 1=1
+        <if test="clientType != null  and clientType != ''">
+            and client_type = #{clientType}
+        </if>
+        <if test="region != null and region != ''">
+            and c.custom_field is not null
+            and c.custom_field::jsonb @> jsonb_build_array(jsonb_build_object('value', #{region}))
+         </if>
+        <if test="checkSize != null and checkSize != ''">
+            and c.custom_field is not null
+            and c.custom_field::jsonb @> jsonb_build_array(jsonb_build_object('value', #{checkSize}))
+        </if>
+        <if test="hangye != null and hangye != ''">
+            and c.custom_field is not null
+            and c.custom_field::text like concat('%', #{hangye}, '%')
+        </if>
+        <if test="decisionTime != null and decisionTime != ''">
+            and c.custom_field is not null
+            and c.custom_field::jsonb @> jsonb_build_array(jsonb_build_object('value', #{decisionTime}))
+        </if>
+        <if test="chair != null and chair != ''">
+            and c.custom_field is not null
+            and (c.custom_field::jsonb->36->>'value') = #{chair}
+        </if>
+
+
+    </select>
+
+
+    <select id="selectCrmContactListByAccountId" parameterType="CrmContact" resultMap="CrmContactResult">
+        <include refid="selectCrmContactVo"/>
+        left join crm_contactrelation r on r.source_id = c.contact_id
+        where 1=1
+        <if test="accountId != null  and accountId != ''"> and r.target_id = #{accountId}</if>
+        <if test="clientType != null  and clientType != ''"> and c.client_type = #{clientType}</if>
+    </select>
+
+    <select id="selectCrmContactListByHouseholdId" parameterType="String" resultMap="CrmContactResult">
+        <include refid="selectCrmContactVo"/>
+        left join crm_householdmember h on h.contact_id = c.contact_id
+        where h.household_id = #{householdId}
+    </select>
+
+    <select id="selectCrmContactList" parameterType="CrmContact" resultMap="CrmContactResult">
+        <include refid="selectCrmContactVo"/>
+        where 1=1
+        <if test="orgId != null  and orgId != ''"> and org_id = #{orgId}</if>
+        <if test="accountId != null  and accountId != ''"> and account_id = #{accountId}</if>
+        <if test="name != null  and name != ''"> and name like concat('%', #{name}, '%')</if>
+        <if test="fullName != null  and fullName != ''"> and full_name like concat('%', #{fullName}, '%')</if>
+        <if test="accountName != null  and accountName != ''"> and account_name like concat('%', #{accountName}, '%')</if>
+        <if test="salutation != null  and salutation != ''"> and salutation = #{salutation}</if>
+        <if test="title != null  and title != ''"> and title = #{title}</if>
+        <if test="maritalStatus != null  and maritalStatus != ''"> and marital_status = #{maritalStatus}</if>
+        <if test="birthdate != null "> and birthDate = #{birthdate}</if>
+        <if test="age != null "> and age = #{age}</if>
+        <if test="workPhone != null  and workPhone != ''"> and work_phone = #{workPhone}</if>
+        <if test="workEmail != null  and workEmail != ''"> and work_email = #{workEmail}</if>
+        <if test="gender != null  and gender != ''"> and gender = #{gender}</if>
+        <if test="personalEmail != null  and personalEmail != ''"> and personal_email = #{personalEmail}</if>
+        <if test="mobilePhone != null  and mobilePhone != ''"> and mobile_phone = #{mobilePhone}</if>
+        <if test="clientType != null  and clientType != ''"> and client_type = #{clientType}</if>
+        <if test="territory != null  and territory != ''"> and territory = #{territory}</if>
+        <if test="owner != null  and owner != ''"> and owner = #{owner}</if>
+        <if test="managementLevel != null  and managementLevel != ''"> and management_level = #{managementLevel}</if>
+        <if test="department != null  and department != ''"> and department = #{department}</if>
+        <if test="reportsTo != null  and reportsTo != ''"> and reports_to = #{reportsTo}</if>
+        <if test="reportsToId != null  and reportsToId != ''"> and reports_to_id = #{reportsToId}</if>
+        <if test="favorabilityRating != null  and favorabilityRating != ''"> and favorability_rating = #{favorabilityRating}</if>
+        <if test="influenceRating != null  and influenceRating != ''"> and influence_rating = #{influenceRating}</if>
+        <if test="assistant != null  and assistant != ''"> and assistant = #{assistant}</if>
+        <if test="assistantPhone != null  and assistantPhone != ''"> and assistant_phone = #{assistantPhone}</if>
+        <if test="assistantEmail != null  and assistantEmail != ''"> and assistant_email = #{assistantEmail}</if>
+        <if test="allowCall != null  and allowCall != ''"> and allow_call = #{allowCall}</if>
+        <if test="allowEmail != null  and allowEmail != ''"> and allow_email = #{allowEmail}</if>
+        <if test="isCustomer != null  and isCustomer != ''"> and is_customer = #{isCustomer}</if>
+        <if test="isOrgCustomer != null  and isOrgCustomer != ''"> and is_org_customer = #{isOrgCustomer}</if>
+        <if test="responsibility != null  and responsibility != ''"> and responsibility = #{responsibility}</if>
+        <if test="activeOptyCount != null "> and active_opty_count = #{activeOptyCount}</if>
+        <if test="activeLeadCount != null "> and active_lead_count = #{activeLeadCount}</if>
+        <if test="activeOptyAmount != null "> and active_opty_amount = #{activeOptyAmount}</if>
+        <if test="status != null  and status != ''"> and c.status = #{status}</if>
+        <if test="workingYears != null "> and working_years = #{workingYears}</if>
+        <if test="isActive != null  and isActive != ''"> and is_active = #{isActive}</if>
+        <if test="degree != null  and degree != ''"> and degree = #{degree}</if>
+        <if test="major != null  and major != ''"> and major = #{major}</if>
+        <if test="origin != null  and origin != ''"> and origin = #{origin}</if>
+        <if test="wechat != null  and wechat != ''"> and wechat = #{wechat}</if>
+        <if test="wecomExternalUserid != null  and wecomExternalUserid != ''"> and c.wecom_external_userid = #{wecomExternalUserid}</if>
+        <if test="location != null  and location != ''"> and location = #{location}</if>
+        <if test="school != null  and school != ''"> and school = #{school}</if>
+        <if test="tag != null  and tag != ''"> and tag::text like concat('%', #{tag}, '%')</if>
+        <if test="userId != null "> and user_id = #{userId}</if>
+        <if test="deptId != null "> and dept_id = #{deptId}</if>
+        <if test="customField != null  and customField != ''"> and custom_field = CAST(NULLIF(TRIM(#{customField}), '') AS jsonb)</if>
+        <if test="sid != null  and sid != ''"> and sid = #{sid}</if>
+        <!-- 数据范围过滤 -->
+        ${params.dataScope}
+        order by priority desc
+    </select>
+
+    <select id="checkContactExisting" parameterType="CrmContact" resultMap="CrmContactResult">
+        <include refid="selectCrmContactVo"/>
+        <where>
+            <choose>
+                <when test="(workEmail != null and workEmail != '') or (mobilePhone != null and mobilePhone != '')">
+                    <trim prefix="(" suffix=")" prefixOverrides="OR">
+                        <if test="workEmail != null and workEmail != ''"> OR c.work_email = #{workEmail}</if>
+                        <if test="mobilePhone != null and mobilePhone != ''"> OR c.mobile_phone = #{mobilePhone}</if>
+                    </trim>
+                </when>
+                <otherwise>1 = 0</otherwise>
+            </choose>
+        </where>
+    </select>
+
+    <select id="selectCrmContactListWeekly" parameterType="CrmContact" resultMap="CrmContactResult">
+        <include refid="selectCrmContactVo"/>
+        where 1=1
+        and to_char(c.create_time::date, 'IYYYIW') = to_char(CURRENT_DATE, 'IYYYIW')
+            <if test="orgId != null  and orgId != ''"> and org_id = #{orgId}</if>
+            <if test="accountId != null  and accountId != ''"> and account_id = #{accountId}</if>
+            <if test="name != null  and name != ''"> and name like concat('%', #{name}, '%')</if>
+            <if test="fullName != null  and fullName != ''"> and full_name like concat('%', #{fullName}, '%')</if>
+            <if test="accountName != null  and accountName != ''"> and account_name like concat('%', #{accountName}, '%')</if>
+            <if test="salutation != null  and salutation != ''"> and salutation = #{salutation}</if>
+            <if test="title != null  and title != ''"> and title = #{title}</if>
+            <if test="maritalStatus != null  and maritalStatus != ''"> and marital_status = #{maritalStatus}</if>
+            <if test="birthdate != null "> and birthDate = #{birthdate}</if>
+            <if test="age != null "> and age = #{age}</if>
+            <if test="workPhone != null  and workPhone != ''"> and work_phone = #{workPhone}</if>
+            <if test="workEmail != null  and workEmail != ''"> and work_email = #{workEmail}</if>
+            <if test="gender != null  and gender != ''"> and gender = #{gender}</if>
+            <if test="personalEmail != null  and personalEmail != ''"> and personal_email = #{personalEmail}</if>
+            <if test="mobilePhone != null  and mobilePhone != ''"> and mobile_phone = #{mobilePhone}</if>
+            <if test="clientType != null  and clientType != ''"> and client_type = #{clientType}</if>
+            <if test="territory != null  and territory != ''"> and territory = #{territory}</if>
+            <if test="owner != null  and owner != ''"> and owner = #{owner}</if>
+            <if test="managementLevel != null  and managementLevel != ''"> and management_level = #{managementLevel}</if>
+            <if test="department != null  and department != ''"> and department = #{department}</if>
+            <if test="reportsTo != null  and reportsTo != ''"> and reports_to = #{reportsTo}</if>
+            <if test="reportsToId != null  and reportsToId != ''"> and reports_to_id = #{reportsToId}</if>
+            <if test="favorabilityRating != null  and favorabilityRating != ''"> and favorability_rating = #{favorabilityRating}</if>
+            <if test="influenceRating != null  and influenceRating != ''"> and influence_rating = #{influenceRating}</if>
+            <if test="assistant != null  and assistant != ''"> and assistant = #{assistant}</if>
+            <if test="assistantPhone != null  and assistantPhone != ''"> and assistant_phone = #{assistantPhone}</if>
+            <if test="assistantEmail != null  and assistantEmail != ''"> and assistant_email = #{assistantEmail}</if>
+            <if test="allowCall != null  and allowCall != ''"> and allow_call = #{allowCall}</if>
+            <if test="allowEmail != null  and allowEmail != ''"> and allow_email = #{allowEmail}</if>
+            <if test="isCustomer != null  and isCustomer != ''"> and is_customer = #{isCustomer}</if>
+            <if test="isOrgCustomer != null  and isOrgCustomer != ''"> and is_org_customer = #{isOrgCustomer}</if>
+            <if test="responsibility != null  and responsibility != ''"> and responsibility = #{responsibility}</if>
+            <if test="activeOptyCount != null "> and active_opty_count = #{activeOptyCount}</if>
+            <if test="activeLeadCount != null "> and active_lead_count = #{activeLeadCount}</if>
+            <if test="activeOptyAmount != null "> and active_opty_amount = #{activeOptyAmount}</if>
+            <if test="status != null  and status != ''"> and c.status = #{status}</if>
+            <if test="workingYears != null "> and working_years = #{workingYears}</if>
+            <if test="isActive != null  and isActive != ''"> and is_active = #{isActive}</if>
+            <if test="degree != null  and degree != ''"> and degree = #{degree}</if>
+            <if test="major != null  and major != ''"> and major = #{major}</if>
+            <if test="origin != null  and origin != ''"> and origin = #{origin}</if>
+            <if test="originalSource != null  and originalSource != ''"> and original_source = #{originalSource}</if>
+            <if test="firstVisitClinicId != null  and firstVisitClinicId != ''"> and first_visit_clinic_id = #{firstVisitClinicId}</if>
+            <if test="imagingPatientExternalId != null  and imagingPatientExternalId != ''"> and imaging_patient_external_id = #{imagingPatientExternalId}</if>
+            <if test="wechat != null  and wechat != ''"> and wechat = #{wechat}</if>
+            <if test="location != null  and location != ''"> and location = #{location}</if>
+            <if test="school != null  and school != ''"> and school = #{school}</if>
+            <if test="tag != null  and tag != ''"> and tag::text like concat('%', #{tag}, '%')</if>
+            <if test="userId != null "> and user_id = #{userId}</if>
+            <if test="deptId != null "> and dept_id = #{deptId}</if>
+            <if test="customField != null  and customField != ''"> and custom_field = CAST(NULLIF(TRIM(#{customField}), '') AS jsonb)</if>
+            <if test="sid != null  and sid != ''"> and sid = #{sid}</if>
+
+        <!-- 数据范围过滤 -->
+        ${params.dataScope}
+        order by priority desc
+    </select>
+    
+    <select id="selectCrmContactByContactId" parameterType="String" resultMap="CrmContactResult">
+        <include refid="selectCrmContactVo"/>
+        where contact_id = #{contactId}
+    </select>
+
+    <select id="selectContactIdsByAccountId" parameterType="String" resultType="String">
+        select contact_id from crm_contact where account_id = #{accountId}
+    </select>
+
+    <select id="selectCrmContactListByTags" parameterType="CrmContactQuery" resultMap="CrmContactResult">
+        <include refid="selectCrmContactVo"/>
+        where 1=1
+            <if test = "conditions != null and conditions.size() != 0">
+
+                <foreach collection="conditions" item="node">
+                    <if test="node.key != null and node.key=='gender'">
+                        and gender = #{node.value}
+                    </if>
+                    <if test="node.key != null and node.key=='marital_status'">
+                        and marital_status = #{node.value}
+                    </if>
+                    <if test="node.key != null and node.key=='client_type'">
+                        and client_type = #{node.value}
+                    </if>
+                    <if test="node.key != null and node.key=='major'">
+                        and major = #{node.value}
+                    </if>
+                    <if test="node.key != null and node.key=='school'">
+                        and school like concat('%', #{node.value}, '%')
+                    </if>
+                    <if test="node.key != null and node.key=='tag'">
+                        and tag::text like concat('%', #{node.value}, '%')
+                    </if>
+                    <if test="node.key != null and node.key=='age'">
+                        <if test="node.operator=='大于'">
+                            and age <![CDATA[ > ]]> #{node.value}
+                        </if>
+                        <if test="node.operator=='大于等于'">
+                            and age <![CDATA[ >= ]]> #{node.value}
+                        </if>
+                        <if test="node.operator=='小于'">
+                            and age <![CDATA[ < ]]> #{node.value}
+                        </if>
+                        <if test="node.operator=='小于等于'">
+                            and age <![CDATA[ <= ]]> #{node.value}
+                        </if>
+                        <if test="node.operator=='不等于'">
+                            and age <![CDATA[ <> ]]> #{node.value}
+                        </if>
+                    </if>
+                </foreach>
+            </if>
+        <!-- 数据范围过滤 -->
+        ${params.dataScope}
+        order by priority desc
+    </select>
+
+    <insert id="insertCrmContact" parameterType="CrmContact">
+        insert into crm_contact
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="contactId != null">contact_id,</if>
+            <if test="orgId != null and orgId != ''">org_id,</if>
+            <if test="accountId != null and accountId != ''">account_id,</if>
+            <if test="name != null and name != ''">name,</if>
+            <if test="fullName != null">full_name,</if>
+            <if test="accountName != null">account_name,</if>
+            <if test="salutation != null">salutation,</if>
+            <if test="title != null">title,</if>
+            <if test="maritalStatus != null">marital_status,</if>
+            <if test="birthdate != null">birthDate,</if>
+            <if test="age != null">age,</if>
+            <if test="workPhone != null">work_phone,</if>
+            <if test="workEmail != null">work_email,</if>
+            <if test="gender != null">gender,</if>
+            <if test="personalEmail != null">personal_email,</if>
+            <if test="mobilePhone != null">mobile_phone,</if>
+            <if test="clientType != null">client_type,</if>
+            <if test="territory != null">territory,</if>
+            <if test="owner != null">owner,</if>
+            <if test="managementLevel != null">management_level,</if>
+            <if test="department != null">department,</if>
+            <if test="reportsTo != null">reports_to,</if>
+            <if test="reportsToId != null">reports_to_id,</if>
+            <if test="favorabilityRating != null">favorability_rating,</if>
+            <if test="influenceRating != null">influence_rating,</if>
+            <if test="assistant != null">assistant,</if>
+            <if test="assistantPhone != null">assistant_phone,</if>
+            <if test="assistantEmail != null">assistant_email,</if>
+            <if test="allowCall != null">allow_call,</if>
+            <if test="allowEmail != null">allow_email,</if>
+            <if test="isCustomer != null">is_customer,</if>
+            <if test="isOrgCustomer != null">is_org_customer,</if>
+            <if test="responsibility != null">responsibility,</if>
+            <if test="activeOptyCount != null">active_opty_count,</if>
+            <if test="activeLeadCount != null">active_lead_count,</if>
+            <if test="activeOptyAmount != null">active_opty_amount,</if>
+            <if test="status != null">status,</if>
+            <if test="workingYears != null">working_years,</if>
+            <if test="isActive != null">is_active,</if>
+            <if test="degree != null">degree,</if>
+            <if test="major != null">major,</if>
+            <if test="origin != null">origin,</if>
+            <if test="originalSource != null">original_source,</if>
+            <if test="firstVisitClinicId != null">first_visit_clinic_id,</if>
+            <if test="imagingPortalUrl != null">imaging_portal_url,</if>
+            <if test="imagingPatientExternalId != null">imaging_patient_external_id,</if>
+            <if test="firstVisitAt != null">first_visit_at,</if>
+            <if test="lastVisitAt != null">last_visit_at,</if>
+            <if test="visitCount != null">visit_count,</if>
+            <if test="acquisitionCost != null">acquisition_cost,</if>
+            <if test="wecomExternalUserid != null">wecom_external_userid,</if>
+            <if test="wecomFollowUserid != null">wecom_follow_userid,</if>
+            <if test="wecomName != null">wecom_name,</if>
+            <if test="wecomAvatar != null">wecom_avatar,</if>
+            <if test="wecomGender != null">wecom_gender,</if>
+            <if test="wecomType != null">wecom_type,</if>
+            <if test="wechat != null">wechat,</if>
+            <if test="location != null">location,</if>
+            <if test="school != null">school,</if>
+            <if test="tag != null">tag,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="userId != null">user_id,</if>
+            <if test="deptId != null">dept_id,</if>
+            <if test="customField != null">custom_field,</if>
+            <if test="sid != null">sid,</if>
+            <if test="sourceLeadId != null">source_lead_id,</if>
+            <if test="resources != null">resources,</if>
+            <if test="requirement != null">requirement,</if>
+            <if test="rrDescription != null">rr_description,</if>
+            <if test="nameCard != null">name_card,</if>
+            <if test="avatar != null">avatar,</if>
+            <if test="priority != null">priority,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="contactId != null">#{contactId},</if>
+            <if test="orgId != null and orgId != ''">#{orgId},</if>
+            <if test="accountId != null and accountId != ''">#{accountId},</if>
+            <if test="name != null and name != ''">#{name},</if>
+            <if test="fullName != null">#{fullName},</if>
+            <if test="accountName != null">#{accountName},</if>
+            <if test="salutation != null">#{salutation},</if>
+            <if test="title != null">#{title},</if>
+            <if test="maritalStatus != null">#{maritalStatus},</if>
+            <if test="birthdate != null">#{birthdate},</if>
+            <if test="age != null">#{age},</if>
+            <if test="workPhone != null">#{workPhone},</if>
+            <if test="workEmail != null">#{workEmail},</if>
+            <if test="gender != null">#{gender},</if>
+            <if test="personalEmail != null">#{personalEmail},</if>
+            <if test="mobilePhone != null">#{mobilePhone},</if>
+            <if test="clientType != null">#{clientType},</if>
+            <if test="territory != null">#{territory},</if>
+            <if test="owner != null">#{owner},</if>
+            <if test="managementLevel != null">#{managementLevel},</if>
+            <if test="department != null">#{department},</if>
+            <if test="reportsTo != null">#{reportsTo},</if>
+            <if test="reportsToId != null">#{reportsToId},</if>
+            <if test="favorabilityRating != null">#{favorabilityRating},</if>
+            <if test="influenceRating != null">#{influenceRating},</if>
+            <if test="assistant != null">#{assistant},</if>
+            <if test="assistantPhone != null">#{assistantPhone},</if>
+            <if test="assistantEmail != null">#{assistantEmail},</if>
+            <if test="allowCall != null">#{allowCall},</if>
+            <if test="allowEmail != null">#{allowEmail},</if>
+            <if test="isCustomer != null">#{isCustomer},</if>
+            <if test="isOrgCustomer != null">#{isOrgCustomer},</if>
+            <if test="responsibility != null">#{responsibility},</if>
+            <if test="activeOptyCount != null">#{activeOptyCount},</if>
+            <if test="activeLeadCount != null">#{activeLeadCount},</if>
+            <if test="activeOptyAmount != null">#{activeOptyAmount},</if>
+            <if test="status != null">#{status},</if>
+            <if test="workingYears != null">#{workingYears},</if>
+            <if test="isActive != null">#{isActive},</if>
+            <if test="degree != null">#{degree},</if>
+            <if test="major != null">#{major},</if>
+            <if test="origin != null">#{origin},</if>
+            <if test="originalSource != null">#{originalSource},</if>
+            <if test="firstVisitClinicId != null">#{firstVisitClinicId},</if>
+            <if test="imagingPortalUrl != null">#{imagingPortalUrl},</if>
+            <if test="imagingPatientExternalId != null">#{imagingPatientExternalId},</if>
+            <if test="firstVisitAt != null">#{firstVisitAt},</if>
+            <if test="lastVisitAt != null">#{lastVisitAt},</if>
+            <if test="visitCount != null">#{visitCount},</if>
+            <if test="acquisitionCost != null">#{acquisitionCost},</if>
+            <if test="wecomExternalUserid != null">#{wecomExternalUserid},</if>
+            <if test="wecomFollowUserid != null">#{wecomFollowUserid},</if>
+            <if test="wecomName != null">#{wecomName},</if>
+            <if test="wecomAvatar != null">#{wecomAvatar},</if>
+            <if test="wecomGender != null">#{wecomGender},</if>
+            <if test="wecomType != null">#{wecomType},</if>
+            <if test="wechat != null">#{wechat},</if>
+            <if test="location != null">#{location},</if>
+            <if test="school != null">#{school},</if>
+            <if test="tag != null">CAST(NULLIF(TRIM(#{tag}), '') AS jsonb),</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="userId != null">#{userId},</if>
+            <if test="deptId != null">#{deptId},</if>
+            <if test="customField != null">CAST(NULLIF(TRIM(#{customField}), '') AS jsonb),</if>
+            <if test="sid != null">#{sid},</if>
+            <if test="sourceLeadId != null">#{sourceLeadId},</if>
+            <if test="resources != null">CAST(NULLIF(TRIM(#{resources}), '') AS jsonb),</if>
+            <if test="requirement != null">CAST(NULLIF(TRIM(#{requirement}), '') AS jsonb),</if>
+            <if test="rrDescription != null">CAST(NULLIF(TRIM(#{rrDescription}), '') AS jsonb),</if>
+            <if test="nameCard != null">CAST(NULLIF(TRIM(#{nameCard}), '') AS jsonb),</if>
+            <if test="avatar != null">#{avatar},</if>
+            <if test="priority != null">#{priority},</if>
+         </trim>
+    </insert>
+
+    <update id="updateCrmContact" parameterType="CrmContact">
+        update crm_contact
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="orgId != null and orgId != ''">org_id = #{orgId},</if>
+            <if test="accountId != null and accountId != ''">account_id = #{accountId},</if>
+            <if test="name != null and name != ''">name = #{name},</if>
+            <if test="fullName != null">full_name = #{fullName},</if>
+            <if test="accountName != null">account_name = #{accountName},</if>
+            <if test="salutation != null">salutation = #{salutation},</if>
+            <if test="title != null">title = #{title},</if>
+            <if test="maritalStatus != null">marital_status = #{maritalStatus},</if>
+            <if test="birthdate != null">birthDate = #{birthdate},</if>
+            <if test="age != null">age = #{age},</if>
+            <if test="workPhone != null">work_phone = #{workPhone},</if>
+            <if test="workEmail != null">work_email = #{workEmail},</if>
+            <if test="gender != null">gender = #{gender},</if>
+            <if test="personalEmail != null">personal_email = #{personalEmail},</if>
+            <if test="mobilePhone != null">mobile_phone = #{mobilePhone},</if>
+            <if test="clientType != null">client_type = #{clientType},</if>
+            <if test="territory != null">territory = #{territory},</if>
+            <if test="owner != null">owner = #{owner},</if>
+            <if test="managementLevel != null">management_level = #{managementLevel},</if>
+            <if test="department != null">department = #{department},</if>
+            <if test="reportsTo != null">reports_to = #{reportsTo},</if>
+            <if test="reportsToId != null">reports_to_id = #{reportsToId},</if>
+            <if test="favorabilityRating != null">favorability_rating = #{favorabilityRating},</if>
+            <if test="influenceRating != null">influence_rating = #{influenceRating},</if>
+            <if test="assistant != null">assistant = #{assistant},</if>
+            <if test="assistantPhone != null">assistant_phone = #{assistantPhone},</if>
+            <if test="assistantEmail != null">assistant_email = #{assistantEmail},</if>
+            <if test="allowCall != null">allow_call = #{allowCall},</if>
+            <if test="allowEmail != null">allow_email = #{allowEmail},</if>
+            <if test="isCustomer != null">is_customer = #{isCustomer},</if>
+            <if test="isOrgCustomer != null">is_org_customer = #{isOrgCustomer},</if>
+            <if test="responsibility != null">responsibility = #{responsibility},</if>
+            <if test="activeOptyCount != null">active_opty_count = #{activeOptyCount},</if>
+            <if test="activeLeadCount != null">active_lead_count = #{activeLeadCount},</if>
+            <if test="activeOptyAmount != null">active_opty_amount = #{activeOptyAmount},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="workingYears != null">working_years = #{workingYears},</if>
+            <if test="isActive != null">is_active = #{isActive},</if>
+            <if test="degree != null">degree = #{degree},</if>
+            <if test="major != null">major = #{major},</if>
+            <if test="origin != null">origin = #{origin},</if>
+            <if test="originalSource != null and originalSource != ''">original_source = #{originalSource},</if>
+            <if test="firstVisitClinicId != null and firstVisitClinicId != ''">first_visit_clinic_id = #{firstVisitClinicId},</if>
+            <if test="imagingPortalUrl != null">imaging_portal_url = #{imagingPortalUrl},</if>
+            <if test="imagingPatientExternalId != null">imaging_patient_external_id = #{imagingPatientExternalId},</if>
+            <if test="firstVisitAt != null">first_visit_at = #{firstVisitAt},</if>
+            <if test="lastVisitAt != null">last_visit_at = #{lastVisitAt},</if>
+            <if test="visitCount != null">visit_count = #{visitCount},</if>
+            <if test="acquisitionCost != null">acquisition_cost = #{acquisitionCost},</if>
+            <if test="wecomExternalUserid != null">wecom_external_userid = #{wecomExternalUserid},</if>
+            <if test="wecomFollowUserid != null">wecom_follow_userid = #{wecomFollowUserid},</if>
+            <if test="wecomName != null">wecom_name = #{wecomName},</if>
+            <if test="wecomAvatar != null">wecom_avatar = #{wecomAvatar},</if>
+            <if test="wecomGender != null">wecom_gender = #{wecomGender},</if>
+            <if test="wecomType != null">wecom_type = #{wecomType},</if>
+            <if test="wechat != null">wechat = #{wechat},</if>
+            <if test="location != null">location = #{location},</if>
+            <if test="school != null">school = #{school},</if>
+            <if test="tag != null">tag = CAST(NULLIF(TRIM(#{tag}), '') AS jsonb),</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="userId != null">user_id = #{userId},</if>
+            <if test="deptId != null">dept_id = #{deptId},</if>
+            <if test="customField != null">custom_field = CAST(NULLIF(TRIM(#{customField}), '') AS jsonb),</if>
+            <if test="sid != null">sid = #{sid},</if>
+            <if test="sourceLeadId != null">source_lead_id = #{sourceLeadId},</if>
+            <if test="resources != null">resources = CAST(NULLIF(TRIM(#{resources}), '') AS jsonb),</if>
+            <if test="requirement != null">requirement = CAST(NULLIF(TRIM(#{requirement}), '') AS jsonb),</if>
+            <if test="rrDescription != null">rr_description = CAST(NULLIF(TRIM(#{rrDescription}), '') AS jsonb),</if>
+            <if test="nameCard != null">name_card = CAST(NULLIF(TRIM(#{nameCard}), '') AS jsonb),</if>
+            <if test="avatar != null">avatar = #{avatar},</if>
+            <if test="priority != null">priority = #{priority},</if>
+        </trim>
+        where contact_id = #{contactId}
+    </update>
+
+    <delete id="deleteCrmContactByContactId" parameterType="String">
+        delete from crm_contact where contact_id = #{contactId}
+    </delete>
+
+    <delete id="deleteCrmContactByContactIds" parameterType="String">
+        delete from crm_contact where contact_id in 
+        <foreach item="contactId" collection="array" open="(" separator="," close=")">
+            #{contactId}
+        </foreach>
+    </delete>
+
+    <select id="selectContactsWithNoRecentVisit" resultMap="CrmContactResult">
+        <include refid="selectCrmContactVo"/>
+        where (c.last_visit_at IS NULL OR c.last_visit_at &lt; CURRENT_DATE - #{daysThreshold} * INTERVAL '1 day')
+        ${params.dataScope}
+    </select>
+
+    <select id="selectContactsByFirstVisitAnniversary" resultMap="CrmContactResult">
+        <include refid="selectCrmContactVo"/>
+        where c.first_visit_at IS NOT NULL
+          AND EXTRACT(MONTH FROM c.first_visit_at) = EXTRACT(MONTH FROM CURRENT_DATE)
+          AND EXTRACT(DAY FROM c.first_visit_at) = EXTRACT(DAY FROM CURRENT_DATE)
+          AND EXTRACT(YEAR FROM c.first_visit_at) &lt; EXTRACT(YEAR FROM CURRENT_DATE)
+        ${params.dataScope}
+    </select>
+</mapper>

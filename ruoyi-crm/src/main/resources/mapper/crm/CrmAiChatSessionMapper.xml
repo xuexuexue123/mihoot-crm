@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmAiChatSessionMapper">
+
+    <resultMap type="com.ruoyi.crm.domain.vo.AiChatSessionVo" id="AiChatSessionVoResult">
+        <result property="sessionId" column="session_id"/>
+        <result property="title" column="title"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <resultMap type="com.ruoyi.crm.domain.CrmAiChatSession" id="CrmAiChatSessionResult">
+        <result property="sessionId" column="session_id"/>
+        <result property="tenantId" column="tenant_id"/>
+        <result property="userId" column="user_id"/>
+        <result property="title" column="title"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="delFlag" column="del_flag"/>
+    </resultMap>
+
+    <select id="selectSessionList" resultMap="AiChatSessionVoResult">
+        select session_id, title, create_time, update_time
+        from crm_ai_chat_session
+        where tenant_id = #{tenantId}
+          and user_id = #{userId}
+          and del_flag = '0'
+        order by update_time desc
+    </select>
+
+    <select id="selectSessionById" resultMap="CrmAiChatSessionResult">
+        select session_id, tenant_id, user_id, title, create_time, update_time, del_flag
+        from crm_ai_chat_session
+        where tenant_id = #{tenantId}
+          and user_id = #{userId}
+          and session_id = #{sessionId}
+          and del_flag = '0'
+    </select>
+
+    <insert id="insertSession" parameterType="com.ruoyi.crm.domain.CrmAiChatSession">
+        insert into crm_ai_chat_session (
+            session_id, tenant_id, user_id, title, create_time, update_time, del_flag
+        ) values (
+            #{sessionId}, #{tenantId}, #{userId}, #{title}, #{createTime}, #{updateTime}, #{delFlag}
+        )
+    </insert>
+
+    <update id="touchSession">
+        update crm_ai_chat_session
+        set update_time = CURRENT_TIMESTAMP
+        <if test="title != null and title != ''">, title = #{title}</if>
+        where tenant_id = #{tenantId}
+          and user_id = #{userId}
+          and session_id = #{sessionId}
+          and del_flag = '0'
+    </update>
+
+    <update id="logicalDeleteSession">
+        update crm_ai_chat_session
+        set del_flag = '1', update_time = CURRENT_TIMESTAMP
+        where tenant_id = #{tenantId}
+          and user_id = #{userId}
+          and session_id = #{sessionId}
+          and del_flag = '0'
+    </update>
+</mapper>

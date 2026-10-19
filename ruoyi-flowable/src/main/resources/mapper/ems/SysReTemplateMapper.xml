@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.ems.mapper.SysReTemplateMapper">
+    
+    <resultMap type="SysReTemplate" id="SysReTemplateResult">
+        <result property="templateId"    column="template_id"    />
+        <result property="caseApplicationId"    column="case_application_id"    />
+        <result property="templateName"    column="template_name"    />
+        <result property="category"    column="category"    />
+        <result property="content"    column="content"    />
+        <result property="archived"    column="archived"    />
+        <result property="owner"    column="owner"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="designContent"    column="design_content"    />
+        <result property="description"    column="description"    />
+        <result property="color"    column="color"    />
+        <result property="cookieName"    column="cookie_name"    />
+    </resultMap>
+
+    <sql id="selectSysReTemplateVo">
+        select template_id, case_application_id, template_name, category, content, archived, owner, create_by, create_time, update_by, update_time, design_content, description, color, cookie_name  from sys_re_template
+    </sql>
+
+    <select id="selectSysReTemplateList" parameterType="SysReTemplate" resultMap="SysReTemplateResult">
+        <include refid="selectSysReTemplateVo"/>
+        <where>  
+            <if test="caseApplicationId != null  and caseApplicationId != ''"> and case_application_id = #{caseApplicationId}</if>
+            <if test="templateName != null  and templateName != ''"> and template_name like concat('%', #{templateName}, '%')</if>
+            <if test="category != null  and category != ''"> and category = #{category}</if>
+            <if test="content != null  and content != ''"> and content = #{content}</if>
+            <if test="archived != null "> and archived = #{archived}</if>
+            <if test="owner != null  and owner != ''"> and owner = #{owner}</if>
+        </where>
+        order by category, create_time desc
+    </select>
+    
+    <select id="selectSysReTemplateByTemplateId" parameterType="String" resultMap="SysReTemplateResult">
+        <include refid="selectSysReTemplateVo"/>
+        where template_id = #{templateId}
+    </select>
+        
+    <insert id="insertSysReTemplate" parameterType="SysReTemplate">
+        insert into sys_re_template
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="templateId != null">template_id,</if>
+            <if test="caseApplicationId != null">case_application_id,</if>
+            <if test="templateName != null">template_name,</if>
+            <if test="category != null">category,</if>
+            <if test="content != null">content,</if>
+            <if test="archived != null">archived,</if>
+            <if test="owner != null">owner,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="designContent != null">design_content,</if>
+            <if test="description != null">description,</if>
+            <if test="color != null">color,</if>
+            <if test="cookieName != null">cookie_name,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="templateId != null">#{templateId},</if>
+            <if test="caseApplicationId != null">#{caseApplicationId},</if>
+            <if test="templateName != null">#{templateName},</if>
+            <if test="category != null">#{category},</if>
+            <if test="content != null">#{content},</if>
+            <if test="archived != null">#{archived},</if>
+            <if test="owner != null">#{owner},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="designContent != null">CAST(#{designContent} AS jsonb),</if>
+            <if test="description != null">#{description},</if>
+            <if test="color != null">#{color},</if>
+            <if test="cookieName != null">#{cookieName},</if>
+         </trim>
+    </insert>
+
+    <update id="updateSysReTemplate" parameterType="SysReTemplate">
+        update sys_re_template
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="caseApplicationId != null">case_application_id = #{caseApplicationId},</if>
+            <if test="templateName != null">template_name = #{templateName},</if>
+            <if test="category != null">category = #{category},</if>
+            <if test="content != null">content = #{content},</if>
+            <if test="archived != null">archived = #{archived},</if>
+            <if test="owner != null">owner = #{owner},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="designContent != null">design_content = CAST(#{designContent} AS jsonb),</if>
+            <if test="description != null">description = #{description},</if>
+            <if test="color != null">color = #{color},</if>
+            <if test="cookieName != null">cookie_name = #{cookieName},</if>
+        </trim>
+        where template_id = #{templateId}
+    </update>
+
+    <delete id="deleteSysReTemplateByTemplateId" parameterType="String">
+        delete from sys_re_template where template_id = #{templateId}
+    </delete>
+
+    <delete id="deleteSysReTemplateByTemplateIds" parameterType="String">
+        delete from sys_re_template where template_id in 
+        <foreach item="templateId" collection="array" open="(" separator="," close=")">
+            #{templateId}
+        </foreach>
+    </delete>
+</mapper>

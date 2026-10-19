@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmSanctionedEntityMapper">
+
+    <resultMap type="CrmSanctionedEntity" id="CrmSanctionedEntityResult">
+        <result property="id" column="id"/>
+        <result property="nameCn" column="name_cn"/>
+        <result property="nameVn" column="name_vn"/>
+        <result property="nameEn" column="name_en"/>
+        <result property="aka" column="aka"
+                typeHandler="com.ruoyi.crm.handler.JsonbStringListTypeHandler"/>
+        <result property="entityType" column="entity_type"/>
+        <result property="taxCode" column="tax_code"/>
+        <result property="idCardOrPassport" column="id_card_or_passport"/>
+        <result property="parentCompanyOrUBO" column="parent_company_or_ubo"/>
+        <result property="riskCategory" column="risk_category"/>
+        <result property="riskReason" column="risk_reason"/>
+        <result property="issuingAgency" column="issuing_agency"/>
+        <result property="riskLevel" column="risk_level"/>
+        <result property="effectiveDate" column="effective_date"/>
+        <result property="expiryDate" column="expiry_date"/>
+        <result property="officialNoticeUrl" column="official_notice_url"/>
+        <result property="matchedEnterpriseCode" column="matched_enterprise_code"/>
+        <result property="notes" column="notes"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="delFlag" column="del_flag"/>
+    </resultMap>
+
+    <sql id="selectCrmSanctionedEntityVo">
+        select id, name_cn, name_vn, name_en,
+               aka::text as aka,
+               entity_type, tax_code, id_card_or_passport, parent_company_or_ubo,
+               risk_category, risk_reason, issuing_agency, risk_level,
+               effective_date, expiry_date, official_notice_url, matched_enterprise_code,
+               notes, created_at,
+               create_by, create_time, update_by, update_time, del_flag
+        from crm_sanctioned_entity
+    </sql>
+
+    <select id="selectCrmSanctionedEntityById" parameterType="String" resultMap="CrmSanctionedEntityResult">
+        <include refid="selectCrmSanctionedEntityVo"/>
+        where id = #{id}
+          and del_flag = '0'
+    </select>
+
+    <select id="selectCrmSanctionedEntityList" parameterType="CrmSanctionedEntity" resultMap="CrmSanctionedEntityResult">
+        <include refid="selectCrmSanctionedEntityVo"/>
+        <where>
+            del_flag = '0'
+            <if test="searchQuery != null and searchQuery != ''">
+                and (
+                    name_cn ILIKE CONCAT('%', #{searchQuery}, '%')
+                    or name_vn ILIKE CONCAT('%', #{searchQuery}, '%')
+                    or name_en ILIKE CONCAT('%', #{searchQuery}, '%')
+                    or aka::text ILIKE CONCAT('%', #{searchQuery}, '%')
+                    or tax_code ILIKE CONCAT('%', #{searchQuery}, '%')
+                    or risk_reason ILIKE CONCAT('%', #{searchQuery}, '%')
+                    or issuing_agency ILIKE CONCAT('%', #{searchQuery}, '%')
+                    or matched_enterprise_code ILIKE CONCAT('%', #{searchQuery}, '%')
+                )
+            </if>
+            <if test="riskCategory != null and riskCategory != '' and riskCategory != 'ALL'">
+                and risk_category = #{riskCategory}
+            </if>
+            <if test="riskLevel != null and riskLevel != '' and riskLevel != 'ALL'">
+                and risk_level = #{riskLevel}
+            </if>
+            <if test="entityType != null and entityType != '' and entityType != 'ALL'">
+                and entity_type = #{entityType}
+            </if>
+        </where>
+        order by update_time desc nulls last, name_cn asc
+    </select>
+
+    <insert id="insertCrmSanctionedEntity" parameterType="CrmSanctionedEntity">
+        insert into crm_sanctioned_entity (
+            id, name_cn, name_vn, name_en, aka, entity_type, tax_code, id_card_or_passport,
+            parent_company_or_ubo, risk_category, risk_reason, issuing_agency, risk_level,
+            effective_date, expiry_date, official_notice_url, matched_enterprise_code,
+            notes, created_at,
+            create_by, create_time, update_by, update_time, del_flag
+        ) values (
+            #{id},
+            #{nameCn},
+            #{nameVn},
+            #{nameEn},
+            CAST(#{aka, typeHandler=com.ruoyi.crm.handler.JsonbStringListTypeHandler} AS jsonb),
+            #{entityType},
+            #{taxCode},
+            #{idCardOrPassport},
+            #{parentCompanyOrUBO},
+            #{riskCategory},
+            #{riskReason},
+            #{issuingAgency},
+            #{riskLevel},
+            #{effectiveDate},
+            #{expiryDate},
+            #{officialNoticeUrl},
+            #{matchedEnterpriseCode},
+            #{notes},
+            #{createdAt},
+            #{createBy},
+            #{createTime},
+            #{updateBy},
+            #{updateTime},
+            COALESCE(#{delFlag}, '0')
+        )
+    </insert>
+
+    <update id="updateCrmSanctionedEntity" parameterType="CrmSanctionedEntity">
+        update crm_sanctioned_entity
+        set name_cn = #{nameCn},
+            name_vn = #{nameVn},
+            name_en = #{nameEn},
+            aka = CAST(#{aka, typeHandler=com.ruoyi.crm.handler.JsonbStringListTypeHandler} AS jsonb),
+            entity_type = #{entityType},
+            tax_code = #{taxCode},
+            id_card_or_passport = #{idCardOrPassport},
+            parent_company_or_ubo = #{parentCompanyOrUBO},
+            risk_category = #{riskCategory},
+            risk_reason = #{riskReason},
+            issuing_agency = #{issuingAgency},
+            risk_level = #{riskLevel},
+            effective_date = #{effectiveDate},
+            expiry_date = #{expiryDate},
+            official_notice_url = #{officialNoticeUrl},
+            matched_enterprise_code = #{matchedEnterpriseCode},
+            notes = #{notes},
+            created_at = #{createdAt},
+            update_by = #{updateBy},
+            update_time = #{updateTime}
+        where id = #{id}
+          and del_flag = '0'
+    </update>
+
+    <update id="logicalDeleteById">
+        update crm_sanctioned_entity
+        set del_flag = '1',
+            update_by = #{updateBy},
+            update_time = CURRENT_TIMESTAMP
+        where id = #{id}
+          and del_flag = '0'
+    </update>
+</mapper>

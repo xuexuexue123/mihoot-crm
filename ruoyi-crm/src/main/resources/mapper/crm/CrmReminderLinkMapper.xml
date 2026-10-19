@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmReminderLinkMapper">
+
+    <resultMap id="ReminderLinkResult" type="com.ruoyi.crm.domain.CrmReminderLink">
+        <id property="id" column="id"/>
+        <result property="tenantId" column="tenant_id"/>
+        <result property="token" column="token"/>
+        <result property="type" column="type"/>
+        <result property="contactId" column="contact_id"/>
+        <result property="waId" column="wa_id"/>
+        <result property="refType" column="ref_type"/>
+        <result property="refId" column="ref_id"/>
+        <result property="payload" column="payload"/>
+        <result property="actions" column="actions"/>
+        <result property="status" column="status"/>
+        <result property="expiresAt" column="expires_at"/>
+        <result property="openedAt" column="opened_at"/>
+        <result property="openCount" column="open_count"/>
+        <result property="createdBy" column="created_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <sql id="selectCols">
+        id, tenant_id, token, type, contact_id, wa_id, ref_type, ref_id,
+        payload, actions, status, expires_at, opened_at, open_count,
+        created_by, create_time, update_time
+    </sql>
+
+    <insert id="insert" parameterType="com.ruoyi.crm.domain.CrmReminderLink"
+            useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO crm_reminder_link (
+            tenant_id, token, type, contact_id, wa_id, ref_type, ref_id,
+            payload, actions, status, expires_at, open_count, created_by,
+            create_time, update_time
+        ) VALUES (
+            #{tenantId}, #{token}, #{type}, #{contactId}, #{waId}, #{refType}, #{refId},
+            COALESCE(#{payload}::jsonb, '{}'::jsonb),
+            #{actions}::jsonb,
+            COALESCE(#{status}, 'active'),
+            #{expiresAt},
+            COALESCE(#{openCount}, 0),
+            #{createdBy},
+            NOW(), NOW()
+        )
+    </insert>
+
+    <select id="selectByTenantAndToken" resultMap="ReminderLinkResult">
+        SELECT <include refid="selectCols"/>
+        FROM crm_reminder_link
+        WHERE tenant_id = #{tenantId}
+          AND token = #{token}
+    </select>
+
+    <update id="revokeActiveByRef">
+        UPDATE crm_reminder_link
+        SET status = 'revoked',
+            update_time = NOW()
+        WHERE tenant_id = #{tenantId}
+          AND ref_type = #{refType}
+          AND ref_id = #{refId}
+          AND status = 'active'
+    </update>
+
+    <update id="markOpened">
+        UPDATE crm_reminder_link
+        SET open_count = open_count + 1,
+            opened_at = COALESCE(opened_at, NOW()),
+            update_time = NOW()
+        WHERE id = #{id}
+          AND tenant_id = #{tenantId}
+    </update>
+
+    <update id="markExpired">
+        UPDATE crm_reminder_link
+        SET status = 'expired',
+            update_time = NOW()
+        WHERE id = #{id}
+          AND tenant_id = #{tenantId}
+          AND status = 'active'
+    </update>
+</mapper>

@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.wechatmp.mapper.CrmEventMpOutreachLogMapper">
+
+    <resultMap type="com.ruoyi.crm.wechatmp.domain.CrmEventMpOutreachLog" id="CrmEventMpOutreachLogResult">
+        <result property="id" column="id"/>
+        <result property="tenantId" column="tenant_id"/>
+        <result property="eventId" column="event_id"/>
+        <result property="appId" column="app_id"/>
+        <result property="openId" column="open_id"/>
+        <result property="triggerType" column="trigger_type"/>
+        <result property="presetId" column="preset_id"/>
+        <result property="registrationTokenExp" column="registration_token_exp"/>
+        <result property="messageId" column="message_id"/>
+        <result property="status" column="status"/>
+        <result property="skipReason" column="skip_reason"/>
+        <result property="errmsg" column="errmsg"/>
+        <result property="createTime" column="create_time"/>
+    </resultMap>
+
+    <select id="selectByEventOpenIdTrigger" resultMap="CrmEventMpOutreachLogResult">
+        SELECT id, tenant_id, event_id, app_id, open_id, trigger_type, preset_id,
+               registration_token_exp, message_id, status, skip_reason, errmsg, create_time
+        FROM crm_event_mp_outreach_log
+        WHERE event_id = #{param1} AND open_id = #{param2} AND trigger_type = #{param3}
+        LIMIT 1
+    </select>
+
+    <insert id="insertIgnore" parameterType="com.ruoyi.crm.wechatmp.domain.CrmEventMpOutreachLog"
+            useGeneratedKeys="true" keyProperty="id" keyColumn="id">
+        INSERT INTO crm_event_mp_outreach_log (
+            tenant_id, event_id, app_id, open_id, trigger_type, preset_id,
+            registration_token_exp, message_id, status, skip_reason, errmsg, create_time
+        ) VALUES (
+            #{tenantId}, #{eventId}, #{appId}, #{openId}, #{triggerType}, #{presetId},
+            #{registrationTokenExp}, #{messageId}, #{status}, #{skipReason}, #{errmsg}, now()
+        )
+        ON CONFLICT (event_id, open_id, trigger_type) DO NOTHING
+    </insert>
+
+    <update id="updateByEventOpenIdTrigger" parameterType="com.ruoyi.crm.wechatmp.domain.CrmEventMpOutreachLog">
+        UPDATE crm_event_mp_outreach_log
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="presetId != null">preset_id = #{presetId},</if>
+            <if test="registrationTokenExp != null">registration_token_exp = #{registrationTokenExp},</if>
+            <if test="messageId != null">message_id = #{messageId},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="skipReason != null">skip_reason = #{skipReason},</if>
+            <if test="errmsg != null">errmsg = #{errmsg},</if>
+        </trim>
+        WHERE event_id = #{eventId} AND open_id = #{openId} AND trigger_type = #{triggerType}
+    </update>
+
+    <select id="selectList" parameterType="com.ruoyi.crm.wechatmp.domain.CrmEventMpOutreachLog"
+            resultMap="CrmEventMpOutreachLogResult">
+        SELECT id, tenant_id, event_id, app_id, open_id, trigger_type, preset_id,
+               registration_token_exp, message_id, status, skip_reason, errmsg, create_time
+        FROM crm_event_mp_outreach_log
+        <where>
+            <if test="eventId != null and eventId != ''">AND event_id = #{eventId}</if>
+            <if test="statusFilter != null and statusFilter != ''">AND status = #{statusFilter}</if>
+            <if test="openId != null and openId != ''">AND open_id = #{openId}</if>
+        </where>
+        ORDER BY create_time DESC
+    </select>
+
+    <select id="selectLatestSentAtByEventAndOpenIds"
+            resultType="com.ruoyi.crm.service.support.MpOutreachSentAtRow">
+        SELECT open_id AS openId, app_id AS appId, MAX(create_time) AS sentAt
+        FROM crm_event_mp_outreach_log
+        WHERE event_id = #{eventId}
+          AND status = 'sent'
+          AND open_id IN
+        <foreach collection="openIds" item="oid" open="(" separator="," close=")">
+            #{oid}
+        </foreach>
+        GROUP BY open_id, app_id
+    </select>
+</mapper>

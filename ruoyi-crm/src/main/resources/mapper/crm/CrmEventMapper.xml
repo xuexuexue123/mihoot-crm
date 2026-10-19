@@ -1,0 +1,254 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmEventMapper">
+    
+    <resultMap type="CrmEvent" id="CrmEventResult">
+        <result property="eventId"    column="event_id"    />
+        <result property="eventType"    column="event_type"    />
+        <result property="subject"    column="subject"    />
+        <result property="owner"    column="owner"    />
+        <result property="contactId"    column="contact_id"    />
+        <result property="contactName"    column="contact_name"    />
+        <result property="stage"    column="stage"    />
+        <result property="mobilePhone"    column="mobile_phone"    />
+        <result property="workPhone"    column="work_phone"    />
+        <result property="workEmail"    column="work_email"    />
+        <result property="eventSource"    column="event_source"    />
+        <result property="website"    column="website"    />
+        <result property="industry"    column="industry"    />
+        <result property="budget"    column="budget"    />
+        <result property="paid"    column="paid"    />
+        <result property="balance"    column="balance"    />
+        <result property="location"    column="location"    />
+        <result property="description"    column="description"    />
+        <result property="agenda"        column="agenda"        />
+        <result property="language"      column="language"      />
+        <result property="startTime"    column="start_time"    />
+        <result property="endTime"    column="end_time"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="userId"    column="user_id"    />
+        <result property="deptId"    column="dept_id"    />
+        <result property="status"    column="status"    />
+        <result property="avatar"    column="avatar"    />
+        <result property="registrationTemplateId"    column="registration_template_id"    />
+        <result property="registrationFormJson"    column="registration_form_json"    />
+        <result property="mpRegistrationAutomationEnabledRaw"    column="mp_registration_automation_enabled"    />
+        <result property="mpRegistrationPresetId"    column="mp_registration_preset_id"    />
+        <result property="mpRegistrationDelaySeconds"    column="mp_registration_delay_seconds"    />
+        <result property="mpRegistrationSkipIfLeadExistsRaw"    column="mp_registration_skip_if_lead_exists"    />
+        <result property="wechatMpAppId"    column="wechat_mp_app_id"    />
+        <result property="registrationEnabled"    column="registration_enabled"    />
+        <result property="registrationDeadline"    column="registration_deadline"    />
+        <result property="waitlistEnabled"    column="waitlist_enabled"    />
+        <result property="checkInEnabled"    column="check_in_enabled"    />
+        <result property="allowWalkIn"    column="allow_walk_in"    />
+        <result property="defaultSessionId"    column="default_session_id"    />
+        <result property="defaultOrgId"    column="default_org_id"    />
+        <result property="autoConvertOnRegistration"    column="auto_convert_on_registration"    />
+    </resultMap>
+
+    <sql id="selectCrmEventVo">
+        select event_id, event_type, subject, owner, contact_id, contact_name, stage, mobile_phone, work_phone, work_email, event_source, website, industry, budget, paid, balance, location, description, agenda, language, start_time, end_time, create_by, create_time, update_by, update_time, user_id, dept_id, status, avatar, registration_template_id, registration_form_json, mp_registration_automation_enabled, mp_registration_preset_id, mp_registration_delay_seconds, mp_registration_skip_if_lead_exists, wechat_mp_app_id, registration_enabled, registration_deadline, waitlist_enabled, check_in_enabled, allow_walk_in, default_session_id, default_org_id, auto_convert_on_registration from crm_event
+    </sql>
+
+    <select id="selectCrmEventList" parameterType="CrmEvent" resultMap="CrmEventResult">
+        <include refid="selectCrmEventVo"/>
+        <where>  
+            <if test="eventType != null  and eventType != ''"> and event_type = #{eventType}</if>
+            <if test="subject != null  and subject != ''"> and subject = #{subject}</if>
+            <if test="owner != null  and owner != ''"> and owner = #{owner}</if>
+            <if test="contactId != null  and contactId != ''"> and contact_id = #{contactId}</if>
+            <if test="contactName != null  and contactName != ''"> and contact_name like concat('%', #{contactName}, '%')</if>
+            <if test="stage != null  and stage != ''"> and stage = #{stage}</if>
+            <if test="mobilePhone != null  and mobilePhone != ''"> and mobile_phone = #{mobilePhone}</if>
+            <if test="workPhone != null  and workPhone != ''"> and work_phone = #{workPhone}</if>
+            <if test="workEmail != null  and workEmail != ''"> and work_email = #{workEmail}</if>
+            <if test="eventSource != null  and eventSource != ''"> and event_source = #{eventSource}</if>
+            <if test="website != null  and website != ''"> and website = #{website}</if>
+            <if test="industry != null  and industry != ''"> and industry = #{industry}</if>
+            <if test="budget != null "> and budget = #{budget}</if>
+            <if test="paid != null "> and paid = #{paid}</if>
+            <if test="balance != null "> and balance = #{balance}</if>
+            <if test="location != null  and location != ''"> and location = #{location}</if>
+            <if test="description != null  and description != ''"> and description = #{description}</if>
+            <if test="startTime != null "> and start_time = #{startTime}</if>
+            <if test="endTime != null "> and end_time = #{endTime}</if>
+            <if test="userId != null "> and user_id = #{userId}</if>
+            <if test="deptId != null "> and dept_id = #{deptId}</if>
+            <if test="status != null  and status != ''"> and status = #{status}</if>
+            <if test="avatar != null  and avatar != ''"> and avatar = #{avatar}</if>
+        </where>
+    </select>
+    
+    <select id="selectCrmEventByEventId" parameterType="String" resultMap="CrmEventResult">
+        <include refid="selectCrmEventVo"/>
+        where event_id = #{eventId}
+    </select>
+
+    <select id="selectEventIdsByCompactSuffix" parameterType="String" resultType="String">
+        SELECT event_id FROM crm_event
+        WHERE REPLACE(event_id, '-', '') LIKE CONCAT('%', #{suffix})
+        LIMIT 2
+    </select>
+
+    <select id="selectPublicExecutionEvents" resultMap="CrmEventResult">
+        <include refid="selectCrmEventVo"/>
+        WHERE stage = 'Execution'
+        ORDER BY start_time ASC NULLS LAST
+        LIMIT #{limit}
+    </select>
+        
+    <insert id="insertCrmEvent" parameterType="CrmEvent">
+        insert into crm_event
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="eventId != null">event_id,</if>
+            <if test="eventType != null and eventType != ''">event_type,</if>
+            <if test="subject != null">subject,</if>
+            <if test="owner != null">owner,</if>
+            <if test="contactId != null">contact_id,</if>
+            <if test="contactName != null">contact_name,</if>
+            <if test="stage != null">stage,</if>
+            <if test="mobilePhone != null">mobile_phone,</if>
+            <if test="workPhone != null">work_phone,</if>
+            <if test="workEmail != null">work_email,</if>
+            <if test="eventSource != null">event_source,</if>
+            <if test="website != null">website,</if>
+            <if test="industry != null">industry,</if>
+            <if test="budget != null">budget,</if>
+            <if test="paid != null">paid,</if>
+            <if test="balance != null">balance,</if>
+            <if test="location != null">location,</if>
+            <if test="description != null">description,</if>
+            <if test="agenda != null">agenda,</if>
+            <if test="language != null">language,</if>
+            <if test="startTime != null">start_time,</if>
+            <if test="endTime != null">end_time,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="userId != null">user_id,</if>
+            <if test="deptId != null">dept_id,</if>
+            <if test="status != null">status,</if>
+            <if test="avatar != null">avatar,</if>
+            <if test="registrationTemplateId != null">registration_template_id,</if>
+            <if test="registrationFormJson != null">registration_form_json,</if>
+            <if test="wechatMpAppId != null and wechatMpAppId != ''">wechat_mp_app_id,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="eventId != null">#{eventId},</if>
+            <if test="eventType != null and eventType != ''">#{eventType},</if>
+            <if test="subject != null">#{subject},</if>
+            <if test="owner != null">#{owner},</if>
+            <if test="contactId != null">#{contactId},</if>
+            <if test="contactName != null">#{contactName},</if>
+            <if test="stage != null">#{stage},</if>
+            <if test="mobilePhone != null">#{mobilePhone},</if>
+            <if test="workPhone != null">#{workPhone},</if>
+            <if test="workEmail != null">#{workEmail},</if>
+            <if test="eventSource != null">#{eventSource},</if>
+            <if test="website != null">#{website},</if>
+            <if test="industry != null">#{industry},</if>
+            <if test="budget != null">#{budget},</if>
+            <if test="paid != null">#{paid},</if>
+            <if test="balance != null">#{balance},</if>
+            <if test="location != null">#{location},</if>
+            <if test="description != null">#{description},</if>
+            <if test="agenda != null">#{agenda},</if>
+            <if test="language != null">#{language},</if>
+            <if test="startTime != null">#{startTime},</if>
+            <if test="endTime != null">#{endTime},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="userId != null">#{userId},</if>
+            <if test="deptId != null">#{deptId},</if>
+            <if test="status != null">#{status},</if>
+            <if test="avatar != null">#{avatar},</if>
+            <if test="registrationTemplateId != null">#{registrationTemplateId},</if>
+            <if test="registrationFormJson != null">#{registrationFormJson},</if>
+            <if test="wechatMpAppId != null and wechatMpAppId != ''">#{wechatMpAppId},</if>
+         </trim>
+    </insert>
+
+    <update id="updateCrmEvent" parameterType="CrmEvent">
+        update crm_event
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="eventType != null and eventType != ''">event_type = #{eventType},</if>
+            <if test="subject != null">subject = #{subject},</if>
+            <if test="owner != null">owner = #{owner},</if>
+            <if test="contactId != null">contact_id = #{contactId},</if>
+            <if test="contactName != null">contact_name = #{contactName},</if>
+            <if test="stage != null">stage = #{stage},</if>
+            <if test="mobilePhone != null">mobile_phone = #{mobilePhone},</if>
+            <if test="workPhone != null">work_phone = #{workPhone},</if>
+            <if test="workEmail != null">work_email = #{workEmail},</if>
+            <if test="eventSource != null">event_source = #{eventSource},</if>
+            <if test="website != null">website = #{website},</if>
+            <if test="industry != null">industry = #{industry},</if>
+            <if test="budget != null">budget = #{budget},</if>
+            <if test="paid != null">paid = #{paid},</if>
+            <if test="balance != null">balance = #{balance},</if>
+            <if test="location != null">location = #{location},</if>
+            <if test="description != null">description = #{description},</if>
+            <if test="agenda != null">agenda = #{agenda},</if>
+            <if test="language != null">language = #{language},</if>
+            <if test="startTime != null">start_time = #{startTime},</if>
+            <if test="endTime != null">end_time = #{endTime},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="userId != null">user_id = #{userId},</if>
+            <if test="deptId != null">dept_id = #{deptId},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="avatar != null">avatar = #{avatar},</if>
+            <choose>
+                <when test="registrationFormTouched != null and registrationFormTouched">
+                    registration_template_id = #{registrationTemplateId},
+                    registration_form_json = #{registrationFormJson},
+                </when>
+                <otherwise>
+                    <if test="registrationTemplateId != null">registration_template_id = #{registrationTemplateId},</if>
+                    <if test="registrationFormJson != null">registration_form_json = #{registrationFormJson},</if>
+                </otherwise>
+            </choose>
+            <if test="mpRegistrationAutomationEnabledRaw != null">mp_registration_automation_enabled = #{mpRegistrationAutomationEnabledRaw},</if>
+            <if test="mpRegistrationPresetId != null">mp_registration_preset_id = #{mpRegistrationPresetId},</if>
+            <if test="mpRegistrationDelaySeconds != null">mp_registration_delay_seconds = #{mpRegistrationDelaySeconds},</if>
+            <if test="mpRegistrationSkipIfLeadExistsRaw != null">mp_registration_skip_if_lead_exists = #{mpRegistrationSkipIfLeadExistsRaw},</if>
+            <choose>
+                <when test="wechatMpAppIdTouched != null and wechatMpAppIdTouched">
+                    wechat_mp_app_id = #{wechatMpAppId},
+                </when>
+                <otherwise>
+                    <if test="wechatMpAppId != null and wechatMpAppId != ''">wechat_mp_app_id = #{wechatMpAppId},</if>
+                </otherwise>
+            </choose>
+            <if test="registrationEnabled != null">registration_enabled = #{registrationEnabled},</if>
+            <if test="registrationDeadline != null">registration_deadline = #{registrationDeadline},</if>
+            <if test="waitlistEnabled != null">waitlist_enabled = #{waitlistEnabled},</if>
+            <if test="checkInEnabled != null">check_in_enabled = #{checkInEnabled},</if>
+            <if test="allowWalkIn != null">allow_walk_in = #{allowWalkIn},</if>
+            <if test="defaultSessionId != null">default_session_id = #{defaultSessionId},</if>
+        </trim>
+        where event_id = #{eventId}
+    </update>
+
+    <delete id="deleteCrmEventByEventId" parameterType="String">
+        delete from crm_event where event_id = #{eventId}
+    </delete>
+
+    <delete id="deleteCrmEventByEventIds" parameterType="String">
+        delete from crm_event where event_id in 
+        <foreach item="eventId" collection="array" open="(" separator="," close=")">
+            #{eventId}
+        </foreach>
+    </delete>
+</mapper>

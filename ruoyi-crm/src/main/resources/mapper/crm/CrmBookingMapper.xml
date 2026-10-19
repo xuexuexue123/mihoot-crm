@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmBookingMapper">
+
+    <resultMap type="CrmBooking" id="CrmBookingResult">
+        <result property="bookingId"    column="booking_id"    />
+        <result property="leadId"       column="lead_id"       />
+        <result property="contactId"    column="contact_id"    />
+        <result property="orgId"        column="org_id"        />
+        <result property="bookingName"  column="booking_name"  />
+        <result property="startTime"    column="start_time"    />
+        <result property="endTime"      column="end_time"      />
+        <result property="status"       column="status"        />
+        <result property="source"       column="source"        />
+        <result property="sourceRef"    column="source_ref"    />
+        <result property="mobilePhone"  column="mobile_phone"  />
+        <result property="notes"        column="notes"         />
+        <result property="owner"        column="owner"         />
+        <result property="createBy"     column="create_by"     />
+        <result property="createTime"   column="create_time"   />
+        <result property="updateBy"     column="update_by"     />
+        <result property="updateTime"   column="update_time"   />
+        <result property="userId"       column="user_id"       />
+        <result property="deptId"       column="dept_id"       />
+    </resultMap>
+
+    <sql id="selectCrmBookingVo">
+        select b.booking_id, b.lead_id, b.contact_id, b.org_id, b.booking_name,
+               b.start_time, b.end_time, b.status, b.source, b.source_ref,
+               b.mobile_phone, b.notes, b.owner, b.create_by, b.create_time,
+               b.update_by, b.update_time, b.user_id, b.dept_id
+        from crm_booking b
+         left join sys_user u on u.user_id = b.user_id
+         left join sys_dept d on u.dept_id = d.dept_id
+    </sql>
+
+    <select id="selectCrmBookingByBookingId" parameterType="String" resultMap="CrmBookingResult">
+        <include refid="selectCrmBookingVo"/>
+        where b.booking_id = #{bookingId}
+    </select>
+
+    <select id="selectCrmBookingList" parameterType="CrmBooking" resultMap="CrmBookingResult">
+        <include refid="selectCrmBookingVo"/>
+        where 1=1
+        <if test="bookingId != null and bookingId != ''"> and b.booking_id = #{bookingId}</if>
+        <if test="orgId != null and orgId != ''"> and b.org_id = #{orgId}</if>
+        <if test="leadId != null and leadId != ''"> and b.lead_id = #{leadId}</if>
+        <if test="contactId != null and contactId != ''"> and b.contact_id = #{contactId}</if>
+        <if test="status != null and status != '' and (statusList == null or statusList.size() == 0)">
+            and b.status = #{status}
+        </if>
+        <if test="statusList != null and statusList.size() > 0">
+            and b.status in
+            <foreach item="s" collection="statusList" open="(" separator="," close=")">
+                #{s}
+            </foreach>
+        </if>
+        <if test="leadIdList != null and leadIdList.size() > 0">
+            and b.lead_id in
+            <foreach item="lid" collection="leadIdList" open="(" separator="," close=")">
+                #{lid}
+            </foreach>
+        </if>
+        <if test="startTimeFrom != null"> and b.start_time &gt;= #{startTimeFrom}</if>
+        <if test="startTimeTo != null"> and b.start_time &lt;= #{startTimeTo}</if>
+        <if test="bookingName != null and bookingName != ''"> and b.booking_name like concat('%', #{bookingName}, '%')</if>
+        <if test="source != null and source != ''"> and b.source = #{source}</if>
+        <if test="owner != null and owner != ''"> and b.owner = #{owner}</if>
+        <if test="userId != null"> and b.user_id = #{userId}</if>
+        <if test="deptId != null"> and b.dept_id = #{deptId}</if>
+        ${params.dataScope}
+        order by b.start_time desc
+    </select>
+
+    <select id="selectCrmBookingListByDay" parameterType="CrmBooking" resultMap="CrmBookingResult">
+        <include refid="selectCrmBookingVo"/>
+        where b.start_time &gt;= #{dayStart}
+          and b.start_time &lt; #{dayEnd}
+        <if test="orgId != null and orgId != ''"> and b.org_id = #{orgId}</if>
+        <if test="status != null and status != '' and (statusList == null or statusList.size() == 0)">
+            and b.status = #{status}
+        </if>
+        <if test="statusList != null and statusList.size() > 0">
+            and b.status in
+            <foreach item="s" collection="statusList" open="(" separator="," close=")">
+                #{s}
+            </foreach>
+        </if>
+        <if test="includeCancelled == null or includeCancelled == false">
+            and b.status &lt;&gt; 'cancelled'
+        </if>
+        ${params.dataScope}
+        order by b.start_time asc
+    </select>
+
+    <insert id="insertCrmBooking" parameterType="CrmBooking">
+        insert into crm_booking
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="bookingId != null">booking_id,</if>
+            <if test="leadId != null">lead_id,</if>
+            <if test="contactId != null">contact_id,</if>
+            <if test="orgId != null">org_id,</if>
+            <if test="bookingName != null">booking_name,</if>
+            <if test="startTime != null">start_time,</if>
+            <if test="endTime != null">end_time,</if>
+            <if test="status != null">status,</if>
+            <if test="source != null">source,</if>
+            <if test="sourceRef != null">source_ref,</if>
+            <if test="mobilePhone != null">mobile_phone,</if>
+            <if test="notes != null">notes,</if>
+            <if test="owner != null">owner,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="userId != null">user_id,</if>
+            <if test="deptId != null">dept_id,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="bookingId != null">#{bookingId},</if>
+            <if test="leadId != null">#{leadId},</if>
+            <if test="contactId != null">#{contactId},</if>
+            <if test="orgId != null">#{orgId},</if>
+            <if test="bookingName != null">#{bookingName},</if>
+            <if test="startTime != null">#{startTime},</if>
+            <if test="endTime != null">#{endTime},</if>
+            <if test="status != null">#{status},</if>
+            <if test="source != null">#{source},</if>
+            <if test="sourceRef != null">#{sourceRef},</if>
+            <if test="mobilePhone != null">#{mobilePhone},</if>
+            <if test="notes != null">#{notes},</if>
+            <if test="owner != null">#{owner},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="userId != null">#{userId},</if>
+            <if test="deptId != null">#{deptId},</if>
+        </trim>
+    </insert>
+
+    <update id="updateCrmBooking" parameterType="CrmBooking">
+        update crm_booking
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="leadId != null">lead_id = #{leadId},</if>
+            <if test="contactId != null">contact_id = #{contactId},</if>
+            <if test="orgId != null">org_id = #{orgId},</if>
+            <if test="bookingName != null">booking_name = #{bookingName},</if>
+            <if test="startTime != null">start_time = #{startTime},</if>
+            <if test="endTime != null">end_time = #{endTime},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="source != null">source = #{source},</if>
+            <if test="sourceRef != null">source_ref = #{sourceRef},</if>
+            <if test="mobilePhone != null">mobile_phone = #{mobilePhone},</if>
+            <if test="notes != null">notes = #{notes},</if>
+            <if test="owner != null">owner = #{owner},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="userId != null">user_id = #{userId},</if>
+            <if test="deptId != null">dept_id = #{deptId},</if>
+        </trim>
+        where booking_id = #{bookingId}
+    </update>
+
+    <update id="cancelCrmBookingByBookingId" parameterType="CrmBooking">
+        update crm_booking
+        set status = 'cancelled',
+            update_by = #{updateBy},
+            update_time = #{updateTime}
+        where booking_id = #{bookingId}
+          and status &lt;&gt; 'cancelled'
+    </update>
+</mapper>

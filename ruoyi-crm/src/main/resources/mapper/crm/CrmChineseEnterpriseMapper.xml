@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmChineseEnterpriseMapper">
+
+    <resultMap type="CrmChineseEnterprise" id="CrmChineseEnterpriseResult">
+        <result property="id" column="id"/>
+        <result property="parentCompanyChina" column="parent_company_china"/>
+        <result property="stockCode" column="stock_code"/>
+        <result property="stockListingStatus" column="stock_listing_status"/>
+        <result property="parentProvinceChina" column="parent_province_china"/>
+        <result property="vietnamEntityName" column="vietnam_entity_name"/>
+        <result property="vietnamEntityNameCn" column="vietnam_entity_name_cn"/>
+        <result property="taxCode" column="tax_code"/>
+        <result property="parkId" column="park_id"/>
+        <result property="parkNameCn" column="park_name_cn"/>
+        <result property="provinceVietnam" column="province_vietnam"/>
+        <result property="industry" column="industry"/>
+        <result property="supplyChainRole" column="supply_chain_role"/>
+        <result property="investmentMode" column="investment_mode"/>
+        <result property="investmentUsdMillion" column="investment_usd_million"/>
+        <result property="registeredCapitalUsdM" column="registered_capital_usd_m"/>
+        <result property="employeeCount" column="employee_count"/>
+        <result property="factoryAreaSqm" column="factory_area_sqm"/>
+        <result property="establishedYear" column="established_year"/>
+        <result property="status" column="status"/>
+        <result property="mainProducts" column="main_products"/>
+        <result property="contactPhone" column="contact_phone"/>
+        <result property="contactEmail" column="contact_email"/>
+        <result property="website" column="website"/>
+        <result property="notes" column="notes"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="delFlag" column="del_flag"/>
+    </resultMap>
+
+    <sql id="selectCrmChineseEnterpriseVo">
+        select id, parent_company_china, stock_code, stock_listing_status, parent_province_china,
+               vietnam_entity_name, vietnam_entity_name_cn, tax_code, park_id, park_name_cn,
+               province_vietnam, industry, supply_chain_role, investment_mode,
+               investment_usd_million, registered_capital_usd_m, employee_count, factory_area_sqm,
+               established_year, status, main_products, contact_phone, contact_email, website,
+               notes, created_at, create_by, create_time, update_by, update_time, del_flag
+        from crm_chinese_enterprise
+    </sql>
+
+    <select id="selectCrmChineseEnterpriseById" parameterType="String" resultMap="CrmChineseEnterpriseResult">
+        <include refid="selectCrmChineseEnterpriseVo"/>
+        where id = #{id}
+          and del_flag = '0'
+    </select>
+
+    <select id="selectCrmChineseEnterpriseList" parameterType="CrmChineseEnterprise" resultMap="CrmChineseEnterpriseResult">
+        <include refid="selectCrmChineseEnterpriseVo"/>
+        <where>
+            del_flag = '0'
+            <if test="searchQuery != null and searchQuery != ''">
+                and (
+                    parent_company_china ILIKE CONCAT('%', #{searchQuery}, '%')
+                    or vietnam_entity_name ILIKE CONCAT('%', #{searchQuery}, '%')
+                    or vietnam_entity_name_cn ILIKE CONCAT('%', #{searchQuery}, '%')
+                    or park_name_cn ILIKE CONCAT('%', #{searchQuery}, '%')
+                    or industry ILIKE CONCAT('%', #{searchQuery}, '%')
+                    or tax_code ILIKE CONCAT('%', #{searchQuery}, '%')
+                    or stock_code ILIKE CONCAT('%', #{searchQuery}, '%')
+                )
+            </if>
+            <if test="parkId != null and parkId != '' and parkId != 'ALL'">
+                and park_id = #{parkId}
+            </if>
+            <if test="provinceVietnam != null and provinceVietnam != '' and provinceVietnam != 'ALL'">
+                and province_vietnam = #{provinceVietnam}
+            </if>
+            <if test="parentProvinceChina != null and parentProvinceChina != '' and parentProvinceChina != 'ALL'">
+                and parent_province_china = #{parentProvinceChina}
+            </if>
+            <if test="industry != null and industry != '' and industry != 'ALL'">
+                and industry = #{industry}
+            </if>
+            <if test="stockListingStatus != null and stockListingStatus != '' and stockListingStatus != 'ALL'">
+                and stock_listing_status = #{stockListingStatus}
+            </if>
+            <if test="investmentMode != null and investmentMode != '' and investmentMode != 'ALL'">
+                and investment_mode = #{investmentMode}
+            </if>
+            <if test="status != null and status != '' and status != 'ALL'">
+                and status = #{status}
+            </if>
+        </where>
+        order by create_time desc nulls last, vietnam_entity_name_cn asc
+    </select>
+
+    <insert id="insertCrmChineseEnterprise" parameterType="CrmChineseEnterprise">
+        insert into crm_chinese_enterprise (
+            id, parent_company_china, stock_code, stock_listing_status, parent_province_china,
+            vietnam_entity_name, vietnam_entity_name_cn, tax_code, park_id, park_name_cn,
+            province_vietnam, industry, supply_chain_role, investment_mode,
+            investment_usd_million, registered_capital_usd_m, employee_count, factory_area_sqm,
+            established_year, status, main_products, contact_phone, contact_email, website,
+            notes, created_at, create_by, create_time, update_by, update_time, del_flag
+        ) values (
+            #{id},
+            #{parentCompanyChina},
+            #{stockCode},
+            #{stockListingStatus},
+            COALESCE(#{parentProvinceChina}, ''),
+            #{vietnamEntityName},
+            #{vietnamEntityNameCn},
+            #{taxCode},
+            #{parkId},
+            COALESCE(#{parkNameCn}, ''),
+            COALESCE(#{provinceVietnam}, ''),
+            COALESCE(#{industry}, ''),
+            #{supplyChainRole},
+            #{investmentMode},
+            #{investmentUsdMillion},
+            #{registeredCapitalUsdM},
+            #{employeeCount},
+            #{factoryAreaSqm},
+            #{establishedYear},
+            COALESCE(#{status}, '运营中'),
+            #{mainProducts},
+            #{contactPhone},
+            #{contactEmail},
+            #{website},
+            #{notes},
+            #{createdAt},
+            #{createBy},
+            #{createTime},
+            #{updateBy},
+            #{updateTime},
+            COALESCE(#{delFlag}, '0')
+        )
+    </insert>
+
+    <update id="updateCrmChineseEnterprise" parameterType="CrmChineseEnterprise">
+        update crm_chinese_enterprise
+        set parent_company_china = #{parentCompanyChina},
+            stock_code = #{stockCode},
+            stock_listing_status = #{stockListingStatus},
+            parent_province_china = COALESCE(#{parentProvinceChina}, ''),
+            vietnam_entity_name = #{vietnamEntityName},
+            vietnam_entity_name_cn = #{vietnamEntityNameCn},
+            tax_code = #{taxCode},
+            park_id = #{parkId},
+            park_name_cn = COALESCE(#{parkNameCn}, ''),
+            province_vietnam = COALESCE(#{provinceVietnam}, ''),
+            industry = COALESCE(#{industry}, ''),
+            supply_chain_role = #{supplyChainRole},
+            investment_mode = #{investmentMode},
+            investment_usd_million = #{investmentUsdMillion},
+            registered_capital_usd_m = #{registeredCapitalUsdM},
+            employee_count = #{employeeCount},
+            factory_area_sqm = #{factoryAreaSqm},
+            established_year = #{establishedYear},
+            status = COALESCE(#{status}, '运营中'),
+            main_products = #{mainProducts},
+            contact_phone = #{contactPhone},
+            contact_email = #{contactEmail},
+            website = #{website},
+            notes = #{notes},
+            created_at = #{createdAt},
+            update_by = #{updateBy},
+            update_time = #{updateTime}
+        where id = #{id}
+          and del_flag = '0'
+    </update>
+
+    <update id="logicalDeleteById">
+        update crm_chinese_enterprise
+        set del_flag = '1',
+            update_by = #{updateBy},
+            update_time = CURRENT_TIMESTAMP
+        where id = #{id}
+          and del_flag = '0'
+    </update>
+</mapper>

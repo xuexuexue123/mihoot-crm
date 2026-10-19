@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmLeadConvertConfigMapper">
+
+    <resultMap type="com.ruoyi.crm.domain.vo.LeadConvertConfigVo" id="LeadConvertConfigVoResult">
+        <result property="autoConvertOnFirstVisit" column="auto_convert_on_first_visit"/>
+        <result property="autoConvertOnCheckIn" column="auto_convert_on_check_in"/>
+        <result property="autoConvertOnRegistration" column="auto_convert_on_registration"/>
+        <result property="mergeOnDuplicatePhone" column="merge_on_duplicate_phone"/>
+        <result property="defaultOrgId" column="default_org_id"/>
+        <result property="contactOwnerMode" column="contact_owner_mode"/>
+        <result property="contactOwnerUserId" column="contact_owner_user_id"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <resultMap type="com.ruoyi.crm.domain.CrmLeadConvertConfig" id="CrmLeadConvertConfigResult">
+        <result property="configId" column="config_id"/>
+        <result property="tenantId" column="tenant_id"/>
+        <result property="autoConvertOnFirstVisit" column="auto_convert_on_first_visit"/>
+        <result property="autoConvertOnCheckIn" column="auto_convert_on_check_in"/>
+        <result property="autoConvertOnRegistration" column="auto_convert_on_registration"/>
+        <result property="mergeOnDuplicatePhone" column="merge_on_duplicate_phone"/>
+        <result property="defaultOrgId" column="default_org_id"/>
+        <result property="contactOwnerMode" column="contact_owner_mode"/>
+        <result property="contactOwnerUserId" column="contact_owner_user_id"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <select id="selectVoByTenantId" resultMap="LeadConvertConfigVoResult">
+        SELECT auto_convert_on_first_visit, auto_convert_on_check_in,
+               auto_convert_on_registration, merge_on_duplicate_phone,
+               default_org_id, contact_owner_mode, contact_owner_user_id, update_time
+        FROM crm_lead_convert_config
+        WHERE tenant_id = #{tenantId}
+        LIMIT 1
+    </select>
+
+    <select id="selectEntityByTenantId" resultMap="CrmLeadConvertConfigResult">
+        SELECT config_id, tenant_id, auto_convert_on_first_visit, auto_convert_on_check_in,
+               auto_convert_on_registration, merge_on_duplicate_phone, default_org_id,
+               contact_owner_mode, contact_owner_user_id,
+               create_time, update_time
+        FROM crm_lead_convert_config
+        WHERE tenant_id = #{tenantId}
+        LIMIT 1
+    </select>
+
+    <insert id="insert" parameterType="com.ruoyi.crm.domain.CrmLeadConvertConfig">
+        INSERT INTO crm_lead_convert_config (
+            config_id, tenant_id, auto_convert_on_first_visit, auto_convert_on_check_in,
+            auto_convert_on_registration, merge_on_duplicate_phone, default_org_id,
+            contact_owner_mode, contact_owner_user_id,
+            create_time, update_time
+        ) VALUES (
+            #{configId}, #{tenantId},
+            COALESCE(#{autoConvertOnFirstVisit}, true),
+            COALESCE(#{autoConvertOnCheckIn}, true),
+            COALESCE(#{autoConvertOnRegistration}, false),
+            COALESCE(#{mergeOnDuplicatePhone}, true),
+            #{defaultOrgId},
+            COALESCE(#{contactOwnerMode}, 'keep_lead_owner'),
+            #{contactOwnerUserId},
+            #{createTime}, #{updateTime}
+        )
+    </insert>
+
+    <update id="update" parameterType="com.ruoyi.crm.domain.CrmLeadConvertConfig">
+        UPDATE crm_lead_convert_config
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="autoConvertOnFirstVisit != null">auto_convert_on_first_visit = #{autoConvertOnFirstVisit},</if>
+            <if test="autoConvertOnCheckIn != null">auto_convert_on_check_in = #{autoConvertOnCheckIn},</if>
+            <if test="autoConvertOnRegistration != null">auto_convert_on_registration = #{autoConvertOnRegistration},</if>
+            <if test="mergeOnDuplicatePhone != null">merge_on_duplicate_phone = #{mergeOnDuplicatePhone},</if>
+            default_org_id = #{defaultOrgId},
+            <if test="contactOwnerMode != null">contact_owner_mode = #{contactOwnerMode},</if>
+            contact_owner_user_id = #{contactOwnerUserId},
+            update_time = #{updateTime},
+        </trim>
+        WHERE config_id = #{configId}
+    </update>
+</mapper>

@@ -1,0 +1,499 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmOptyMapper">
+    
+    <resultMap type="CrmOpty" id="CrmOptyResult">
+        <result property="optyId"    column="opty_id"    />
+        <result property="optyType"    column="opty_type"    />
+        <result property="orgId"    column="org_id"    />
+        <result property="accountId"    column="account_id"    />
+        <result property="leadId"    column="lead_id"    />
+        <result property="leadName"    column="lead_name"    />
+        <result property="name"    column="name"    />
+        <result property="fullName"    column="full_name"    />
+        <result property="accountName"    column="account_name"    />
+        <result property="contactId"    column="contact_id"    />
+        <result property="contactName"    column="contact_name"    />
+        <result property="owner"    column="owner"    />
+        <result property="amount"    column="amount"    />
+        <result property="salesType"    column="sales_type"    />
+        <result property="stage"    column="stage"    />
+        <result property="winProbability"    column="win_probability"    />
+        <result property="forecastCategory"    column="forecast_category"    />
+        <result property="workPhone"    column="work_phone"    />
+        <result property="mobilePhone"    column="mobile_phone"    />
+        <result property="workEmail"    column="work_email"    />
+        <result property="optySource"    column="opty_source"    />
+        <result property="optyRating"    column="opty_rating"    />
+        <result property="website"    column="website"    />
+        <result property="territory"    column="territory"    />
+        <result property="industry"    column="industry"    />
+        <result property="employeeCount"    column="employee_count"    />
+        <result property="revenue"    column="revenue"    />
+        <result property="description"    column="description"    />
+        <result property="isMustwin"    column="is_mustwin"    />
+        <result property="closeDate"    column="close_date"    />
+        <result property="contractEnddate"    column="contract_enddate"    />
+        <result property="closeReason"    column="close_reason"    />
+        <result property="reasonType"    column="reason_type"    />
+        <result property="closeComment"    column="close_comment"    />
+        <result property="customField"    column="custom_field"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="startDate"    column="start_date"    />
+        <result property="endDate"    column="end_date"    />
+        <result property="userId"    column="user_id"    />
+        <result property="deptId"    column="dept_id"    />
+        <result property="sid"    column="sid"    />
+        <result property="partner"    column="partner"    />
+        <result property="avatar"    column="avatar"    />
+        <result property="code"    column="code"    />
+        <result property="initialStatus"    column="initial_status"    />
+        <result property="ddStatus"    column="dd_status"    />
+        <result property="investDecision"    column="invest_decision"    />
+        <result property="optyProcess"    column="opty_process"    />
+        <result property="treatmentItemCode"    column="treatment_item_code"    />
+        <result property="caseGroupId"    column="case_group_id"    />
+        <result property="closedWonBasis"    column="closed_won_basis"    />
+        <result property="downPaymentAmount"    column="down_payment_amount"    />
+        <result property="agreementSignedAt"    column="agreement_signed_at"    />
+    </resultMap>
+
+    <sql id="selectCrmOptyVo">
+        select o.opty_id, o.opty_type, o.org_id, o.account_id, o.lead_id, o.lead_name, o.name, o.full_name, o.account_name, o.contact_id, o.contact_name, o.owner, o.amount, o.sales_type, o.stage, o.win_probability, o.forecast_category, o.work_phone, o.mobile_phone, o.work_email, o.opty_source, o.opty_rating, o.website, o.territory, o.industry, o.employee_count, o.revenue, o.description, o.is_mustwin, o.close_date, o.contract_enddate, o.close_reason, o.reason_type, o.close_comment, o.custom_field, o.create_by, o.create_time, o.update_by, o.update_time, o.start_date, o.end_date, o.user_id, o.dept_id, o.sid, o.partner, o.avatar, o.code, o.initial_status, o.dd_status, o.invest_decision, o.opty_process, o.treatment_item_code, o.case_group_id, o.closed_won_basis, o.down_payment_amount, o.agreement_signed_at
+        from crm_opty o
+         left join sys_user u on u.user_id = o.user_id
+         left join sys_dept d on u.dept_id = d.dept_id
+    </sql>
+
+    <select id="selectCrmOptyListByStages" parameterType="CrmOpty" resultMap="CrmOptyResult">
+        <include refid="selectCrmOptyVo"/>
+        where 1=1
+        <if test="accountId != null  and accountId != ''"> and account_id = #{accountId}</if>
+        <if test="stages != null  and stages != ''"> and
+            stage in
+            <foreach item="item" collection="stages" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="salesType != null  and salesType != ''"> and sales_type = #{salesType}</if>
+        order by create_time desc, stage
+
+    </select>
+
+    <select id="selectCrmOptyList" parameterType="CrmOpty" resultMap="CrmOptyResult">
+        <include refid="selectCrmOptyVo"/>
+        where 1=1
+            <if test="optyType != null  and optyType != ''"> and opty_type = #{optyType}</if>
+            <if test="orgId != null  and orgId != ''"> and org_id = #{orgId}</if>
+            <if test="accountId != null  and accountId != ''"> and account_id = #{accountId}</if>
+            <if test="leadId != null  and leadId != ''"> and lead_id = #{leadId}</if>
+            <if test="leadName != null  and leadName != ''"> and lead_name like concat('%', #{leadName}, '%')</if>
+            <if test="name != null  and name != ''"> and name like concat('%', #{name}, '%')</if>
+            <if test="fullName != null  and fullName != ''"> and full_name like concat('%', #{fullName}, '%')</if>
+            <if test="accountName != null  and accountName != ''"> and account_name like concat('%', #{accountName}, '%')</if>
+            <if test="contactId != null  and contactId != ''"> and contact_id = #{contactId}</if>
+            <if test="contactName != null  and contactName != ''"> and contact_name like concat('%', #{contactName}, '%')</if>
+            <if test="owner != null  and owner != ''"> and owner = #{owner}</if>
+            <if test="amount != null "> and amount = #{amount}</if>
+            <if test="salesType != null  and salesType != ''"> and sales_type = #{salesType}</if>
+            <if test="stage != null  and stage != ''"> and stage = #{stage}</if>
+            <if test="winProbability != null "> and win_probability = #{winProbability}</if>
+            <if test="forecastCategory != null  and forecastCategory != ''"> and forecast_category = #{forecastCategory}</if>
+            <if test="workPhone != null  and workPhone != ''"> and work_phone = #{workPhone}</if>
+            <if test="mobilePhone != null  and mobilePhone != ''"> and mobile_phone = #{mobilePhone}</if>
+            <if test="workEmail != null  and workEmail != ''"> and work_email = #{workEmail}</if>
+            <if test="optySource != null  and optySource != ''"> and opty_source = #{optySource}</if>
+            <if test="optyRating != null  and optyRating != ''"> and opty_rating = #{optyRating}</if>
+            <if test="website != null  and website != ''"> and website = #{website}</if>
+            <if test="territory != null  and territory != ''"> and territory = #{territory}</if>
+            <if test="industry != null  and industry != ''"> and industry = #{industry}</if>
+            <if test="employeeCount != null "> and employee_count = #{employeeCount}</if>
+            <if test="revenue != null "> and revenue = #{revenue}</if>
+            <if test="description != null  and description != ''"> and description = #{description}</if>
+            <if test="isMustwin != null  and isMustwin != ''"> and is_mustwin = #{isMustwin}</if>
+            <if test="closeDate != null "> and close_date = #{closeDate}</if>
+            <if test="contractEnddate != null "> and contract_enddate = #{contractEnddate}</if>
+            <if test="closeReason != null  and closeReason != ''"> and close_reason = #{closeReason}</if>
+            <if test="reasonType != null  and reasonType != ''"> and reason_type = #{reasonType}</if>
+            <if test="closeComment != null  and closeComment != ''"> and close_comment = #{closeComment}</if>
+            <if test="customField != null  and customField != ''"> and custom_field = CAST(NULLIF(TRIM(#{customField}), '') AS jsonb)</if>
+            <if test="startDate != null and endDate != null "> and close_date BETWEEN #{startDate} and #{endDate} </if>
+            <if test="userId != null "> and o.user_id = #{userId}</if>
+            <if test="deptId != null "> and o.dept_id = #{deptId}</if>
+            <if test="sid != null  and sid != ''"> and sid = #{sid}</if>
+            <if test="partner != null  and partner != ''"> and partner = #{partner}</if>
+            <if test="avatar != null  and avatar != ''"> and avatar = #{avatar}</if>
+            <if test="code != null  and code != ''"> and code = #{code}</if>
+            <if test="initialStatus != null  and initialStatus != ''"> and initial_status = #{initialStatus}</if>
+            <if test="ddStatus != null  and ddStatus != ''"> and dd_status = #{ddStatus}</if>
+            <if test="investDecision != null  and investDecision != ''"> and invest_decision = #{investDecision}</if>
+            <if test="treatmentItemCode != null  and treatmentItemCode != ''"> and treatment_item_code = #{treatmentItemCode}</if>
+            <if test="caseGroupId != null  and caseGroupId != ''"> and case_group_id = #{caseGroupId}</if>
+            <if test="closedWonBasis != null  and closedWonBasis != ''"> and closed_won_basis = #{closedWonBasis}</if>
+            <if test="downPaymentAmount != null "> and down_payment_amount = #{downPaymentAmount}</if>
+        <!-- 数据范围过滤 -->
+        ${params.dataScope}
+        order by create_time desc
+    </select>
+
+    <select id="selectCrmOptyListByAccountId" parameterType="String" resultMap="CrmOptyResult">
+        select o.opty_id, o.opty_type, o.org_id, o.account_id, o.lead_id, o.lead_name, o.name, o.full_name, o.account_name, o.contact_id, o.contact_name, o.owner, o.amount, o.sales_type, o.stage, o.win_probability, o.forecast_category, o.work_phone, o.mobile_phone, o.work_email, o.opty_source, o.opty_rating, o.website, o.territory, o.industry, o.employee_count, o.revenue, o.description, o.is_mustwin, o.close_date, o.contract_enddate, o.close_reason, o.reason_type, o.close_comment, o.custom_field, o.create_by, o.create_time, o.update_by, o.update_time, o.start_date, o.end_date, o.user_id, o.dept_id, o.sid, o.partner, o.avatar, o.code, o.initial_status, o.dd_status, o.invest_decision, o.opty_process, o.treatment_item_code, o.case_group_id, o.closed_won_basis, o.down_payment_amount, o.agreement_signed_at
+        from crm_opty o
+        left join crm_accountrelation u on u.target_id = o.opty_id
+        where u.source_id = #{accountId}
+    </select>
+
+    <select id="selectWonCrmOptyListWeekly" parameterType="CrmOpty" resultMap="CrmOptyResult">
+        <include refid="selectCrmOptyVo"/>
+        where 1=1
+        and to_char(close_date::date, 'IYYYIW') = to_char(CURRENT_DATE, 'IYYYIW')
+        <if test="optyType != null  and optyType != ''"> and opty_type = #{optyType}</if>
+        <if test="orgId != null  and orgId != ''"> and org_id = #{orgId}</if>
+        <if test="accountId != null  and accountId != ''"> and account_id = #{accountId}</if>
+        <if test="leadId != null  and leadId != ''"> and lead_id = #{leadId}</if>
+        <if test="leadName != null  and leadName != ''"> and lead_name like concat('%', #{leadName}, '%')</if>
+        <if test="name != null  and name != ''"> and name like concat('%', #{name}, '%')</if>
+        <if test="fullName != null  and fullName != ''"> and full_name like concat('%', #{fullName}, '%')</if>
+        <if test="accountName != null  and accountName != ''"> and account_name like concat('%', #{accountName}, '%')</if>
+        <if test="contactId != null  and contactId != ''"> and contact_id = #{contactId}</if>
+        <if test="contactName != null  and contactName != ''"> and contact_name like concat('%', #{contactName}, '%')</if>
+        <if test="owner != null  and owner != ''"> and owner = #{owner}</if>
+        <if test="amount != null "> and amount = #{amount}</if>
+        <if test="salesType != null  and salesType != ''"> and sales_type = #{salesType}</if>
+        <if test="stage != null  and stage != ''"> and stage = #{stage}</if>
+        <if test="winProbability != null "> and win_probability = #{winProbability}</if>
+        <if test="forecastCategory != null  and forecastCategory != ''"> and forecast_category = #{forecastCategory}</if>
+        <if test="workPhone != null  and workPhone != ''"> and work_phone = #{workPhone}</if>
+        <if test="mobilePhone != null  and mobilePhone != ''"> and mobile_phone = #{mobilePhone}</if>
+        <if test="workEmail != null  and workEmail != ''"> and work_email = #{workEmail}</if>
+        <if test="optySource != null  and optySource != ''"> and opty_source = #{optySource}</if>
+        <if test="optyRating != null  and optyRating != ''"> and opty_rating = #{optyRating}</if>
+        <if test="website != null  and website != ''"> and website = #{website}</if>
+        <if test="territory != null  and territory != ''"> and territory = #{territory}</if>
+        <if test="industry != null  and industry != ''"> and industry = #{industry}</if>
+        <if test="employeeCount != null "> and employee_count = #{employeeCount}</if>
+        <if test="revenue != null "> and revenue = #{revenue}</if>
+        <if test="description != null  and description != ''"> and description = #{description}</if>
+        <if test="isMustwin != null  and isMustwin != ''"> and is_mustwin = #{isMustwin}</if>
+        <if test="closeDate != null "> and close_date = #{closeDate}</if>
+        <if test="contractEnddate != null "> and contract_enddate = #{contractEnddate}</if>
+        <if test="closeReason != null  and closeReason != ''"> and close_reason = #{closeReason}</if>
+        <if test="reasonType != null  and reasonType != ''"> and reason_type = #{reasonType}</if>
+        <if test="closeComment != null  and closeComment != ''"> and close_comment = #{closeComment}</if>
+        <if test="customField != null  and customField != ''"> and custom_field = CAST(NULLIF(TRIM(#{customField}), '') AS jsonb)</if>
+        <if test="startDate != null and endDate != null "> and close_date BETWEEN #{startDate} and #{endDate} </if>
+        <if test="userId != null "> and o.user_id = #{userId}</if>
+        <if test="deptId != null "> and o.dept_id = #{deptId}</if>
+        <if test="sid != null  and sid != ''"> and sid = #{sid}</if>
+        <if test="partner != null  and partner != ''"> and partner = #{partner}</if>
+        <if test="avatar != null  and avatar != ''"> and avatar = #{avatar}</if>
+        <if test="code != null  and code != ''"> and code = #{code}</if>
+        <if test="initialStatus != null  and initialStatus != ''"> and initial_status = #{initialStatus}</if>
+        <if test="ddStatus != null  and ddStatus != ''"> and dd_status = #{ddStatus}</if>
+        <if test="investDecision != null  and investDecision != ''"> and invest_decision = #{investDecision}</if>
+            <if test="treatmentItemCode != null  and treatmentItemCode != ''"> and treatment_item_code = #{treatmentItemCode}</if>
+            <if test="caseGroupId != null  and caseGroupId != ''"> and case_group_id = #{caseGroupId}</if>
+            <if test="closedWonBasis != null  and closedWonBasis != ''"> and closed_won_basis = #{closedWonBasis}</if>
+            <if test="downPaymentAmount != null "> and down_payment_amount = #{downPaymentAmount}</if>
+        <!-- 数据范围过滤 -->
+        ${params.dataScope}
+        order by create_time desc
+    </select>
+
+    <select id="selectCrmOptyListWeekly" parameterType="CrmOpty" resultMap="CrmOptyResult">
+        <include refid="selectCrmOptyVo"/>
+        where 1=1
+        and to_char(o.create_time::date, 'IYYYIW') = to_char(CURRENT_DATE, 'IYYYIW')
+        <if test="optyType != null  and optyType != ''"> and opty_type = #{optyType}</if>
+        <if test="orgId != null  and orgId != ''"> and org_id = #{orgId}</if>
+        <if test="accountId != null  and accountId != ''"> and account_id = #{accountId}</if>
+        <if test="leadId != null  and leadId != ''"> and lead_id = #{leadId}</if>
+        <if test="leadName != null  and leadName != ''"> and lead_name like concat('%', #{leadName}, '%')</if>
+        <if test="name != null  and name != ''"> and name like concat('%', #{name}, '%')</if>
+        <if test="fullName != null  and fullName != ''"> and full_name like concat('%', #{fullName}, '%')</if>
+        <if test="accountName != null  and accountName != ''"> and account_name like concat('%', #{accountName}, '%')</if>
+        <if test="contactId != null  and contactId != ''"> and contact_id = #{contactId}</if>
+        <if test="contactName != null  and contactName != ''"> and contact_name like concat('%', #{contactName}, '%')</if>
+        <if test="owner != null  and owner != ''"> and owner = #{owner}</if>
+        <if test="amount != null "> and amount = #{amount}</if>
+        <if test="salesType != null  and salesType != ''"> and sales_type = #{salesType}</if>
+        <if test="stage != null  and stage != ''"> and stage = #{stage}</if>
+        <if test="winProbability != null "> and win_probability = #{winProbability}</if>
+        <if test="forecastCategory != null  and forecastCategory != ''"> and forecast_category = #{forecastCategory}</if>
+        <if test="workPhone != null  and workPhone != ''"> and work_phone = #{workPhone}</if>
+        <if test="mobilePhone != null  and mobilePhone != ''"> and mobile_phone = #{mobilePhone}</if>
+        <if test="workEmail != null  and workEmail != ''"> and work_email = #{workEmail}</if>
+        <if test="optySource != null  and optySource != ''"> and opty_source = #{optySource}</if>
+        <if test="optyRating != null  and optyRating != ''"> and opty_rating = #{optyRating}</if>
+        <if test="website != null  and website != ''"> and website = #{website}</if>
+        <if test="territory != null  and territory != ''"> and territory = #{territory}</if>
+        <if test="industry != null  and industry != ''"> and industry = #{industry}</if>
+        <if test="employeeCount != null "> and employee_count = #{employeeCount}</if>
+        <if test="revenue != null "> and revenue = #{revenue}</if>
+        <if test="description != null  and description != ''"> and description = #{description}</if>
+        <if test="isMustwin != null  and isMustwin != ''"> and is_mustwin = #{isMustwin}</if>
+        <if test="closeDate != null "> and close_date = #{closeDate}</if>
+        <if test="contractEnddate != null "> and contract_enddate = #{contractEnddate}</if>
+        <if test="closeReason != null  and closeReason != ''"> and close_reason = #{closeReason}</if>
+        <if test="reasonType != null  and reasonType != ''"> and reason_type = #{reasonType}</if>
+        <if test="closeComment != null  and closeComment != ''"> and close_comment = #{closeComment}</if>
+        <if test="customField != null  and customField != ''"> and custom_field = CAST(NULLIF(TRIM(#{customField}), '') AS jsonb)</if>
+        <if test="startDate != null and endDate != null "> and close_date BETWEEN #{startDate} and #{endDate} </if>
+        <if test="userId != null "> and o.user_id = #{userId}</if>
+        <if test="deptId != null "> and o.dept_id = #{deptId}</if>
+        <if test="sid != null  and sid != ''"> and sid = #{sid}</if>
+        <if test="partner != null  and partner != ''"> and partner = #{partner}</if>
+        <if test="avatar != null  and avatar != ''"> and avatar = #{avatar}</if>
+        <if test="code != null  and code != ''"> and code = #{code}</if>
+        <if test="initialStatus != null  and initialStatus != ''"> and initial_status = #{initialStatus}</if>
+        <if test="ddStatus != null  and ddStatus != ''"> and dd_status = #{ddStatus}</if>
+        <if test="investDecision != null  and investDecision != ''"> and invest_decision = #{investDecision}</if>
+            <if test="treatmentItemCode != null  and treatmentItemCode != ''"> and treatment_item_code = #{treatmentItemCode}</if>
+            <if test="caseGroupId != null  and caseGroupId != ''"> and case_group_id = #{caseGroupId}</if>
+            <if test="closedWonBasis != null  and closedWonBasis != ''"> and closed_won_basis = #{closedWonBasis}</if>
+            <if test="downPaymentAmount != null "> and down_payment_amount = #{downPaymentAmount}</if>
+        <!-- 数据范围过滤 -->
+        ${params.dataScope}
+        order by create_time desc
+    </select>
+
+    <select id="selectCrmOptyByOptyId" parameterType="String" resultMap="CrmOptyResult">
+        <include refid="selectCrmOptyVo"/>
+        where o.opty_id = #{optyId}
+    </select>
+        
+    <insert id="insertCrmOpty" parameterType="CrmOpty">
+        insert into crm_opty
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="optyId != null">opty_id,</if>
+            <if test="optyType != null and optyType != ''">opty_type,</if>
+            <if test="orgId != null and orgId != ''">org_id,</if>
+            <if test="accountId != null and accountId != ''">account_id,</if>
+            <if test="leadId != null">lead_id,</if>
+            <if test="leadName != null">lead_name,</if>
+            <if test="name != null">name,</if>
+            <if test="fullName != null">full_name,</if>
+            <if test="accountName != null">account_name,</if>
+            <if test="contactId != null and contactId != ''">contact_id,</if>
+            <if test="contactName != null">contact_name,</if>
+            <if test="owner != null">owner,</if>
+            <if test="amount != null">amount,</if>
+            <if test="salesType != null and salesType != ''">sales_type,</if>
+            <if test="stage != null">stage,</if>
+            <if test="winProbability != null">win_probability,</if>
+            <if test="forecastCategory != null">forecast_category,</if>
+            <if test="workPhone != null">work_phone,</if>
+            <if test="mobilePhone != null">mobile_phone,</if>
+            <if test="workEmail != null">work_email,</if>
+            <if test="optySource != null">opty_source,</if>
+            <if test="optyRating != null">opty_rating,</if>
+            <if test="website != null">website,</if>
+            <if test="territory != null">territory,</if>
+            <if test="industry != null">industry,</if>
+            <if test="employeeCount != null">employee_count,</if>
+            <if test="revenue != null">revenue,</if>
+            <if test="description != null">description,</if>
+            <if test="isMustwin != null">is_mustwin,</if>
+            <if test="closeDate != null">close_date,</if>
+            <if test="contractEnddate != null">contract_enddate,</if>
+            <if test="closeReason != null">close_reason,</if>
+            <if test="reasonType != null">reason_type,</if>
+            <if test="closeComment != null">close_comment,</if>
+            <if test="customField != null">custom_field,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="startDate != null">start_date,</if>
+            <if test="endDate != null">end_date,</if>
+            <if test="userId != null">user_id,</if>
+            <if test="deptId != null">dept_id,</if>
+            <if test="sid != null">sid,</if>
+            <if test="partner != null">partner,</if>
+            <if test="avatar != null">avatar,</if>
+            <if test="code != null">code,</if>
+            <if test="initialStatus != null">initial_status,</if>
+            <if test="ddStatus != null">dd_status,</if>
+            <if test="investDecision != null">invest_decision,</if>
+            <if test="optyProcess != null">opty_process,</if>
+            <if test="treatmentItemCode != null">treatment_item_code,</if>
+            <if test="caseGroupId != null">case_group_id,</if>
+            <if test="closedWonBasis != null">closed_won_basis,</if>
+            <if test="downPaymentAmount != null">down_payment_amount,</if>
+            <if test="agreementSignedAt != null">agreement_signed_at,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="optyId != null">#{optyId},</if>
+            <if test="optyType != null and optyType != ''">#{optyType},</if>
+            <if test="orgId != null and orgId != ''">#{orgId},</if>
+            <if test="accountId != null and accountId != ''">#{accountId},</if>
+            <if test="leadId != null">#{leadId},</if>
+            <if test="leadName != null">#{leadName},</if>
+            <if test="name != null">#{name},</if>
+            <if test="fullName != null">#{fullName},</if>
+            <if test="accountName != null">#{accountName},</if>
+            <if test="contactId != null and contactId != ''">#{contactId},</if>
+            <if test="contactName != null">#{contactName},</if>
+            <if test="owner != null">#{owner},</if>
+            <if test="amount != null">#{amount},</if>
+            <if test="salesType != null and salesType != ''">#{salesType},</if>
+            <if test="stage != null">#{stage},</if>
+            <if test="winProbability != null">#{winProbability},</if>
+            <if test="forecastCategory != null">#{forecastCategory},</if>
+            <if test="workPhone != null">#{workPhone},</if>
+            <if test="mobilePhone != null">#{mobilePhone},</if>
+            <if test="workEmail != null">#{workEmail},</if>
+            <if test="optySource != null">#{optySource},</if>
+            <if test="optyRating != null">#{optyRating},</if>
+            <if test="website != null">#{website},</if>
+            <if test="territory != null">#{territory},</if>
+            <if test="industry != null">#{industry},</if>
+            <if test="employeeCount != null">#{employeeCount},</if>
+            <if test="revenue != null">#{revenue},</if>
+            <if test="description != null">#{description},</if>
+            <if test="isMustwin != null">#{isMustwin},</if>
+            <if test="closeDate != null">#{closeDate},</if>
+            <if test="contractEnddate != null">#{contractEnddate},</if>
+            <if test="closeReason != null">#{closeReason},</if>
+            <if test="reasonType != null">#{reasonType},</if>
+            <if test="closeComment != null">#{closeComment},</if>
+            <if test="customField != null">CAST(NULLIF(TRIM(#{customField}), '') AS jsonb),</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="startDate != null">#{startDate},</if>
+            <if test="endDate != null">#{endDate},</if>
+            <if test="userId != null">#{userId},</if>
+            <if test="deptId != null">#{deptId},</if>
+            <if test="sid != null">#{sid},</if>
+            <if test="partner != null">#{partner},</if>
+            <if test="avatar != null">#{avatar},</if>
+            <if test="code != null">#{code},</if>
+            <if test="initialStatus != null">#{initialStatus},</if>
+            <if test="ddStatus != null">#{ddStatus},</if>
+            <if test="investDecision != null">#{investDecision},</if>
+            <if test="optyProcess != null">#{optyProcess},</if>
+            <if test="treatmentItemCode != null">#{treatmentItemCode},</if>
+            <if test="caseGroupId != null">#{caseGroupId},</if>
+            <if test="closedWonBasis != null">#{closedWonBasis},</if>
+            <if test="downPaymentAmount != null">#{downPaymentAmount},</if>
+            <if test="agreementSignedAt != null">#{agreementSignedAt},</if>
+         </trim>
+    </insert>
+
+    <update id="updateCrmOpty" parameterType="CrmOpty">
+        update crm_opty
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="optyType != null and optyType != ''">opty_type = #{optyType},</if>
+            <if test="orgId != null and orgId != ''">org_id = #{orgId},</if>
+            <if test="accountId != null and accountId != ''">account_id = #{accountId},</if>
+            <if test="leadId != null">lead_id = #{leadId},</if>
+            <if test="leadName != null">lead_name = #{leadName},</if>
+            <if test="name != null">name = #{name},</if>
+            <if test="fullName != null">full_name = #{fullName},</if>
+            <if test="accountName != null">account_name = #{accountName},</if>
+            <if test="contactId != null and contactId != ''">contact_id = #{contactId},</if>
+            <if test="contactName != null">contact_name = #{contactName},</if>
+            <if test="owner != null">owner = #{owner},</if>
+            <if test="amount != null">amount = #{amount},</if>
+            <if test="salesType != null and salesType != ''">sales_type = #{salesType},</if>
+            <if test="stage != null">stage = #{stage},</if>
+            <if test="winProbability != null">win_probability = #{winProbability},</if>
+            <if test="forecastCategory != null">forecast_category = #{forecastCategory},</if>
+            <if test="workPhone != null">work_phone = #{workPhone},</if>
+            <if test="mobilePhone != null">mobile_phone = #{mobilePhone},</if>
+            <if test="workEmail != null">work_email = #{workEmail},</if>
+            <if test="optySource != null">opty_source = #{optySource},</if>
+            <if test="optyRating != null">opty_rating = #{optyRating},</if>
+            <if test="website != null">website = #{website},</if>
+            <if test="territory != null">territory = #{territory},</if>
+            <if test="industry != null">industry = #{industry},</if>
+            <if test="employeeCount != null">employee_count = #{employeeCount},</if>
+            <if test="revenue != null">revenue = #{revenue},</if>
+            <if test="description != null">description = #{description},</if>
+            <if test="isMustwin != null">is_mustwin = #{isMustwin},</if>
+            <if test="closeDate != null">close_date = #{closeDate},</if>
+            <if test="contractEnddate != null">contract_enddate = #{contractEnddate},</if>
+            <if test="closeReason != null">close_reason = #{closeReason},</if>
+            <if test="reasonType != null">reason_type = #{reasonType},</if>
+            <if test="closeComment != null">close_comment = #{closeComment},</if>
+            <if test="customField != null">custom_field = CAST(NULLIF(TRIM(#{customField}), '') AS jsonb),</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="startDate != null">start_date = #{startDate},</if>
+            <if test="endDate != null">end_date = #{endDate},</if>
+            <if test="userId != null">user_id = #{userId},</if>
+            <if test="deptId != null">dept_id = #{deptId},</if>
+            <if test="sid != null">sid = #{sid},</if>
+            <if test="partner != null">partner = #{partner},</if>
+            <if test="avatar != null">avatar = #{avatar},</if>
+            <if test="code != null">code = #{code},</if>
+            <if test="initialStatus != null">initial_status = #{initialStatus},</if>
+            <if test="ddStatus != null">dd_status = #{ddStatus},</if>
+            <if test="investDecision != null">invest_decision = #{investDecision},</if>
+            <if test="optyProcess != null">opty_process = #{optyProcess},</if>
+            <if test="treatmentItemCode != null">treatment_item_code = #{treatmentItemCode},</if>
+            <if test="caseGroupId != null">case_group_id = #{caseGroupId},</if>
+            <if test="closedWonBasis != null">closed_won_basis = #{closedWonBasis},</if>
+            <if test="downPaymentAmount != null">down_payment_amount = #{downPaymentAmount},</if>
+            <if test="agreementSignedAt != null">agreement_signed_at = #{agreementSignedAt},</if>
+        </trim>
+        where opty_id = #{optyId}
+    </update>
+
+    <delete id="deleteCrmOptyByOptyId" parameterType="String">
+        delete from crm_opty where opty_id = #{optyId}
+    </delete>
+
+    <delete id="deleteCrmOptyByOptyIds" parameterType="String">
+        delete from crm_opty where opty_id in 
+        <foreach item="optyId" collection="array" open="(" separator="," close=")">
+            #{optyId}
+        </foreach>
+    </delete>
+
+    <select id="selectLatestActiveByContactId" resultMap="CrmOptyResult">
+        <include refid="selectCrmOptyVo"/>
+        where o.contact_id = #{contactId}
+        <if test="excludedStages != null and excludedStages.size() > 0">
+            and o.stage not in
+            <foreach item="stage" collection="excludedStages" open="(" separator="," close=")">
+                #{stage}
+            </foreach>
+        </if>
+        order by o.update_time desc
+        limit 1
+    </select>
+
+    <resultMap type="CrmContact" id="CrmContactResult">
+        <result property="contactId"           column="contact_id"/>
+        <result property="name"                column="name"/>
+        <result property="mobilePhone"         column="mobile_phone"/>
+        <result property="workPhone"           column="work_phone"/>
+        <result property="birthdate"           column="birthdate"/>
+        <result property="accountName"         column="account_name"/>
+        <result property="gender"              column="gender"/>
+        <result property="userId"              column="user_id"/>
+        <result property="wecomExternalUserid" column="wecom_external_userid"/>
+        <result property="wecomFollowUserid"   column="wecom_follow_userid"/>
+    </resultMap>
+
+    <select id="selectContactsByWonOptyDaysAgo" resultMap="CrmContactResult">
+        SELECT DISTINCT
+            c.contact_id, c.name, c.mobile_phone, c.work_phone,
+            c.birthdate, c.account_name, c.gender,
+            c.user_id, c.wecom_external_userid, c.wecom_follow_userid
+        FROM crm_contact c
+        JOIN crm_opty o ON o.contact_id = c.contact_id
+        WHERE o.stage = 'closed_won'
+          AND o.close_date::date = CURRENT_DATE - #{daysAfter}
+    </select>
+</mapper>

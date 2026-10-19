@@ -1,0 +1,583 @@
+package com.ruoyi.crm.service.impl;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
+
+import com.ruoyi.common.annotation.DataScope;
+import com.ruoyi.common.constant.HttpStatus;
+import com.ruoyi.common.core.domain.entity.SysRole;
+import com.ruoyi.common.core.domain.entity.SysUser;
+import com.ruoyi.common.exception.ServiceException;
+import com.ruoyi.common.utils.SecurityUtils;
+import com.ruoyi.crm.domain.CrmContact;
+import com.ruoyi.crm.domain.CrmWhatsappConversation;
+import com.ruoyi.crm.domain.CrmWhatsappMessage;
+import com.ruoyi.crm.domain.dto.CrmWhatsappConversationQuery;
+import com.ruoyi.crm.domain.dto.LeadAssignPatch;
+import com.ruoyi.crm.domain.vo.AssignableResolveResult;
+import com.ruoyi.crm.mapper.CrmContactMapper;
+import com.ruoyi.crm.mapper.CrmWhatsappConversationMapper;
+import com.ruoyi.crm.mapper.CrmWhatsappMessageMapper;
+import com.ruoyi.crm.service.IAssignableUserService;
+import com.ruoyi.crm.service.ICrmWhatsappConversationService;
+import com.ruoyi.crm.whatsapp.realtime.WhatsAppInboxEventPublisher;
+import com.ruoyi.crm.whatsapp.realtime.WhatsAppInboxSsePayloads;
+import com.ruoyi.framework.aspectj.DataScopeAspect;
+import com.ruoyi.framework.web.service.PermissionService;
+
+@Service
+public class CrmWhatsappConversationServiceImpl implements ICrmWhatsappConversationService
+{
+    private static final Set<String> ALLOWED_STATUS = new HashSet<>(
+            Arrays.asList("active", "archived", "blocked"));
+
+    private static final String PERM_RELEASE = "crm:whatsapp:release";
+    private static final String PERM_ASSIGN = "crm:whatsapp:assign";
+
+    @Autowired
+    private CrmWhatsappConversationMapper conversationMapper;
+
+    @Autowired
+    private CrmWhatsappMessageMapper messageMapper;
+
+    @Autowired
+    private CrmContactMapper contactMapper;
+
+    @Autowired
+    private WhatsAppInboxEventPublisher inboxEventPublisher;
+
+    @Autowired
+    private IAssignableUserService assignableUserService;
+
+    @Autowired
+    private PermissionService permissionService;
+
+    @Autowired
+    @Lazy
+    private ICrmWhatsappConversationService self;
+
+    @Override
+    @DataScope(deptAlias = "d", userAlias = "u")
+    public List<CrmWhatsappConversation> selectConversationList(CrmWhatsappConversationQuery query)
+    {
+        if (query == null)
+        {
+            query = new CrmWhatsappConversationQuery();
+        }
+        normalizeScope(query);
+        if ("team".equals(query.getScope()))
+        {
+            assertHasTeamDataScope();
+        }
+        if ("mine".equals(query.getScope()))
+        {
+            query.setCurrentUserId(SecurityUtils.getUserId());
+        }
+        return conversationMapper.selectPage(query);
+    }
+
+    @Override
+    public Map<String, Object> getConversationDetail(Long conversationId, Long beforeMsgId, Integer pageSize)
+    {
+        CrmWhatsappConversation conversation = conversationMapper.selectById(conversationId);
+        if (conversation == null)
+        {
+            return null;
+        }
+
+        Map<String, Object> result = new HashMap<>();
+
+        Map<String, Object> convInfo = new HashMap<>();
+        convInfo.put("id", conversation.getId());
+        convInfo.put("waId", conversation.getWaId());
+        convInfo.put("phoneNumber", conversation.getPhoneNumber());
+        convInfo.put("contactId", conversation.getContactId());
+        convInfo.put("leadId", conversation.getLeadId());
+        convInfo.put("phoneNumberId", conversation.getPhoneNumberId());
+        convInfo.put("lastMessageAt", conversation.getLastMessageAt());
+        convInfo.put("lastMessagePreview", conversation.getLastMessagePreview());
+        convInfo.put("unreadCount", conversation.getUnreadCount() != null ? conversation.getUnreadCount() : 0);
+        convInfo.put("messagingWindowRemainingSec", calcMessagingWindowRemaining(conversation.getLastCustomerMessageAt()));
+        convInfo.put("status", conversation.getStatus());
+        convInfo.put("lastOutboundAt", conversation.getLastOutboundAt());
+        convInfo.put("lastCustomerMessageAt", conversation.getLastCustomerMessageAt());
+        putAssignmentFields(conversation, convInfo);
+        convInfo.put("createdAt", conversation.getCreateTime());
+        convInfo.put("updatedAt", conversation.getUpdateTime());
+        enrichContactDisplay(conversation.getContactId(), convInfo);
+        result.put("conversation", convInfo);
+
+        List<CrmWhatsappMessage> messages = messageMapper.selectByConversationId(
+                conversationId, beforeMsgId, pageSize != null ? pageSize : 50);
+
+        List<Map<String, Object>> msgList = new ArrayList<>();
+        for (CrmWhatsappMessage msg : messages)
+        {
+            Map<String, Object> msgInfo = new HashMap<>();
+            msgInfo.put("id", msg.getId());
+            msgInfo.put("waId", msg.getWaId());
+            msgInfo.put("messageId", msg.getMessageId());
+            msgInfo.put("messageType", msg.getMessageType());
+            msgInfo.put("content", msg.getContent());
+            msgInfo.put("rawJson", msg.getRawJson());
+            msgInfo.put("direction", msg.getDirection());
+            msgInfo.put("sendTime", msg.getSendTime());
+            msgInfo.put("status", msg.getStatus());
+            msgInfo.put("mediaId", msg.getMediaId());
+            msgInfo.put("mediaUrl", resolveDisplayMediaUrl(msg));
+            msgInfo.put("mediaMimeType", msg.getMediaMimeType());
+            msgInfo.put("filename", msg.getFilename());
+            msgInfo.put("createdAt", msg.getCreateTime());
+            msgList.add(msgInfo);
+        }
+
+        Map<String, Object> msgResult = new HashMap<>();
+        msgResult.put("rows", msgList);
+        result.put("messages", msgResult);
+
+        return result;
+    }
+
+    @Override
+    public Map<String, Object> markRead(Long conversationId, String tenantId)
+    {
+        CrmWhatsappConversation conversation = conversationMapper.selectById(conversationId);
+        if (conversation == null || !tenantId.equals(conversation.getTenantId()))
+        {
+            return null;
+        }
+        conversationMapper.clearUnread(conversationId, tenantId);
+        Map<String, Object> data = new HashMap<>();
+        data.put("id", conversationId);
+        data.put("unreadCount", 0);
+        putAssignmentFields(conversation, data);
+        inboxEventPublisher.publishConversationUpdated(tenantId,
+                WhatsAppInboxSsePayloads.conversationUpdated(tenantId,
+                        WhatsAppInboxSsePayloads.conversationPartialFrom(conversationId, 0, null,
+                                conversation.getUserId(), conversation.getOwner(), conversation.getAssignedAt())));
+        return data;
+    }
+
+    @Override
+    public Map<String, Object> updateStatus(Long conversationId, String tenantId, String status)
+    {
+        if (!StringUtils.hasText(status) || !ALLOWED_STATUS.contains(status))
+        {
+            throw new IllegalArgumentException("status must be one of: active, archived, blocked");
+        }
+        CrmWhatsappConversation conversation = conversationMapper.selectById(conversationId);
+        if (conversation == null || !tenantId.equals(conversation.getTenantId()))
+        {
+            return null;
+        }
+        conversationMapper.updateStatus(conversationId, tenantId, status);
+        Map<String, Object> data = new HashMap<>();
+        data.put("id", conversationId);
+        data.put("status", status);
+        putAssignmentFields(conversation, data);
+        inboxEventPublisher.publishConversationUpdated(tenantId,
+                WhatsAppInboxSsePayloads.conversationUpdated(tenantId,
+                        WhatsAppInboxSsePayloads.conversationPartialFrom(conversationId, null, status,
+                                conversation.getUserId(), conversation.getOwner(), conversation.getAssignedAt())));
+        return data;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public Map<String, Object> claim(Long conversationId, String tenantId)
+    {
+        CrmWhatsappConversation conv = lockAndGet(conversationId, tenantId);
+        if (conv.getUserId() != null)
+        {
+            throw new ServiceException("会话已被他人领取", HttpStatus.CONFLICT);
+        }
+
+        Long currentUserId = SecurityUtils.getUserId();
+        AssignableResolveResult resolve = assignableUserService.resolve(null, currentUserId, "lead_claim");
+        if (!resolve.isResolved())
+        {
+            throw new ServiceException("当前用户不可领取会话", HttpStatus.FORBIDDEN);
+        }
+
+        LeadAssignPatch patch = resolve.getLeadAssignPatch();
+        Date assignedAt = new Date();
+        conversationMapper.updateAssignment(conversationId, tenantId,
+                patch.getUserId(), patch.getOwner(), assignedAt);
+        conversationMapper.updateHostedByAi(conversationId, tenantId, Boolean.FALSE);
+
+        return assignmentResponseAndPublish(tenantId, conversationId, patch.getUserId(), patch.getOwner(),
+                assignedAt, Boolean.FALSE);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public Map<String, Object> release(Long conversationId, String tenantId)
+    {
+        CrmWhatsappConversation conv = lockAndGet(conversationId, tenantId);
+        if (conv.getUserId() == null)
+        {
+            throw new ServiceException("会话已在公共池", HttpStatus.BAD_REQUEST);
+        }
+
+        Long currentUserId = SecurityUtils.getUserId();
+        boolean isOwner = conv.getUserId().equals(currentUserId);
+        if (isOwner)
+        {
+            if (!permissionService.hasPermi(PERM_RELEASE) && !permissionService.hasPermi(PERM_ASSIGN))
+            {
+                throw new ServiceException("无释放权限", HttpStatus.FORBIDDEN);
+            }
+        }
+        else
+        {
+            if (!permissionService.hasPermi(PERM_ASSIGN))
+            {
+                throw new ServiceException("无强制释放权限", HttpStatus.FORBIDDEN);
+            }
+            if (!isOwnedConversationInTeamScope(tenantId, conversationId))
+            {
+                throw new ServiceException("无权释放该会话", HttpStatus.FORBIDDEN);
+            }
+        }
+
+        conversationMapper.clearAssignment(conversationId, tenantId);
+        return assignmentResponseAndPublish(tenantId, conversationId, null, null, null, conv.getHostedByAi());
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public Map<String, Object> assign(Long conversationId, String tenantId, Long targetUserId)
+    {
+        if (targetUserId == null)
+        {
+            throw new ServiceException("userId 不能为空", HttpStatus.BAD_REQUEST);
+        }
+        CrmWhatsappConversation conv = lockAndGet(conversationId, tenantId);
+
+        if (conv.getUserId() != null)
+        {
+            Long currentUserId = SecurityUtils.getUserId();
+            boolean isOwner = conv.getUserId().equals(currentUserId);
+            if (!isOwner && !isOwnedConversationInTeamScope(tenantId, conversationId))
+            {
+                throw new ServiceException("无权转派该会话", HttpStatus.FORBIDDEN);
+            }
+        }
+
+        AssignableResolveResult resolve = assignableUserService.resolve(null, targetUserId, "lead_assign");
+        if (!resolve.isResolved())
+        {
+            throw new ServiceException("目标用户不可分配: " + resolve.getReason(), HttpStatus.BAD_REQUEST);
+        }
+
+        LeadAssignPatch patch = resolve.getLeadAssignPatch();
+        Date assignedAt = new Date();
+        conversationMapper.updateAssignment(conversationId, tenantId,
+                patch.getUserId(), patch.getOwner(), assignedAt);
+        conversationMapper.updateHostedByAi(conversationId, tenantId, Boolean.FALSE);
+
+        return assignmentResponseAndPublish(tenantId, conversationId, patch.getUserId(), patch.getOwner(),
+                assignedAt, Boolean.FALSE);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public Map<String, Object> updateHostedByAi(Long conversationId, String tenantId, Boolean hostedByAi)
+    {
+        CrmWhatsappConversation conv = lockAndGet(conversationId, tenantId);
+        conversationMapper.updateHostedByAi(conversationId, tenantId, hostedByAi);
+
+        Map<String, Object> data = new HashMap<>();
+        data.put("id", conversationId);
+        data.put("userId", conv.getUserId());
+        data.put("owner", conv.getOwner());
+        data.put("assignedAt", conv.getAssignedAt());
+        data.put("hostedByAi", hostedByAi);
+        inboxEventPublisher.publishConversationUpdated(tenantId,
+                WhatsAppInboxSsePayloads.conversationUpdated(tenantId,
+                        WhatsAppInboxSsePayloads.conversationPartialFrom(conversationId,
+                                conv.getUnreadCount(), conv.getStatus(),
+                                conv.getUserId(), conv.getOwner(), conv.getAssignedAt(), hostedByAi)));
+        return data;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public Map<String, Object> claimForAiBot(Long conversationId, String tenantId, Long botUserId, String botOwnerName)
+    {
+        if (botUserId == null)
+        {
+            throw new ServiceException("botUserId 不能为空", HttpStatus.BAD_REQUEST);
+        }
+        CrmWhatsappConversation conv = lockAndGet(conversationId, tenantId);
+        if (conv.getUserId() != null)
+        {
+            Map<String, Object> data = new HashMap<>();
+            data.put("id", conversationId);
+            data.put("userId", conv.getUserId());
+            data.put("owner", conv.getOwner());
+            data.put("assignedAt", conv.getAssignedAt());
+            data.put("hostedByAi", conv.getHostedByAi());
+            data.put("alreadyOwned", true);
+            return data;
+        }
+        Date assignedAt = new Date();
+        String owner = StringUtils.hasText(botOwnerName) ? botOwnerName.trim() : "Inbox AI";
+        conversationMapper.updateAssignment(conversationId, tenantId, botUserId, owner, assignedAt);
+        // 不改 hostedByAi：缺省跟随渠道；若已是 true/null 保持
+        return assignmentResponseAndPublish(tenantId, conversationId, botUserId, owner, assignedAt,
+                conv.getHostedByAi());
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public Map<String, Object> linkLead(Long conversationId, String tenantId, String leadId)
+    {
+        if (!StringUtils.hasText(leadId))
+        {
+            throw new ServiceException("leadId 不能为空", HttpStatus.BAD_REQUEST);
+        }
+        CrmWhatsappConversation conv = lockAndGet(conversationId, tenantId);
+        assertOwnedByCurrentUser(conv);
+        conversationMapper.updateLeadId(conversationId, tenantId, leadId.trim());
+
+        Map<String, Object> data = new HashMap<>();
+        data.put("id", conversationId);
+        data.put("leadId", leadId.trim());
+        putAssignmentFields(conv, data);
+        inboxEventPublisher.publishConversationUpdated(tenantId,
+                WhatsAppInboxSsePayloads.conversationUpdated(tenantId,
+                        WhatsAppInboxSsePayloads.conversationPartialFrom(conversationId,
+                                conv.getUnreadCount(), conv.getStatus(),
+                                conv.getUserId(), conv.getOwner(), conv.getAssignedAt())));
+        return data;
+    }
+
+    @Override
+    public boolean isConversationInTeamScope(String tenantId, Long conversationId)
+    {
+        return isOwnedConversationInTeamScope(tenantId, conversationId);
+    }
+
+    private boolean isOwnedConversationInTeamScope(String tenantId, Long conversationId)
+    {
+        CrmWhatsappConversationQuery query = new CrmWhatsappConversationQuery();
+        query.setTenantId(tenantId);
+        query.setScope("team");
+        query.setConversationId(conversationId);
+        return self.countInTeamScope(query) > 0;
+    }
+
+    @Override
+    @DataScope(deptAlias = "d", userAlias = "u")
+    public int countInTeamScope(CrmWhatsappConversationQuery query)
+    {
+        if (query == null)
+        {
+            return 0;
+        }
+        query.setScope("team");
+        return conversationMapper.countInScope(query);
+    }
+
+    @Override
+    public void enrichContactDisplay(String contactId, Map<String, Object> target)
+    {
+        if (!StringUtils.hasText(contactId) || target == null)
+        {
+            if (target != null)
+            {
+                target.put("contactName", null);
+                target.put("contactAvatar", null);
+            }
+            return;
+        }
+        try
+        {
+            CrmContact contact = contactMapper.selectCrmContactByContactId(contactId);
+            if (contact != null)
+            {
+                target.put("contactName", contact.getName());
+                target.put("contactAvatar", contact.getAvatar());
+            }
+            else
+            {
+                target.put("contactName", null);
+                target.put("contactAvatar", null);
+            }
+        }
+        catch (Exception e)
+        {
+            target.put("contactName", null);
+            target.put("contactAvatar", null);
+        }
+    }
+
+    @Override
+    public void putAssignmentFields(CrmWhatsappConversation conv, Map<String, Object> target)
+    {
+        if (target == null)
+        {
+            return;
+        }
+        if (conv == null)
+        {
+            target.put("userId", null);
+            target.put("owner", null);
+            target.put("assignedAt", null);
+            target.put("hostedByAi", null);
+            return;
+        }
+        target.put("userId", conv.getUserId());
+        target.put("owner", conv.getOwner());
+        target.put("assignedAt", conv.getAssignedAt());
+        target.put("hostedByAi", conv.getHostedByAi());
+    }
+
+    @Override
+    public void assertOwnedByCurrentUser(CrmWhatsappConversation conv)
+    {
+        if (conv == null)
+        {
+            throw new ServiceException("Conversation not found", HttpStatus.NOT_FOUND);
+        }
+        Long currentUserId = SecurityUtils.getUserId();
+        if (conv.getUserId() == null || !conv.getUserId().equals(currentUserId))
+        {
+            throw new ServiceException("仅会话负责人可操作", HttpStatus.FORBIDDEN);
+        }
+    }
+
+    /**
+     * 入站媒体通常只有 Meta media_id，无公网 URL；补齐为本系统代理路径供前端 &lt;img src&gt;。
+     * 已有公网 mediaUrl（如出站 link）则原样返回。
+     */
+    public static String resolveDisplayMediaUrl(CrmWhatsappMessage msg)
+    {
+        if (msg == null)
+        {
+            return null;
+        }
+        if (StringUtils.hasText(msg.getMediaUrl()))
+        {
+            return msg.getMediaUrl();
+        }
+        if (StringUtils.hasText(msg.getMediaId()))
+        {
+            return "/crm/whatsapp/media/" + msg.getMediaId();
+        }
+        return null;
+    }
+
+    private CrmWhatsappConversation lockAndGet(Long conversationId, String tenantId)
+    {
+        if (conversationId == null)
+        {
+            throw new ServiceException("conversationId 不能为空", HttpStatus.BAD_REQUEST);
+        }
+        CrmWhatsappConversation conv = conversationMapper.selectByIdForUpdate(conversationId);
+        if (conv == null || !tenantId.equals(conv.getTenantId()))
+        {
+            throw new ServiceException("Conversation not found", HttpStatus.NOT_FOUND);
+        }
+        return conv;
+    }
+
+    private Map<String, Object> assignmentResponseAndPublish(String tenantId, Long conversationId,
+            Long userId, String owner, Date assignedAt, Boolean hostedByAi)
+    {
+        Map<String, Object> data = new HashMap<>();
+        data.put("id", conversationId);
+        data.put("userId", userId);
+        data.put("owner", owner);
+        data.put("assignedAt", assignedAt);
+        data.put("hostedByAi", hostedByAi);
+        inboxEventPublisher.publishConversationUpdated(tenantId,
+                WhatsAppInboxSsePayloads.conversationUpdated(tenantId,
+                        WhatsAppInboxSsePayloads.conversationPartialFrom(conversationId, null, null,
+                                userId, owner, assignedAt, hostedByAi)));
+        return data;
+    }
+
+    private static void normalizeScope(CrmWhatsappConversationQuery query)
+    {
+        if (!StringUtils.hasText(query.getScope()))
+        {
+            // 无 scope 时：若带旧 status 则走兼容分支（mapper otherwise）；否则默认 open
+            if (StringUtils.hasText(query.getStatus()))
+            {
+                query.setScope(null);
+            }
+            else
+            {
+                query.setScope("open");
+            }
+            return;
+        }
+        String scope = query.getScope().trim().toLowerCase();
+        if (!"open".equals(scope) && !"mine".equals(scope) && !"team".equals(scope))
+        {
+            throw new ServiceException("scope must be open, mine or team", HttpStatus.BAD_REQUEST);
+        }
+        query.setScope(scope);
+    }
+
+    private static void assertHasTeamDataScope()
+    {
+        SysUser user = SecurityUtils.getLoginUser().getUser();
+        if (user != null && user.isAdmin())
+        {
+            return;
+        }
+        List<SysRole> roles = user != null ? user.getRoles() : null;
+        if (roles == null || roles.isEmpty())
+        {
+            throw new ServiceException("无团队数据权限", HttpStatus.FORBIDDEN);
+        }
+        boolean hasTeam = false;
+        for (SysRole role : roles)
+        {
+            if (role == null || !StringUtils.hasText(role.getDataScope()))
+            {
+                continue;
+            }
+            String ds = role.getDataScope();
+            if (DataScopeAspect.DATA_SCOPE_ALL.equals(ds)
+                    || DataScopeAspect.DATA_SCOPE_CUSTOM.equals(ds)
+                    || DataScopeAspect.DATA_SCOPE_DEPT.equals(ds)
+                    || DataScopeAspect.DATA_SCOPE_DEPT_AND_CHILD.equals(ds))
+            {
+                hasTeam = true;
+                break;
+            }
+        }
+        if (!hasTeam)
+        {
+            throw new ServiceException("无团队数据权限", HttpStatus.FORBIDDEN);
+        }
+    }
+
+    private Long calcMessagingWindowRemaining(Date lastCustomerMessageAt)
+    {
+        if (lastCustomerMessageAt == null)
+        {
+            return null;
+        }
+        long windowEnd = lastCustomerMessageAt.getTime() + 86400_000L;
+        long now = System.currentTimeMillis();
+        long remaining = (windowEnd - now) / 1000;
+        return remaining > 0 ? remaining : 0L;
+    }
+}

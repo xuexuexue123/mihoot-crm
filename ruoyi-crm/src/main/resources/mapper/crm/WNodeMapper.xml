@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.WNodeMapper">
+    
+    <resultMap type="WNode" id="WNodeResult">
+        <result property="id"    column="id"    />
+        <result property="workflowId"    column="workflow_id"    />
+        <result property="name"    column="name"    />
+        <result property="type"    column="type"    />
+        <result property="position"    column="position"    />
+        <result property="data"    column="data"    />
+        <result property="inputs"    column="inputs"    />
+        <result property="outputs"    column="outputs"    />
+        <result property="credentialId"    column="credential_id"    />
+        <result property="createdAt"    column="created_at"    />
+        <result property="updatedAt"    column="updated_at"    />
+    </resultMap>
+
+    <sql id="selectWNodeVo">
+        select id, workflow_id, name, type, position::text as position, data::text as data, inputs::text as inputs, outputs::text as outputs, credential_id, created_at, updated_at from w_node
+    </sql>
+
+    <select id="selectWNodeList" parameterType="WNode" resultMap="WNodeResult">
+        <include refid="selectWNodeVo"/>
+        <where>  
+            <if test="workflowId != null  and workflowId != ''"> and workflow_id = #{workflowId}</if>
+            <if test="name != null  and name != ''"> and name like concat('%', #{name}, '%')</if>
+            <if test="type != null  and type != ''"> and type = #{type}::"NodeType"</if>
+            <if test="position != null  and position != ''"> and position::text = #{position}</if>
+            <if test="data != null  and data != ''"> and data::text = #{data}</if>
+            <if test="inputs != null  and inputs != ''"> and inputs::text = #{inputs}</if>
+            <if test="outputs != null  and outputs != ''"> and outputs::text = #{outputs}</if>
+            <if test="credentialId != null  and credentialId != ''"> and credential_id = #{credentialId}</if>
+            <if test="createdAt != null "> and created_at = #{createdAt}</if>
+            <if test="updatedAt != null "> and updated_at = #{updatedAt}</if>
+        </where>
+    </select>
+    
+    <select id="selectWNodeListByWorkflowIds" resultMap="WNodeResult">
+        <include refid="selectWNodeVo"/>
+        where workflow_id in
+        <foreach collection="workflowIds" item="workflowId" open="(" separator="," close=")">
+            #{workflowId}
+        </foreach>
+    </select>
+
+    <select id="selectWNodeById" parameterType="String" resultMap="WNodeResult">
+        <include refid="selectWNodeVo"/>
+        where id = #{id}
+    </select>
+
+    <select id="selectRecordTriggerMatchNodes" resultMap="WNodeResult">
+        <include refid="selectWNodeVo"/>
+        where type = 'CRM_RECORD_TRIGGER'::"NodeType"
+          and data->>'entityType' = #{entityType}
+          and data->>'eventType' in
+        <foreach collection="eventTypes" item="eventType" open="(" separator="," close=")">
+            #{eventType}
+        </foreach>
+    </select>
+
+    <select id="selectEventTriggerMatchNodes" resultMap="WNodeResult">
+        <include refid="selectWNodeVo"/>
+        where type = 'CRM_EVENT_TRIGGER'::"NodeType"
+          and data->>'eventType' = #{eventType}
+    </select>
+        
+    <insert id="insertWNode" parameterType="WNode">
+        insert into w_node
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null and id != ''">id,</if>
+            <if test="workflowId != null and workflowId != ''">workflow_id,</if>
+            <if test="name != null and name != ''">name,</if>
+            <if test="type != null and type != ''">type,</if>
+            <if test="position != null and position != ''">position,</if>
+            <if test="data != null and data != ''">data,</if>
+            <if test="inputs != null and inputs != ''">inputs,</if>
+            <if test="outputs != null and outputs != ''">outputs,</if>
+            <if test="credentialId != null and credentialId != ''">credential_id,</if>
+            created_at,
+            updated_at,
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null and id != ''">#{id},</if>
+            <if test="workflowId != null and workflowId != ''">#{workflowId},</if>
+            <if test="name != null and name != ''">#{name},</if>
+            <if test="type != null and type != ''">#{type}::"NodeType",</if>
+            <if test="position != null and position != ''">#{position}::jsonb,</if>
+            <if test="data != null and data != ''">#{data}::jsonb,</if>
+            <if test="inputs != null and inputs != ''">#{inputs}::jsonb,</if>
+            <if test="outputs != null and outputs != ''">#{outputs}::jsonb,</if>
+            <if test="credentialId != null and credentialId != ''">#{credentialId},</if>
+            <choose>
+                <when test="createdAt != null">#{createdAt},</when>
+                <otherwise>now(),</otherwise>
+            </choose>
+            <choose>
+                <when test="updatedAt != null">#{updatedAt},</when>
+                <otherwise>now(),</otherwise>
+            </choose>
+         </trim>
+    </insert>
+
+    <update id="updateWNode" parameterType="WNode">
+        update w_node
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="workflowId != null and workflowId != ''">workflow_id = #{workflowId},</if>
+            <if test="name != null and name != ''">name = #{name},</if>
+            <if test="type != null and type != ''">type = #{type}::"NodeType",</if>
+            <if test="position != null and position != ''">position = #{position}::jsonb,</if>
+            <if test="data != null and data != ''">data = #{data}::jsonb,</if>
+            <if test="inputs != null and inputs != ''">inputs = #{inputs}::jsonb,</if>
+            <if test="outputs != null and outputs != ''">outputs = #{outputs}::jsonb,</if>
+            <if test="credentialId != null">credential_id = #{credentialId},</if>
+            <choose>
+                <when test="updatedAt != null">updated_at = #{updatedAt},</when>
+                <otherwise>updated_at = now(),</otherwise>
+            </choose>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteWNodeById" parameterType="String">
+        delete from w_node where id = #{id}
+    </delete>
+
+    <delete id="deleteWNodeByIds" parameterType="String">
+        delete from w_node where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <delete id="deleteWNodeByWorkflowId" parameterType="String">
+        delete from w_node where workflow_id = #{workflowId}
+    </delete>
+</mapper>

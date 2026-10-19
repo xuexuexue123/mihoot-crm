@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmEmailAttachmentsMapper">
+    
+    <resultMap type="CrmEmailAttachments" id="CrmEmailAttachmentsResult">
+        <result property="id"    column="id"    />
+        <result property="messageId"    column="message_id"    />
+        <result property="attachmentId"    column="attachment_id"    />
+        <result property="filename"    column="filename"    />
+        <result property="mimeType"    column="mime_type"    />
+        <result property="size"    column="size"    />
+        <result property="contentId"    column="content_id"    />
+        <result property="isInline"    column="is_inline"    />
+        <result property="downloaded"    column="downloaded"    />
+        <result property="storageUrl"    column="storage_url"    />
+        <result property="createdAt"    column="created_at"    />
+        <result property="updatedAt"    column="updated_at"    />
+    </resultMap>
+
+    <sql id="selectCrmEmailAttachmentsVo">
+        select id, message_id, attachment_id, filename, mime_type, size, content_id, is_inline, downloaded, storage_url, created_at, updated_at from crm_email_attachments
+    </sql>
+
+    <select id="selectCrmEmailAttachmentsList" parameterType="CrmEmailAttachments" resultMap="CrmEmailAttachmentsResult">
+        <include refid="selectCrmEmailAttachmentsVo"/>
+        <where>  
+            <if test="messageId != null  and messageId != ''"> and message_id = #{messageId}</if>
+            <if test="attachmentId != null  and attachmentId != ''"> and attachment_id = #{attachmentId}</if>
+            <if test="filename != null  and filename != ''"> and filename like concat('%', #{filename}, '%')</if>
+            <if test="mimeType != null  and mimeType != ''"> and mime_type = #{mimeType}</if>
+            <if test="size != null  and size != ''"> and size = #{size}</if>
+            <if test="contentId != null  and contentId != ''"> and content_id = #{contentId}</if>
+            <if test="isInline != null "> and is_inline = #{isInline}</if>
+            <if test="downloaded != null "> and downloaded = #{downloaded}</if>
+            <if test="storageUrl != null  and storageUrl != ''"> and storage_url = #{storageUrl}</if>
+            <if test="createdAt != null "> and created_at = #{createdAt}</if>
+            <if test="updatedAt != null "> and updated_at = #{updatedAt}</if>
+        </where>
+    </select>
+    
+    <select id="selectCrmEmailAttachmentsById" parameterType="String" resultMap="CrmEmailAttachmentsResult">
+        <include refid="selectCrmEmailAttachmentsVo"/>
+        where message_id = #{id}
+    </select>
+        
+    <insert id="insertCrmEmailAttachments" parameterType="CrmEmailAttachments" useGeneratedKeys="true" keyProperty="id">
+        insert into crm_email_attachments
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="messageId != null and messageId != ''">message_id,</if>
+            <if test="attachmentId != null and attachmentId != ''">attachment_id,</if>
+            <if test="filename != null">filename,</if>
+            <if test="mimeType != null">mime_type,</if>
+            <if test="size != null">size,</if>
+            <if test="contentId != null">content_id,</if>
+            <if test="isInline != null">is_inline,</if>
+            <if test="downloaded != null">downloaded,</if>
+            <if test="storageUrl != null">storage_url,</if>
+            <if test="createdAt != null">created_at,</if>
+            <if test="updatedAt != null">updated_at,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="messageId != null and messageId != ''">#{messageId},</if>
+            <if test="attachmentId != null and attachmentId != ''">#{attachmentId},</if>
+            <if test="filename != null">#{filename},</if>
+            <if test="mimeType != null">#{mimeType},</if>
+            <if test="size != null">#{size},</if>
+            <if test="contentId != null">#{contentId},</if>
+            <if test="isInline != null">#{isInline},</if>
+            <if test="downloaded != null">#{downloaded},</if>
+            <if test="storageUrl != null">#{storageUrl},</if>
+            <if test="createdAt != null">#{createdAt},</if>
+            <if test="updatedAt != null">#{updatedAt},</if>
+         </trim>
+    </insert>
+
+    <update id="updateCrmEmailAttachments" parameterType="CrmEmailAttachments">
+        update crm_email_attachments
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="messageId != null and messageId != ''">message_id = #{messageId},</if>
+            <if test="attachmentId != null and attachmentId != ''">attachment_id = #{attachmentId},</if>
+            <if test="filename != null">filename = #{filename},</if>
+            <if test="mimeType != null">mime_type = #{mimeType},</if>
+            <if test="size != null">size = #{size},</if>
+            <if test="contentId != null">content_id = #{contentId},</if>
+            <if test="isInline != null">is_inline = #{isInline},</if>
+            <if test="downloaded != null">downloaded = #{downloaded},</if>
+            <if test="storageUrl != null">storage_url = #{storageUrl},</if>
+            <if test="createdAt != null">created_at = #{createdAt},</if>
+            <if test="updatedAt != null">updated_at = #{updatedAt},</if>
+        </trim>
+        where message_id = #{id}
+    </update>
+    <insert id="batchInsertCrmEmailAttachments">
+        INSERT INTO crm_email_attachments (
+        message_id, attachment_id, filename, mime_type, size,
+        content_id, is_inline, downloaded, storage_url, created_at, updated_at
+        )
+        VALUES
+        <foreach collection="list" item="item" separator=",">
+            (
+            #{item.messageId},
+            #{item.attachmentId},
+            #{item.filename},
+            #{item.mimeType},
+            #{item.size},
+            #{item.contentId},
+            #{item.isInline},
+            #{item.downloaded},
+            #{item.storageUrl},
+            NOW(),
+            NOW()
+            )
+        </foreach>
+    </insert>
+
+    <delete id="deleteCrmEmailAttachmentsById" parameterType="String">
+        delete from crm_email_attachments where id = #{id}
+    </delete>
+
+    <delete id="deleteCrmEmailAttachmentsByIds" parameterType="String">
+        delete from crm_email_attachments where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <delete id="deleteCrmEmailAttachmentsByMessageId" parameterType="String">
+        delete from crm_email_attachments where message_id = #{messageId}
+    </delete>
+</mapper>

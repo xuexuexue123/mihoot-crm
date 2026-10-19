@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.ems.mapper.SysReReportdefinitionMapper">
+    
+    <resultMap type="SysReReportdefinition" id="SysReReportdefinitionResult">
+        <result property="id"    column="id"    />
+        <result property="dataobjId"    column="dataobj_id"    />
+        <result property="pyLabel"    column="py_label"    />
+        <result property="pyName"    column="py_name"    />
+        <result property="columns"    column="columns"    />
+        <result property="filters"    column="filters"    />
+        <result property="classjoins"    column="classjoins"    />
+        <result property="parameters"    column="parameters"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+
+    <select id="selectReportDataByFilter" resultType="HashMap" parameterType="java.lang.String" statementType="STATEMENT">
+        select id,
+        ${columns}
+        from ${tableName}
+        <where>
+            <if test="filters != null  and filters != ''"> ${filters} </if>
+        </where>
+    </select>
+
+    <sql id="selectSysReReportdefinitionVo">
+        select id, dataobj_id, py_label, py_name, columns, filters, classjoins, parameters, create_by, create_time, update_by, update_time from sys_re_reportdefinition
+    </sql>
+
+    <select id="selectSysReReportdefinitionList" parameterType="SysReReportdefinition" resultMap="SysReReportdefinitionResult">
+        <include refid="selectSysReReportdefinitionVo"/>
+        <where>
+            <if test="dataobjId != null  and dataobjId != ''"> and dataobj_id = #{dataobjId}</if>
+            <if test="pyLabel != null  and pyLabel != ''"> and py_label = #{pyLabel}</if>
+            <if test="pyName != null  and pyName != ''"> and py_name like concat('%', #{pyName}, '%')</if>
+        </where>
+    </select>
+    
+    <select id="selectSysReReportdefinitionById" parameterType="String" resultMap="SysReReportdefinitionResult">
+        <include refid="selectSysReReportdefinitionVo"/>
+        where id = #{id}
+    </select>
+
+    <select id="selectSysReReportdefinitionListByDataobj" parameterType="SysReReportdefinition" resultMap="SysReReportdefinitionResult">
+        <include refid="selectSysReReportdefinitionVo"/>
+        where dataobj_id = #{dataobjId}
+    </select>
+
+    <insert id="insertSysReReportdefinition" parameterType="SysReReportdefinition">
+        insert into sys_re_reportdefinition
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">id,</if>
+            <if test="dataobjId != null">dataobj_id,</if>
+            <if test="pyLabel != null">py_label,</if>
+            <if test="pyName != null">py_name,</if>
+            <if test="columns != null">columns,</if>
+            <if test="filters != null">filters,</if>
+            <if test="classjoins != null">classjoins,</if>
+            <if test="parameters != null">parameters,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">#{id},</if>
+            <if test="dataobjId != null">#{dataobjId},</if>
+            <if test="pyLabel != null">#{pyLabel},</if>
+            <if test="pyName != null">#{pyName},</if>
+            <if test="columns != null">#{columns},</if>
+            <if test="filters != null">#{filters},</if>
+            <if test="classjoins != null">#{classjoins},</if>
+            <if test="parameters != null">#{parameters},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateSysReReportdefinition" parameterType="SysReReportdefinition">
+        update sys_re_reportdefinition
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="dataobjId != null">dataobj_id = #{dataobjId},</if>
+            <if test="pyLabel != null">py_label = #{pyLabel},</if>
+            <if test="pyName != null">py_name = #{pyName},</if>
+            <if test="columns != null">columns = #{columns},</if>
+            <if test="filters != null">filters = #{filters},</if>
+            <if test="classjoins != null">classjoins = #{classjoins},</if>
+            <if test="parameters != null">parameters = #{parameters},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteSysReReportdefinitionById" parameterType="String">
+        delete from sys_re_reportdefinition where id = #{id}
+    </delete>
+
+    <delete id="deleteSysReReportdefinitionByIds" parameterType="String">
+        delete from sys_re_reportdefinition where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

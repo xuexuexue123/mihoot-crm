@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmWecomKfMessageMapper">
+
+    <resultMap id="CrmWecomKfMessageResult" type="com.ruoyi.crm.domain.CrmWecomKfMessage">
+        <id property="id" column="id"/>
+        <result property="corpId" column="corp_id"/>
+        <result property="openKfid" column="open_kfid"/>
+        <result property="externalUserid" column="external_userid"/>
+        <result property="msgid" column="msgid"/>
+        <result property="msgtype" column="msgtype"/>
+        <result property="content" column="content"/>
+        <result property="direction" column="direction"/>
+        <result property="sendTime" column="send_time"/>
+        <result property="rawJson" column="raw_json"/>
+        <result property="conversationId" column="conversation_id"/>
+        <result property="mediaId" column="media_id"/>
+        <result property="picUrl" column="pic_url"/>
+        <result property="source" column="source"/>
+        <result property="createdAt" column="created_at"/>
+    </resultMap>
+
+    <sql id="selectColumns">
+        id, corp_id, open_kfid, external_userid, msgid, msgtype, content,
+        direction, send_time, raw_json, conversation_id, media_id, pic_url, source, created_at
+    </sql>
+
+    <insert id="insert" parameterType="com.ruoyi.crm.domain.CrmWecomKfMessage" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO crm_wecom_kf_message (
+            corp_id, open_kfid, external_userid, msgid, msgtype, content, direction, send_time,
+            raw_json, conversation_id, media_id, pic_url, source, created_at
+        ) VALUES (
+            #{corpId}, #{openKfid}, #{externalUserid}, #{msgid}, #{msgtype}, #{content},
+            #{direction}, #{sendTime}, #{rawJson}, #{conversationId}, #{mediaId}, #{picUrl},
+            #{source}, #{createdAt}
+        )
+    </insert>
+
+    <select id="selectByMsgid" resultMap="CrmWecomKfMessageResult">
+        SELECT <include refid="selectColumns"/>
+        FROM crm_wecom_kf_message
+        WHERE corp_id = #{corpId} AND msgid = #{msgid}
+        LIMIT 1
+    </select>
+
+    <select id="selectByExternalUserid" resultMap="CrmWecomKfMessageResult">
+        SELECT <include refid="selectColumns"/>
+        FROM crm_wecom_kf_message
+        WHERE corp_id = #{corpId} AND external_userid = #{externalUserid}
+        <if test="openKfid != null and openKfid != ''">
+            AND open_kfid = #{openKfid}
+        </if>
+        <if test="direction != null">
+            AND direction = #{direction}
+        </if>
+        ORDER BY send_time DESC
+    </select>
+
+    <select id="selectByConversation" resultMap="CrmWecomKfMessageResult">
+        SELECT <include refid="selectColumns"/>
+        FROM crm_wecom_kf_message
+        WHERE open_kfid = #{openKfid} AND external_userid = #{externalUserid}
+        ORDER BY send_time ASC, id ASC
+    </select>
+
+    <select id="selectByContactId" resultMap="CrmWecomKfMessageResult">
+        SELECT m.id, m.corp_id, m.open_kfid, m.external_userid, m.msgid, m.msgtype, m.content,
+               m.direction, m.send_time, m.raw_json, m.conversation_id, m.media_id, m.pic_url,
+               m.source, m.created_at
+        FROM crm_wecom_kf_message m
+        INNER JOIN crm_contact c ON c.wecom_external_userid = m.external_userid
+        WHERE m.corp_id = #{corpId} AND c.contact_id = #{contactId}
+        <if test="openKfid != null and openKfid != ''">
+            AND m.open_kfid = #{openKfid}
+        </if>
+        ORDER BY m.send_time DESC
+    </select>
+
+    <select id="selectMessagesByDate" resultMap="CrmWecomKfMessageResult">
+        SELECT <include refid="selectColumns"/>
+        FROM crm_wecom_kf_message
+        WHERE corp_id = #{corpId}
+          AND send_time &gt;= #{startTime}
+          AND send_time &lt; #{endTime}
+        <if test="openKfid != null and openKfid != ''">
+            AND open_kfid = #{openKfid}
+        </if>
+        ORDER BY send_time ASC
+    </select>
+</mapper>

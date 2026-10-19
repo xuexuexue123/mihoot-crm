@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.wechatmp.mapper.CrmWechatMpMessageTaskMapper">
+
+    <resultMap id="TaskResult" type="com.ruoyi.crm.wechatmp.domain.CrmWechatMpMessageTask">
+        <id property="id" column="id"/>
+        <result property="appId" column="app_id"/>
+        <result property="taskType" column="task_type"/>
+        <result property="audienceType" column="audience_type"/>
+        <result property="audienceRef" column="audience_ref"/>
+        <result property="filterJson" column="filter_json"/>
+        <result property="templateId" column="template_id"/>
+        <result property="contentJson" column="content_json"/>
+        <result property="status" column="status"/>
+        <result property="totalCount" column="total_count"/>
+        <result property="successCount" column="success_count"/>
+        <result property="failCount" column="fail_count"/>
+        <result property="skipCount" column="skip_count"/>
+        <result property="scheduledAt" column="scheduled_at"/>
+        <result property="startedAt" column="started_at"/>
+        <result property="finishedAt" column="finished_at"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <insert id="insertTask" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO crm_wechat_mp_message_task (
+            app_id, task_type, audience_type, audience_ref, filter_json, template_id, content_json,
+            status, total_count, success_count, fail_count, skip_count, scheduled_at, create_by, create_time, update_time
+        ) VALUES (
+            #{appId}, #{taskType}, #{audienceType}, #{audienceRef},
+            <choose>
+                <when test="filterJson != null and filterJson != ''">#{filterJson}::jsonb</when>
+                <otherwise>NULL</otherwise>
+            </choose>,
+            #{templateId}, #{contentJson}::jsonb,
+            #{status}, #{totalCount}, #{successCount}, #{failCount}, #{skipCount}, #{scheduledAt},
+            #{createBy}, #{createTime}, #{updateTime}
+        )
+    </insert>
+
+    <update id="updateTask">
+        UPDATE crm_wechat_mp_message_task SET
+            status = #{status},
+            total_count = #{totalCount},
+            success_count = #{successCount},
+            fail_count = #{failCount},
+            skip_count = #{skipCount},
+            started_at = #{startedAt},
+            finished_at = #{finishedAt},
+            update_time = #{updateTime}
+        WHERE id = #{id}
+    </update>
+
+    <select id="selectTaskById" resultMap="TaskResult">
+        SELECT * FROM crm_wechat_mp_message_task WHERE id = #{id}
+    </select>
+
+    <select id="selectTaskList" resultMap="TaskResult">
+        SELECT * FROM crm_wechat_mp_message_task
+        <where>
+            <if test="appId != null and appId != ''">AND app_id = #{appId}</if>
+            <if test="status != null and status != ''">AND status = #{status}</if>
+        </where>
+        ORDER BY create_time DESC
+    </select>
+
+    <select id="selectPendingTaskIds" resultType="long">
+        SELECT id FROM crm_wechat_mp_message_task
+        WHERE status IN ('pending', 'running')
+        ORDER BY create_time ASC LIMIT #{limit}
+    </select>
+
+    <insert id="insertTaskItem" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO crm_wechat_mp_message_task_item (task_id, open_id, status)
+        VALUES (#{taskId}, #{openId}, #{status})
+    </insert>
+
+    <insert id="insertTaskItemsBatch">
+        INSERT INTO crm_wechat_mp_message_task_item (task_id, open_id, status)
+        VALUES
+        <foreach collection="items" item="item" separator=",">
+            (#{item.taskId}, #{item.openId}, #{item.status})
+        </foreach>
+    </insert>
+
+    <update id="updateTaskItem">
+        UPDATE crm_wechat_mp_message_task_item SET
+            status = #{status}, errcode = #{errcode}, errmsg = #{errmsg}, sent_at = #{sentAt}
+        WHERE id = #{id}
+    </update>
+
+    <select id="selectItemsByTaskId" resultType="com.ruoyi.crm.wechatmp.domain.CrmWechatMpMessageTaskItem">
+        SELECT id, task_id AS taskId, open_id AS openId, status, errcode, errmsg, sent_at AS sentAt
+        FROM crm_wechat_mp_message_task_item WHERE task_id = #{taskId} ORDER BY id ASC
+    </select>
+
+    <select id="selectPendingItems" resultType="com.ruoyi.crm.wechatmp.domain.CrmWechatMpMessageTaskItem">
+        SELECT id, task_id AS taskId, open_id AS openId, status, errcode, errmsg, sent_at AS sentAt
+        FROM crm_wechat_mp_message_task_item
+        WHERE task_id = #{taskId} AND status = 'pending'
+        ORDER BY id ASC LIMIT #{limit}
+    </select>
+</mapper>

@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmItineraryMapper">
+    
+    <resultMap type="CrmItinerary" id="CrmItineraryResult">
+        <result property="itinId"    column="itin_id"    />
+        <result property="travelId"    column="travel_id"    />
+        <result property="itinFrom"    column="itin_from"    />
+        <result property="itinTo"    column="itin_to"    />
+        <result property="itinDate"    column="itin_date"    />
+        <result property="transportation"    column="transportation"    />
+        <result property="hotel"    column="hotel"    />
+        <result property="assumedCost"    column="assumed_cost"    />
+        <result property="description"    column="description"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectCrmItineraryVo">
+        select itin_id, travel_id, itin_from, itin_to, itin_date, transportation, hotel, assumed_cost, description, create_by, create_time, update_by, update_time from crm_itinerary
+    </sql>
+
+    <select id="selectCrmItineraryList" parameterType="CrmItinerary" resultMap="CrmItineraryResult">
+        <include refid="selectCrmItineraryVo"/>
+        <where>  
+            <if test="travelId != null  and travelId != ''"> and travel_id = #{travelId}</if>
+            <if test="itinFrom != null  and itinFrom != ''"> and itin_from = #{itinFrom}</if>
+            <if test="itinTo != null  and itinTo != ''"> and itin_to = #{itinTo}</if>
+            <if test="itinDate != null "> and itin_date = #{itinDate}</if>
+            <if test="transportation != null  and transportation != ''"> and transportation = #{transportation}</if>
+            <if test="hotel != null  and hotel != ''"> and hotel = #{hotel}</if>
+            <if test="assumedCost != null "> and assumed_cost = #{assumedCost}</if>
+            <if test="description != null  and description != ''"> and description = #{description}</if>
+        </where>
+    </select>
+    
+    <select id="selectCrmItineraryByItinId" parameterType="String" resultMap="CrmItineraryResult">
+        <include refid="selectCrmItineraryVo"/>
+        where itin_id = #{itinId}
+    </select>
+        
+    <insert id="insertCrmItinerary" parameterType="CrmItinerary">
+        insert into crm_itinerary
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="itinId != null">itin_id,</if>
+            <if test="travelId != null">travel_id,</if>
+            <if test="itinFrom != null">itin_from,</if>
+            <if test="itinTo != null">itin_to,</if>
+            <if test="itinDate != null">itin_date,</if>
+            <if test="transportation != null">transportation,</if>
+            <if test="hotel != null">hotel,</if>
+            <if test="assumedCost != null">assumed_cost,</if>
+            <if test="description != null">description,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="itinId != null">#{itinId},</if>
+            <if test="travelId != null">#{travelId},</if>
+            <if test="itinFrom != null">#{itinFrom},</if>
+            <if test="itinTo != null">#{itinTo},</if>
+            <if test="itinDate != null">#{itinDate},</if>
+            <if test="transportation != null">#{transportation},</if>
+            <if test="hotel != null">#{hotel},</if>
+            <if test="assumedCost != null">#{assumedCost},</if>
+            <if test="description != null">#{description},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateCrmItinerary" parameterType="CrmItinerary">
+        update crm_itinerary
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="travelId != null">travel_id = #{travelId},</if>
+            <if test="itinFrom != null">itin_from = #{itinFrom},</if>
+            <if test="itinTo != null">itin_to = #{itinTo},</if>
+            <if test="itinDate != null">itin_date = #{itinDate},</if>
+            <if test="transportation != null">transportation = #{transportation},</if>
+            <if test="hotel != null">hotel = #{hotel},</if>
+            <if test="assumedCost != null">assumed_cost = #{assumedCost},</if>
+            <if test="description != null">description = #{description},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where itin_id = #{itinId}
+    </update>
+
+    <delete id="deleteCrmItineraryByItinId" parameterType="String">
+        delete from crm_itinerary where itin_id = #{itinId}
+    </delete>
+
+    <delete id="deleteCrmItineraryByItinIds" parameterType="String">
+        delete from crm_itinerary where itin_id in 
+        <foreach item="itinId" collection="array" open="(" separator="," close=")">
+            #{itinId}
+        </foreach>
+    </delete>
+</mapper>

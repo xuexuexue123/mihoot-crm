@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.ems.mapper.SysReTalkingplanMapper">
+    
+    <resultMap type="SysReTalkingplan" id="SysReTalkingplanResult">
+        <result property="planId"    column="plan_id"    />
+        <result property="projectId"    column="project_id"    />
+        <result property="counterParty"    column="counter_party"    />
+        <result property="requiredInfo"    column="required_info"    />
+        <result property="frequency"    column="frequency"    />
+        <result property="preferWay"    column="prefer_way"    />
+        <result property="detailInfo"    column="detail_info"    />
+        <result property="owner"    column="owner"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectSysReTalkingplanVo">
+        select plan_id, project_id, counter_party, required_info, frequency, prefer_way, detail_info, owner, create_by, create_time, update_by, update_time from sys_re_talkingplan
+    </sql>
+
+    <select id="selectSysReTalkingplanList" parameterType="SysReTalkingplan" resultMap="SysReTalkingplanResult">
+        <include refid="selectSysReTalkingplanVo"/>
+        <where>  
+            <if test="projectId != null  and projectId != ''"> and project_id = #{projectId}</if>
+            <if test="counterParty != null  and counterParty != ''"> and counter_party = #{counterParty}</if>
+            <if test="requiredInfo != null  and requiredInfo != ''"> and required_info = #{requiredInfo}</if>
+            <if test="frequency != null  and frequency != ''"> and frequency = #{frequency}</if>
+            <if test="preferWay != null  and preferWay != ''"> and prefer_way = #{preferWay}</if>
+            <if test="detailInfo != null  and detailInfo != ''"> and detail_info = #{detailInfo}</if>
+            <if test="owner != null  and owner != ''"> and owner = #{owner}</if>
+        </where>
+    </select>
+    
+    <select id="selectSysReTalkingplanByPlanId" parameterType="String" resultMap="SysReTalkingplanResult">
+        <include refid="selectSysReTalkingplanVo"/>
+        where plan_id = #{planId}
+    </select>
+        
+    <insert id="insertSysReTalkingplan" parameterType="SysReTalkingplan">
+        insert into sys_re_talkingplan
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="planId != null">plan_id,</if>
+            <if test="projectId != null">project_id,</if>
+            <if test="counterParty != null">counter_party,</if>
+            <if test="requiredInfo != null">required_info,</if>
+            <if test="frequency != null">frequency,</if>
+            <if test="preferWay != null">prefer_way,</if>
+            <if test="detailInfo != null">detail_info,</if>
+            <if test="owner != null">owner,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="planId != null">#{planId},</if>
+            <if test="projectId != null">#{projectId},</if>
+            <if test="counterParty != null">#{counterParty},</if>
+            <if test="requiredInfo != null">#{requiredInfo},</if>
+            <if test="frequency != null">#{frequency},</if>
+            <if test="preferWay != null">#{preferWay},</if>
+            <if test="detailInfo != null">#{detailInfo},</if>
+            <if test="owner != null">#{owner},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateSysReTalkingplan" parameterType="SysReTalkingplan">
+        update sys_re_talkingplan
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="projectId != null">project_id = #{projectId},</if>
+            <if test="counterParty != null">counter_party = #{counterParty},</if>
+            <if test="requiredInfo != null">required_info = #{requiredInfo},</if>
+            <if test="frequency != null">frequency = #{frequency},</if>
+            <if test="preferWay != null">prefer_way = #{preferWay},</if>
+            <if test="detailInfo != null">detail_info = #{detailInfo},</if>
+            <if test="owner != null">owner = #{owner},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where plan_id = #{planId}
+    </update>
+
+    <delete id="deleteSysReTalkingplanByPlanId" parameterType="String">
+        delete from sys_re_talkingplan where plan_id = #{planId}
+    </delete>
+
+    <delete id="deleteSysReTalkingplanByPlanIds" parameterType="String">
+        delete from sys_re_talkingplan where plan_id in 
+        <foreach item="planId" collection="array" open="(" separator="," close=")">
+            #{planId}
+        </foreach>
+    </delete>
+</mapper>

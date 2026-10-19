@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmEventSessionMapper">
+
+    <resultMap type="com.ruoyi.crm.domain.CrmEventSession" id="SessionResult">
+        <result property="sessionId" column="session_id"/>
+        <result property="eventId" column="event_id"/>
+        <result property="tenantId" column="tenant_id"/>
+        <result property="name" column="name"/>
+        <result property="startTime" column="start_time"/>
+        <result property="endTime" column="end_time"/>
+        <result property="location" column="location"/>
+        <result property="capacity" column="capacity"/>
+        <result property="registrationDeadline" column="registration_deadline"/>
+        <result property="checkInOpenAt" column="check_in_open_at"/>
+        <result property="checkInCloseAt" column="check_in_close_at"/>
+        <result property="sortOrder" column="sort_order"/>
+        <result property="status" column="status"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <select id="selectBySessionId" resultMap="SessionResult">
+        SELECT * FROM crm_event_session
+        WHERE tenant_id = #{tenantId} AND session_id = #{sessionId}
+    </select>
+
+    <select id="selectBySessionIdForUpdate" resultMap="SessionResult">
+        SELECT * FROM crm_event_session
+        WHERE tenant_id = #{tenantId} AND session_id = #{sessionId}
+        FOR UPDATE
+    </select>
+
+    <select id="selectByEventId" resultMap="SessionResult">
+        SELECT * FROM crm_event_session
+        WHERE tenant_id = #{tenantId} AND event_id = #{eventId}
+        <if test="status != null and status != ''">
+            AND status = #{status}
+        </if>
+        ORDER BY sort_order ASC, create_time ASC
+    </select>
+
+    <select id="countActiveByEventId" resultType="int">
+        SELECT COUNT(*) FROM crm_event_session
+        WHERE tenant_id = #{tenantId} AND event_id = #{eventId} AND status = 'active'
+    </select>
+
+    <insert id="insert" parameterType="com.ruoyi.crm.domain.CrmEventSession">
+        INSERT INTO crm_event_session (
+            session_id, event_id, tenant_id, name, start_time, end_time, location, capacity,
+            registration_deadline, check_in_open_at, check_in_close_at, sort_order, status,
+            create_by, create_time
+        ) VALUES (
+            #{sessionId}, #{eventId}, #{tenantId}, #{name}, #{startTime}, #{endTime}, #{location}, #{capacity},
+            #{registrationDeadline}, #{checkInOpenAt}, #{checkInCloseAt}, #{sortOrder}, #{status},
+            #{createBy}, #{createTime}
+        )
+    </insert>
+
+    <update id="update" parameterType="com.ruoyi.crm.domain.CrmEventSession">
+        UPDATE crm_event_session
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="name != null">name = #{name},</if>
+            <if test="startTime != null">start_time = #{startTime},</if>
+            <if test="endTime != null">end_time = #{endTime},</if>
+            <if test="location != null">location = #{location},</if>
+            <if test="capacity != null">capacity = #{capacity},</if>
+            <if test="registrationDeadline != null">registration_deadline = #{registrationDeadline},</if>
+            <if test="checkInOpenAt != null">check_in_open_at = #{checkInOpenAt},</if>
+            <if test="checkInCloseAt != null">check_in_close_at = #{checkInCloseAt},</if>
+            <if test="sortOrder != null">sort_order = #{sortOrder},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        WHERE tenant_id = #{tenantId} AND session_id = #{sessionId}
+    </update>
+
+    <update id="softDelete">
+        UPDATE crm_event_session
+        SET status = 'deleted', update_by = #{updateBy}, update_time = NOW()
+        WHERE tenant_id = #{tenantId} AND session_id = #{sessionId}
+    </update>
+
+    <delete id="deleteByEventIds">
+        DELETE FROM crm_event_session WHERE event_id IN
+        <foreach item="eventId" collection="eventIds" open="(" separator="," close=")">
+            #{eventId}
+        </foreach>
+    </delete>
+</mapper>

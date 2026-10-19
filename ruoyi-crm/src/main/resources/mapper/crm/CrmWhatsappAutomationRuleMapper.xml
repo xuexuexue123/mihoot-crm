@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmWhatsappAutomationRuleMapper">
+
+    <resultMap id="RuleResult" type="com.ruoyi.crm.domain.CrmWhatsappAutomationRule">
+        <id property="id" column="id"/>
+        <result property="tenantId" column="tenant_id"/>
+        <result property="ruleName" column="rule_name"/>
+        <result property="triggerType" column="trigger_type"/>
+        <result property="triggerConfig" column="trigger_config"/>
+        <result property="templateName" column="template_name"/>
+        <result property="templateLanguage" column="template_language"/>
+        <result property="templateParams" column="template_params"/>
+        <result property="delaySeconds" column="delay_seconds"/>
+        <result property="enabled" column="enabled"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+    </resultMap>
+
+    <sql id="selectCols">
+        id, tenant_id, rule_name, trigger_type, trigger_config,
+        template_name, template_language, template_params, delay_seconds,
+        enabled, created_at, updated_at
+    </sql>
+
+    <select id="selectByTenant" resultMap="RuleResult">
+        SELECT <include refid="selectCols"/>
+        FROM crm_whatsapp_automation_rule
+        WHERE tenant_id = #{tenantId}
+        ORDER BY id DESC
+    </select>
+
+    <select id="selectEnabledByTenantAndType" resultMap="RuleResult">
+        SELECT <include refid="selectCols"/>
+        FROM crm_whatsapp_automation_rule
+        WHERE tenant_id = #{tenantId}
+          AND enabled = TRUE
+          AND trigger_type = #{triggerType}
+    </select>
+
+    <select id="selectById" resultMap="RuleResult">
+        SELECT <include refid="selectCols"/>
+        FROM crm_whatsapp_automation_rule
+        WHERE id = #{id} AND tenant_id = #{tenantId}
+    </select>
+
+    <insert id="insert" parameterType="com.ruoyi.crm.domain.CrmWhatsappAutomationRule"
+            useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO crm_whatsapp_automation_rule (
+            tenant_id, rule_name, trigger_type, trigger_config,
+            template_name, template_language, template_params, delay_seconds,
+            enabled, created_at, updated_at
+        ) VALUES (
+            #{tenantId}, #{ruleName}, #{triggerType}, #{triggerConfig}::jsonb,
+            #{templateName}, #{templateLanguage}, #{templateParams}::jsonb, #{delaySeconds},
+            COALESCE(#{enabled}, TRUE), NOW(), NOW()
+        )
+    </insert>
+
+    <update id="update" parameterType="com.ruoyi.crm.domain.CrmWhatsappAutomationRule">
+        UPDATE crm_whatsapp_automation_rule
+        SET rule_name = #{ruleName},
+            trigger_type = #{triggerType},
+            trigger_config = #{triggerConfig}::jsonb,
+            template_name = #{templateName},
+            template_language = #{templateLanguage},
+            template_params = #{templateParams}::jsonb,
+            delay_seconds = #{delaySeconds},
+            enabled = #{enabled},
+            updated_at = NOW()
+        WHERE id = #{id} AND tenant_id = #{tenantId}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM crm_whatsapp_automation_rule
+        WHERE id = #{id} AND tenant_id = #{tenantId}
+    </delete>
+</mapper>

@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmSurveysMapper">
+    
+    <resultMap type="CrmSurveys" id="CrmSurveysResult">
+        <result property="id"    column="id"    />
+        <result property="relateId"    column="relate_id"    />
+        <result property="relateType"    column="relate_type"    />
+        <result property="relateName"    column="relate_name"    />
+        <result property="title"    column="title"    />
+        <result property="description"    column="description"    />
+        <result property="status"    column="status"    />
+        <result property="surveyJson"    column="survey_json"    />
+        <result property="totalResponses"    column="total_responses"    />
+        <result property="completionRate"    column="completion_rate"    />
+        <result property="npsScore"    column="nps_score"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="sent"    column="sent"    />
+        <result property="limitOne"    column="limit_one"    />
+    </resultMap>
+
+    <sql id="selectCrmSurveysVo">
+        select id, relate_id, relate_type, relate_name, title, description, status, survey_json, total_responses, completion_rate, nps_score, create_by, create_time, update_by, update_time, sent, limit_one  from crm_surveys
+    </sql>
+
+    <select id="selectCrmSurveysList" parameterType="CrmSurveys" resultMap="CrmSurveysResult">
+        <include refid="selectCrmSurveysVo"/>
+        <where>  
+            <if test="relateId != null  and relateId != ''"> and relate_id = #{relateId}</if>
+            <if test="relateType != null  and relateType != ''"> and relate_type = #{relateType}</if>
+            <if test="relateName != null  and relateName != ''"> and relate_name like concat('%', #{relateName}, '%')</if>
+            <if test="title != null  and title != ''"> and title = #{title}</if>
+            <if test="description != null  and description != ''"> and description = #{description}</if>
+            <if test="status != null  and status != ''"> and status = #{status}</if>
+            <if test="surveyJson != null  and surveyJson != ''"> and survey_json = CAST(NULLIF(TRIM(#{surveyJson}), '') AS jsonb)</if>
+            <if test="totalResponses != null "> and total_responses = #{totalResponses}</if>
+            <if test="completionRate != null "> and completion_rate = #{completionRate}</if>
+            <if test="npsScore != null "> and nps_score = #{npsScore}</if>
+            <if test="sent != null "> and sent = #{sent}</if>
+            <if test="limitOne != null "> and limit_one = #{limitOne}</if>
+        </where>
+    </select>
+    
+    <select id="selectCrmSurveysById" parameterType="String" resultMap="CrmSurveysResult">
+        <include refid="selectCrmSurveysVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertCrmSurveys" parameterType="CrmSurveys">
+        insert into crm_surveys
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">id,</if>
+            <if test="relateId != null">relate_id,</if>
+            <if test="relateType != null">relate_type,</if>
+            <if test="relateName != null">relate_name,</if>
+            <if test="title != null">title,</if>
+            <if test="description != null">description,</if>
+            <if test="status != null">status,</if>
+            <if test="surveyJson != null">survey_json,</if>
+            <if test="totalResponses != null">total_responses,</if>
+            <if test="completionRate != null">completion_rate,</if>
+            <if test="npsScore != null">nps_score,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="sent != null">sent,</if>
+            <if test="limitOne != null">limit_one,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">#{id},</if>
+            <if test="relateId != null">#{relateId},</if>
+            <if test="relateType != null">#{relateType},</if>
+            <if test="relateName != null">#{relateName},</if>
+            <if test="title != null">#{title},</if>
+            <if test="description != null">#{description},</if>
+            <if test="status != null">#{status},</if>
+            <if test="surveyJson != null">CAST(NULLIF(TRIM(#{surveyJson}), '') AS jsonb),</if>
+            <if test="totalResponses != null">#{totalResponses},</if>
+            <if test="completionRate != null">#{completionRate},</if>
+            <if test="npsScore != null">#{npsScore},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="sent != null">#{sent},</if>
+            <if test="limitOne != null">#{limitOne},</if>
+         </trim>
+    </insert>
+
+    <update id="updateCrmSurveys" parameterType="CrmSurveys">
+        update crm_surveys
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="relateId != null">relate_id = #{relateId},</if>
+            <if test="relateType != null">relate_type = #{relateType},</if>
+            <if test="relateName != null">relate_name = #{relateName},</if>
+            <if test="title != null">title = #{title},</if>
+            <if test="description != null">description = #{description},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="surveyJson != null">survey_json = CAST(NULLIF(TRIM(#{surveyJson}), '') AS jsonb),</if>
+            <if test="totalResponses != null">total_responses = #{totalResponses},</if>
+            <if test="completionRate != null">completion_rate = #{completionRate},</if>
+            <if test="npsScore != null">nps_score = #{npsScore},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="sent != null">sent = #{sent},</if>
+            <if test="limitOne != null">limit_one = #{limitOne},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteCrmSurveysById" parameterType="String">
+        delete from crm_surveys where id = #{id}
+    </delete>
+
+    <delete id="deleteCrmSurveysByIds" parameterType="String">
+        delete from crm_surveys where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

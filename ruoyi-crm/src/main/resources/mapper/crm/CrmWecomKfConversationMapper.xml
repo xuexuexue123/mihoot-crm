@@ -1,0 +1,251 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmWecomKfConversationMapper">
+
+    <resultMap id="ConvResult" type="com.ruoyi.crm.domain.CrmWecomKfConversation">
+        <id property="id" column="id"/>
+        <result property="corpId" column="corp_id"/>
+        <result property="openKfid" column="open_kfid"/>
+        <result property="externalUserid" column="external_userid"/>
+        <result property="nickname" column="nickname"/>
+        <result property="avatarUrl" column="avatar_url"/>
+        <result property="accountName" column="account_name"/>
+        <result property="lastMessage" column="last_message"/>
+        <result property="lastMessageAt" column="last_message_at"/>
+        <result property="messageCount" column="message_count"/>
+        <result property="unreadCount" column="unread_count"/>
+        <result property="canReply" column="can_reply"/>
+        <result property="userId" column="user_id"/>
+        <result property="owner" column="owner"/>
+        <result property="assignedAt" column="assigned_at"/>
+        <result property="hostedByAi" column="hosted_by_ai"/>
+        <result property="contactId" column="contact_id"/>
+        <result property="contactName" column="contact_name"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <sql id="selectColumns">
+        cv.id, cv.corp_id, cv.open_kfid, cv.external_userid, cv.nickname, cv.avatar_url,
+        cv.account_name, cv.last_message, cv.last_message_at,
+        cv.message_count, cv.unread_count, cv.can_reply, cv.user_id, cv.owner, cv.assigned_at,
+        cv.hosted_by_ai, cv.contact_id,
+        COALESCE(cv.contact_name, c.name) AS contact_name,
+        cv.create_time, cv.update_time
+    </sql>
+
+    <sql id="fromJoins">
+        FROM crm_wecom_kf_conversation cv
+        LEFT JOIN crm_contact c ON c.contact_id = cv.contact_id
+    </sql>
+
+    <select id="selectPage" parameterType="com.ruoyi.crm.domain.dto.WecomKfConversationQuery"
+            resultMap="ConvResult">
+        SELECT <include refid="selectColumns"/>
+        <include refid="fromJoins"/>
+        <if test="scope != null and scope == 'team'">
+            LEFT JOIN sys_user u ON u.user_id = cv.user_id
+            LEFT JOIN sys_dept d ON u.dept_id = d.dept_id
+        </if>
+        <where>
+            <choose>
+                <when test="scope != null and scope == 'open'">
+                    AND cv.user_id IS NULL
+                </when>
+                <when test="scope != null and scope == 'mine'">
+                    AND cv.user_id = #{currentUserId}
+                </when>
+                <when test="scope != null and scope == 'team'">
+                    AND cv.user_id IS NOT NULL
+                    AND cv.user_id &lt;&gt; #{currentUserId}
+                    ${params.dataScope}
+                </when>
+            </choose>
+            <if test="corpId != null and corpId != ''">
+                AND cv.corp_id = #{corpId}
+            </if>
+            <if test="openKfid != null and openKfid != ''">
+                AND cv.open_kfid = #{openKfid}
+            </if>
+            <if test="openKfids != null and openKfids.size() &gt; 0">
+                AND cv.open_kfid IN
+                <foreach collection="openKfids" item="kid" open="(" separator="," close=")">
+                    #{kid}
+                </foreach>
+            </if>
+            <if test="keyword != null and keyword != ''">
+                AND (
+                    cv.nickname ILIKE '%' || #{keyword} || '%'
+                    OR cv.external_userid ILIKE '%' || #{keyword} || '%'
+                    OR COALESCE(cv.contact_name, c.name) ILIKE '%' || #{keyword} || '%'
+                    OR cv.account_name ILIKE '%' || #{keyword} || '%'
+                )
+            </if>
+            <if test="conversationId != null">
+                AND cv.id = #{conversationId}
+            </if>
+        </where>
+        ORDER BY cv.last_message_at DESC NULLS LAST
+    </select>
+
+    <select id="countInScope" parameterType="com.ruoyi.crm.domain.dto.WecomKfConversationQuery"
+            resultType="int">
+        SELECT COUNT(1)
+        FROM crm_wecom_kf_conversation cv
+        <if test="scope != null and scope == 'team'">
+            LEFT JOIN sys_user u ON u.user_id = cv.user_id
+            LEFT JOIN sys_dept d ON u.dept_id = d.dept_id
+        </if>
+        <where>
+            <if test="scope != null and scope == 'team'">
+                AND cv.user_id IS NOT NULL
+                AND cv.user_id &lt;&gt; #{currentUserId}
+                ${params.dataScope}
+            </if>
+            <if test="conversationId != null">
+                AND cv.id = #{conversationId}
+            </if>
+        </where>
+    </select>
+
+    <select id="selectById" resultMap="ConvResult">
+        SELECT <include refid="selectColumns"/>
+        <include refid="fromJoins"/>
+        WHERE cv.id = #{id}
+    </select>
+
+    <select id="selectByIdForUpdate" resultMap="ConvResult">
+        SELECT id, corp_id, open_kfid, external_userid, nickname, avatar_url, account_name,
+               last_message, last_message_at, message_count, unread_count, can_reply,
+               user_id, owner, assigned_at, hosted_by_ai, contact_id, contact_name,
+               create_time, update_time
+        FROM crm_wecom_kf_conversation
+        WHERE id = #{id}
+        FOR UPDATE
+    </select>
+
+    <select id="selectByOpenKfidExternalUserid" resultMap="ConvResult">
+        SELECT <include refid="selectColumns"/>
+        <include refid="fromJoins"/>
+        WHERE cv.open_kfid = #{openKfid} AND cv.external_userid = #{externalUserid}
+        LIMIT 1
+    </select>
+
+    <insert id="upsertOnInbound" parameterType="com.ruoyi.crm.domain.CrmWecomKfConversation"
+            useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO crm_wecom_kf_conversation (
+            corp_id, open_kfid, external_userid, nickname, avatar_url, account_name,
+            last_message, last_message_at,
+            message_count, unread_count, can_reply, contact_id, contact_name, create_time, update_time
+        ) VALUES (
+            #{corpId}, #{openKfid}, #{externalUserid}, #{nickname}, #{avatarUrl}, #{accountName},
+            #{lastMessage}, #{lastMessageAt},
+            COALESCE(#{messageCount}, 1), COALESCE(#{unreadCount}, 1), COALESCE(#{canReply}, 1),
+            #{contactId}, #{contactName}, now(), now()
+        )
+        ON CONFLICT (open_kfid, external_userid) DO UPDATE SET
+            nickname = COALESCE(EXCLUDED.nickname, crm_wecom_kf_conversation.nickname),
+            avatar_url = COALESCE(EXCLUDED.avatar_url, crm_wecom_kf_conversation.avatar_url),
+            account_name = COALESCE(EXCLUDED.account_name, crm_wecom_kf_conversation.account_name),
+            last_message = EXCLUDED.last_message,
+            last_message_at = EXCLUDED.last_message_at,
+            message_count = crm_wecom_kf_conversation.message_count + 1,
+            unread_count = crm_wecom_kf_conversation.unread_count + 1,
+            contact_id = COALESCE(EXCLUDED.contact_id, crm_wecom_kf_conversation.contact_id),
+            contact_name = COALESCE(EXCLUDED.contact_name, crm_wecom_kf_conversation.contact_name),
+            update_time = now()
+    </insert>
+
+    <insert id="upsertOnOutbound" parameterType="com.ruoyi.crm.domain.CrmWecomKfConversation"
+            useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO crm_wecom_kf_conversation (
+            corp_id, open_kfid, external_userid, nickname, avatar_url, account_name,
+            last_message, last_message_at,
+            message_count, unread_count, can_reply, contact_id, contact_name, create_time, update_time
+        ) VALUES (
+            #{corpId}, #{openKfid}, #{externalUserid}, #{nickname}, #{avatarUrl}, #{accountName},
+            #{lastMessage}, #{lastMessageAt},
+            0, 0, COALESCE(#{canReply}, 1), #{contactId}, #{contactName}, now(), now()
+        )
+        ON CONFLICT (open_kfid, external_userid) DO UPDATE SET
+            nickname = COALESCE(EXCLUDED.nickname, crm_wecom_kf_conversation.nickname),
+            avatar_url = COALESCE(EXCLUDED.avatar_url, crm_wecom_kf_conversation.avatar_url),
+            account_name = COALESCE(EXCLUDED.account_name, crm_wecom_kf_conversation.account_name),
+            last_message = EXCLUDED.last_message,
+            last_message_at = EXCLUDED.last_message_at,
+            contact_id = COALESCE(EXCLUDED.contact_id, crm_wecom_kf_conversation.contact_id),
+            contact_name = COALESCE(EXCLUDED.contact_name, crm_wecom_kf_conversation.contact_name),
+            update_time = now()
+    </insert>
+
+    <update id="clearUnread">
+        UPDATE crm_wecom_kf_conversation
+        SET unread_count = 0, update_time = now()
+        WHERE id = #{id}
+    </update>
+
+    <update id="updateAssignment">
+        UPDATE crm_wecom_kf_conversation
+        SET user_id = #{userId},
+            owner = #{owner},
+            assigned_at = #{assignedAt},
+            update_time = now()
+        WHERE id = #{id}
+    </update>
+
+    <update id="updateHostedByAi">
+        UPDATE crm_wecom_kf_conversation
+        SET hosted_by_ai = #{hostedByAi,jdbcType=BOOLEAN},
+            update_time = now()
+        WHERE id = #{id}
+    </update>
+
+    <update id="clearAssignment">
+        UPDATE crm_wecom_kf_conversation
+        SET user_id = NULL,
+            owner = NULL,
+            assigned_at = NULL,
+            update_time = now()
+        WHERE id = #{id}
+    </update>
+
+    <update id="updateContact">
+        UPDATE crm_wecom_kf_conversation
+        SET contact_id = #{contactId},
+            contact_name = #{contactName},
+            update_time = now()
+        WHERE open_kfid = #{openKfid} AND external_userid = #{externalUserid}
+    </update>
+
+    <update id="updateContactByExternalUserid">
+        UPDATE crm_wecom_kf_conversation
+        SET contact_id = #{contactId},
+            contact_name = #{contactName},
+            update_time = now()
+        WHERE external_userid = #{externalUserid}
+    </update>
+
+    <update id="clearContact">
+        UPDATE crm_wecom_kf_conversation
+        SET contact_id = NULL,
+            contact_name = NULL,
+            update_time = now()
+        WHERE open_kfid = #{openKfid} AND external_userid = #{externalUserid}
+    </update>
+
+    <update id="clearContactByExternalUserid">
+        UPDATE crm_wecom_kf_conversation
+        SET contact_id = NULL,
+            contact_name = NULL,
+            update_time = now()
+        WHERE external_userid = #{externalUserid}
+    </update>
+
+    <update id="updateProfile">
+        UPDATE crm_wecom_kf_conversation
+        SET nickname = COALESCE(#{nickname}, nickname),
+            avatar_url = COALESCE(#{avatarUrl}, avatar_url),
+            update_time = now()
+        WHERE open_kfid = #{openKfid} AND external_userid = #{externalUserid}
+    </update>
+</mapper>

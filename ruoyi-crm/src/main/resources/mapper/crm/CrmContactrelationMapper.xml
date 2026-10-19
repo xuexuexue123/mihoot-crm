@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmContactrelationMapper">
+    
+    <resultMap type="CrmContactrelation" id="CrmContactrelationResult">
+        <result property="relateId"    column="relate_id"    />
+        <result property="targetType"    column="target_type"    />
+        <result property="targetName"    column="target_name"    />
+        <result property="sourceId"    column="source_id"    />
+        <result property="sourceName"    column="source_name"    />
+        <result property="relateRole"    column="relate_role"    />
+        <result property="targetId"    column="target_id"    />
+        <result property="relationDesc"    column="relation_desc"    />
+        <result property="startDate"    column="start_date"    />
+        <result property="endDate"    column="end_date"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectCrmContactrelationVo">
+        select relate_id, target_type, target_name, source_id, source_name, relate_role, target_id, relation_desc, start_date, end_date, create_by, create_time, update_by, update_time from crm_contactrelation
+    </sql>
+
+    <select id="selectCrmContactrelationList" parameterType="CrmContactrelation" resultMap="CrmContactrelationResult">
+        <include refid="selectCrmContactrelationVo"/>
+        <where>  
+            <if test="targetType != null  and targetType != ''"> and target_type = #{targetType}</if>
+            <if test="targetName != null  and targetName != ''"> and target_name like concat('%', #{targetName}, '%')</if>
+            <if test="sourceId != null  and sourceId != ''"> and source_id = #{sourceId}</if>
+            <if test="sourceName != null  and sourceName != ''"> and source_name like concat('%', #{sourceName}, '%')</if>
+            <if test="relateRole != null  and relateRole != ''"> and relate_role = #{relateRole}</if>
+            <if test="targetId != null  and targetId != ''"> and target_id = #{targetId}</if>
+            <if test="relationDesc != null  and relationDesc != ''"> and relation_desc = #{relationDesc}</if>
+            <if test="startDate != null "> and start_date = #{startDate}</if>
+            <if test="endDate != null "> and end_date = #{endDate}</if>
+        </where>
+    </select>
+    
+    <select id="selectCrmContactrelationByRelateId" parameterType="String" resultMap="CrmContactrelationResult">
+        <include refid="selectCrmContactrelationVo"/>
+        where relate_id = #{relateId}
+    </select>
+        
+    <insert id="insertCrmContactrelation" parameterType="CrmContactrelation">
+        insert into crm_contactrelation
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="relateId != null">relate_id,</if>
+            <if test="targetType != null">target_type,</if>
+            <if test="targetName != null">target_name,</if>
+            <if test="sourceId != null and sourceId != ''">source_id,</if>
+            <if test="sourceName != null">source_name,</if>
+            <if test="relateRole != null and relateRole != ''">relate_role,</if>
+            <if test="targetId != null and targetId != ''">target_id,</if>
+            <if test="relationDesc != null">relation_desc,</if>
+            <if test="startDate != null">start_date,</if>
+            <if test="endDate != null">end_date,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="relateId != null">#{relateId},</if>
+            <if test="targetType != null">#{targetType},</if>
+            <if test="targetName != null">#{targetName},</if>
+            <if test="sourceId != null and sourceId != ''">#{sourceId},</if>
+            <if test="sourceName != null">#{sourceName},</if>
+            <if test="relateRole != null and relateRole != ''">#{relateRole},</if>
+            <if test="targetId != null and targetId != ''">#{targetId},</if>
+            <if test="relationDesc != null">#{relationDesc},</if>
+            <if test="startDate != null">#{startDate},</if>
+            <if test="endDate != null">#{endDate},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateCrmContactrelation" parameterType="CrmContactrelation">
+        update crm_contactrelation
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="targetType != null">target_type = #{targetType},</if>
+            <if test="targetName != null">target_name = #{targetName},</if>
+            <if test="sourceId != null and sourceId != ''">source_id = #{sourceId},</if>
+            <if test="sourceName != null">source_name = #{sourceName},</if>
+            <if test="relateRole != null and relateRole != ''">relate_role = #{relateRole},</if>
+            <if test="targetId != null and targetId != ''">target_id = #{targetId},</if>
+            <if test="relationDesc != null">relation_desc = #{relationDesc},</if>
+            <if test="startDate != null">start_date = #{startDate},</if>
+            <if test="endDate != null">end_date = #{endDate},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where relate_id = #{relateId}
+    </update>
+
+    <delete id="deleteCrmContactrelationByRelateId" parameterType="String">
+        delete from crm_contactrelation where relate_id = #{relateId}
+    </delete>
+
+    <delete id="deleteCrmContactrelationByContactId" parameterType="CrmContactrelation">
+        delete from crm_contactrelation
+        where source_id = #{sourceId} and target_id = #{targetId}
+    </delete>
+
+    <delete id="deleteCrmContactrelationByRelateIds" parameterType="String">
+        delete from crm_contactrelation where relate_id in 
+        <foreach item="relateId" collection="array" open="(" separator="," close=")">
+            #{relateId}
+        </foreach>
+    </delete>
+</mapper>

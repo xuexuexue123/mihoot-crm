@@ -1,0 +1,255 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmTravelMapper">
+    
+    <resultMap type="CrmTravel" id="CrmTravelResult">
+        <result property="travelId"    column="travel_id"    />
+        <result property="travelType"    column="travel_type"    />
+        <result property="projectId"    column="project_id"    />
+        <result property="projectName"    column="project_name"    />
+        <result property="applicant"    column="applicant"    />
+        <result property="location"    column="location"    />
+        <result property="startDate"    column="start_date"    />
+        <result property="endDate"    column="end_date"    />
+        <result property="duration"    column="duration"    />
+        <result property="purpose"    column="purpose"    />
+        <result property="workSchedule"    column="work_schedule"    />
+        <result property="assumedCost"    column="assumed_cost"    />
+        <result property="requireApproval"    column="require_approval"    />
+        <result property="approver"    column="approver"    />
+        <result property="approverTime"    column="approver_time"    />
+        <result property="isReply"    column="is_reply"    />
+        <result property="status"    column="status"    />
+        <result property="description"    column="description"    />
+        <result property="replyDescription"    column="reply_description"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="userId"    column="user_id"    />
+        <result property="deptId"    column="dept_id"    />
+        <result property="relateTask"    column="relate_task"    />
+        <result property="relateTaskid"    column="relate_taskid"    />
+    </resultMap>
+
+    <resultMap id="CrmTravelCrmItineraryResult" type="CrmTravel" extends="CrmTravelResult">
+        <collection property="crmItineraryList" notNullColumn="sub_itin_id" javaType="java.util.List" resultMap="CrmItineraryResult" />
+    </resultMap>
+
+    <resultMap type="CrmItinerary" id="CrmItineraryResult">
+        <result property="itinId"    column="sub_itin_id"    />
+        <result property="travelId"    column="sub_travel_id"    />
+        <result property="itinFrom"    column="sub_itin_from"    />
+        <result property="itinTo"    column="sub_itin_to"    />
+        <result property="itinDate"    column="sub_itin_date"    />
+        <result property="transportation"    column="sub_transportation"    />
+        <result property="hotel"    column="sub_hotel"    />
+        <result property="assumedCost"    column="sub_assumed_cost"    />
+        <result property="description"    column="sub_description"    />
+        <result property="createBy"    column="sub_create_by"    />
+        <result property="createTime"    column="sub_create_time"    />
+        <result property="updateBy"    column="sub_update_by"    />
+        <result property="updateTime"    column="sub_update_time"    />
+    </resultMap>
+
+    <sql id="selectCrmTravelVo">
+        select t.travel_id, t.travel_type, t.project_id, t.project_name, t.applicant, t.location, t.start_date, t.end_date, t.duration, t.purpose, t.work_schedule, t.assumed_cost, t.require_approval, t.approver, t.approver_time, t.is_reply, t.status, t.description, t.reply_description, t.create_by, t.create_time, t.update_by, t.update_time, t.user_id, t.dept_id, t.relate_task, t.relate_taskid
+        from crm_travel t
+         left join sys_user u on u.user_id = t.user_id
+         left join sys_dept d on u.dept_id = d.dept_id
+    </sql>
+
+    <sql id="selectCrmTravelWithItineraryVo">
+        select a.travel_id, a.travel_type, a.project_id, a.project_name, a.applicant, a.location, a.start_date, a.end_date, a.duration, a.purpose, a.work_schedule, a.assumed_cost, a.require_approval, a.approver, a.approver_time, a.is_reply, a.status, a.description, a.reply_description, a.create_by, a.create_time, a.update_by, a.update_time, a.user_id, a.dept_id, a.relate_task, a.relate_taskid,
+               b.itin_id as sub_itin_id, b.travel_id as sub_travel_id, b.itin_from as sub_itin_from, b.itin_to as sub_itin_to, b.itin_date as sub_itin_date, b.transportation as sub_transportation, b.hotel as sub_hotel, b.assumed_cost as sub_assumed_cost, b.description as sub_description, b.create_by as sub_create_by, b.create_time as sub_create_time, b.update_by as sub_update_by, b.update_time as sub_update_time
+        from crm_travel a
+                 left join crm_itinerary b on b.travel_id = a.travel_id
+    </sql>
+    <select id="selectCrmTravelList" parameterType="CrmTravel" resultMap="CrmTravelCrmItineraryResult">
+        <include refid="selectCrmTravelWithItineraryVo"/>
+        where 1=1
+            <if test="travelType != null  and travelType != ''"> and travel_type = #{travelType}</if>
+            <if test="projectId != null  and projectId != ''"> and project_id = #{projectId}</if>
+            <if test="projectName != null  and projectName != ''"> and project_name like concat('%', #{projectName}, '%')</if>
+            <if test="applicant != null  and applicant != ''"> and applicant = #{applicant}</if>
+            <if test="location != null  and location != ''"> and location = #{location}</if>
+            <if test="startDate != null "> and start_date = #{startDate}</if>
+            <if test="endDate != null "> and end_date = #{endDate}</if>
+            <if test="duration != null "> and duration = #{duration}</if>
+            <if test="purpose != null  and purpose != ''"> and purpose = #{purpose}</if>
+            <if test="workSchedule != null  and workSchedule != ''"> and work_schedule = #{workSchedule}</if>
+            <if test="assumedCost != null "> and assumed_cost = #{assumedCost}</if>
+            <if test="requireApproval != null "> and require_approval = #{requireApproval}</if>
+            <if test="approver != null  and approver != ''"> and approver = #{approver}</if>
+            <if test="approverTime != null "> and approver_time = #{approverTime}</if>
+            <if test="isReply != null "> and is_reply = #{isReply}</if>
+            <if test="status != null  and status != ''"> and status = #{status}</if>
+            <if test="description != null  and description != ''"> and description = #{description}</if>
+            <if test="replyDescription != null  and replyDescription != ''"> and reply_description = #{replyDescription}</if>
+            <if test="userId != null "> and user_id = #{userId}</if>
+            <if test="deptId != null "> and dept_id = #{deptId}</if>
+            <if test="relateTask != null  and relateTask != ''"> and relate_task = #{relateTask}</if>
+            <if test="relateTaskid != null  and relateTaskid != ''"> and relate_taskid = #{relateTaskid}</if>
+        order by start_date desc
+    </select>
+
+    <select id="selectCrmTravelListForExport" parameterType="CrmTravel" resultMap="CrmTravelResult">
+        <include refid="selectCrmTravelVo"/>
+        where 1=1
+        <if test="travelType != null  and travelType != ''"> and travel_type = #{travelType}</if>
+        <if test="projectId != null  and projectId != ''"> and project_id = #{projectId}</if>
+        <if test="projectName != null  and projectName != ''"> and project_name like concat('%', #{projectName}, '%')</if>
+        <if test="applicant != null  and applicant != ''"> and applicant = #{applicant}</if>
+        <if test="location != null  and location != ''"> and location = #{location}</if>
+        <if test="startDate != null and endDate != null "> and start_date BETWEEN #{startDate} and #{endDate} </if>
+        <if test="duration != null "> and duration = #{duration}</if>
+        <if test="purpose != null  and purpose != ''"> and purpose = #{purpose}</if>
+        <if test="workSchedule != null  and workSchedule != ''"> and work_schedule = #{workSchedule}</if>
+        <if test="assumedCost != null "> and assumed_cost = #{assumedCost}</if>
+        <if test="requireApproval != null "> and require_approval = #{requireApproval}</if>
+        <if test="approver != null  and approver != ''"> and approver = #{approver}</if>
+        <if test="approverTime != null "> and approver_time = #{approverTime}</if>
+        <if test="isReply != null "> and is_reply = #{isReply}</if>
+        <if test="status != null  and status != ''"> and status = #{status}</if>
+        <if test="description != null  and description != ''"> and description = #{description}</if>
+        <if test="replyDescription != null  and replyDescription != ''"> and reply_description = #{replyDescription}</if>
+        <if test="userId != null "> and user_id = #{userId}</if>
+        <if test="deptId != null "> and dept_id = #{deptId}</if>
+        <if test="relateTask != null  and relateTask != ''"> and relate_task = #{relateTask}</if>
+        <if test="relateTaskid != null  and relateTaskid != ''"> and relate_taskid = #{relateTaskid}</if>
+        order by start_date desc
+    </select>
+    <select id="selectCrmTravelByTravelId" parameterType="String" resultMap="CrmTravelCrmItineraryResult">
+        select a.travel_id, a.travel_type, a.project_id, a.project_name, a.applicant, a.location, a.start_date, a.end_date, a.duration, a.purpose, a.work_schedule, a.assumed_cost, a.require_approval, a.approver, a.approver_time, a.is_reply, a.status, a.description, a.reply_description, a.create_by, a.create_time, a.update_by, a.update_time, a.user_id, a.dept_id, a.relate_task, a.relate_taskid,
+ b.itin_id as sub_itin_id, b.travel_id as sub_travel_id, b.itin_from as sub_itin_from, b.itin_to as sub_itin_to, b.itin_date as sub_itin_date, b.transportation as sub_transportation, b.hotel as sub_hotel, b.assumed_cost as sub_assumed_cost, b.description as sub_description, b.create_by as sub_create_by, b.create_time as sub_create_time, b.update_by as sub_update_by, b.update_time as sub_update_time
+        from crm_travel a
+        left join crm_itinerary b on b.travel_id = a.travel_id
+        where a.travel_id = #{travelId}
+    </select>
+        
+    <insert id="insertCrmTravel" parameterType="CrmTravel">
+        insert into crm_travel
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="travelId != null">travel_id,</if>
+            <if test="travelType != null">travel_type,</if>
+            <if test="projectId != null">project_id,</if>
+            <if test="projectName != null">project_name,</if>
+            <if test="applicant != null">applicant,</if>
+            <if test="location != null">location,</if>
+            <if test="startDate != null">start_date,</if>
+            <if test="endDate != null">end_date,</if>
+            <if test="duration != null">duration,</if>
+            <if test="purpose != null">purpose,</if>
+            <if test="workSchedule != null">work_schedule,</if>
+            <if test="assumedCost != null">assumed_cost,</if>
+            <if test="requireApproval != null">require_approval,</if>
+            <if test="approver != null">approver,</if>
+            <if test="approverTime != null">approver_time,</if>
+            <if test="isReply != null">is_reply,</if>
+            <if test="status != null">status,</if>
+            <if test="description != null">description,</if>
+            <if test="replyDescription != null">reply_description,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="userId != null">user_id,</if>
+            <if test="deptId != null">dept_id,</if>
+            <if test="relateTask != null">relate_task,</if>
+            <if test="relateTaskid != null">relate_taskid,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="travelId != null">#{travelId},</if>
+            <if test="travelType != null">#{travelType},</if>
+            <if test="projectId != null">#{projectId},</if>
+            <if test="projectName != null">#{projectName},</if>
+            <if test="applicant != null">#{applicant},</if>
+            <if test="location != null">#{location},</if>
+            <if test="startDate != null">#{startDate},</if>
+            <if test="endDate != null">#{endDate},</if>
+            <if test="duration != null">#{duration},</if>
+            <if test="purpose != null">#{purpose},</if>
+            <if test="workSchedule != null">#{workSchedule},</if>
+            <if test="assumedCost != null">#{assumedCost},</if>
+            <if test="requireApproval != null">#{requireApproval},</if>
+            <if test="approver != null">#{approver},</if>
+            <if test="approverTime != null">#{approverTime},</if>
+            <if test="isReply != null">#{isReply},</if>
+            <if test="status != null">#{status},</if>
+            <if test="description != null">#{description},</if>
+            <if test="replyDescription != null">#{replyDescription},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="userId != null">#{userId},</if>
+            <if test="deptId != null">#{deptId},</if>
+            <if test="relateTask != null">#{relateTask},</if>
+            <if test="relateTaskid != null">#{relateTaskid},</if>
+         </trim>
+    </insert>
+
+    <update id="updateCrmTravel" parameterType="CrmTravel">
+        update crm_travel
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="travelType != null">travel_type = #{travelType},</if>
+            <if test="projectId != null">project_id = #{projectId},</if>
+            <if test="projectName != null">project_name = #{projectName},</if>
+            <if test="applicant != null">applicant = #{applicant},</if>
+            <if test="location != null">location = #{location},</if>
+            <if test="startDate != null">start_date = #{startDate},</if>
+            <if test="endDate != null">end_date = #{endDate},</if>
+            <if test="duration != null">duration = #{duration},</if>
+            <if test="purpose != null">purpose = #{purpose},</if>
+            <if test="workSchedule != null">work_schedule = #{workSchedule},</if>
+            <if test="assumedCost != null">assumed_cost = #{assumedCost},</if>
+            <if test="requireApproval != null">require_approval = #{requireApproval},</if>
+            <if test="approver != null">approver = #{approver},</if>
+            <if test="approverTime != null">approver_time = #{approverTime},</if>
+            <if test="isReply != null">is_reply = #{isReply},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="description != null">description = #{description},</if>
+            <if test="replyDescription != null">reply_description = #{replyDescription},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="userId != null">user_id = #{userId},</if>
+            <if test="deptId != null">dept_id = #{deptId},</if>
+            <if test="relateTask != null">relate_task = #{relateTask},</if>
+            <if test="relateTaskid != null">relate_taskid = #{relateTaskid},</if>
+        </trim>
+        where travel_id = #{travelId}
+    </update>
+
+    <delete id="deleteCrmTravelByTravelId" parameterType="String">
+        delete from crm_travel where travel_id = #{travelId}
+    </delete>
+
+    <delete id="deleteCrmTravelByTravelIds" parameterType="String">
+        delete from crm_travel where travel_id in 
+        <foreach item="travelId" collection="array" open="(" separator="," close=")">
+            #{travelId}
+        </foreach>
+    </delete>
+    
+    <delete id="deleteCrmItineraryByTravelIds" parameterType="String">
+        delete from crm_itinerary where travel_id in 
+        <foreach item="travelId" collection="array" open="(" separator="," close=")">
+            #{travelId}
+        </foreach>
+    </delete>
+
+    <delete id="deleteCrmItineraryByTravelId" parameterType="String">
+        delete from crm_itinerary where travel_id = #{travelId}
+    </delete>
+
+    <insert id="batchCrmItinerary">
+        insert into crm_itinerary( itin_id, travel_id, itin_from, itin_to, itin_date, transportation, hotel, assumed_cost, description, create_by, create_time, update_by, update_time) values
+		<foreach item="item" index="index" collection="list" separator=",">
+            ( #{item.itinId}, #{item.travelId}, #{item.itinFrom}, #{item.itinTo}, #{item.itinDate}, #{item.transportation}, #{item.hotel}, #{item.assumedCost}, #{item.description}, #{item.createBy}, #{item.createTime}, #{item.updateBy}, #{item.updateTime})
+        </foreach>
+    </insert>
+</mapper>

@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.SysOrganizationMapper">
+    
+    <resultMap type="SysOrganization" id="SysOrganizationResult">
+        <result property="organizationId"    column="organization_id"    />
+        <result property="pyName"    column="py_name"    />
+        <result property="pyLabel"    column="py_label"    />
+        <result property="website"    column="website"    />
+        <result property="tel"    column="tel"    />
+        <result property="address"    column="address"    />
+        <result property="description"    column="description"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="uuid"    column="uuid"    />
+        <result property="bankName"    column="bank_name"    />
+        <result property="bankAccount"    column="bank_account"    />
+        <result property="fapiaoDelivery"    column="fapiao_delivery"    />
+        <result property="avatar"    column="avatar"    />
+        <result property="largerAvatar"    column="larger_avatar"    />
+        <result property="industry"    column="industry"    />
+        <result property="tagline"    column="tagline"    />
+        <result property="intro"    column="intro"    />
+    </resultMap>
+
+    <sql id="selectSysOrganizationVo">
+        select organization_id, py_name, py_label, website, tel, address, description, create_by, create_time, update_by, update_time, uuid, bank_name, bank_account, fapiao_delivery, avatar, larger_avatar, industry, tagline, intro from sys_organization
+    </sql>
+
+    <select id="selectSysOrganizationList" parameterType="SysOrganization" resultMap="SysOrganizationResult">
+        <include refid="selectSysOrganizationVo"/>
+        <where>  
+            <if test="pyName != null  and pyName != ''"> and py_name like concat('%', #{pyName}, '%')</if>
+            <if test="pyLabel != null  and pyLabel != ''"> and py_label = #{pyLabel}</if>
+            <if test="website != null  and website != ''"> and website = #{website}</if>
+            <if test="tel != null  and tel != ''"> and tel = #{tel}</if>
+            <if test="address != null  and address != ''"> and address = #{address}</if>
+            <if test="description != null  and description != ''"> and description = #{description}</if>
+            <if test="uuid != null  and uuid != ''"> and uuid = #{uuid}</if>
+            <if test="bankName != null  and bankName != ''"> and bank_name like concat('%', #{bankName}, '%')</if>
+            <if test="bankAccount != null  and bankAccount != ''"> and bank_account = #{bankAccount}</if>
+            <if test="fapiaoDelivery != null  and fapiaoDelivery != ''"> and fapiao_delivery = #{fapiaoDelivery}</if>
+            <if test="avatar != null  and avatar != ''"> and avatar = #{avatar}</if>
+            <if test="largerAvatar != null  and largerAvatar != ''"> and larger_avatar = #{largerAvatar}</if>
+        </where>
+    </select>
+    
+    <select id="selectSysOrganizationByOrganizationId" parameterType="String" resultMap="SysOrganizationResult">
+        <include refid="selectSysOrganizationVo"/>
+        where organization_id = #{organizationId}
+    </select>
+        
+    <insert id="insertSysOrganization" parameterType="SysOrganization">
+        insert into sys_organization
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="organizationId != null">organization_id,</if>
+            <if test="pyName != null">py_name,</if>
+            <if test="pyLabel != null">py_label,</if>
+            <if test="website != null">website,</if>
+            <if test="tel != null">tel,</if>
+            <if test="address != null">address,</if>
+            <if test="description != null">description,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="uuid != null">uuid,</if>
+            <if test="bankName != null">bank_name,</if>
+            <if test="bankAccount != null">bank_account,</if>
+            <if test="fapiaoDelivery != null">fapiao_delivery,</if>
+            <if test="avatar != null">avatar,</if>
+            <if test="largerAvatar != null">larger_avatar,</if>
+            <if test="industry != null">industry,</if>
+            <if test="tagline != null">tagline,</if>
+            <if test="intro != null">intro,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="organizationId != null">#{organizationId},</if>
+            <if test="pyName != null">#{pyName},</if>
+            <if test="pyLabel != null">#{pyLabel},</if>
+            <if test="website != null">#{website},</if>
+            <if test="tel != null">#{tel},</if>
+            <if test="address != null">#{address},</if>
+            <if test="description != null">#{description},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="uuid != null">#{uuid},</if>
+            <if test="bankName != null">#{bankName},</if>
+            <if test="bankAccount != null">#{bankAccount},</if>
+            <if test="fapiaoDelivery != null">#{fapiaoDelivery},</if>
+            <if test="avatar != null">#{avatar},</if>
+            <if test="largerAvatar != null">#{largerAvatar},</if>
+            <if test="industry != null">#{industry},</if>
+            <if test="tagline != null">#{tagline},</if>
+            <if test="intro != null">#{intro},</if>
+         </trim>
+    </insert>
+
+    <update id="updateSysOrganization" parameterType="SysOrganization">
+        update sys_organization
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="pyName != null">py_name = #{pyName},</if>
+            <if test="pyLabel != null">py_label = #{pyLabel},</if>
+            <if test="website != null">website = #{website},</if>
+            <if test="tel != null">tel = #{tel},</if>
+            <if test="address != null">address = #{address},</if>
+            <if test="description != null">description = #{description},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="uuid != null">uuid = #{uuid},</if>
+            <if test="bankName != null">bank_name = #{bankName},</if>
+            <if test="bankAccount != null">bank_account = #{bankAccount},</if>
+            <if test="fapiaoDelivery != null">fapiao_delivery = #{fapiaoDelivery},</if>
+            <if test="avatar != null">avatar = #{avatar},</if>
+            <if test="largerAvatar != null">larger_avatar = #{largerAvatar},</if>
+            <if test="industry != null">industry = #{industry},</if>
+            <if test="tagline != null">tagline = #{tagline},</if>
+            <if test="intro != null">intro = #{intro},</if>
+        </trim>
+        where organization_id = #{organizationId}
+    </update>
+
+    <delete id="deleteSysOrganizationByOrganizationId" parameterType="String">
+        delete from sys_organization where organization_id = #{organizationId}
+    </delete>
+
+    <delete id="deleteSysOrganizationByOrganizationIds" parameterType="String">
+        delete from sys_organization where organization_id in 
+        <foreach item="organizationId" collection="array" open="(" separator="," close=")">
+            #{organizationId}
+        </foreach>
+    </delete>
+</mapper>

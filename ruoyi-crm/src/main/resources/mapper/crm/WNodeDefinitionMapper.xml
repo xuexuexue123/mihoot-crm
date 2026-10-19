@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.WNodeDefinitionMapper">
+    
+    <resultMap type="WNodeDefinition" id="WNodeDefinitionResult">
+        <result property="id"    column="id"    />
+        <result property="type"    column="type"    />
+        <result property="label"    column="label"    />
+        <result property="description"    column="description"    />
+        <result property="icon"    column="icon"    />
+        <result property="color"    column="color"    />
+        <result property="parameters"    column="parameters"    />
+        <result property="createdAt"    column="created_at"    />
+        <result property="updatedAt"    column="updated_at"    />
+    </resultMap>
+
+    <sql id="selectWNodeDefinitionVo">
+        select id, type, label, description, icon, color, parameters::text as parameters, created_at, updated_at from w_node_definition
+    </sql>
+
+    <select id="selectWNodeDefinitionList" parameterType="WNodeDefinition" resultMap="WNodeDefinitionResult">
+        <include refid="selectWNodeDefinitionVo"/>
+        <where>  
+            <if test="type != null  and type != ''"> and type = #{type}::"NodeType"</if>
+            <if test="label != null  and label != ''"> and label = #{label}</if>
+            <if test="description != null  and description != ''"> and description = #{description}</if>
+            <if test="icon != null  and icon != ''"> and icon = #{icon}</if>
+            <if test="color != null  and color != ''"> and color = #{color}</if>
+            <if test="parameters != null  and parameters != ''"> and parameters::text = #{parameters}</if>
+            <if test="createdAt != null "> and created_at = #{createdAt}</if>
+            <if test="updatedAt != null "> and updated_at = #{updatedAt}</if>
+        </where>
+    </select>
+    
+    <select id="selectWNodeDefinitionById" parameterType="String" resultMap="WNodeDefinitionResult">
+        <include refid="selectWNodeDefinitionVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertWNodeDefinition" parameterType="WNodeDefinition">
+        insert into w_node_definition
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null and id != ''">id,</if>
+            <if test="type != null and type != ''">type,</if>
+            <if test="label != null and label != ''">label,</if>
+            <if test="description != null and description != ''">description,</if>
+            <if test="icon != null and icon != ''">icon,</if>
+            <if test="color != null and color != ''">color,</if>
+            <if test="parameters != null and parameters != ''">parameters,</if>
+            created_at,
+            updated_at,
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null and id != ''">#{id},</if>
+            <if test="type != null and type != ''">#{type}::"NodeType",</if>
+            <if test="label != null and label != ''">#{label},</if>
+            <if test="description != null and description != ''">#{description},</if>
+            <if test="icon != null and icon != ''">#{icon},</if>
+            <if test="color != null and color != ''">#{color},</if>
+            <if test="parameters != null and parameters != ''">#{parameters}::jsonb,</if>
+            <choose>
+                <when test="createdAt != null">#{createdAt},</when>
+                <otherwise>now(),</otherwise>
+            </choose>
+            <choose>
+                <when test="updatedAt != null">#{updatedAt},</when>
+                <otherwise>now(),</otherwise>
+            </choose>
+         </trim>
+    </insert>
+
+    <update id="updateWNodeDefinition" parameterType="WNodeDefinition">
+        update w_node_definition
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="type != null and type != ''">type = #{type}::"NodeType",</if>
+            <if test="label != null and label != ''">label = #{label},</if>
+            <if test="description != null and description != ''">description = #{description},</if>
+            <if test="icon != null and icon != ''">icon = #{icon},</if>
+            <if test="color != null and color != ''">color = #{color},</if>
+            <if test="parameters != null and parameters != ''">parameters = #{parameters}::jsonb,</if>
+            <choose>
+                <when test="updatedAt != null">updated_at = #{updatedAt},</when>
+                <otherwise>updated_at = now(),</otherwise>
+            </choose>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteWNodeDefinitionById" parameterType="String">
+        delete from w_node_definition where id = #{id}
+    </delete>
+
+    <delete id="deleteWNodeDefinitionByIds" parameterType="String">
+        delete from w_node_definition where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

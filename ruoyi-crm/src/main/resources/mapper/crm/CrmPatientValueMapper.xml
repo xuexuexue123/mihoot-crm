@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmPatientValueMapper">
+
+    <resultMap type="com.ruoyi.crm.domain.CrmPatientValue" id="CrmPatientValueResult">
+        <result property="contactId" column="contact_id"/>
+        <result property="accountId" column="account_id"/>
+        <result property="currency" column="currency"/>
+        <result property="bookedTotal" column="booked_total"/>
+        <result property="inflightTotal" column="inflight_total"/>
+        <result property="refundTotal" column="refund_total"/>
+        <result property="netClv" column="net_clv"/>
+        <result property="acquisitionCost" column="acquisition_cost"/>
+        <result property="pltv12m" column="pltv_12m"/>
+        <result property="pltv36m" column="pltv_36m"/>
+        <result property="tier" column="tier"/>
+        <result property="churnRiskScore" column="churn_risk_score"/>
+        <result property="visitCount12m" column="visit_count_12m"/>
+        <result property="avgVisitAmount" column="avg_visit_amount"/>
+        <result property="byTreatment" column="by_treatment"/>
+        <result property="firstVisitAt" column="first_visit_at"/>
+        <result property="lastVisitAt" column="last_visit_at"/>
+        <result property="nextRecallDueAt" column="next_recall_due_at"/>
+        <result property="originalSource" column="original_source"/>
+        <result property="calculatedAt" column="calculated_at"/>
+        <result property="delFlag" column="del_flag"/>
+    </resultMap>
+
+    <sql id="selectVo">
+        select contact_id, account_id, currency, booked_total, inflight_total, refund_total, net_clv,
+               acquisition_cost, pltv_12m, pltv_36m, tier, churn_risk_score,
+               visit_count_12m, avg_visit_amount,
+               jsonb_build_object(
+                   'implant', COALESCE(implant_total, 0),
+                   'ortho', COALESCE(ortho_total, 0),
+                   'restorative', COALESCE(restorative_total, 0),
+                   'preventive', COALESCE(preventive_total, 0),
+                   'pediatric', COALESCE(pediatric_total, 0)
+               )::text as by_treatment,
+               first_visit_at, last_visit_at, next_recall_due_at,
+               (select c.original_source from crm_contact c where c.contact_id = crm_patient_value.contact_id) as original_source,
+               calculated_at, del_flag
+        from crm_patient_value
+    </sql>
+
+    <select id="selectByContactId" resultMap="CrmPatientValueResult">
+        <include refid="selectVo"/>
+        where contact_id = #{contactId} and del_flag = 0
+    </select>
+
+    <select id="selectByContactIds" resultMap="CrmPatientValueResult">
+        <include refid="selectVo"/>
+        where del_flag = 0
+          and contact_id in
+        <foreach collection="contactIds" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+
+    <select id="selectCrmPatientValueList" parameterType="com.ruoyi.crm.domain.CrmPatientValue" resultMap="CrmPatientValueResult">
+        <include refid="selectVo"/>
+        where del_flag = 0
+        <if test="tier != null and tier != ''"> and tier = #{tier}</if>
+        <if test="accountId != null and accountId != ''"> and account_id = #{accountId}</if>
+        <if test="originalSource != null and originalSource != ''">
+            and exists (select 1 from crm_contact c where c.contact_id = crm_patient_value.contact_id and c.original_source = #{originalSource})
+        </if>
+        <if test="minNetClv != null"> and net_clv &gt;= #{minNetClv}</if>
+        <if test="maxNetClv != null"> and net_clv &lt;= #{maxNetClv}</if>
+        <if test="daysSinceLastVisitGte != null">
+            and last_visit_at is not null
+            and EXTRACT(day FROM (CURRENT_TIMESTAMP - last_visit_at)) &gt;= #{daysSinceLastVisitGte}
+        </if>
+        <if test="treatmentCategory != null and treatmentCategory != ''">
+            <choose>
+                <when test="treatmentCategory == 'implant'"> and COALESCE(implant_total, 0) &gt; 0</when>
+                <when test="treatmentCategory == 'ortho'"> and COALESCE(ortho_total, 0) &gt; 0</when>
+                <when test="treatmentCategory == 'restorative'"> and COALESCE(restorative_total, 0) &gt; 0</when>
+                <when test="treatmentCategory == 'preventive'"> and COALESCE(preventive_total, 0) &gt; 0</when>
+                <when test="treatmentCategory == 'pediatric'"> and COALESCE(pediatric_total, 0) &gt; 0</when>
+            </choose>
+        </if>
+        <if test="owner != null and owner != ''">
+            and exists (select 1 from crm_contact c where c.contact_id = crm_patient_value.contact_id and c.owner = #{owner})
+        </if>
+        <if test="orgId != null and orgId != ''">
+            and exists (select 1 from crm_contact c where c.contact_id = crm_patient_value.contact_id and c.org_id = #{orgId})
+        </if>
+        <choose>
+            <when test="sortBy == 'pltv12m'"> order by pltv_12m</when>
+            <when test="sortBy == 'lastVisit'"> order by last_visit_at</when>
+            <otherwise> order by net_clv</otherwise>
+        </choose>
+        <choose>
+            <when test="sortOrder == 'asc'"> asc</when>
+            <otherwise> desc</otherwise>
+        </choose>
+    </select>
+
+    <select id="selectDueRecallPatients" resultMap="CrmPatientValueResult">
+        <include refid="selectVo"/>
+        where del_flag = 0 and next_recall_due_at is not null and next_recall_due_at &lt;= CURRENT_TIMESTAMP
+        order by next_recall_due_at
+        limit #{limit}
+    </select>
+
+    <select id="selectAllContactIds" resultType="String">
+        select contact_id from crm_contact where contact_id is not null
+    </select>
+
+    <select id="selectContactIdsByAccountId" resultType="String">
+        select contact_id from crm_contact where account_id = #{accountId}
+    </select>
+
+    <select id="selectContactIdsByAccountIds" resultType="String">
+        select contact_id from crm_contact where account_id in
+        <foreach item="id" collection="accountIds" open="(" separator="," close=")">#{id}</foreach>
+    </select>
+
+    <insert id="upsertCrmPatientValue" parameterType="com.ruoyi.crm.domain.CrmPatientValue">
+        INSERT INTO crm_patient_value (
+            contact_id, account_id, tenant_id, currency, booked_total, inflight_total, refund_total, net_clv,
+            acquisition_cost, pltv_12m, pltv_36m, tier, churn_risk_score,
+            visit_count_12m, avg_visit_amount,
+            implant_total, ortho_total, restorative_total, preventive_total, pediatric_total,
+            first_visit_at, last_visit_at, next_recall_due_at,
+            calculated_at, del_flag
+        ) VALUES (
+            #{contactId}, #{accountId}, #{tenantId}, #{currency}, #{bookedTotal}, #{inflightTotal}, #{refundTotal}, #{netClv},
+            #{acquisitionCost}, #{pltv12m}, #{pltv36m}, #{tier}, #{churnRiskScore},
+            #{visitCount12m}, #{avgVisitAmount},
+            COALESCE((#{byTreatment}::jsonb ->> 'implant')::numeric, 0),
+            COALESCE((#{byTreatment}::jsonb ->> 'ortho')::numeric, 0),
+            COALESCE((#{byTreatment}::jsonb ->> 'restorative')::numeric, 0),
+            COALESCE((#{byTreatment}::jsonb ->> 'preventive')::numeric, 0),
+            COALESCE((#{byTreatment}::jsonb ->> 'pediatric')::numeric, 0),
+            #{firstVisitAt}, #{lastVisitAt}, #{nextRecallDueAt},
+            #{calculatedAt}, 0
+        )
+        ON CONFLICT (contact_id) DO UPDATE SET
+            account_id = EXCLUDED.account_id,
+            tenant_id = EXCLUDED.tenant_id,
+            currency = EXCLUDED.currency,
+            booked_total = EXCLUDED.booked_total,
+            inflight_total = EXCLUDED.inflight_total,
+            refund_total = EXCLUDED.refund_total,
+            net_clv = EXCLUDED.net_clv,
+            acquisition_cost = EXCLUDED.acquisition_cost,
+            pltv_12m = EXCLUDED.pltv_12m,
+            pltv_36m = EXCLUDED.pltv_36m,
+            tier = EXCLUDED.tier,
+            churn_risk_score = EXCLUDED.churn_risk_score,
+            visit_count_12m = EXCLUDED.visit_count_12m,
+            avg_visit_amount = EXCLUDED.avg_visit_amount,
+            implant_total = EXCLUDED.implant_total,
+            ortho_total = EXCLUDED.ortho_total,
+            restorative_total = EXCLUDED.restorative_total,
+            preventive_total = EXCLUDED.preventive_total,
+            pediatric_total = EXCLUDED.pediatric_total,
+            first_visit_at = EXCLUDED.first_visit_at,
+            last_visit_at = EXCLUDED.last_visit_at,
+            next_recall_due_at = EXCLUDED.next_recall_due_at,
+            calculated_at = EXCLUDED.calculated_at
+    </insert>
+</mapper>

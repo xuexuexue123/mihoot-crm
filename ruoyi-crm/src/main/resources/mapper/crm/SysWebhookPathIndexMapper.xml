@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.SysWebhookPathIndexMapper">
+
+    <resultMap type="com.ruoyi.crm.domain.SysWebhookPathIndex" id="SysWebhookPathIndexResult">
+        <result property="path" column="path"/>
+        <result property="tenantId" column="tenant_id"/>
+        <result property="workflowId" column="workflow_id"/>
+        <result property="nodeId" column="node_id"/>
+        <result property="workflowName" column="workflow_name"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+    </resultMap>
+
+    <select id="selectByPath" resultMap="SysWebhookPathIndexResult">
+        select path, tenant_id, workflow_id, node_id, workflow_name, created_at, updated_at
+        from sys_webhook_path_index
+        where path = #{path}
+    </select>
+
+    <select id="selectConflictsInTenant" resultMap="SysWebhookPathIndexResult">
+        select path, tenant_id, workflow_id, node_id, workflow_name, created_at, updated_at
+        from sys_webhook_path_index
+        where tenant_id = #{tenantId}
+          and workflow_id != #{workflowId}
+          and path in
+        <foreach collection="paths" item="p" open="(" separator="," close=")">
+            #{p}
+        </foreach>
+    </select>
+
+    <insert id="upsert" parameterType="com.ruoyi.crm.domain.SysWebhookPathIndex">
+        insert into sys_webhook_path_index (path, tenant_id, workflow_id, node_id, workflow_name, created_at, updated_at)
+        values (#{path}, #{tenantId}, #{workflowId}, #{nodeId}, #{workflowName}, now(), now())
+        on conflict (path) do update set
+            tenant_id = excluded.tenant_id,
+            workflow_id = excluded.workflow_id,
+            node_id = excluded.node_id,
+            workflow_name = excluded.workflow_name,
+            updated_at = now()
+    </insert>
+
+    <delete id="deleteByWorkflowId">
+        delete from sys_webhook_path_index where workflow_id = #{workflowId}
+    </delete>
+</mapper>

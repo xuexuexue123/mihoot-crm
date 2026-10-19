@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmMobilePushDeviceMapper">
+
+    <resultMap id="CrmMobilePushDeviceResult" type="com.ruoyi.crm.domain.CrmMobilePushDevice">
+        <id property="id" column="id"/>
+        <result property="tenantId" column="tenant_id"/>
+        <result property="userId" column="user_id"/>
+        <result property="platform" column="platform"/>
+        <result property="pushToken" column="push_token"/>
+        <result property="appVersion" column="app_version"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <select id="selectByUser" resultMap="CrmMobilePushDeviceResult">
+        SELECT id, tenant_id, user_id, platform, push_token, app_version, create_time, update_time
+        FROM crm_mobile_push_device
+        WHERE tenant_id = #{tenantId} AND user_id = #{userId}
+        ORDER BY update_time DESC NULLS LAST, id DESC
+    </select>
+
+    <select id="selectByToken" resultMap="CrmMobilePushDeviceResult">
+        SELECT id, tenant_id, user_id, platform, push_token, app_version, create_time, update_time
+        FROM crm_mobile_push_device
+        WHERE tenant_id = #{tenantId} AND push_token = #{pushToken}
+        LIMIT 1
+    </select>
+
+    <insert id="upsert" parameterType="com.ruoyi.crm.domain.CrmMobilePushDevice">
+        INSERT INTO crm_mobile_push_device (
+            tenant_id, user_id, platform, push_token, app_version, create_time, update_time
+        ) VALUES (
+            #{tenantId}, #{userId}, #{platform}, #{pushToken}, #{appVersion}, #{createTime}, #{updateTime}
+        )
+        ON CONFLICT (tenant_id, push_token) DO UPDATE SET
+            user_id = EXCLUDED.user_id,
+            platform = EXCLUDED.platform,
+            app_version = EXCLUDED.app_version,
+            update_time = EXCLUDED.update_time
+    </insert>
+
+    <delete id="deleteByToken">
+        DELETE FROM crm_mobile_push_device
+        WHERE tenant_id = #{tenantId} AND user_id = #{userId} AND push_token = #{pushToken}
+    </delete>
+
+    <delete id="deleteAllByUser">
+        DELETE FROM crm_mobile_push_device
+        WHERE tenant_id = #{tenantId} AND user_id = #{userId}
+    </delete>
+
+    <delete id="deleteByTokenOnly">
+        DELETE FROM crm_mobile_push_device
+        WHERE tenant_id = #{tenantId} AND push_token = #{pushToken}
+    </delete>
+
+</mapper>

@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.ems.mapper.SysReCorresMapper">
+    
+    <resultMap type="SysReCorres" id="SysReCorresResult">
+        <result property="corresId"    column="corres_id"    />
+        <result property="category"    column="category"    />
+        <result property="belongsCase"    column="belongs_case"    />
+        <result property="folderId"    column="folder_id"    />
+        <result property="caseId"    column="case_id"    />
+        <result property="taskId"    column="task_id"    />
+        <result property="fileTitle"    column="file_title"    />
+        <result property="fileName"    column="file_name"    />
+        <result property="fileType"    column="file_type"    />
+        <result property="fileSize"    column="file_size"    />
+        <result property="orderNum"    column="order_num"    />
+        <result property="status"    column="status"    />
+        <result property="delFlag"    column="del_flag"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="userId"    column="user_id"    />
+        <result property="deptId"    column="dept_id"    />
+        <result property="summary"    column="summary"    />
+        <result property="catalog"    column="catalog"    />
+    </resultMap>
+
+    <sql id="selectSysReCorresVo">
+        select c.corres_id, c.category, c.belongs_case, c.folder_id, c.case_id, c.task_id, c.file_title, c.file_name, c.file_type, c.file_size, c.order_num, c.status, c.del_flag, c.create_by, c.create_time, c.update_by, c.update_time, c.user_id, c.dept_id, c.summary, c.catalog
+        from sys_re_corres c
+         left join sys_user u on u.user_id = c.user_id
+         left join sys_dept d on u.dept_id = d.dept_id
+    </sql>
+
+    <select id="selectSysReCorresList" parameterType="SysReCorres" resultMap="SysReCorresResult">
+        <include refid="selectSysReCorresVo"/>
+        where 1=1
+        <if test="category != null  and category != ''"> and category = #{category}</if>
+        <if test="belongsCase != null  and belongsCase != ''"> and belongs_case = #{belongsCase}</if>
+        <if test="folderId != null  and folderId != ''"> and folder_id = #{folderId}</if>
+        <if test="caseId != null  and caseId != ''"> and case_id = #{caseId}</if>
+        <if test="taskId != null  and taskId != ''"> and task_id = #{taskId}</if>
+        <if test="fileTitle != null  and fileTitle != ''"> and file_title = #{fileTitle}</if>
+        <if test="fileName != null  and fileName != ''"> and file_name like concat('%', #{fileName}, '%')</if>
+        <if test="fileType != null  and fileType != ''"> and file_type = #{fileType}</if>
+        <if test="fileSize != null "> and file_size = #{fileSize}</if>
+        <if test="orderNum != null "> and order_num = #{orderNum}</if>
+        <if test="status != null  and status != ''"> and status = #{status}</if>
+        <if test="userId != null "> and user_id = #{userId}</if>
+        <if test="deptId != null "> and dept_id = #{deptId}</if>
+
+        <!-- 数据范围过滤 -->
+        ${params.dataScope}
+        order by create_time desc
+    </select>
+
+
+    <select id="selectSysReCorresListByFolderId" parameterType="SysReCorres" resultMap="SysReCorresResult">
+        <include refid="selectSysReCorresVo"/>
+        where 1=1
+        <if test="category != null  and category != ''"> and category = #{category}</if>
+        <if test="folderId != null  and folderId != ''"> and (case_id in (select contact_id FROM crm_contact WHERE org_id=#{folderId})</if>
+        <if test="caseId != null  and caseId != ''"> or case_id = #{caseId})</if>
+        <if test="caseId == null  or caseId == ''"> )</if>
+        <!-- 数据范围过滤 -->
+        ${params.dataScope}
+        order by create_time desc
+    </select>
+    
+    <select id="selectSysReCorresByCorresId" parameterType="String" resultMap="SysReCorresResult">
+        <include refid="selectSysReCorresVo"/>
+        where corres_id = #{corresId}
+    </select>
+
+
+    <select id="selectSysReCorresByFileTitle" parameterType="String" resultMap="SysReCorresResult">
+        <include refid="selectSysReCorresVo"/>
+        where file_title = #{fileTitle}
+    </select>
+        
+    <insert id="insertSysReCorres" parameterType="SysReCorres">
+        insert into sys_re_corres
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="corresId != null">corres_id,</if>
+            <if test="category != null">category,</if>
+            <if test="belongsCase != null">belongs_case,</if>
+            <if test="folderId != null">folder_id,</if>
+            <if test="caseId != null">case_id,</if>
+            <if test="taskId != null">task_id,</if>
+            <if test="fileTitle != null">file_title,</if>
+            <if test="fileName != null">file_name,</if>
+            <if test="fileType != null">file_type,</if>
+            <if test="fileSize != null">file_size,</if>
+            <if test="orderNum != null">order_num,</if>
+            <if test="status != null">status,</if>
+            <if test="delFlag != null">del_flag,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="userId != null">user_id,</if>
+            <if test="deptId != null">dept_id,</if>
+            <if test="summary != null">summary,</if>
+            <if test="catalog != null">catalog,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="corresId != null">#{corresId},</if>
+            <if test="category != null">#{category},</if>
+            <if test="belongsCase != null">#{belongsCase},</if>
+            <if test="folderId != null">#{folderId},</if>
+            <if test="caseId != null">#{caseId},</if>
+            <if test="taskId != null">#{taskId},</if>
+            <if test="fileTitle != null">#{fileTitle},</if>
+            <if test="fileName != null">#{fileName},</if>
+            <if test="fileType != null">#{fileType},</if>
+            <if test="fileSize != null">#{fileSize},</if>
+            <if test="orderNum != null">#{orderNum},</if>
+            <if test="status != null">#{status},</if>
+            <if test="delFlag != null">#{delFlag},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="userId != null">#{userId},</if>
+            <if test="deptId != null">#{deptId},</if>
+            <if test="summary != null">#{summary},</if>
+            <if test="catalog != null">#{catalog},</if>
+         </trim>
+    </insert>
+
+    <update id="updateSysReCorres" parameterType="SysReCorres">
+        update sys_re_corres
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="category != null">category = #{category},</if>
+            <if test="belongsCase != null">belongs_case = #{belongsCase},</if>
+            <if test="folderId != null">folder_id = #{folderId},</if>
+            <if test="caseId != null">case_id = #{caseId},</if>
+            <if test="taskId != null">task_id = #{taskId},</if>
+            <if test="fileTitle != null">file_title = #{fileTitle},</if>
+            <if test="fileName != null">file_name = #{fileName},</if>
+            <if test="fileType != null">file_type = #{fileType},</if>
+            <if test="fileSize != null">file_size = #{fileSize},</if>
+            <if test="orderNum != null">order_num = #{orderNum},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="delFlag != null">del_flag = #{delFlag},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="userId != null">user_id = #{userId},</if>
+            <if test="deptId != null">dept_id = #{deptId},</if>
+            <if test="summary != null">summary = #{summary},</if>
+            <if test="catalog != null">catalog = #{catalog},</if>
+        </trim>
+        where corres_id = #{corresId}
+    </update>
+
+    <delete id="deleteSysReCorresByCorresId" parameterType="String">
+        delete from sys_re_corres where corres_id = #{corresId}
+    </delete>
+
+    <delete id="deleteSysReCorresByCorresIds" parameterType="String">
+        delete from sys_re_corres where corres_id in 
+        <foreach item="corresId" collection="array" open="(" separator="," close=")">
+            #{corresId}
+        </foreach>
+    </delete>
+</mapper>

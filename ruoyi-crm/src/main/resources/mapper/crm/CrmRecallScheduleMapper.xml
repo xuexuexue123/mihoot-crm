@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmRecallScheduleMapper">
+
+    <resultMap type="com.ruoyi.crm.domain.CrmRecallSchedule" id="CrmRecallScheduleResult">
+        <result property="scheduleId" column="schedule_id"/>
+        <result property="tenantId" column="tenant_id"/>
+        <result property="contactId" column="contact_id"/>
+        <result property="policyId" column="policy_id"/>
+        <result property="anchorType" column="anchor_type"/>
+        <result property="anchorId" column="anchor_id"/>
+        <result property="treatmentItemCode" column="treatment_item_code"/>
+        <result property="nextDueAt" column="next_due_at"/>
+        <result property="status" column="status"/>
+        <result property="lastFiredAt" column="last_fired_at"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <sql id="selectColumns">
+        select schedule_id, tenant_id, contact_id, policy_id, anchor_type, anchor_id,
+               treatment_item_code, next_due_at, status, last_fired_at, create_time, update_time
+        from crm_recall_schedule
+    </sql>
+
+    <select id="selectByContactAndPolicy" resultMap="CrmRecallScheduleResult">
+        <include refid="selectColumns"/>
+        where tenant_id = #{tenantId} and contact_id = #{contactId} and policy_id = #{policyId}
+        limit 1
+    </select>
+
+    <select id="selectList" resultMap="CrmRecallScheduleResult">
+        <include refid="selectColumns"/>
+        where tenant_id = #{tenantId}
+        <if test="contactId != null and contactId != ''">
+            and contact_id = #{contactId}
+        </if>
+        <if test="status != null and status != ''">
+            and status = #{status}
+        </if>
+        order by next_due_at asc
+    </select>
+
+    <select id="selectDueScheduled" resultMap="CrmRecallScheduleResult">
+        <include refid="selectColumns"/>
+        where tenant_id = #{tenantId}
+          and status = 'scheduled'
+          and next_due_at &lt;= CURRENT_TIMESTAMP
+        order by next_due_at asc
+        limit #{limit}
+        for update skip locked
+    </select>
+
+    <insert id="insertCrmRecallSchedule" parameterType="com.ruoyi.crm.domain.CrmRecallSchedule">
+        insert into crm_recall_schedule (
+            schedule_id, tenant_id, contact_id, policy_id, anchor_type, anchor_id,
+            treatment_item_code, next_due_at, status, create_time, update_time
+        ) values (
+            #{scheduleId}, #{tenantId}, #{contactId}, #{policyId}, #{anchorType}, #{anchorId},
+            #{treatmentItemCode}, #{nextDueAt}, #{status}, #{createTime}, #{updateTime}
+        )
+    </insert>
+
+    <insert id="upsertCrmRecallSchedule" parameterType="com.ruoyi.crm.domain.CrmRecallSchedule">
+        insert into crm_recall_schedule (
+            schedule_id, tenant_id, contact_id, policy_id, anchor_type, anchor_id,
+            treatment_item_code, next_due_at, status, create_time, update_time
+        ) values (
+            #{scheduleId}, #{tenantId}, #{contactId}, #{policyId}, #{anchorType}, #{anchorId},
+            #{treatmentItemCode}, #{nextDueAt}, #{status}, #{createTime}, #{updateTime}
+        )
+        on conflict (tenant_id, contact_id, policy_id) do update set
+            schedule_id = crm_recall_schedule.schedule_id,
+            anchor_type = EXCLUDED.anchor_type,
+            anchor_id = EXCLUDED.anchor_id,
+            treatment_item_code = EXCLUDED.treatment_item_code,
+            next_due_at = EXCLUDED.next_due_at,
+            status = 'scheduled',
+            last_fired_at = null,
+            update_time = EXCLUDED.update_time
+    </insert>
+
+    <update id="markFired">
+        update crm_recall_schedule
+        set status = 'fired',
+            last_fired_at = now(),
+            update_time = now()
+        where schedule_id = #{scheduleId}
+          and status = 'scheduled'
+    </update>
+</mapper>

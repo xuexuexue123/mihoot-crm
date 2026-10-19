@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmTenantEnterpriseMapper">
+
+    <resultMap type="CrmTenantEnterprise" id="CrmTenantEnterpriseResult">
+        <result property="id" column="id"/>
+        <result property="parkId" column="park_id"/>
+        <result property="parkNameCn" column="park_name_cn"/>
+        <result property="name" column="name"/>
+        <result property="nameCn" column="name_cn"/>
+        <result property="taxCode" column="tax_code"/>
+        <result property="legalRepresentative" column="legal_representative"/>
+        <result property="establishedYear" column="established_year"/>
+        <result property="registeredAddress" column="registered_address"/>
+        <result property="industry" column="industry"/>
+        <result property="enterpriseType" column="enterprise_type"/>
+        <result property="countryOfOrigin" column="country_of_origin"/>
+        <result property="investmentUsdMillion" column="investment_usd_million"/>
+        <result property="employeeCount" column="employee_count"/>
+        <result property="factoryAreaSqm" column="factory_area_sqm"/>
+        <result property="status" column="status"/>
+        <result property="mainProducts" column="main_products"/>
+        <result property="contactPhone" column="contact_phone"/>
+        <result property="contactEmail" column="contact_email"/>
+        <result property="website" column="website"/>
+        <result property="notes" column="notes"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="delFlag" column="del_flag"/>
+    </resultMap>
+
+    <sql id="selectCrmTenantEnterpriseVo">
+        select id, park_id, park_name_cn, name, name_cn, tax_code, legal_representative,
+               established_year, registered_address, industry, enterprise_type, country_of_origin,
+               investment_usd_million, employee_count, factory_area_sqm, status,
+               main_products, contact_phone, contact_email, website, notes, created_at,
+               create_by, create_time, update_by, update_time, del_flag
+        from crm_tenant_enterprise
+    </sql>
+
+    <select id="selectCrmTenantEnterpriseById" parameterType="String" resultMap="CrmTenantEnterpriseResult">
+        <include refid="selectCrmTenantEnterpriseVo"/>
+        where id = #{id}
+          and del_flag = '0'
+    </select>
+
+    <select id="selectCrmTenantEnterpriseList" parameterType="CrmTenantEnterprise" resultMap="CrmTenantEnterpriseResult">
+        <include refid="selectCrmTenantEnterpriseVo"/>
+        <where>
+            del_flag = '0'
+            <if test="searchQuery != null and searchQuery != ''">
+                and (
+                    name ILIKE CONCAT('%', #{searchQuery}, '%')
+                    or name_cn ILIKE CONCAT('%', #{searchQuery}, '%')
+                    or park_name_cn ILIKE CONCAT('%', #{searchQuery}, '%')
+                    or industry ILIKE CONCAT('%', #{searchQuery}, '%')
+                    or tax_code ILIKE CONCAT('%', #{searchQuery}, '%')
+                    or legal_representative ILIKE CONCAT('%', #{searchQuery}, '%')
+                )
+            </if>
+            <if test="parkId != null and parkId != '' and parkId != 'ALL'">
+                and park_id = #{parkId}
+            </if>
+            <if test="industry != null and industry != '' and industry != 'ALL'">
+                and industry = #{industry}
+            </if>
+            <if test="enterpriseTypeIn != null and enterpriseTypeIn.size() > 0">
+                and enterprise_type in
+                <foreach collection="enterpriseTypeIn" item="et" open="(" separator="," close=")">
+                    #{et}
+                </foreach>
+            </if>
+            <if test="(enterpriseTypeIn == null or enterpriseTypeIn.size() == 0) and enterpriseType != null and enterpriseType != '' and enterpriseType != 'ALL'">
+                and enterprise_type = #{enterpriseType}
+            </if>
+            <if test="countryOfOrigin != null and countryOfOrigin != '' and countryOfOrigin != 'ALL'">
+                and country_of_origin = #{countryOfOrigin}
+            </if>
+            <if test="status != null and status != '' and status != 'ALL'">
+                and status = #{status}
+            </if>
+        </where>
+        order by create_time desc nulls last, name_cn asc
+    </select>
+
+    <insert id="insertCrmTenantEnterprise" parameterType="CrmTenantEnterprise">
+        insert into crm_tenant_enterprise (
+            id, park_id, park_name_cn, name, name_cn, tax_code, legal_representative,
+            established_year, registered_address, industry, enterprise_type, country_of_origin,
+            investment_usd_million, employee_count, factory_area_sqm, status,
+            main_products, contact_phone, contact_email, website, notes, created_at,
+            create_by, create_time, update_by, update_time, del_flag
+        ) values (
+            #{id},
+            #{parkId},
+            COALESCE(#{parkNameCn}, ''),
+            #{name},
+            #{nameCn},
+            #{taxCode},
+            #{legalRepresentative},
+            COALESCE(#{establishedYear}, 0),
+            COALESCE(#{registeredAddress}, ''),
+            COALESCE(#{industry}, ''),
+            COALESCE(#{enterpriseType}, ''),
+            #{countryOfOrigin},
+            #{investmentUsdMillion},
+            #{employeeCount},
+            #{factoryAreaSqm},
+            #{status},
+            #{mainProducts},
+            #{contactPhone},
+            #{contactEmail},
+            #{website},
+            #{notes},
+            #{createdAt},
+            #{createBy},
+            #{createTime},
+            #{updateBy},
+            #{updateTime},
+            COALESCE(#{delFlag}, '0')
+        )
+    </insert>
+
+    <update id="updateCrmTenantEnterprise" parameterType="CrmTenantEnterprise">
+        update crm_tenant_enterprise
+        set park_id = #{parkId},
+            park_name_cn = COALESCE(#{parkNameCn}, ''),
+            name = #{name},
+            name_cn = #{nameCn},
+            tax_code = #{taxCode},
+            legal_representative = #{legalRepresentative},
+            established_year = COALESCE(#{establishedYear}, 0),
+            registered_address = COALESCE(#{registeredAddress}, ''),
+            industry = COALESCE(#{industry}, ''),
+            enterprise_type = COALESCE(#{enterpriseType}, ''),
+            country_of_origin = #{countryOfOrigin},
+            investment_usd_million = #{investmentUsdMillion},
+            employee_count = #{employeeCount},
+            factory_area_sqm = #{factoryAreaSqm},
+            status = #{status},
+            main_products = #{mainProducts},
+            contact_phone = #{contactPhone},
+            contact_email = #{contactEmail},
+            website = #{website},
+            notes = #{notes},
+            created_at = #{createdAt},
+            update_by = #{updateBy},
+            update_time = #{updateTime}
+        where id = #{id}
+          and del_flag = '0'
+    </update>
+
+    <update id="logicalDeleteById">
+        update crm_tenant_enterprise
+        set del_flag = '1',
+            update_by = #{updateBy},
+            update_time = CURRENT_TIMESTAMP
+        where id = #{id}
+          and del_flag = '0'
+    </update>
+</mapper>

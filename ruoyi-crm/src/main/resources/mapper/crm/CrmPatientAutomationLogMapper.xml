@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmPatientAutomationLogMapper">
+
+    <select id="existsByContactKeyDue" resultType="int">
+        select count(1) from crm_patient_automation_log
+        where contact_id = #{contactId} and automation_key = #{automationKey}
+          and due_date = #{dueDate}::date and del_flag = '0'
+    </select>
+
+    <insert id="insertIfNotExists" parameterType="com.ruoyi.crm.domain.CrmPatientAutomationLog">
+        INSERT INTO crm_patient_automation_log (log_id, contact_id, automation_key, due_date, triggered_at, workflow_id, del_flag)
+        VALUES (#{logId}, #{contactId}, #{automationKey}, #{dueDate}, #{triggeredAt}, #{workflowId}, '0')
+        ON CONFLICT (contact_id, automation_key, due_date) DO NOTHING
+    </insert>
+</mapper>

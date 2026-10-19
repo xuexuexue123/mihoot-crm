@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.wechatmp.mapper.CrmWechatMpCommentAutoReplyRuleMapper">
+
+    <resultMap id="RuleResult" type="com.ruoyi.crm.wechatmp.domain.CrmWechatMpCommentAutoReplyRule">
+        <id property="id" column="id"/>
+        <result property="appId" column="app_id"/>
+        <result property="keyword" column="keyword"/>
+        <result property="matchMode" column="match_mode"/>
+        <result property="replyContent" column="reply_content"/>
+        <result property="enabled" column="enabled"/>
+        <result property="priority" column="priority"/>
+        <result property="requireReview" column="require_review"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+    </resultMap>
+
+    <select id="selectList" resultMap="RuleResult">
+        SELECT * FROM crm_wechat_mp_comment_auto_reply_rule
+        <where>
+            <if test="appId != null and appId != ''">
+                AND (app_id = #{appId} OR app_id IS NULL OR app_id = '')
+            </if>
+            <if test="enabled != null">
+                AND enabled = #{enabled}
+            </if>
+            <if test="keyword != null and keyword != ''">
+                AND keyword ILIKE ('%' || #{keyword} || '%')
+            </if>
+        </where>
+        ORDER BY priority ASC, id ASC
+    </select>
+
+    <select id="selectEnabledOrdered" resultMap="RuleResult">
+        SELECT * FROM crm_wechat_mp_comment_auto_reply_rule
+        WHERE enabled = true
+        ORDER BY priority ASC, id ASC
+    </select>
+
+    <select id="selectById" resultMap="RuleResult">
+        SELECT * FROM crm_wechat_mp_comment_auto_reply_rule WHERE id = #{id} LIMIT 1
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO crm_wechat_mp_comment_auto_reply_rule (
+            app_id, keyword, match_mode, reply_content, enabled, priority, require_review
+        ) VALUES (
+            #{appId}, #{keyword}, #{matchMode}, #{replyContent},
+            COALESCE(#{enabled}, true), COALESCE(#{priority}, 100), COALESCE(#{requireReview}, false)
+        )
+    </insert>
+
+    <update id="update">
+        UPDATE crm_wechat_mp_comment_auto_reply_rule SET
+            app_id = #{appId},
+            keyword = #{keyword},
+            match_mode = #{matchMode},
+            reply_content = #{replyContent},
+            enabled = #{enabled},
+            priority = #{priority},
+            require_review = #{requireReview},
+            updated_at = now()
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM crm_wechat_mp_comment_auto_reply_rule WHERE id = #{id}
+    </delete>
+
+</mapper>

@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.ems.mapper.SysReWorktaskMapper">
+
+    <resultMap type="SysReWorktask" id="SysReWorktaskResult">
+        <result property="taskId"    column="task_id"    />
+        <result property="projectId"    column="project_id"    />
+        <result property="boardId"    column="board_id"    />
+        <result property="taskLabel"    column="task_label"    />
+        <result property="priority"    column="priority"    />
+        <result property="assignee"    column="assignee"    />
+        <result property="dueDate"    column="due_date"    />
+        <result property="category"    column="category"    />
+        <result property="status"    column="status"    />
+        <result property="description"    column="description"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="percentage"    column="percentage"    />
+        <result property="planStartDate"    column="plan_start_date"    />
+        <result property="planEndDate"    column="plan_end_date"    />
+        <result property="realStartDate"    column="real_start_date"    />
+        <result property="realEndDate"    column="real_end_date"    />
+        <result property="planDuration"    column="plan_duration"    />
+        <result property="humanResource"    column="human_resource"    />
+        <result property="costEstimation"    column="cost_estimation"    />
+        <result property="realDuration"    column="real_duration"    />
+        <result property="workOrder"    column="work_order"    />
+        <result property="projectName"    column="project_name"    />
+    </resultMap>
+
+    <sql id="selectSysReWorktaskVo">
+        select task_id, work_order, project_id, board_id, task_label, priority, assignee, due_date, category, status, description, create_by, create_time, update_by, update_time, percentage, plan_start_date, plan_end_date, real_start_date, real_end_date, plan_duration, human_resource, cost_estimation, real_duration, work_order, project_name from sys_re_worktask
+    </sql>
+
+    <sql id="selectSysReWorktaskVoWithProjectName">
+        select a.task_id, a.work_order, a.project_id, a.board_id, a.task_label, a.priority, a.assignee, a.due_date, a.category, b.py_name as status, a.description, a.create_by, a.create_time, a.update_by, a.update_time, a.percentage, a.plan_start_date, a.plan_end_date, a.real_start_date, a.real_end_date, a.plan_duration, a.human_resource, a.cost_estimation, a.real_duration, a.work_order, a.project_name
+        from sys_re_worktask a
+                 left join sys_re_project b on a.project_id = b.py_id
+    </sql>
+
+    <select id="selectSysReWorktaskList" parameterType="SysReWorktask" resultMap="SysReWorktaskResult">
+        <include refid="selectSysReWorktaskVo"/>
+        <where>
+            <if test="projectId != null  and projectId != ''"> and project_id = #{projectId}</if>
+            <if test="boardId != null  and boardId != ''"> and board_id = #{boardId}</if>
+            <if test="taskLabel != null  and taskLabel != ''"> and task_label = #{taskLabel}</if>
+            <if test="priority != null  and priority != ''"> and priority = #{priority}</if>
+            <if test="assignee != null  and assignee != ''"> and assignee = #{assignee}</if>
+            <if test="dueDate != null "> and due_date = #{dueDate}</if>
+            <if test="category != null  and category != ''"> and category = #{category}</if>
+            <if test="status != null  and status != ''"> and status = #{status}</if>
+            <if test="description != null  and description != ''"> and description = #{description}</if>
+            <if test="percentage != null "> and percentage = #{percentage}</if>
+            <if test="planStartDate != null "> and plan_start_date = #{planStartDate}</if>
+            <if test="planEndDate != null "> and plan_end_date = #{planEndDate}</if>
+            <if test="realStartDate != null "> and real_start_date = #{realStartDate}</if>
+            <if test="realEndDate != null "> and real_end_date = #{realEndDate}</if>
+            <if test="planDuration != null "> and plan_duration = #{planDuration}</if>
+            <if test="humanResource != null "> and human_resource = #{humanResource}</if>
+            <if test="costEstimation != null "> and cost_estimation = #{costEstimation}</if>
+            <if test="realDuration != null "> and real_duration = #{realDuration}</if>
+            <if test="workOrder != null "> and work_order = #{workOrder}</if>
+            <if test="projectName != null  and projectName != ''"> and project_name like concat('%', #{projectName}, '%')</if>
+        </where>
+        order by work_order
+    </select>
+
+
+    <select id="selectSysReWorktaskListByAssigneeComp" parameterType="String" resultMap="SysReWorktaskResult">
+        <include refid="selectSysReWorktaskVoWithProjectName"/>
+        where a.assignee = #{assignee} and a.percentage=100
+        order by a.create_time
+    </select>
+
+    <select id="selectSysReWorktaskListByAssigneeWIP" parameterType="String" resultMap="SysReWorktaskResult">
+        <include refid="selectSysReWorktaskVoWithProjectName"/>
+        where a.assignee = #{assignee} and a.percentage!=100
+        order by a.create_time
+    </select>
+
+    <select id="selectSysReWorktaskListByAssignee" parameterType="String" resultMap="SysReWorktaskResult">
+        <include refid="selectSysReWorktaskVo"/>
+        where assignee = #{assignee}
+        order by create_time
+    </select>
+
+
+    <select id="selectSysReWorktaskByTaskId" parameterType="String" resultMap="SysReWorktaskResult">
+        <include refid="selectSysReWorktaskVo"/>
+        where task_id = #{taskId}
+    </select>
+
+    <insert id="insertSysReWorktask" parameterType="SysReWorktask">
+        insert into sys_re_worktask
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="taskId != null">task_id,</if>
+            <if test="projectId != null">project_id,</if>
+            <if test="boardId != null">board_id,</if>
+            <if test="taskLabel != null">task_label,</if>
+            <if test="priority != null">priority,</if>
+            <if test="assignee != null">assignee,</if>
+            <if test="dueDate != null">due_date,</if>
+            <if test="category != null">category,</if>
+            <if test="status != null">status,</if>
+            <if test="description != null">description,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="percentage != null">percentage,</if>
+            <if test="planStartDate != null">plan_start_date,</if>
+            <if test="planEndDate != null">plan_end_date,</if>
+            <if test="realStartDate != null">real_start_date,</if>
+            <if test="realEndDate != null">real_end_date,</if>
+            <if test="planDuration != null">plan_duration,</if>
+            <if test="humanResource != null">human_resource,</if>
+            <if test="costEstimation != null">cost_estimation,</if>
+            <if test="realDuration != null">real_duration,</if>
+            <if test="workOrder != null">work_order,</if>
+            <if test="projectName != null">project_name,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="taskId != null">#{taskId},</if>
+            <if test="projectId != null">#{projectId},</if>
+            <if test="boardId != null">#{boardId},</if>
+            <if test="taskLabel != null">#{taskLabel},</if>
+            <if test="priority != null">#{priority},</if>
+            <if test="assignee != null">#{assignee},</if>
+            <if test="dueDate != null">#{dueDate},</if>
+            <if test="category != null">#{category},</if>
+            <if test="status != null">#{status},</if>
+            <if test="description != null">#{description},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="percentage != null">#{percentage},</if>
+            <if test="planStartDate != null">#{planStartDate},</if>
+            <if test="planEndDate != null">#{planEndDate},</if>
+            <if test="realStartDate != null">#{realStartDate},</if>
+            <if test="realEndDate != null">#{realEndDate},</if>
+            <if test="planDuration != null">#{planDuration},</if>
+            <if test="humanResource != null">#{humanResource},</if>
+            <if test="costEstimation != null">#{costEstimation},</if>
+            <if test="realDuration != null">#{realDuration},</if>
+            <if test="workOrder != null">#{workOrder},</if>
+            <if test="projectName != null">#{projectName},</if>
+        </trim>
+    </insert>
+
+    <update id="updateSysReWorktask" parameterType="SysReWorktask">
+        update sys_re_worktask
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="projectId != null">project_id = #{projectId},</if>
+            <if test="boardId != null">board_id = #{boardId},</if>
+            <if test="taskLabel != null">task_label = #{taskLabel},</if>
+            <if test="priority != null">priority = #{priority},</if>
+            <if test="assignee != null">assignee = #{assignee},</if>
+            <if test="dueDate != null">due_date = #{dueDate},</if>
+            <if test="category != null">category = #{category},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="description != null">description = #{description},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="percentage != null">percentage = #{percentage},</if>
+            <if test="planStartDate != null">plan_start_date = #{planStartDate},</if>
+            <if test="planEndDate != null">plan_end_date = #{planEndDate},</if>
+            <if test="realStartDate != null">real_start_date = #{realStartDate},</if>
+            <if test="realEndDate != null">real_end_date = #{realEndDate},</if>
+            <if test="planDuration != null">plan_duration = #{planDuration},</if>
+            <if test="humanResource != null">human_resource = #{humanResource},</if>
+            <if test="costEstimation != null">cost_estimation = #{costEstimation},</if>
+            <if test="realDuration != null">real_duration = #{realDuration},</if>
+            <if test="workOrder != null">work_order = #{workOrder},</if>
+            <if test="projectName != null">project_name = #{projectName},</if>
+        </trim>
+        where task_id = #{taskId}
+    </update>
+
+    <delete id="deleteSysReWorktaskByTaskId" parameterType="String">
+        delete from sys_re_worktask where task_id = #{taskId}
+    </delete>
+
+    <delete id="deleteSysReWorktaskByBoardId" parameterType="String">
+        delete from sys_re_worktask where board_id = #{boardId}
+    </delete>
+
+    <delete id="deleteSysReWorktaskByTaskIds" parameterType="String">
+        delete from sys_re_worktask where task_id in
+        <foreach item="taskId" collection="array" open="(" separator="," close=")">
+            #{taskId}
+        </foreach>
+    </delete>
+</mapper>

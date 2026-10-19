@@ -1,0 +1,725 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmActivityMapper">
+    
+    <resultMap type="CrmActivity" id="CrmActivityResult">
+        <result property="activityId"       column="activity_id"    />
+        <result property="activitySubject"  column="activity_subject"    />
+        <result property="communicationType" column="communication_type"    />
+        <result property="startedDate"      column="started_date"    />
+        <result property="assignedTo"       column="assigned_to"    />
+        <result property="assignedToid"     column="assigned_toid"    />
+        <result property="statusDetail"     column="status_detail"    />
+        <result property="contacts"         column="contacts"    />
+        <result property="internalStaff"    column="internal_staff"    />
+        <result property="tasks"            column="tasks"    />
+        <result property="outcome"          column="outcome"    />
+        <result property="comments"         column="comments"    />
+        <result property="createBy"         column="create_by"    />
+        <result property="createTime"       column="create_time"    />
+        <result property="updateBy"         column="update_by"    />
+        <result property="updateTime"       column="update_time"    />
+        <result property="userId"           column="user_id"    />
+        <result property="deptId"           column="dept_id"    />
+        <!-- Timeline fields -->
+        <result property="pulseId"          column="pulse_id"    />
+        <result property="parentId"         column="parent_id"    />
+        <result property="orderId"          column="order_id"    />
+        <result property="pulseType"        column="pulse_type"    />
+        <result property="subjectType"      column="subject_type"    />
+        <result property="subjectId"        column="subject_id"    />
+        <result property="eventType"        column="event_type"    />
+        <result property="eventName"        column="event_name"    />
+        <result property="importance"       column="importance"    />
+        <result property="endedDate"        column="ended_date"    />
+        <result property="source"           column="source"    />
+        <result property="payload"          column="payload"    />
+        <result property="status"           column="status"    />
+        <result property="parentEventId"    column="parent_event_id"    />
+        <result property="relateType"       column="relate_type"    />
+        <result property="relateId"         column="relate_id"    />
+        <result property="relateName"       column="relate_name"    />
+        <result property="messageData"      column="message_data"    />
+        <result property="avatar"           column="avatar"    />
+        <result property="creatorId"        column="creator_id"    />
+        <!-- Activity Hub fields -->
+        <result property="eventCategory"    column="event_category"    />
+        <result property="channel"          column="channel"    />
+        <result property="channelEventId"   column="channel_event_id"    />
+        <result property="isAggregated"     column="is_aggregated"    />
+        <result property="aggregatedAt"     column="aggregated_at"    />
+        <result property="context"          column="context"    />
+    </resultMap>
+
+    <resultMap id="CrmActivityCrmTaskResult" type="CrmActivity" extends="CrmActivityResult">
+        <collection property="crmTaskList" notNullColumn="sub_task_id" javaType="java.util.List" resultMap="CrmTaskResult" />
+    </resultMap>
+
+    <resultMap type="CrmTask" id="CrmTaskResult">
+        <result property="taskId"    column="sub_task_id"    />
+        <result property="activityId"    column="sub_activity_id"    />
+        <result property="taskSubject"    column="sub_task_subject"    />
+        <result property="taskType"    column="sub_task_type"    />
+        <result property="dueDate"    column="sub_due_date"    />
+        <result property="assignedTo"    column="sub_assigned_to"    />
+        <result property="assignedToid"    column="sub_assigned_toid"    />
+        <result property="priority"    column="sub_priority"    />
+        <result property="startDate"    column="sub_start_date"    />
+        <result property="statusDetail"    column="sub_status_detail"    />
+        <result property="completedDate"    column="sub_completed_date"    />
+        <result property="outcome"    column="sub_outcome"    />
+        <result property="comments"    column="sub_comments"    />
+        <result property="createBy"    column="sub_create_by"    />
+        <result property="createTime"    column="sub_create_time"    />
+        <result property="updateBy"    column="sub_update_by"    />
+        <result property="updateTime"    column="sub_update_time"    />
+        <result property="userId"    column="sub_user_id"    />
+        <result property="deptId"    column="sub_dept_id"    />
+    </resultMap>
+
+    <!-- Timeline 完整字段列表（含所有旧字段 + 新字段） -->
+    <sql id="selectCrmActivityVo">
+        select a.activity_id, a.activity_subject, a.communication_type, a.started_date, a.assigned_to, a.assigned_toid, a.status_detail, a.contacts, a.internal_staff, a.tasks, a.outcome, a.comments, a.create_by, a.create_time, a.update_by, a.update_time, a.user_id, a.dept_id,
+               a.pulse_id, a.parent_id, a.order_id, a.pulse_type, a.subject_type, a.subject_id, a.event_type, a.event_name, a.importance, a.ended_date, a.source, a.payload, a.status, a.parent_event_id, a.relate_type, a.relate_id, a.relate_name, a.message_data, a.avatar, a.creator_id,
+               a.event_category, a.channel, a.channel_event_id, a.is_aggregated, a.aggregated_at, a.context
+        from crm_activity a
+         left join sys_user u on u.user_id = a.user_id
+         left join sys_dept d on u.dept_id = d.dept_id
+    </sql>
+
+    <select id="selectCrmActivityList" parameterType="CrmActivity" resultMap="CrmActivityResult">
+        <include refid="selectCrmActivityVo"/>
+        where 1=1
+        <if test="activitySubject != null  and activitySubject != ''"> and activity_subject = #{activitySubject}</if>
+        <if test="communicationType != null  and communicationType != ''"> and communication_type = #{communicationType}</if>
+        <if test="startedDate != null "> and started_date = #{startedDate}</if>
+        <if test="assignedTo != null  and assignedTo != ''"> and assigned_to = #{assignedTo}</if>
+        <if test="assignedToid != null  and assignedToid != ''"> and assigned_toid = #{assignedToid}</if>
+        <if test="statusDetail != null  and statusDetail != ''"> and status_detail = #{statusDetail}</if>
+        <if test="contacts != null  and contacts != ''"> and contacts = #{contacts}</if>
+        <if test="internalStaff != null  and internalStaff != ''"> and internal_staff = #{internalStaff}</if>
+        <if test="tasks != null  and tasks != ''"> and tasks = #{tasks}</if>
+        <if test="outcome != null  and outcome != ''"> and outcome = #{outcome}</if>
+        <if test="comments != null  and comments != ''"> and comments = #{comments}</if>
+        <if test="userId != null "> and user_id = #{userId}</if>
+        <if test="deptId != null "> and dept_id = #{deptId}</if>
+        <!-- Timeline 新字段 -->
+        <if test="pulseId != null and pulseId != ''"> and a.pulse_id = #{pulseId}</if>
+        <if test="parentId != null and parentId != ''"> and a.parent_id = #{parentId}</if>
+        <if test="pulseType != null and pulseType != ''"> and a.pulse_type = #{pulseType}</if>
+        <if test="subjectType != null and subjectType != ''"> and a.subject_type = #{subjectType}</if>
+        <if test="subjectId != null and subjectId != ''"> and a.subject_id = #{subjectId}</if>
+        <if test="eventType != null and eventType != ''"> and a.event_type = #{eventType}</if>
+        <if test="eventName != null and eventName != ''"> and a.event_name like concat('%', #{eventName}, '%')</if>
+        <if test="importance != null"> and a.importance = #{importance}</if>
+        <if test="importanceMin != null"> and a.importance &gt;= #{importanceMin}</if>
+        <if test="endedDate != null"> and a.ended_date = #{endedDate}</if>
+        <if test="source != null and source != ''"> and a.source = #{source}</if>
+        <if test="status != null and status != ''"> and a.status = #{status}</if>
+        <if test="parentEventId != null and parentEventId != ''"> and a.parent_event_id = #{parentEventId}</if>
+        <if test="relateType != null and relateType != ''"> and a.relate_type = #{relateType}</if>
+        <if test="relateId != null and relateId != ''"> and a.relate_id = #{relateId}</if>
+        <if test="relateName != null and relateName != ''"> and a.relate_name like concat('%', #{relateName}, '%')</if>
+        <if test="creatorId != null and creatorId != ''"> and a.creator_id = #{creatorId}</if>
+        <if test="channel != null and channel != ''"> and a.channel = #{channel}</if>
+        <if test="eventCategory != null and eventCategory != ''"> and a.event_category = #{eventCategory}</if>
+        <!-- 数据范围过滤 -->
+        ${params.dataScope}
+    </select>
+
+
+    <select id="selectCrmActivityListMonthly" parameterType="CrmActivity" resultMap="CrmActivityResult">
+        <include refid="selectCrmActivityVo"/>
+        where 1=1
+        and extract(month from started_date::timestamp) = extract(month from CURRENT_DATE) AND extract(year from started_date::timestamp) = extract(year from CURRENT_DATE)
+        <if test="activitySubject != null  and activitySubject != ''"> and activity_subject = #{activitySubject}</if>
+        <if test="communicationType != null  and communicationType != ''"> and communication_type = #{communicationType}</if>
+        <if test="startedDate != null "> and started_date = #{startedDate}</if>
+        <if test="assignedTo != null  and assignedTo != ''"> and assigned_to = #{assignedTo}</if>
+        <if test="assignedToid != null  and assignedToid != ''"> and assigned_toid = #{assignedToid}</if>
+        <if test="statusDetail != null  and statusDetail != ''"> and status_detail = #{statusDetail}</if>
+        <if test="contacts != null  and contacts != ''"> and contacts = #{contacts}</if>
+        <if test="internalStaff != null  and internalStaff != ''"> and internal_staff = #{internalStaff}</if>
+        <if test="tasks != null  and tasks != ''"> and tasks = #{tasks}</if>
+        <if test="outcome != null  and outcome != ''"> and outcome = #{outcome}</if>
+        <if test="comments != null  and comments != ''"> and comments = #{comments}</if>
+        <if test="userId != null "> and user_id = #{userId}</if>
+        <if test="deptId != null "> and dept_id = #{deptId}</if>
+        <!-- Timeline 新字段 -->
+        <if test="pulseId != null and pulseId != ''"> and a.pulse_id = #{pulseId}</if>
+        <if test="parentId != null and parentId != ''"> and a.parent_id = #{parentId}</if>
+        <if test="pulseType != null and pulseType != ''"> and a.pulse_type = #{pulseType}</if>
+        <if test="subjectType != null and subjectType != ''"> and a.subject_type = #{subjectType}</if>
+        <if test="subjectId != null and subjectId != ''"> and a.subject_id = #{subjectId}</if>
+        <if test="eventType != null and eventType != ''"> and a.event_type = #{eventType}</if>
+        <if test="eventName != null and eventName != ''"> and a.event_name like concat('%', #{eventName}, '%')</if>
+        <if test="importance != null"> and a.importance = #{importance}</if>
+        <if test="importanceMin != null"> and a.importance &gt;= #{importanceMin}</if>
+        <if test="endedDate != null"> and a.ended_date = #{endedDate}</if>
+        <if test="source != null and source != ''"> and a.source = #{source}</if>
+        <if test="status != null and status != ''"> and a.status = #{status}</if>
+        <if test="parentEventId != null and parentEventId != ''"> and a.parent_event_id = #{parentEventId}</if>
+        <if test="relateType != null and relateType != ''"> and a.relate_type = #{relateType}</if>
+        <if test="relateId != null and relateId != ''"> and a.relate_id = #{relateId}</if>
+        <if test="relateName != null and relateName != ''"> and a.relate_name like concat('%', #{relateName}, '%')</if>
+        <if test="creatorId != null and creatorId != ''"> and a.creator_id = #{creatorId}</if>
+        <if test="channel != null and channel != ''"> and a.channel = #{channel}</if>
+        <if test="eventCategory != null and eventCategory != ''"> and a.event_category = #{eventCategory}</if>
+        <!-- 数据范围过滤 -->
+        ${params.dataScope}
+    </select>
+    
+    <select id="selectCrmActivityByActivityId" parameterType="String" resultMap="CrmActivityCrmTaskResult">
+        select a.activity_id, a.activity_subject, a.communication_type, a.started_date, a.assigned_to, a.assigned_toid, a.status_detail, a.contacts, a.internal_staff, a.tasks, a.outcome, a.comments, a.create_by, a.create_time, a.update_by, a.update_time, a.user_id, a.dept_id,
+               a.pulse_id, a.parent_id, a.order_id, a.pulse_type, a.subject_type, a.subject_id, a.event_type, a.event_name, a.importance, a.ended_date, a.source, a.payload, a.status, a.parent_event_id, a.relate_type, a.relate_id, a.relate_name, a.message_data, a.avatar, a.creator_id,
+               a.event_category, a.channel, a.channel_event_id, a.is_aggregated, a.aggregated_at, a.context,
+ b.task_id as sub_task_id, b.activity_id as sub_activity_id, b.task_subject as sub_task_subject, b.task_type as sub_task_type, b.due_date as sub_due_date, b.assigned_to as sub_assigned_to, b.assigned_toid as sub_assigned_toid, b.priority as sub_priority, b.start_date as sub_start_date, b.status_detail as sub_status_detail, b.completed_date as sub_completed_date, b.outcome as sub_outcome, b.related_totype as sub_related_totype, b.related_to as sub_related_to, b.related_toid as sub_related_toid, b.comments as sub_comments, b.create_by as sub_create_by, b.create_time as sub_create_time, b.update_by as sub_update_by, b.update_time as sub_update_time, b.user_id as sub_user_id, b.dept_id as sub_dept_id
+        from crm_activity a
+        left join crm_task b on b.activity_id = a.activity_id
+        where a.activity_id = #{activityId}
+    </select>
+        
+    <insert id="insertCrmActivity" parameterType="CrmActivity">
+        insert into crm_activity
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="activityId != null">activity_id,</if>
+            <if test="activitySubject != null and activitySubject != ''">activity_subject,</if>
+            <if test="communicationType != null and communicationType != ''">communication_type,</if>
+            <if test="startedDate != null">started_date,</if>
+            <if test="pulseId != null">pulse_id,</if>
+            <if test="parentId != null">parent_id,</if>
+            <if test="orderId != null">order_id,</if>
+            <if test="pulseType != null">pulse_type,</if>
+            <if test="subjectType != null">subject_type,</if>
+            <if test="subjectId != null">subject_id,</if>
+            <if test="eventType != null">event_type,</if>
+            <if test="eventName != null">event_name,</if>
+            <if test="messageData != null">message_data,</if>
+            <if test="importance != null">importance,</if>
+            <if test="endedDate != null">ended_date,</if>
+            <if test="source != null">source,</if>
+            <if test="payload != null">payload,</if>
+            <if test="status != null">status,</if>
+            <if test="parentEventId != null">parent_event_id,</if>
+            <if test="relateType != null">relate_type,</if>
+            <if test="relateId != null">relate_id,</if>
+            <if test="relateName != null">relate_name,</if>
+            <if test="creatorId != null">creator_id,</if>
+            <if test="avatar != null">avatar,</if>
+            <if test="eventCategory != null">event_category,</if>
+            <if test="channel != null">channel,</if>
+            <if test="channelEventId != null">channel_event_id,</if>
+            <if test="isAggregated != null">is_aggregated,</if>
+            <if test="aggregatedAt != null">aggregated_at,</if>
+            <if test="context != null">context,</if>
+            <if test="assignedTo != null">assigned_to,</if>
+            <if test="assignedToid != null">assigned_toid,</if>
+            <if test="statusDetail != null">status_detail,</if>
+            <if test="contacts != null">contacts,</if>
+            <if test="internalStaff != null">internal_staff,</if>
+            <if test="tasks != null">tasks,</if>
+            <if test="outcome != null">outcome,</if>
+            <if test="comments != null">comments,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="userId != null">user_id,</if>
+            <if test="deptId != null">dept_id,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="activityId != null">#{activityId},</if>
+            <if test="activitySubject != null and activitySubject != ''">#{activitySubject},</if>
+            <if test="communicationType != null and communicationType != ''">#{communicationType},</if>
+            <if test="startedDate != null">#{startedDate},</if>
+            <if test="pulseId != null">#{pulseId},</if>
+            <if test="parentId != null">#{parentId},</if>
+            <if test="orderId != null">#{orderId},</if>
+            <if test="pulseType != null">#{pulseType},</if>
+            <if test="subjectType != null">#{subjectType},</if>
+            <if test="subjectId != null">#{subjectId},</if>
+            <if test="eventType != null">#{eventType},</if>
+            <if test="eventName != null">#{eventName},</if>
+            <if test="messageData != null">#{messageData},</if>
+            <if test="importance != null">#{importance},</if>
+            <if test="endedDate != null">#{endedDate},</if>
+            <if test="source != null">#{source},</if>
+            <if test="payload != null">#{payload}::jsonb,</if>
+            <if test="status != null">#{status},</if>
+            <if test="parentEventId != null">#{parentEventId},</if>
+            <if test="relateType != null">#{relateType},</if>
+            <if test="relateId != null">#{relateId},</if>
+            <if test="relateName != null">#{relateName},</if>
+            <if test="creatorId != null">#{creatorId},</if>
+            <if test="avatar != null">#{avatar},</if>
+            <if test="eventCategory != null">#{eventCategory},</if>
+            <if test="channel != null">#{channel},</if>
+            <if test="channelEventId != null">#{channelEventId},</if>
+            <if test="isAggregated != null">#{isAggregated},</if>
+            <if test="aggregatedAt != null">#{aggregatedAt},</if>
+            <if test="context != null">#{context}::jsonb,</if>
+            <if test="assignedTo != null">#{assignedTo},</if>
+            <if test="assignedToid != null">#{assignedToid},</if>
+            <if test="statusDetail != null">#{statusDetail},</if>
+            <if test="contacts != null">#{contacts},</if>
+            <if test="internalStaff != null">#{internalStaff},</if>
+            <if test="tasks != null">#{tasks},</if>
+            <if test="outcome != null">#{outcome},</if>
+            <if test="comments != null">#{comments},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="userId != null">#{userId},</if>
+            <if test="deptId != null">#{deptId},</if>
+         </trim>
+    </insert>
+
+    <update id="updateCrmActivity" parameterType="CrmActivity">
+        update crm_activity
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="activitySubject != null and activitySubject != ''">activity_subject = #{activitySubject},</if>
+            <if test="communicationType != null and communicationType != ''">communication_type = #{communicationType},</if>
+            <if test="startedDate != null">started_date = #{startedDate},</if>
+            <if test="pulseId != null">pulse_id = #{pulseId},</if>
+            <if test="parentId != null">parent_id = #{parentId},</if>
+            <if test="orderId != null">order_id = #{orderId},</if>
+            <if test="pulseType != null">pulse_type = #{pulseType},</if>
+            <if test="subjectType != null">subject_type = #{subjectType},</if>
+            <if test="subjectId != null">subject_id = #{subjectId},</if>
+            <if test="eventType != null">event_type = #{eventType},</if>
+            <if test="eventName != null">event_name = #{eventName},</if>
+            <if test="messageData != null">message_data = #{messageData},</if>
+            <if test="importance != null">importance = #{importance},</if>
+            <if test="endedDate != null">ended_date = #{endedDate},</if>
+            <if test="source != null">source = #{source},</if>
+            <if test="payload != null">payload = #{payload},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="parentEventId != null">parent_event_id = #{parentEventId},</if>
+            <if test="relateType != null">relate_type = #{relateType},</if>
+            <if test="relateId != null">relate_id = #{relateId},</if>
+            <if test="relateName != null">relate_name = #{relateName},</if>
+            <if test="creatorId != null">creator_id = #{creatorId},</if>
+            <if test="avatar != null">avatar = #{avatar},</if>
+            <if test="eventCategory != null">event_category = #{eventCategory},</if>
+            <if test="channel != null">channel = #{channel},</if>
+            <if test="channelEventId != null">channel_event_id = #{channelEventId},</if>
+            <if test="isAggregated != null">is_aggregated = #{isAggregated},</if>
+            <if test="aggregatedAt != null">aggregated_at = #{aggregatedAt},</if>
+            <if test="context != null">context = #{context},</if>
+            <if test="assignedTo != null">assigned_to = #{assignedTo},</if>
+            <if test="assignedToid != null">assigned_toid = #{assignedToid},</if>
+            <if test="statusDetail != null">status_detail = #{statusDetail},</if>
+            <if test="contacts != null">contacts = #{contacts},</if>
+            <if test="internalStaff != null">internal_staff = #{internalStaff},</if>
+            <if test="tasks != null">tasks = #{tasks},</if>
+            <if test="outcome != null">outcome = #{outcome},</if>
+            <if test="comments != null">comments = #{comments},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="userId != null">user_id = #{userId},</if>
+            <if test="deptId != null">dept_id = #{deptId},</if>
+        </trim>
+        where activity_id = #{activityId}
+    </update>
+
+    <delete id="deleteCrmActivityByActivityId" parameterType="String">
+        delete from crm_activity where activity_id = #{activityId}
+    </delete>
+
+    <delete id="deleteCrmActivityByActivityIds" parameterType="String">
+        delete from crm_activity where activity_id in 
+        <foreach item="activityId" collection="array" open="(" separator="," close=")">
+            #{activityId}
+        </foreach>
+    </delete>
+    
+    <delete id="deleteCrmTaskByActivityIds" parameterType="String">
+        delete from crm_task where activity_id in 
+        <foreach item="activityId" collection="array" open="(" separator="," close=")">
+            #{activityId}
+        </foreach>
+    </delete>
+
+    <delete id="deleteCrmTaskByActivityId" parameterType="String">
+        delete from crm_task where activity_id = #{activityId}
+    </delete>
+
+    <insert id="batchCrmTask">
+        insert into crm_task( task_id, activity_id, task_subject, task_type, due_date, assigned_to, assigned_toid, priority, start_date, status_detail, completed_date, outcome, related_totype, related_to, related_toid, comments, create_by, create_time, update_by, update_time, user_id, dept_id) values
+		<foreach item="item" index="index" collection="list" separator=",">
+            ( #{item.taskId}, #{item.activityId}, #{item.taskSubject}, #{item.taskType}, #{item.dueDate}, #{item.assignedTo}, #{item.assignedToid}, #{item.priority}, #{item.startDate}, #{item.statusDetail}, #{item.completedDate}, #{item.outcome}, #{item.relatedTotype}, #{item.relatedTo}, #{item.relatedToid}, #{item.comments}, #{item.createBy}, #{item.createTime}, #{item.updateBy}, #{item.updateTime}, #{item.userId}, #{item.deptId})
+        </foreach>
+    </insert>
+
+    <!-- ======================== -->
+    <!-- Activity Timeline 新增查询 -->
+    <!-- ======================== -->
+
+    <select id="selectByPulseId" parameterType="String" resultMap="CrmActivityResult">
+        <include refid="selectCrmActivityVo"/>
+        where a.pulse_id = #{pulseId}
+    </select>
+
+    <select id="selectByPulseIds" parameterType="String" resultMap="CrmActivityResult">
+        <include refid="selectCrmActivityVo"/>
+        where a.pulse_id in
+        <foreach item="pulseId" collection="array" open="(" separator="," close=")">
+            #{pulseId}
+        </foreach>
+    </select>
+
+    <select id="selectTimelineList" parameterType="CrmActivity" resultMap="CrmActivityResult">
+        <include refid="selectCrmActivityVo"/>
+        <where>
+            <if test="subjectType != null and subjectType != ''">
+                AND a.subject_type = #{subjectType}
+            </if>
+            <if test="subjectId != null and subjectId != ''">
+                AND a.subject_id = #{subjectId}
+            </if>
+            <if test="eventType != null and eventType != ''">
+                AND a.event_type = #{eventType}
+            </if>
+            <if test="eventCategory != null and eventCategory != ''">
+                AND a.event_type LIKE CONCAT(#{eventCategory}, '.%')
+            </if>
+            <if test="channel != null and channel != ''">
+                AND a.channel = #{channel}
+            </if>
+            <if test="importanceMin != null">
+                AND a.importance &gt;= #{importanceMin}
+            </if>
+            <if test="source != null and source != ''">
+                AND a.source = #{source}
+            </if>
+            <if test="relateType != null and relateType != ''">
+                AND a.relate_type = #{relateType}
+            </if>
+            <if test="relateId != null and relateId != ''">
+                AND a.relate_id = #{relateId}
+            </if>
+            <if test="status != null and status != ''">
+                AND a.status = #{status}
+            </if>
+            <if test="startedDateFrom != null and startedDateFrom != ''">
+                AND a.started_date &gt;= #{startedDateFrom}::timestamp
+            </if>
+            <if test="startedDateTo != null and startedDateTo != ''">
+                AND a.started_date &lt;= #{startedDateTo}::timestamp
+            </if>
+            <!-- 数据范围过滤 -->
+            ${params.dataScope}
+        </where>
+        ORDER BY a.started_date DESC, a.create_time DESC
+    </select>
+
+    <insert id="insertTimelineActivity" parameterType="CrmActivity">
+        insert into crm_activity
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="activityId != null">activity_id,</if>
+            <if test="activitySubject != null">activity_subject,</if>
+            <if test="statusDetail != null">status_detail,</if>
+            <if test="pulseId != null">pulse_id,</if>
+            <if test="parentId != null">parent_id,</if>
+            <if test="orderId != null">order_id,</if>
+            <if test="pulseType != null">pulse_type,</if>
+            <if test="subjectType != null">subject_type,</if>
+            <if test="subjectId != null">subject_id,</if>
+            <if test="eventType != null">event_type,</if>
+            <if test="eventName != null">event_name,</if>
+            <if test="messageData != null">message_data,</if>
+            <if test="importance != null">importance,</if>
+            <if test="startedDate != null">started_date,</if>
+            <if test="endedDate != null">ended_date,</if>
+            <if test="source != null">source,</if>
+            <if test="payload != null">payload,</if>
+            <if test="status != null">status,</if>
+            <if test="parentEventId != null">parent_event_id,</if>
+            <if test="relateType != null">relate_type,</if>
+            <if test="relateId != null">relate_id,</if>
+            <if test="relateName != null">relate_name,</if>
+            <if test="creatorId != null">creator_id,</if>
+            <if test="avatar != null">avatar,</if>
+            <if test="eventCategory != null">event_category,</if>
+            <if test="channel != null">channel,</if>
+            <if test="channelEventId != null">channel_event_id,</if>
+            <if test="isAggregated != null">is_aggregated,</if>
+            <if test="aggregatedAt != null">aggregated_at,</if>
+            <if test="context != null">context,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="userId != null">user_id,</if>
+            <if test="deptId != null">dept_id,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="activityId != null">#{activityId},</if>
+            <if test="activitySubject != null">#{activitySubject},</if>
+            <if test="statusDetail != null">#{statusDetail},</if>
+            <if test="pulseId != null">#{pulseId},</if>
+            <if test="parentId != null">#{parentId},</if>
+            <if test="orderId != null">#{orderId},</if>
+            <if test="pulseType != null">#{pulseType},</if>
+            <if test="subjectType != null">#{subjectType},</if>
+            <if test="subjectId != null">#{subjectId},</if>
+            <if test="eventType != null">#{eventType},</if>
+            <if test="eventName != null">#{eventName},</if>
+            <if test="messageData != null">#{messageData},</if>
+            <if test="importance != null">#{importance},</if>
+            <if test="startedDate != null">#{startedDate},</if>
+            <if test="endedDate != null">#{endedDate},</if>
+            <if test="source != null">#{source},</if>
+            <if test="payload != null">#{payload}::jsonb,</if>
+            <if test="status != null">#{status},</if>
+            <if test="parentEventId != null">#{parentEventId},</if>
+            <if test="relateType != null">#{relateType},</if>
+            <if test="relateId != null">#{relateId},</if>
+            <if test="relateName != null">#{relateName},</if>
+            <if test="creatorId != null">#{creatorId},</if>
+            <if test="avatar != null">#{avatar},</if>
+            <if test="eventCategory != null">#{eventCategory},</if>
+            <if test="channel != null">#{channel},</if>
+            <if test="channelEventId != null">#{channelEventId},</if>
+            <if test="isAggregated != null">#{isAggregated},</if>
+            <if test="aggregatedAt != null">#{aggregatedAt},</if>
+            <if test="context != null">#{context}::jsonb,</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="userId != null">#{userId},</if>
+            <if test="deptId != null">#{deptId},</if>
+        </trim>
+        ON CONFLICT (channel, channel_event_id)
+            WHERE channel_event_id IS NOT NULL
+        DO NOTHING
+    </insert>
+
+    <update id="updateTimelineActivity" parameterType="CrmActivity">
+        update crm_activity
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="pulseId != null">pulse_id = #{pulseId},</if>
+            <if test="parentId != null">parent_id = #{parentId},</if>
+            <if test="orderId != null">order_id = #{orderId},</if>
+            <if test="pulseType != null">pulse_type = #{pulseType},</if>
+            <if test="subjectType != null">subject_type = #{subjectType},</if>
+            <if test="subjectId != null">subject_id = #{subjectId},</if>
+            <if test="eventType != null">event_type = #{eventType},</if>
+            <if test="eventName != null">event_name = #{eventName},</if>
+            <if test="messageData != null">message_data = #{messageData},</if>
+            <if test="importance != null">importance = #{importance},</if>
+            <if test="startedDate != null">started_date = #{startedDate},</if>
+            <if test="endedDate != null">ended_date = #{endedDate},</if>
+            <if test="source != null">source = #{source},</if>
+            <if test="payload != null">payload = #{payload},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="parentEventId != null">parent_event_id = #{parentEventId},</if>
+            <if test="relateType != null">relate_type = #{relateType},</if>
+            <if test="relateId != null">relate_id = #{relateId},</if>
+            <if test="relateName != null">relate_name = #{relateName},</if>
+            <if test="creatorId != null">creator_id = #{creatorId},</if>
+            <if test="avatar != null">avatar = #{avatar},</if>
+            <if test="eventCategory != null">event_category = #{eventCategory},</if>
+            <if test="channel != null">channel = #{channel},</if>
+            <if test="channelEventId != null">channel_event_id = #{channelEventId},</if>
+            <if test="isAggregated != null">is_aggregated = #{isAggregated},</if>
+            <if test="aggregatedAt != null">aggregated_at = #{aggregatedAt},</if>
+            <if test="context != null">context = #{context},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="userId != null">user_id = #{userId},</if>
+            <if test="deptId != null">dept_id = #{deptId},</if>
+        </trim>
+        where pulse_id = #{pulseId}
+    </update>
+
+    <delete id="deleteByPulseId" parameterType="String">
+        delete from crm_activity where pulse_id = #{pulseId}
+    </delete>
+
+    <!-- ======================== -->
+    <!-- Customer Metrics 聚合 -->
+    <!-- ======================== -->
+
+    <!-- 聚合结果映射到 CustomerMetrics -->
+    <resultMap type="com.ruoyi.crm.domain.CustomerMetrics" id="MetricsAggregateResult">
+        <id     property="contactId"              column="contact_id"/>
+        <result property="totalEventCount"        column="total_event_count"/>
+        <result property="lastEventAt"            column="last_event_at"/>
+        <result property="wecomAddedAt"           column="wecom_added_at"/>
+        <result property="wecomMessageCount"      column="wecom_message_count"/>
+        <result property="wecomOutboundCount"     column="wecom_outbound_count"/>
+        <result property="wecomInboundCount"      column="wecom_inbound_count"/>
+        <result property="wecomLastMessageAt"     column="wecom_last_message_at"/>
+        <result property="wecomGroupCount"        column="wecom_group_count"/>
+        <result property="wecomActiveDays30d"     column="wecom_active_days_30d"/>
+        <result property="wechatMpFollowedAt"     column="wechat_mp_followed_at"/>
+        <result property="wechatMpArticleRead30d" column="wechat_mp_article_read_30d"/>
+        <result property="wechatMiniappLogin30d"  column="wechat_miniapp_login_30d"/>
+        <result property="wechatMiniappFormSubmit" column="wechat_miniapp_form_submit"/>
+        <result property="leadCreatedAt"          column="lead_created_at"/>
+        <result property="leadCount"              column="lead_count"/>
+        <result property="appointmentCount"       column="appointment_count"/>
+        <result property="appointmentNoshowCount" column="appointment_noshow_count"/>
+        <result property="visitCount"             column="visit_count"/>
+        <result property="firstVisitAt"           column="first_visit_at"/>
+        <result property="lastVisitAt"            column="last_visit_at"/>
+        <result property="opportunityCount"       column="opportunity_count"/>
+        <result property="opportunityWonCount"    column="opportunity_won_count"/>
+        <result property="totalRevenue"           column="total_revenue"/>
+        <result property="avgDealAmount"          column="avg_deal_amount"/>
+        <result property="lastPaymentAt"          column="last_payment_at"/>
+        <result property="aiScoreLatest"          column="ai_score_latest"/>
+        <result property="aiScoreUpdatedAt"       column="ai_score_updated_at"/>
+        <result property="aiTagCount"             column="ai_tag_count"/>
+        <result property="aiIntentLatest"         column="ai_intent_latest"/>
+        <result property="leadConverted"          column="has_lead_converted"/>
+    </resultMap>
+
+    <!-- 获取所有有事件的 Contact subject_id -->
+    <select id="selectSubjectIdsForMetrics" resultType="String">
+        SELECT DISTINCT subject_id
+        FROM crm_activity
+        WHERE subject_type = 'Contact'
+          AND subject_id IS NOT NULL
+    </select>
+
+    <!-- 单条 GROUP BY SQL 按 subject_id 聚合所有指标 -->
+    <select id="selectMetricsAggregate" resultMap="MetricsAggregateResult">
+        SELECT
+            a.subject_id AS contact_id,
+
+            COUNT(*) AS total_event_count,
+            MAX(a.started_date) AS last_event_at,
+
+            MIN(a.started_date) FILTER (WHERE a.event_type = 'channel.wecom.added') AS wecom_added_at,
+            COUNT(*) FILTER (WHERE a.event_type LIKE 'channel.wecom.message.%') AS wecom_message_count,
+            COUNT(*) FILTER (WHERE a.event_type = 'channel.wecom.message.sent') AS wecom_outbound_count,
+            COUNT(*) FILTER (WHERE a.event_type = 'channel.wecom.message.received') AS wecom_inbound_count,
+            MAX(a.started_date) FILTER (WHERE a.event_type LIKE 'channel.wecom.message.%') AS wecom_last_message_at,
+            (COUNT(*) FILTER (WHERE a.event_type = 'channel.wecom.group.joined')
+             - COUNT(*) FILTER (WHERE a.event_type = 'channel.wecom.group.quit')) AS wecom_group_count,
+            COUNT(DISTINCT DATE(a.started_date)) FILTER (WHERE a.channel = 'wecom' AND a.started_date &gt;= now() - INTERVAL '30 days') AS wecom_active_days_30d,
+
+            MIN(a.started_date) FILTER (WHERE a.event_type = 'channel.wechat_mp.follow') AS wechat_mp_followed_at,
+            COUNT(*) FILTER (WHERE a.event_type = 'channel.wechat_mp.article.read' AND a.started_date &gt;= now() - INTERVAL '30 days') AS wechat_mp_article_read_30d,
+
+            COUNT(*) FILTER (WHERE a.event_type = 'channel.wechat_miniapp.login' AND a.started_date &gt;= now() - INTERVAL '30 days') AS wechat_miniapp_login_30d,
+            COUNT(*) FILTER (WHERE a.event_type = 'channel.wechat_miniapp.form.submit') AS wechat_miniapp_form_submit,
+
+            COUNT(*) FILTER (WHERE a.event_type LIKE 'lead.%' AND a.event_type NOT IN ('lead.converted')) AS lead_count,
+            MIN(a.started_date) FILTER (WHERE a.event_type = 'lead.created') AS lead_created_at,
+            (COUNT(*) FILTER (WHERE a.event_type = 'lead.converted') > 0) AS has_lead_converted,
+
+            COUNT(*) FILTER (WHERE a.event_type = 'appointment.created') AS appointment_count,
+            COUNT(*) FILTER (WHERE a.event_type = 'appointment.noshow') AS appointment_noshow_count,
+
+            COUNT(*) FILTER (WHERE a.event_type IN ('visit.first', 'visit.return')) AS visit_count,
+            MIN(a.started_date) FILTER (WHERE a.event_type IN ('visit.first', 'visit.return')) AS first_visit_at,
+            MAX(a.started_date) FILTER (WHERE a.event_type IN ('visit.first', 'visit.return')) AS last_visit_at,
+
+            COUNT(*) FILTER (WHERE a.event_type = 'opportunity.created') AS opportunity_count,
+            COUNT(*) FILTER (WHERE a.event_type = 'opportunity.won') AS opportunity_won_count,
+
+            COALESCE(SUM((a.payload->>'amount')::numeric) FILTER (WHERE a.event_type = 'opportunity.won'), 0) AS total_revenue,
+            AVG((a.payload->>'amount')::numeric) FILTER (WHERE a.event_type = 'opportunity.won') AS avg_deal_amount,
+            MAX(a.started_date) FILTER (WHERE a.event_type = 'opportunity.won') AS last_payment_at,
+
+            (SELECT (payload->>'score')::int
+             FROM crm_activity a2
+             WHERE a2.subject_id = a.subject_id
+               AND a2.event_type = 'ai.scored'
+               AND a2.payload->>'score' IS NOT NULL
+             ORDER BY a2.started_date DESC LIMIT 1) AS ai_score_latest,
+
+            (SELECT a2.started_date
+             FROM crm_activity a2
+             WHERE a2.subject_id = a.subject_id
+               AND a2.event_type = 'ai.scored'
+             ORDER BY a2.started_date DESC LIMIT 1) AS ai_score_updated_at,
+
+            COUNT(*) FILTER (WHERE a.event_type IN ('ai.tag_predicted', 'ai.tagged')) AS ai_tag_count,
+
+            (SELECT a2.payload->>'intent'
+             FROM crm_activity a2
+             WHERE a2.subject_id = a.subject_id
+               AND a2.event_type = 'ai.intent_detected'
+               AND a2.payload->>'intent' IS NOT NULL
+             ORDER BY a2.started_date DESC LIMIT 1) AS ai_intent_latest
+
+        FROM crm_activity a
+        WHERE a.subject_type = 'Contact'
+          AND a.subject_id IS NOT NULL
+        GROUP BY a.subject_id
+    </select>
+
+    <!-- 批量标记已聚合 -->
+    <update id="markAsAggregated">
+        UPDATE crm_activity
+        SET is_aggregated = true,
+            aggregated_at = now(),
+            update_time = now()
+        WHERE subject_type = 'Contact'
+          AND subject_id IN
+        <foreach collection="subjectIds" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
+
+    <select id="selectLatestFollowContactIdByEventAndOpenId" resultType="String">
+        SELECT a.subject_id
+        FROM crm_activity a
+        WHERE a.channel = 'wechat_mp'
+          AND a.event_type IN ('channel.wechat_mp.follow', 'channel.wechat_mp.scan')
+          AND a.subject_type = 'Contact'
+          AND a.subject_id IS NOT NULL
+          AND COALESCE(
+                  a.context->>'openid',
+                  a.context->>'open_id',
+                  a.payload->>'open_id',
+                  a.payload->>'openId'
+              ) = #{openId}
+          AND (
+              a.context->>'crm_event_id' = #{eventId}
+              OR EXISTS (
+                  SELECT 1 FROM crm_wechat_mp_qrcode q
+                  WHERE q.crm_event_id = #{eventId}
+                    AND (
+                        a.context->>'qr_code_id' = q.id::text
+                        OR a.context->>'scene_str' = q.scene_str
+                        OR a.payload->>'event_key' = 'qrscene_' || q.scene_str
+                        OR a.payload->>'scene_str' = q.scene_str
+                    )
+              )
+          )
+        ORDER BY a.started_date DESC
+        LIMIT 1
+    </select>
+
+    <!-- Lead 转 Contact 时，将可迁移 Timeline 活动的 subject 从 Lead 迁移到 Contact -->
+    <update id="migrateWebsitePageViewSubject">
+        UPDATE crm_activity
+        SET subject_type = 'Contact',
+            subject_id = #{newSubjectId},
+            update_time = now()
+        WHERE subject_type = 'Lead'
+          AND subject_id = #{oldSubjectId}
+          AND event_type IN (
+            'website.page.view',
+            'event.registration.submitted',
+            'engagement.assessment.completed',
+            'lead.created'
+          )
+    </update>
+
+    <select id="selectActivityIdByChannelEventId" resultType="String">
+        SELECT activity_id
+        FROM crm_activity
+        WHERE channel = #{channel}
+          AND channel_event_id = #{channelEventId}
+        LIMIT 1
+    </select>
+
+</mapper>

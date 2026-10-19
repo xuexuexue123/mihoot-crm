@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.EventNurtureSequenceMapper">
+
+    <resultMap type="com.ruoyi.crm.domain.CrmEventNurtureSequence" id="EventNurtureSequenceResult">
+        <result property="id" column="id"/>
+        <result property="tenantId" column="tenant_id"/>
+        <result property="eventId" column="event_id"/>
+        <result property="name" column="name"/>
+        <result property="enabled" column="enabled"/>
+        <result property="triggerType" column="trigger_type"/>
+        <result property="triggerConfig" column="trigger_config"/>
+        <result property="exitOnContact" column="exit_on_contact"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="delFlag" column="del_flag"/>
+    </resultMap>
+
+    <sql id="selectColumns">
+        id, tenant_id, event_id, name, enabled, trigger_type,
+        trigger_config::text AS trigger_config,
+        exit_on_contact, create_by, create_time, update_by, update_time, del_flag
+    </sql>
+
+    <select id="selectByEventId" resultMap="EventNurtureSequenceResult">
+        SELECT <include refid="selectColumns"/>
+        FROM crm_event_nurture_sequence
+        WHERE tenant_id = #{tenantId} AND event_id = #{eventId} AND del_flag = '0'
+        ORDER BY id DESC
+        LIMIT 1
+    </select>
+
+    <select id="selectEnabledByEventAndTrigger" resultMap="EventNurtureSequenceResult">
+        SELECT <include refid="selectColumns"/>
+        FROM crm_event_nurture_sequence
+        WHERE tenant_id = #{tenantId}
+          AND event_id = #{eventId}
+          AND trigger_type = #{triggerType}
+          AND enabled = '1'
+          AND del_flag = '0'
+        LIMIT 1
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
+        INSERT INTO crm_event_nurture_sequence (
+            tenant_id, event_id, name, enabled, trigger_type, trigger_config,
+            exit_on_contact, create_by, create_time, update_by, update_time, del_flag
+        ) VALUES (
+            #{tenantId}, #{eventId}, #{name}, #{enabled}, #{triggerType},
+            COALESCE(#{triggerConfig}::jsonb, '{}'::jsonb),
+            #{exitOnContact}, #{createBy}, NOW(), #{updateBy}, NOW(), COALESCE(#{delFlag}, '0')
+        )
+    </insert>
+
+    <update id="update">
+        UPDATE crm_event_nurture_sequence
+        <set>
+            <if test="name != null">name = #{name},</if>
+            <if test="enabled != null">enabled = #{enabled},</if>
+            <if test="triggerType != null">trigger_type = #{triggerType},</if>
+            <if test="triggerConfig != null">trigger_config = #{triggerConfig}::jsonb,</if>
+            <if test="exitOnContact != null">exit_on_contact = #{exitOnContact},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            update_time = NOW()
+        </set>
+        WHERE id = #{id} AND tenant_id = #{tenantId}
+    </update>
+
+    <select id="countSteps" resultType="int">
+        SELECT COUNT(*) FROM crm_event_nurture_step WHERE sequence_id = #{sequenceId}
+    </select>
+
+</mapper>

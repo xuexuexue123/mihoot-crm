@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmCustomerIdentityMapper">
+
+    <resultMap type="com.ruoyi.crm.domain.CrmCustomerIdentity" id="CrmCustomerIdentityResult">
+        <id     property="identityId"    column="identity_id"/>
+        <result property="contactId"     column="contact_id"/>
+        <result property="identityType"  column="identity_type"/>
+        <result property="identityValue" column="identity_value"/>
+        <result property="source"        column="source"/>
+        <result property="isPrimary"     column="is_primary"/>
+        <result property="isVerified"    column="is_verified"/>
+        <result property="createTime"    column="create_time"/>
+        <result property="updateTime"    column="update_time"/>
+    </resultMap>
+
+    <select id="selectByTypeValue" resultMap="CrmCustomerIdentityResult">
+        SELECT identity_id, contact_id, identity_type, identity_value,
+               source, is_primary, is_verified, create_time, update_time
+        FROM crm_customer_identity
+        WHERE identity_type = #{identityType} AND identity_value = #{identityValue}
+    </select>
+
+    <select id="selectByContactId" resultMap="CrmCustomerIdentityResult">
+        SELECT identity_id, contact_id, identity_type, identity_value,
+               source, is_primary, is_verified, create_time, update_time
+        FROM crm_customer_identity
+        WHERE contact_id = #{contactId}
+        ORDER BY identity_type, identity_id
+    </select>
+
+    <select id="batchResolve" resultMap="CrmCustomerIdentityResult">
+        SELECT identity_id, contact_id, identity_type, identity_value,
+               source, is_primary, is_verified, create_time, update_time
+        FROM crm_customer_identity
+        WHERE (identity_type, identity_value) IN
+        <foreach collection="queries" item="q" open="(" separator="," close=")">
+            (#{q.identityType}, #{q.identityValue})
+        </foreach>
+    </select>
+
+    <insert id="insert" parameterType="com.ruoyi.crm.domain.CrmCustomerIdentity"
+            useGeneratedKeys="true" keyProperty="identityId">
+        INSERT INTO crm_customer_identity (
+            contact_id, identity_type, identity_value, source,
+            is_primary, is_verified
+        ) VALUES (
+            #{contactId}, #{identityType}, #{identityValue}, #{source},
+            COALESCE(#{isPrimary}, false), COALESCE(#{isVerified}, false)
+        )
+    </insert>
+
+    <insert id="insertOrIgnore" parameterType="com.ruoyi.crm.domain.CrmCustomerIdentity"
+            useGeneratedKeys="true" keyProperty="identityId">
+        INSERT INTO crm_customer_identity (
+            contact_id, identity_type, identity_value, source,
+            is_primary, is_verified
+        ) VALUES (
+            #{contactId}, #{identityType}, #{identityValue}, #{source},
+            COALESCE(#{isPrimary}, false), COALESCE(#{isVerified}, false)
+        )
+        ON CONFLICT (identity_type, identity_value) DO NOTHING
+    </insert>
+
+    <delete id="deleteByContactTypeValue">
+        DELETE FROM crm_customer_identity
+        WHERE contact_id = #{contactId}
+          AND identity_type = #{identityType}
+          AND identity_value = #{identityValue}
+    </delete>
+
+    <update id="updateContactIdByContactId">
+        UPDATE crm_customer_identity
+        SET contact_id = #{targetContactId}
+        WHERE contact_id = #{sourceContactId}
+          AND (identity_type, identity_value) NOT IN (
+            SELECT identity_type, identity_value FROM crm_customer_identity
+            WHERE contact_id = #{targetContactId}
+          )
+    </update>
+
+    <update id="clearPrimaryByContactId">
+        UPDATE crm_customer_identity
+        SET is_primary = false, update_time = now()
+        WHERE contact_id = #{contactId} AND is_primary = true
+    </update>
+
+    <update id="setPrimaryByContactTypeValue">
+        UPDATE crm_customer_identity
+        SET is_primary = true, update_time = now()
+        WHERE contact_id = #{contactId}
+          AND identity_type = #{identityType}
+          AND identity_value = #{identityValue}
+    </update>
+
+</mapper>

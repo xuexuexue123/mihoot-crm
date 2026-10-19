@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmContactServiceSummaryRevisionMapper">
+
+    <insert id="insert" parameterType="com.ruoyi.crm.domain.CrmContactServiceSummaryRevision"
+            useGeneratedKeys="true" keyProperty="id">
+        insert into crm_contact_service_summary_revision (
+            tenant_id, contact_id, version, snapshot, "trigger", source_channels,
+            model, generated_by, created_by, created_at
+        ) values (
+            #{tenantId}, #{contactId}, #{version},
+            CAST(NULLIF(TRIM(#{snapshot}), '') AS jsonb),
+            #{trigger},
+            CAST(NULLIF(TRIM(#{sourceChannels}), '') AS jsonb),
+            #{model}, #{generatedBy}, #{createdBy}, #{createdAt}
+        )
+    </insert>
+</mapper>

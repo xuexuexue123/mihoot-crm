@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.ems.mapper.SysReAcceptanceMapper">
+    
+    <resultMap type="SysReAcceptance" id="SysReAcceptanceResult">
+        <result property="acceptId"    column="accept_id"    />
+        <result property="projectId"    column="project_id"    />
+        <result property="taskId"    column="task_id"    />
+        <result property="taskChecked"    column="task_checked"    />
+        <result property="description"    column="description"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="taskOrder"    column="task_order"    />
+    </resultMap>
+
+    <sql id="selectSysReAcceptanceVo">
+        select accept_id, project_id, task_id, task_checked, description, create_by, create_time, update_by, update_time, task_order  from sys_re_acceptance
+    </sql>
+
+    <select id="selectSysReAcceptanceList" parameterType="SysReAcceptance" resultMap="SysReAcceptanceResult">
+        <include refid="selectSysReAcceptanceVo"/>
+        <where>  
+            <if test="projectId != null  and projectId != ''"> and project_id = #{projectId}</if>
+            <if test="taskId != null  and taskId != ''"> and task_id = #{taskId}</if>
+            <if test="taskChecked != null "> and task_checked = #{taskChecked}</if>
+            <if test="description != null  and description != ''"> and description = #{description}</if>
+        </where>
+        order by task_order
+    </select>
+    
+    <select id="selectSysReAcceptanceByAcceptId" parameterType="String" resultMap="SysReAcceptanceResult">
+        <include refid="selectSysReAcceptanceVo"/>
+        where accept_id = #{acceptId}
+    </select>
+        
+    <insert id="insertSysReAcceptance" parameterType="SysReAcceptance">
+        insert into sys_re_acceptance
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="acceptId != null">accept_id,</if>
+            <if test="projectId != null">project_id,</if>
+            <if test="taskId != null">task_id,</if>
+            <if test="taskChecked != null">task_checked,</if>
+            <if test="description != null">description,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="taskOrder != null">task_order,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="acceptId != null">#{acceptId},</if>
+            <if test="projectId != null">#{projectId},</if>
+            <if test="taskId != null">#{taskId},</if>
+            <if test="taskChecked != null">#{taskChecked},</if>
+            <if test="description != null">#{description},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="taskOrder != null">#{taskOrder},</if>
+         </trim>
+    </insert>
+
+    <update id="updateSysReAcceptance" parameterType="SysReAcceptance">
+        update sys_re_acceptance
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="projectId != null">project_id = #{projectId},</if>
+            <if test="taskId != null">task_id = #{taskId},</if>
+            <if test="taskChecked != null">task_checked = #{taskChecked},</if>
+            <if test="description != null">description = #{description},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="taskOrder != null">task_order = #{taskOrder},</if>
+        </trim>
+        where accept_id = #{acceptId}
+    </update>
+
+    <delete id="deleteSysReAcceptanceByAcceptId" parameterType="String">
+        delete from sys_re_acceptance where accept_id = #{acceptId}
+    </delete>
+
+    <delete id="deleteSysReAcceptanceByTaskIds" parameterType="String">
+        delete from sys_re_acceptance where task_id in
+        <foreach item="taskId" collection="array" open="(" separator="," close=")">
+            #{taskId}
+        </foreach>
+    </delete>
+
+    <delete id="deleteSysReAcceptanceByAcceptIds" parameterType="String">
+        delete from sys_re_acceptance where accept_id in 
+        <foreach item="acceptId" collection="array" open="(" separator="," close=")">
+            #{acceptId}
+        </foreach>
+    </delete>
+</mapper>

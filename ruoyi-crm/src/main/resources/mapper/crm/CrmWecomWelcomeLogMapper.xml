@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmWecomWelcomeLogMapper">
+
+    <resultMap id="CrmWecomWelcomeLogResult" type="com.ruoyi.crm.domain.CrmWecomWelcomeLog">
+        <id property="id" column="id"/>
+        <result property="externalUserid" column="external_userid"/>
+        <result property="followUserid" column="follow_userid"/>
+        <result property="state" column="state"/>
+        <result property="welcomeTextUsed" column="welcome_text_used"/>
+        <result property="textSource" column="text_source"/>
+        <result property="errcode" column="errcode"/>
+        <result property="errmsg" column="errmsg"/>
+        <result property="skippedReason" column="skipped_reason"/>
+        <result property="createTime" column="create_time"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.ruoyi.crm.domain.CrmWecomWelcomeLog" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO crm_wecom_welcome_log (
+            external_userid, follow_userid, state, welcome_text_used, text_source,
+            errcode, errmsg, skipped_reason, create_time
+        ) VALUES (
+            #{externalUserid}, #{followUserid}, #{state}, #{welcomeTextUsed}, #{textSource},
+            #{errcode}, #{errmsg}, #{skippedReason}, #{createTime}
+        )
+    </insert>
+
+    <select id="selectList" resultMap="CrmWecomWelcomeLogResult">
+        SELECT id, external_userid, follow_userid, state, welcome_text_used, text_source,
+               errcode, errmsg, skipped_reason, create_time
+        FROM crm_wecom_welcome_log
+        <where>
+            <if test="externalUserid != null and externalUserid != ''">
+                AND external_userid = #{externalUserid}
+            </if>
+            <if test="state != null and state != ''">
+                AND state = #{state}
+            </if>
+            <if test="errcode != null">
+                AND errcode = #{errcode}
+            </if>
+            <if test="params.beginTime != null and params.beginTime != ''">
+                AND create_time &gt;= #{params.beginTime}::timestamp
+            </if>
+            <if test="params.endTime != null and params.endTime != ''">
+                AND create_time &lt;= #{params.endTime}::timestamp
+            </if>
+        </where>
+        ORDER BY id DESC
+    </select>
+</mapper>

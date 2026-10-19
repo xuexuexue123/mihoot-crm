@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmAiChatMessageMapper">
+
+    <resultMap type="com.ruoyi.crm.domain.vo.AiChatMessageVo" id="AiChatMessageVoResult">
+        <result property="messageId" column="message_id"/>
+        <result property="sessionId" column="session_id"/>
+        <result property="role" column="role"/>
+        <result property="partsJson" column="parts_json"/>
+        <result property="metadataJson" column="metadata_json"/>
+        <result property="createTime" column="create_time"/>
+    </resultMap>
+
+    <resultMap type="com.ruoyi.crm.domain.CrmAiChatMessage" id="CrmAiChatMessageResult">
+        <result property="messageId" column="message_id"/>
+        <result property="sessionId" column="session_id"/>
+        <result property="tenantId" column="tenant_id"/>
+        <result property="role" column="role"/>
+        <result property="partsJson" column="parts_json"/>
+        <result property="metadataJson" column="metadata_json"/>
+        <result property="createTime" column="create_time"/>
+    </resultMap>
+
+    <select id="selectMessagesBySession" resultMap="AiChatMessageVoResult">
+        select m.message_id, m.session_id, m.role, m.parts_json, m.metadata_json, m.create_time
+        from crm_ai_chat_message m
+        inner join crm_ai_chat_session s on s.session_id = m.session_id
+        where m.session_id = #{sessionId}
+          and m.tenant_id = #{tenantId}
+          and s.user_id = #{userId}
+          and s.del_flag = '0'
+        order by m.create_time asc
+    </select>
+
+    <select id="selectMessageById" resultMap="CrmAiChatMessageResult">
+        select message_id, session_id, tenant_id, role, parts_json, metadata_json, create_time
+        from crm_ai_chat_message
+        where message_id = #{messageId}
+    </select>
+
+    <insert id="insertMessage" parameterType="com.ruoyi.crm.domain.CrmAiChatMessage">
+        insert into crm_ai_chat_message (
+            message_id, session_id, tenant_id, role, parts_json, metadata_json, create_time
+        ) values (
+            #{messageId}, #{sessionId}, #{tenantId}, #{role}, #{partsJson}, #{metadataJson}, #{createTime}
+        )
+    </insert>
+
+    <update id="updateMessage" parameterType="com.ruoyi.crm.domain.CrmAiChatMessage">
+        update crm_ai_chat_message
+        set role = #{role},
+            parts_json = #{partsJson},
+            metadata_json = #{metadataJson}
+        where message_id = #{messageId}
+          and session_id = #{sessionId}
+          and tenant_id = #{tenantId}
+    </update>
+</mapper>

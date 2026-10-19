@@ -1,0 +1,301 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CustomerMetricsMapper">
+
+    <resultMap type="com.ruoyi.crm.domain.CustomerMetrics" id="CustomerMetricsResult">
+        <id     property="contactId"              column="contact_id"/>
+        <result property="wecomAddedAt"           column="wecom_added_at"/>
+        <result property="wecomMessageCount"      column="wecom_message_count"/>
+        <result property="wecomOutboundCount"     column="wecom_outbound_count"/>
+        <result property="wecomInboundCount"      column="wecom_inbound_count"/>
+        <result property="wecomLastMessageAt"     column="wecom_last_message_at"/>
+        <result property="wecomGroupCount"        column="wecom_group_count"/>
+        <result property="wecomActiveDays30d"     column="wecom_active_days_30d"/>
+        <result property="wechatMpFollowedAt"     column="wechat_mp_followed_at"/>
+        <result property="wechatMpArticleRead30d" column="wechat_mp_article_read_30d"/>
+        <result property="wechatMiniappLogin30d"  column="wechat_miniapp_login_30d"/>
+        <result property="wechatMiniappFormSubmit" column="wechat_miniapp_form_submit"/>
+        <result property="leadCreatedAt"          column="lead_created_at"/>
+        <result property="leadCount"              column="lead_count"/>
+        <result property="appointmentCount"       column="appointment_count"/>
+        <result property="appointmentNoshowCount" column="appointment_noshow_count"/>
+        <result property="visitCount"             column="visit_count"/>
+        <result property="firstVisitAt"           column="first_visit_at"/>
+        <result property="lastVisitAt"            column="last_visit_at"/>
+        <result property="opportunityCount"       column="opportunity_count"/>
+        <result property="opportunityWonCount"    column="opportunity_won_count"/>
+        <result property="totalRevenue"           column="total_revenue"/>
+        <result property="avgDealAmount"          column="avg_deal_amount"/>
+        <result property="lastPaymentAt"          column="last_payment_at"/>
+        <result property="aiScoreLatest"          column="ai_score_latest"/>
+        <result property="aiScoreUpdatedAt"       column="ai_score_updated_at"/>
+        <result property="aiTagCount"             column="ai_tag_count"/>
+        <result property="aiIntentLatest"         column="ai_intent_latest"/>
+        <result property="aiRiskLevel"            column="ai_risk_level"/>
+        <result property="lifecycleStage"         column="lifecycle_stage"/>
+        <result property="lifecycleStageAt"       column="lifecycle_stage_at"/>
+        <result property="churnRiskScore"         column="churn_risk_score"/>
+        <result property="totalEventCount"        column="total_event_count"/>
+        <result property="lastEventAt"            column="last_event_at"/>
+        <result property="computedAt"             column="computed_at"/>
+        <result property="updatedAt"              column="updated_at"/>
+    </resultMap>
+
+    <sql id="selectCustomerMetricsVo">
+        select contact_id, wecom_added_at, wecom_message_count, wecom_outbound_count, wecom_inbound_count,
+               wecom_last_message_at, wecom_group_count, wecom_active_days_30d,
+               wechat_mp_followed_at, wechat_mp_article_read_30d,
+               wechat_miniapp_login_30d, wechat_miniapp_form_submit,
+               lead_created_at, lead_count, appointment_count, appointment_noshow_count,
+               visit_count, first_visit_at, last_visit_at, opportunity_count, opportunity_won_count,
+               total_revenue, avg_deal_amount, last_payment_at,
+               ai_score_latest, ai_score_updated_at, ai_tag_count, ai_intent_latest, ai_risk_level,
+               lifecycle_stage, lifecycle_stage_at, churn_risk_score,
+               total_event_count, last_event_at, computed_at, updated_at
+        from customer_metrics
+    </sql>
+
+    <select id="selectByContactId" parameterType="String" resultMap="CustomerMetricsResult">
+        <include refid="selectCustomerMetricsVo"/>
+        where contact_id = #{contactId}
+    </select>
+
+    <select id="selectAllContactIds" resultType="String">
+        select contact_id from customer_metrics
+    </select>
+
+    <insert id="upsert" parameterType="com.ruoyi.crm.domain.CustomerMetrics">
+        insert into customer_metrics (
+            contact_id, wecom_added_at, wecom_message_count, wecom_outbound_count, wecom_inbound_count,
+            wecom_last_message_at, wecom_group_count, wecom_active_days_30d,
+            wechat_mp_followed_at, wechat_mp_article_read_30d,
+            wechat_miniapp_login_30d, wechat_miniapp_form_submit,
+            lead_created_at, lead_count, appointment_count, appointment_noshow_count,
+            visit_count, first_visit_at, last_visit_at, opportunity_count, opportunity_won_count,
+            total_revenue, avg_deal_amount, last_payment_at,
+            ai_score_latest, ai_score_updated_at, ai_tag_count, ai_intent_latest, ai_risk_level,
+            lifecycle_stage, lifecycle_stage_at, churn_risk_score,
+            total_event_count, last_event_at, computed_at, updated_at
+        ) values (
+            #{contactId}, #{wecomAddedAt}, #{wecomMessageCount}, #{wecomOutboundCount}, #{wecomInboundCount},
+            #{wecomLastMessageAt}, #{wecomGroupCount}, #{wecomActiveDays30d},
+            #{wechatMpFollowedAt}, #{wechatMpArticleRead30d},
+            #{wechatMiniappLogin30d}, #{wechatMiniappFormSubmit},
+            #{leadCreatedAt}, #{leadCount}, #{appointmentCount}, #{appointmentNoshowCount},
+            #{visitCount}, #{firstVisitAt}, #{lastVisitAt}, #{opportunityCount}, #{opportunityWonCount},
+            #{totalRevenue}, #{avgDealAmount}, #{lastPaymentAt},
+            #{aiScoreLatest}, #{aiScoreUpdatedAt}, #{aiTagCount}, #{aiIntentLatest}, #{aiRiskLevel},
+            #{lifecycleStage}, #{lifecycleStageAt}, #{churnRiskScore},
+            #{totalEventCount}, #{lastEventAt}, now(), now()
+        )
+        ON CONFLICT (contact_id) DO UPDATE SET
+            wecom_added_at = COALESCE(EXCLUDED.wecom_added_at, customer_metrics.wecom_added_at),
+            wecom_message_count = COALESCE(EXCLUDED.wecom_message_count, customer_metrics.wecom_message_count),
+            wecom_outbound_count = COALESCE(EXCLUDED.wecom_outbound_count, customer_metrics.wecom_outbound_count),
+            wecom_inbound_count = COALESCE(EXCLUDED.wecom_inbound_count, customer_metrics.wecom_inbound_count),
+            wecom_last_message_at = COALESCE(EXCLUDED.wecom_last_message_at, customer_metrics.wecom_last_message_at),
+            wecom_group_count = COALESCE(EXCLUDED.wecom_group_count, customer_metrics.wecom_group_count),
+            wecom_active_days_30d = COALESCE(EXCLUDED.wecom_active_days_30d, customer_metrics.wecom_active_days_30d),
+            wechat_mp_followed_at = COALESCE(EXCLUDED.wechat_mp_followed_at, customer_metrics.wechat_mp_followed_at),
+            wechat_mp_article_read_30d = COALESCE(EXCLUDED.wechat_mp_article_read_30d, customer_metrics.wechat_mp_article_read_30d),
+            wechat_miniapp_login_30d = COALESCE(EXCLUDED.wechat_miniapp_login_30d, customer_metrics.wechat_miniapp_login_30d),
+            wechat_miniapp_form_submit = COALESCE(EXCLUDED.wechat_miniapp_form_submit, customer_metrics.wechat_miniapp_form_submit),
+            lead_created_at = COALESCE(EXCLUDED.lead_created_at, customer_metrics.lead_created_at),
+            lead_count = COALESCE(EXCLUDED.lead_count, customer_metrics.lead_count),
+            appointment_count = COALESCE(EXCLUDED.appointment_count, customer_metrics.appointment_count),
+            appointment_noshow_count = COALESCE(EXCLUDED.appointment_noshow_count, customer_metrics.appointment_noshow_count),
+            visit_count = COALESCE(EXCLUDED.visit_count, customer_metrics.visit_count),
+            first_visit_at = COALESCE(EXCLUDED.first_visit_at, customer_metrics.first_visit_at),
+            last_visit_at = COALESCE(EXCLUDED.last_visit_at, customer_metrics.last_visit_at),
+            opportunity_count = COALESCE(EXCLUDED.opportunity_count, customer_metrics.opportunity_count),
+            opportunity_won_count = COALESCE(EXCLUDED.opportunity_won_count, customer_metrics.opportunity_won_count),
+            total_revenue = COALESCE(EXCLUDED.total_revenue, customer_metrics.total_revenue),
+            avg_deal_amount = COALESCE(EXCLUDED.avg_deal_amount, customer_metrics.avg_deal_amount),
+            last_payment_at = COALESCE(EXCLUDED.last_payment_at, customer_metrics.last_payment_at),
+            ai_score_latest = COALESCE(EXCLUDED.ai_score_latest, customer_metrics.ai_score_latest),
+            ai_score_updated_at = COALESCE(EXCLUDED.ai_score_updated_at, customer_metrics.ai_score_updated_at),
+            ai_tag_count = COALESCE(EXCLUDED.ai_tag_count, customer_metrics.ai_tag_count),
+            ai_intent_latest = COALESCE(EXCLUDED.ai_intent_latest, customer_metrics.ai_intent_latest),
+            ai_risk_level = COALESCE(EXCLUDED.ai_risk_level, customer_metrics.ai_risk_level),
+            lifecycle_stage = COALESCE(EXCLUDED.lifecycle_stage, customer_metrics.lifecycle_stage),
+            lifecycle_stage_at = COALESCE(EXCLUDED.lifecycle_stage_at, customer_metrics.lifecycle_stage_at),
+            churn_risk_score = COALESCE(EXCLUDED.churn_risk_score, customer_metrics.churn_risk_score),
+            total_event_count = COALESCE(EXCLUDED.total_event_count, customer_metrics.total_event_count),
+            last_event_at = COALESCE(EXCLUDED.last_event_at, customer_metrics.last_event_at),
+            computed_at = now(),
+            updated_at = now()
+    </insert>
+
+    <insert id="batchUpsert" parameterType="java.util.List">
+        insert into customer_metrics (
+            contact_id, wecom_added_at, wecom_message_count, wecom_outbound_count, wecom_inbound_count,
+            wecom_last_message_at, wecom_group_count, wecom_active_days_30d,
+            wechat_mp_followed_at, wechat_mp_article_read_30d,
+            wechat_miniapp_login_30d, wechat_miniapp_form_submit,
+            lead_created_at, lead_count, appointment_count, appointment_noshow_count,
+            visit_count, first_visit_at, last_visit_at, opportunity_count, opportunity_won_count,
+            total_revenue, avg_deal_amount, last_payment_at,
+            ai_score_latest, ai_score_updated_at, ai_tag_count, ai_intent_latest, ai_risk_level,
+            lifecycle_stage, lifecycle_stage_at, churn_risk_score,
+            total_event_count, last_event_at, computed_at, updated_at
+        ) values
+        <foreach collection="list" item="item" separator=",">
+        (
+            #{item.contactId}, #{item.wecomAddedAt}, #{item.wecomMessageCount}, #{item.wecomOutboundCount}, #{item.wecomInboundCount},
+            #{item.wecomLastMessageAt}, #{item.wecomGroupCount}, #{item.wecomActiveDays30d},
+            #{item.wechatMpFollowedAt}, #{item.wechatMpArticleRead30d},
+            #{item.wechatMiniappLogin30d}, #{item.wechatMiniappFormSubmit},
+            #{item.leadCreatedAt}, #{item.leadCount}, #{item.appointmentCount}, #{item.appointmentNoshowCount},
+            #{item.visitCount}, #{item.firstVisitAt}, #{item.lastVisitAt}, #{item.opportunityCount}, #{item.opportunityWonCount},
+            #{item.totalRevenue}, #{item.avgDealAmount}, #{item.lastPaymentAt},
+            #{item.aiScoreLatest}, #{item.aiScoreUpdatedAt}, #{item.aiTagCount}, #{item.aiIntentLatest}, #{item.aiRiskLevel},
+            #{item.lifecycleStage}, #{item.lifecycleStageAt}, #{item.churnRiskScore},
+            #{item.totalEventCount}, #{item.lastEventAt}, now(), now()
+        )
+        </foreach>
+        ON CONFLICT (contact_id) DO UPDATE SET
+            wecom_added_at = COALESCE(EXCLUDED.wecom_added_at, customer_metrics.wecom_added_at),
+            wecom_message_count = COALESCE(EXCLUDED.wecom_message_count, customer_metrics.wecom_message_count),
+            wecom_outbound_count = COALESCE(EXCLUDED.wecom_outbound_count, customer_metrics.wecom_outbound_count),
+            wecom_inbound_count = COALESCE(EXCLUDED.wecom_inbound_count, customer_metrics.wecom_inbound_count),
+            wecom_last_message_at = COALESCE(EXCLUDED.wecom_last_message_at, customer_metrics.wecom_last_message_at),
+            wecom_group_count = COALESCE(EXCLUDED.wecom_group_count, customer_metrics.wecom_group_count),
+            wecom_active_days_30d = COALESCE(EXCLUDED.wecom_active_days_30d, customer_metrics.wecom_active_days_30d),
+            wechat_mp_followed_at = COALESCE(EXCLUDED.wechat_mp_followed_at, customer_metrics.wechat_mp_followed_at),
+            wechat_mp_article_read_30d = COALESCE(EXCLUDED.wechat_mp_article_read_30d, customer_metrics.wechat_mp_article_read_30d),
+            wechat_miniapp_login_30d = COALESCE(EXCLUDED.wechat_miniapp_login_30d, customer_metrics.wechat_miniapp_login_30d),
+            wechat_miniapp_form_submit = COALESCE(EXCLUDED.wechat_miniapp_form_submit, customer_metrics.wechat_miniapp_form_submit),
+            lead_created_at = COALESCE(EXCLUDED.lead_created_at, customer_metrics.lead_created_at),
+            lead_count = COALESCE(EXCLUDED.lead_count, customer_metrics.lead_count),
+            appointment_count = COALESCE(EXCLUDED.appointment_count, customer_metrics.appointment_count),
+            appointment_noshow_count = COALESCE(EXCLUDED.appointment_noshow_count, customer_metrics.appointment_noshow_count),
+            visit_count = COALESCE(EXCLUDED.visit_count, customer_metrics.visit_count),
+            first_visit_at = COALESCE(EXCLUDED.first_visit_at, customer_metrics.first_visit_at),
+            last_visit_at = COALESCE(EXCLUDED.last_visit_at, customer_metrics.last_visit_at),
+            opportunity_count = COALESCE(EXCLUDED.opportunity_count, customer_metrics.opportunity_count),
+            opportunity_won_count = COALESCE(EXCLUDED.opportunity_won_count, customer_metrics.opportunity_won_count),
+            total_revenue = COALESCE(EXCLUDED.total_revenue, customer_metrics.total_revenue),
+            avg_deal_amount = COALESCE(EXCLUDED.avg_deal_amount, customer_metrics.avg_deal_amount),
+            last_payment_at = COALESCE(EXCLUDED.last_payment_at, customer_metrics.last_payment_at),
+            ai_score_latest = COALESCE(EXCLUDED.ai_score_latest, customer_metrics.ai_score_latest),
+            ai_score_updated_at = COALESCE(EXCLUDED.ai_score_updated_at, customer_metrics.ai_score_updated_at),
+            ai_tag_count = COALESCE(EXCLUDED.ai_tag_count, customer_metrics.ai_tag_count),
+            ai_intent_latest = COALESCE(EXCLUDED.ai_intent_latest, customer_metrics.ai_intent_latest),
+            ai_risk_level = COALESCE(EXCLUDED.ai_risk_level, customer_metrics.ai_risk_level),
+            lifecycle_stage = COALESCE(EXCLUDED.lifecycle_stage, customer_metrics.lifecycle_stage),
+            lifecycle_stage_at = COALESCE(EXCLUDED.lifecycle_stage_at, customer_metrics.lifecycle_stage_at),
+            churn_risk_score = COALESCE(EXCLUDED.churn_risk_score, customer_metrics.churn_risk_score),
+            total_event_count = COALESCE(EXCLUDED.total_event_count, customer_metrics.total_event_count),
+            last_event_at = COALESCE(EXCLUDED.last_event_at, customer_metrics.last_event_at),
+            computed_at = now(),
+            updated_at = now()
+    </insert>
+
+    <!-- 全量重算专用：覆写式批量 upsert（不使用 COALESCE，全部以新值覆盖） -->
+    <insert id="batchUpsertOverwrite" parameterType="java.util.List">
+        insert into customer_metrics (
+            contact_id, wecom_added_at, wecom_message_count, wecom_outbound_count, wecom_inbound_count,
+            wecom_last_message_at, wecom_group_count, wecom_active_days_30d,
+            wechat_mp_followed_at, wechat_mp_article_read_30d,
+            wechat_miniapp_login_30d, wechat_miniapp_form_submit,
+            lead_created_at, lead_count, appointment_count, appointment_noshow_count,
+            visit_count, first_visit_at, last_visit_at, opportunity_count, opportunity_won_count,
+            total_revenue, avg_deal_amount, last_payment_at,
+            ai_score_latest, ai_score_updated_at, ai_tag_count, ai_intent_latest, ai_risk_level,
+            lifecycle_stage, lifecycle_stage_at, churn_risk_score,
+            total_event_count, last_event_at, computed_at, updated_at
+        ) values
+        <foreach collection="list" item="item" separator=",">
+        (
+            #{item.contactId}, #{item.wecomAddedAt}, #{item.wecomMessageCount}, #{item.wecomOutboundCount}, #{item.wecomInboundCount},
+            #{item.wecomLastMessageAt}, #{item.wecomGroupCount}, #{item.wecomActiveDays30d},
+            #{item.wechatMpFollowedAt}, #{item.wechatMpArticleRead30d},
+            #{item.wechatMiniappLogin30d}, #{item.wechatMiniappFormSubmit},
+            #{item.leadCreatedAt}, #{item.leadCount}, #{item.appointmentCount}, #{item.appointmentNoshowCount},
+            #{item.visitCount}, #{item.firstVisitAt}, #{item.lastVisitAt}, #{item.opportunityCount}, #{item.opportunityWonCount},
+            #{item.totalRevenue}, #{item.avgDealAmount}, #{item.lastPaymentAt},
+            #{item.aiScoreLatest}, #{item.aiScoreUpdatedAt}, #{item.aiTagCount}, #{item.aiIntentLatest}, #{item.aiRiskLevel},
+            #{item.lifecycleStage}, #{item.lifecycleStageAt}, #{item.churnRiskScore},
+            #{item.totalEventCount}, #{item.lastEventAt}, now(), now()
+        )
+        </foreach>
+        ON CONFLICT (contact_id) DO UPDATE SET
+            wecom_added_at = EXCLUDED.wecom_added_at,
+            wecom_message_count = EXCLUDED.wecom_message_count,
+            wecom_outbound_count = EXCLUDED.wecom_outbound_count,
+            wecom_inbound_count = EXCLUDED.wecom_inbound_count,
+            wecom_last_message_at = EXCLUDED.wecom_last_message_at,
+            wecom_group_count = EXCLUDED.wecom_group_count,
+            wecom_active_days_30d = EXCLUDED.wecom_active_days_30d,
+            wechat_mp_followed_at = EXCLUDED.wechat_mp_followed_at,
+            wechat_mp_article_read_30d = EXCLUDED.wechat_mp_article_read_30d,
+            wechat_miniapp_login_30d = EXCLUDED.wechat_miniapp_login_30d,
+            wechat_miniapp_form_submit = EXCLUDED.wechat_miniapp_form_submit,
+            lead_created_at = EXCLUDED.lead_created_at,
+            lead_count = EXCLUDED.lead_count,
+            appointment_count = EXCLUDED.appointment_count,
+            appointment_noshow_count = EXCLUDED.appointment_noshow_count,
+            visit_count = EXCLUDED.visit_count,
+            first_visit_at = EXCLUDED.first_visit_at,
+            last_visit_at = EXCLUDED.last_visit_at,
+            opportunity_count = EXCLUDED.opportunity_count,
+            opportunity_won_count = EXCLUDED.opportunity_won_count,
+            total_revenue = EXCLUDED.total_revenue,
+            avg_deal_amount = EXCLUDED.avg_deal_amount,
+            last_payment_at = EXCLUDED.last_payment_at,
+            ai_score_latest = EXCLUDED.ai_score_latest,
+            ai_score_updated_at = EXCLUDED.ai_score_updated_at,
+            ai_tag_count = EXCLUDED.ai_tag_count,
+            ai_intent_latest = EXCLUDED.ai_intent_latest,
+            ai_risk_level = EXCLUDED.ai_risk_level,
+            lifecycle_stage = EXCLUDED.lifecycle_stage,
+            lifecycle_stage_at = EXCLUDED.lifecycle_stage_at,
+            churn_risk_score = EXCLUDED.churn_risk_score,
+            total_event_count = EXCLUDED.total_event_count,
+            last_event_at = EXCLUDED.last_event_at,
+            computed_at = now(),
+            updated_at = now()
+    </insert>
+
+    <select id="selectContactsWithNoRecentWecomMessage" resultMap="com.ruoyi.crm.mapper.CrmContactMapper.CrmContactResult">
+        select c.contact_id, c.org_id, c.account_id, c.name, c.full_name, c.account_name, c.salutation, c.title, c.marital_status, c.birthDate, c.age, c.work_phone, c.work_email, c.gender, c.personal_email, c.mobile_phone, c.client_type, c.territory, c.owner, c.management_level, c.department, c.reports_to, c.reports_to_id, c.favorability_rating, c.influence_rating, c.assistant, c.assistant_phone, c.assistant_email, c.allow_call, c.allow_email, c.is_customer, c.is_org_customer, c.responsibility, c.active_opty_count, c.active_lead_count, c.active_opty_amount, c.status, c.working_years, c.is_active, c.degree, c.major, c.origin, c.original_source, c.sid, c.source_lead_id, c.first_visit_clinic_id, c.imaging_portal_url, c.imaging_patient_external_id, c.first_visit_at, c.last_visit_at, c.visit_count, c.acquisition_cost, c.wecom_external_userid, c.wecom_follow_userid, c.wecom_name, c.wecom_avatar, c.wecom_gender, c.wecom_type, c.wechat, c.location, c.school, c.tag, c.create_by, c.create_time, c.update_by, c.update_time, c.user_id, c.dept_id, c.custom_field, c.sid, c.resources, c.requirement, c.rr_description, c.name_card, c.avatar, c.priority
+        from crm_contact c
+        join customer_metrics m on m.contact_id = c.contact_id
+        left join sys_user u on u.user_id = c.user_id
+        left join sys_dept d on u.dept_id = d.dept_id
+        where (m.wecom_last_message_at IS NULL OR m.wecom_last_message_at &lt; CURRENT_DATE - #{daysThreshold} * INTERVAL '1 day')
+    </select>
+
+    <select id="selectContactsByWecomAddedAnniversary" resultMap="com.ruoyi.crm.mapper.CrmContactMapper.CrmContactResult">
+        select c.contact_id, c.org_id, c.account_id, c.name, c.full_name, c.account_name, c.salutation, c.title, c.marital_status, c.birthDate, c.age, c.work_phone, c.work_email, c.gender, c.personal_email, c.mobile_phone, c.client_type, c.territory, c.owner, c.management_level, c.department, c.reports_to, c.reports_to_id, c.favorability_rating, c.influence_rating, c.assistant, c.assistant_phone, c.assistant_email, c.allow_call, c.allow_email, c.is_customer, c.is_org_customer, c.responsibility, c.active_opty_count, c.active_lead_count, c.active_opty_amount, c.status, c.working_years, c.is_active, c.degree, c.major, c.origin, c.original_source, c.sid, c.source_lead_id, c.first_visit_clinic_id, c.imaging_portal_url, c.imaging_patient_external_id, c.first_visit_at, c.last_visit_at, c.visit_count, c.acquisition_cost, c.wecom_external_userid, c.wecom_follow_userid, c.wecom_name, c.wecom_avatar, c.wecom_gender, c.wecom_type, c.wechat, c.location, c.school, c.tag, c.create_by, c.create_time, c.update_by, c.update_time, c.user_id, c.dept_id, c.custom_field, c.sid, c.resources, c.requirement, c.rr_description, c.name_card, c.avatar, c.priority
+        from crm_contact c
+        join customer_metrics m on m.contact_id = c.contact_id
+        left join sys_user u on u.user_id = c.user_id
+        left join sys_dept d on u.dept_id = d.dept_id
+        where m.wecom_added_at IS NOT NULL
+          AND EXTRACT(MONTH FROM m.wecom_added_at) = EXTRACT(MONTH FROM CURRENT_DATE)
+          AND EXTRACT(DAY FROM m.wecom_added_at) = EXTRACT(DAY FROM CURRENT_DATE)
+          AND EXTRACT(YEAR FROM m.wecom_added_at) &lt; EXTRACT(YEAR FROM CURRENT_DATE)
+    </select>
+
+    <select id="selectContactsByWecomAddedDaysAgo" resultMap="com.ruoyi.crm.mapper.CrmContactMapper.CrmContactResult">
+        select c.contact_id, c.org_id, c.account_id, c.name, c.full_name, c.account_name, c.salutation, c.title, c.marital_status, c.birthDate, c.age, c.work_phone, c.work_email, c.gender, c.personal_email, c.mobile_phone, c.client_type, c.territory, c.owner, c.management_level, c.department, c.reports_to, c.reports_to_id, c.favorability_rating, c.influence_rating, c.assistant, c.assistant_phone, c.assistant_email, c.allow_call, c.allow_email, c.is_customer, c.is_org_customer, c.responsibility, c.active_opty_count, c.active_lead_count, c.active_opty_amount, c.status, c.working_years, c.is_active, c.degree, c.major, c.origin, c.original_source, c.sid, c.source_lead_id, c.first_visit_clinic_id, c.imaging_portal_url, c.imaging_patient_external_id, c.first_visit_at, c.last_visit_at, c.visit_count, c.acquisition_cost, c.wecom_external_userid, c.wecom_follow_userid, c.wecom_name, c.wecom_avatar, c.wecom_gender, c.wecom_type, c.wechat, c.location, c.school, c.tag, c.create_by, c.create_time, c.update_by, c.update_time, c.user_id, c.dept_id, c.custom_field, c.sid, c.resources, c.requirement, c.rr_description, c.name_card, c.avatar, c.priority
+        from crm_contact c
+        join customer_metrics m on m.contact_id = c.contact_id
+        left join sys_user u on u.user_id = c.user_id
+        left join sys_dept d on u.dept_id = d.dept_id
+        where m.wecom_added_at::date = CURRENT_DATE - #{daysAfter}
+    </select>
+
+    <select id="selectContactsByWechatMpFollowedDaysAgo" resultMap="com.ruoyi.crm.mapper.CrmContactMapper.CrmContactResult">
+        select c.contact_id, c.org_id, c.account_id, c.name, c.full_name, c.account_name, c.salutation, c.title, c.marital_status, c.birthDate, c.age, c.work_phone, c.work_email, c.gender, c.personal_email, c.mobile_phone, c.client_type, c.territory, c.owner, c.management_level, c.department, c.reports_to, c.reports_to_id, c.favorability_rating, c.influence_rating, c.assistant, c.assistant_phone, c.assistant_email, c.allow_call, c.allow_email, c.is_customer, c.is_org_customer, c.responsibility, c.active_opty_count, c.active_lead_count, c.active_opty_amount, c.status, c.working_years, c.is_active, c.degree, c.major, c.origin, c.original_source, c.sid, c.source_lead_id, c.first_visit_clinic_id, c.imaging_portal_url, c.imaging_patient_external_id, c.first_visit_at, c.last_visit_at, c.visit_count, c.acquisition_cost, c.wecom_external_userid, c.wecom_follow_userid, c.wecom_name, c.wecom_avatar, c.wecom_gender, c.wecom_type, c.wechat, c.location, c.school, c.tag, c.create_by, c.create_time, c.update_by, c.update_time, c.user_id, c.dept_id, c.custom_field, c.sid, c.resources, c.requirement, c.rr_description, c.name_card, c.avatar, c.priority
+        from crm_contact c
+        join customer_metrics m on m.contact_id = c.contact_id
+        left join sys_user u on u.user_id = c.user_id
+        left join sys_dept d on u.dept_id = d.dept_id
+        where m.wechat_mp_followed_at::date = CURRENT_DATE - #{daysAfter}
+    </select>
+
+</mapper>

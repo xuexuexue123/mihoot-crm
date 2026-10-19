@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmFollowupRuleEnrollmentMapper">
+
+    <resultMap type="com.ruoyi.crm.domain.CrmFollowupRuleEnrollment" id="EnrollmentResult">
+        <result property="enrollmentId" column="enrollment_id"/>
+        <result property="tenantId" column="tenant_id"/>
+        <result property="ruleId" column="rule_id"/>
+        <result property="triggerType" column="trigger_type"/>
+        <result property="subjectType" column="subject_type"/>
+        <result property="subjectId" column="subject_id"/>
+        <result property="status" column="status"/>
+        <result property="nextRunAt" column="next_run_at"/>
+        <result property="idempotencyKey" column="idempotency_key"/>
+        <result property="triggerPayload" column="trigger_payload"/>
+        <result property="taskId" column="task_id"/>
+        <result property="skipReason" column="skip_reason"/>
+        <result property="cancelReason" column="cancel_reason"/>
+        <result property="retryCount" column="retry_count"/>
+        <result property="firedTime" column="fired_time"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <resultMap type="com.ruoyi.crm.domain.vo.FollowupRuleEnrollmentVo" id="EnrollmentVoResult">
+        <result property="enrollmentId" column="enrollment_id"/>
+        <result property="ruleId" column="rule_id"/>
+        <result property="triggerType" column="trigger_type"/>
+        <result property="subjectType" column="subject_type"/>
+        <result property="subjectId" column="subject_id"/>
+        <result property="status" column="status"/>
+        <result property="nextRunAt" column="next_run_at"/>
+        <result property="taskId" column="task_id"/>
+        <result property="skipReason" column="skip_reason"/>
+        <result property="cancelReason" column="cancel_reason"/>
+        <result property="retryCount" column="retry_count"/>
+        <result property="firedTime" column="fired_time"/>
+        <result property="createTime" column="create_time"/>
+    </resultMap>
+
+    <select id="selectById" resultMap="EnrollmentResult">
+        select * from crm_followup_rule_enrollment where enrollment_id = #{enrollmentId}
+    </select>
+
+    <select id="selectByIdempotency" resultMap="EnrollmentResult">
+        select * from crm_followup_rule_enrollment
+        where tenant_id = #{tenantId} and idempotency_key = #{idempotencyKey}
+        limit 1
+    </select>
+
+    <select id="selectList" resultMap="EnrollmentVoResult">
+        select enrollment_id, rule_id, trigger_type, subject_type, subject_id, status,
+               next_run_at, task_id, skip_reason, cancel_reason, retry_count, fired_time, create_time
+        from crm_followup_rule_enrollment
+        where tenant_id = #{tenantId}
+        <if test="ruleId != null and ruleId != ''">
+            and rule_id = #{ruleId}
+        </if>
+        <if test="status != null and status != ''">
+            and status = #{status}
+        </if>
+        <if test="subjectId != null and subjectId != ''">
+            and subject_id = #{subjectId}
+        </if>
+        order by create_time desc
+    </select>
+
+    <select id="countFiredBySubject" resultType="int">
+        select count(1) from crm_followup_rule_enrollment
+        where tenant_id = #{tenantId}
+          and rule_id = #{ruleId}
+          and subject_type = #{subjectType}
+          and subject_id = #{subjectId}
+          and status = 'fired'
+    </select>
+
+    <select id="countFiredSince" resultType="int">
+        select count(1) from crm_followup_rule_enrollment
+        where tenant_id = #{tenantId}
+          and rule_id = #{ruleId}
+          and subject_type = #{subjectType}
+          and subject_id = #{subjectId}
+          and status = 'fired'
+          and fired_time &gt;= #{since}
+    </select>
+
+    <select id="selectPendingBySubjectAndRule" resultMap="EnrollmentResult">
+        select * from crm_followup_rule_enrollment
+        where tenant_id = #{tenantId}
+          and rule_id = #{ruleId}
+          and subject_type = #{subjectType}
+          and subject_id = #{subjectId}
+          and status = 'pending'
+        order by next_run_at asc
+        limit 1
+    </select>
+
+    <select id="selectPendingBySubject" resultMap="EnrollmentResult">
+        select * from crm_followup_rule_enrollment
+        where tenant_id = #{tenantId}
+          and subject_type = #{subjectType}
+          and subject_id = #{subjectId}
+          and status = 'pending'
+        <if test="triggerType != null and triggerType != ''">
+            and trigger_type = #{triggerType}
+        </if>
+    </select>
+
+    <select id="selectDuePending" resultMap="EnrollmentResult">
+        select * from crm_followup_rule_enrollment
+        where tenant_id = #{tenantId}
+          and status = 'pending'
+          and next_run_at &lt;= #{now}
+          and retry_count &lt; #{maxRetry}
+        order by next_run_at asc
+        limit #{limit}
+        for update skip locked
+    </select>
+
+    <insert id="insertIgnoreDuplicate" parameterType="com.ruoyi.crm.domain.CrmFollowupRuleEnrollment">
+        insert into crm_followup_rule_enrollment (
+            enrollment_id, tenant_id, rule_id, trigger_type, subject_type, subject_id,
+            status, next_run_at, idempotency_key, trigger_payload, retry_count, create_time, update_time
+        ) values (
+            #{enrollmentId}, #{tenantId}, #{ruleId}, #{triggerType}, #{subjectType}, #{subjectId},
+            #{status}, #{nextRunAt}, #{idempotencyKey}, #{triggerPayload},
+            COALESCE(#{retryCount}, 0), COALESCE(#{createTime}, now()), COALESCE(#{updateTime}, now())
+        )
+        on conflict (tenant_id, idempotency_key) do nothing
+    </insert>
+
+    <update id="updateNextRunAt">
+        update crm_followup_rule_enrollment
+        set next_run_at = #{nextRunAt},
+            update_time = now()
+        where enrollment_id = #{enrollmentId}
+          and status = 'pending'
+    </update>
+
+    <update id="markFired">
+        update crm_followup_rule_enrollment
+        set status = 'fired',
+            task_id = #{taskId},
+            fired_time = now(),
+            update_time = now()
+        where enrollment_id = #{enrollmentId}
+          and status = 'pending'
+    </update>
+
+    <update id="markSkipped">
+        update crm_followup_rule_enrollment
+        set status = 'skipped',
+            skip_reason = #{skipReason},
+            update_time = now()
+        where enrollment_id = #{enrollmentId}
+          and status = 'pending'
+    </update>
+
+    <update id="incrementRetry">
+        update crm_followup_rule_enrollment
+        set retry_count = retry_count + 1,
+            update_time = now()
+        where enrollment_id = #{enrollmentId}
+          and status = 'pending'
+    </update>
+
+    <update id="cancelPendingBySubject">
+        update crm_followup_rule_enrollment
+        set status = 'cancelled',
+            cancel_reason = #{cancelReason},
+            update_time = now()
+        where tenant_id = #{tenantId}
+          and subject_type = #{subjectType}
+          and subject_id = #{subjectId}
+          and status = 'pending'
+        <if test="triggerType != null and triggerType != ''">
+            and trigger_type = #{triggerType}
+        </if>
+    </update>
+</mapper>

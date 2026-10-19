@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmTerritoryMapper">
+    
+    <resultMap type="CrmTerritory" id="CrmTerritoryResult">
+        <result property="territoryId"    column="territory_id"    />
+        <result property="territoryName"    column="territory_name"    />
+        <result property="isActive"    column="is_active"    />
+        <result property="parentId"    column="parent_id"    />
+        <result property="parentName"    column="parent_name"    />
+        <result property="forecastManager"    column="forecast_manager"    />
+        <result property="forecastManagerid"    column="forecast_managerid"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="dictCode"    column="dict_code"    />
+    </resultMap>
+
+    <sql id="selectCrmTerritoryVo">
+        select territory_id, territory_name, is_active, parent_id, parent_name, forecast_manager, forecast_managerid, create_by, create_time, update_by, update_time, dict_code from crm_territory
+    </sql>
+
+    <select id="selectCrmTerritoryList" parameterType="CrmTerritory" resultMap="CrmTerritoryResult">
+        <include refid="selectCrmTerritoryVo"/>
+        <where>  
+            <if test="territoryName != null  and territoryName != ''"> and territory_name like concat('%', #{territoryName}, '%')</if>
+            <if test="isActive != null  and isActive != ''"> and is_active = #{isActive}</if>
+            <if test="parentId != null  and parentId != ''"> and parent_id = #{parentId}</if>
+            <if test="parentName != null  and parentName != ''"> and parent_name like concat('%', #{parentName}, '%')</if>
+            <if test="forecastManager != null  and forecastManager != ''"> and forecast_manager = #{forecastManager}</if>
+            <if test="forecastManagerid != null  and forecastManagerid != ''"> and forecast_managerid = #{forecastManagerid}</if>
+            <if test="dictCode != null "> and dict_code = #{dictCode}</if>
+        </where>
+        order by create_time
+    </select>
+    
+    <select id="selectCrmTerritoryByTerritoryId" parameterType="String" resultMap="CrmTerritoryResult">
+        <include refid="selectCrmTerritoryVo"/>
+        where territory_id = #{territoryId}
+    </select>
+        
+    <insert id="insertCrmTerritory" parameterType="CrmTerritory">
+        insert into crm_territory
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="territoryId != null">territory_id,</if>
+            <if test="territoryName != null and territoryName != ''">territory_name,</if>
+            <if test="isActive != null">is_active,</if>
+            <if test="parentId != null and parentId != ''">parent_id,</if>
+            <if test="parentName != null and parentName != ''">parent_name,</if>
+            <if test="forecastManager != null">forecast_manager,</if>
+            <if test="forecastManagerid != null">forecast_managerid,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="dictCode != null">dict_code,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="territoryId != null">#{territoryId},</if>
+            <if test="territoryName != null and territoryName != ''">#{territoryName},</if>
+            <if test="isActive != null">#{isActive},</if>
+            <if test="parentId != null and parentId != ''">#{parentId},</if>
+            <if test="parentName != null and parentName != ''">#{parentName},</if>
+            <if test="forecastManager != null">#{forecastManager},</if>
+            <if test="forecastManagerid != null">#{forecastManagerid},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="dictCode != null">#{dictCode},</if>
+         </trim>
+    </insert>
+
+    <update id="updateCrmTerritory" parameterType="CrmTerritory">
+        update crm_territory
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="territoryName != null and territoryName != ''">territory_name = #{territoryName},</if>
+            <if test="isActive != null">is_active = #{isActive},</if>
+            <if test="parentId != null and parentId != ''">parent_id = #{parentId},</if>
+            <if test="parentName != null and parentName != ''">parent_name = #{parentName},</if>
+            <if test="forecastManager != null">forecast_manager = #{forecastManager},</if>
+            <if test="forecastManagerid != null">forecast_managerid = #{forecastManagerid},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="dictCode != null">dict_code = #{dictCode},</if>
+        </trim>
+        where territory_id = #{territoryId}
+    </update>
+
+    <delete id="deleteCrmTerritoryByTerritoryId" parameterType="String">
+        delete from crm_territory where territory_id = #{territoryId}
+    </delete>
+
+    <delete id="deleteCrmTerritoryByTerritoryIds" parameterType="String">
+        delete from crm_territory where territory_id in 
+        <foreach item="territoryId" collection="array" open="(" separator="," close=")">
+            #{territoryId}
+        </foreach>
+    </delete>
+</mapper>

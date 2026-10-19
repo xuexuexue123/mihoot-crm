@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmLeadStatsMapper">
+
+    <sql id="leadStatsJoin">
+        FROM crm_lead l
+        LEFT JOIN sys_user u ON l.user_id = u.user_id
+        LEFT JOIN sys_dept d ON l.dept_id = d.dept_id
+    </sql>
+
+    <sql id="leadStatsFilters">
+        <where>
+            <if test="leadType != null and leadType != ''">AND l.lead_type = #{leadType}</if>
+            <if test="orgId != null and orgId != ''">AND l.org_id = #{orgId}</if>
+            <if test="deptId != null">AND l.dept_id = #{deptId}</if>
+            ${params.dataScope}
+        </where>
+    </sql>
+
+    <select id="countNewLeads" parameterType="com.ruoyi.crm.domain.dto.CrmLeadStatsQuery" resultType="java.lang.Long">
+        SELECT COUNT(*)
+        <include refid="leadStatsJoin"/>
+        <where>
+            <if test="from != null">AND l.create_time &gt;= #{from}</if>
+            <if test="to != null">AND l.create_time &lt; (#{to}::date + interval '1 day')</if>
+            <if test="leadType != null and leadType != ''">AND l.lead_type = #{leadType}</if>
+            <if test="orgId != null and orgId != ''">AND l.org_id = #{orgId}</if>
+            <if test="deptId != null">AND l.dept_id = #{deptId}</if>
+            ${params.dataScope}
+        </where>
+    </select>
+
+    <select id="countConvertedInRange" parameterType="com.ruoyi.crm.domain.dto.CrmLeadStatsQuery" resultType="java.lang.Long">
+        SELECT COUNT(*)
+        <include refid="leadStatsJoin"/>
+        <where>
+            AND lower(trim(coalesce(l.status, ''))) = 'converted'
+            <if test="from != null">AND l.convert_time &gt;= #{from}</if>
+            <if test="to != null">AND l.convert_time &lt; (#{to}::date + interval '1 day')</if>
+            <if test="leadType != null and leadType != ''">AND l.lead_type = #{leadType}</if>
+            <if test="orgId != null and orgId != ''">AND l.org_id = #{orgId}</if>
+            <if test="deptId != null">AND l.dept_id = #{deptId}</if>
+            ${params.dataScope}
+        </where>
+    </select>
+
+    <select id="countActiveLeads" parameterType="com.ruoyi.crm.domain.dto.CrmLeadStatsQuery" resultType="java.lang.Long">
+        SELECT COUNT(DISTINCT l.lead_id)
+        <include refid="leadStatsJoin"/>
+        <where>
+            AND lower(trim(coalesce(l.status, ''))) IN ('open', 'assigned')
+            <if test="from != null">
+                AND (
+                    l.update_time &gt;= #{from}
+                    OR EXISTS (
+                        SELECT 1 FROM crm_activity a
+                        WHERE a.relate_id = l.lead_id
+                          AND a.relate_type = '业务线索'
+                          AND a.started_date &gt;= #{from}
+                    )
+                )
+            </if>
+            <if test="to != null">
+                AND (
+                    l.update_time &lt; (#{to}::date + interval '1 day')
+                    OR EXISTS (
+                        SELECT 1 FROM crm_activity a
+                        WHERE a.relate_id = l.lead_id
+                          AND a.relate_type = '业务线索'
+                          AND a.started_date &lt; (#{to}::date + interval '1 day')
+                    )
+                )
+            </if>
+            <if test="leadType != null and leadType != ''">AND l.lead_type = #{leadType}</if>
+            <if test="orgId != null and orgId != ''">AND l.org_id = #{orgId}</if>
+            <if test="deptId != null">AND l.dept_id = #{deptId}</if>
+            ${params.dataScope}
+        </where>
+    </select>
+
+    <select id="countOpenPool" parameterType="com.ruoyi.crm.domain.dto.CrmLeadStatsQuery" resultType="java.lang.Long">
+        SELECT COUNT(*)
+        <include refid="leadStatsJoin"/>
+        <where>
+            AND lower(trim(coalesce(l.status, ''))) = 'open'
+            AND l.user_id IS NULL
+            <if test="leadType != null and leadType != ''">AND l.lead_type = #{leadType}</if>
+            <if test="orgId != null and orgId != ''">AND l.org_id = #{orgId}</if>
+            <if test="deptId != null">AND l.dept_id = #{deptId}</if>
+            ${params.dataScope}
+        </where>
+    </select>
+
+    <select id="countAssignedPool" parameterType="com.ruoyi.crm.domain.dto.CrmLeadStatsQuery" resultType="java.lang.Long">
+        SELECT COUNT(*)
+        <include refid="leadStatsJoin"/>
+        <where>
+            AND lower(trim(coalesce(l.status, ''))) = 'assigned'
+            <if test="leadType != null and leadType != ''">AND l.lead_type = #{leadType}</if>
+            <if test="orgId != null and orgId != ''">AND l.org_id = #{orgId}</if>
+            <if test="deptId != null">AND l.dept_id = #{deptId}</if>
+            ${params.dataScope}
+        </where>
+    </select>
+
+    <select id="selectFunnelByStage" parameterType="com.ruoyi.crm.domain.dto.CrmLeadStatsQuery" resultType="java.util.Map">
+        SELECT COALESCE(NULLIF(TRIM(l.stage), ''), 'unknown') AS stage,
+               COUNT(*) AS count
+        <include refid="leadStatsJoin"/>
+        <where>
+            AND lower(trim(coalesce(l.status, ''))) IN ('open', 'assigned')
+            <if test="leadType != null and leadType != ''">AND l.lead_type = #{leadType}</if>
+            <if test="orgId != null and orgId != ''">AND l.org_id = #{orgId}</if>
+            <if test="deptId != null">AND l.dept_id = #{deptId}</if>
+            ${params.dataScope}
+        </where>
+        GROUP BY COALESCE(NULLIF(TRIM(l.stage), ''), 'unknown')
+        ORDER BY count DESC
+    </select>
+
+    <select id="selectConversionByOwner" parameterType="com.ruoyi.crm.domain.dto.CrmLeadStatsQuery" resultType="java.util.Map">
+        SELECT l.owner AS owner,
+               l.user_id AS userId,
+               COUNT(*) AS convertedCount
+        <include refid="leadStatsJoin"/>
+        <where>
+            AND lower(trim(coalesce(l.status, ''))) = 'converted'
+            <if test="from != null">AND l.convert_time &gt;= #{from}</if>
+            <if test="to != null">AND l.convert_time &lt; (#{to}::date + interval '1 day')</if>
+            <if test="leadType != null and leadType != ''">AND l.lead_type = #{leadType}</if>
+            <if test="orgId != null and orgId != ''">AND l.org_id = #{orgId}</if>
+            <if test="deptId != null">AND l.dept_id = #{deptId}</if>
+            ${params.dataScope}
+        </where>
+        GROUP BY l.owner, l.user_id
+        ORDER BY convertedCount DESC
+        <if test="limit != null">LIMIT #{limit}</if>
+    </select>
+
+    <select id="selectTrendSeries" parameterType="com.ruoyi.crm.domain.dto.CrmLeadStatsQuery" resultType="java.util.Map">
+        SELECT t.period AS period,
+               SUM(t.new_leads) AS newLeads,
+               SUM(t.converted_count) AS convertedCount
+        FROM (
+            SELECT to_char(l.create_time, 'YYYY-MM-DD') AS period,
+                   COUNT(*)::bigint AS new_leads,
+                   0::bigint AS converted_count
+            <include refid="leadStatsJoin"/>
+            <where>
+                <if test="from != null">AND l.create_time &gt;= #{from}</if>
+                <if test="to != null">AND l.create_time &lt; (#{to}::date + interval '1 day')</if>
+                <if test="leadType != null and leadType != ''">AND l.lead_type = #{leadType}</if>
+                ${params.dataScope}
+            </where>
+            GROUP BY to_char(l.create_time, 'YYYY-MM-DD')
+            UNION ALL
+            SELECT to_char(l.convert_time, 'YYYY-MM-DD') AS period,
+                   0::bigint AS new_leads,
+                   COUNT(*)::bigint AS converted_count
+            <include refid="leadStatsJoin"/>
+            <where>
+                AND lower(trim(coalesce(l.status, ''))) = 'converted'
+                AND l.convert_time IS NOT NULL
+                <if test="from != null">AND l.convert_time &gt;= #{from}</if>
+                <if test="to != null">AND l.convert_time &lt; (#{to}::date + interval '1 day')</if>
+                <if test="leadType != null and leadType != ''">AND l.lead_type = #{leadType}</if>
+                ${params.dataScope}
+            </where>
+            GROUP BY to_char(l.convert_time, 'YYYY-MM-DD')
+        ) t
+        GROUP BY t.period
+        ORDER BY t.period ASC
+    </select>
+</mapper>

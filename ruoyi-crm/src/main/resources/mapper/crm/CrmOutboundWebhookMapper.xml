@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmOutboundWebhookMapper">
+
+    <resultMap type="com.ruoyi.crm.domain.vo.OutboundWebhookVo" id="OutboundWebhookVoResult">
+        <result property="webhookId" column="webhook_id"/>
+        <result property="name" column="name"/>
+        <result property="url" column="url"/>
+        <result property="secretConfigured" column="secret_configured"/>
+        <result property="eventType" column="event_type"/>
+        <result property="payloadTemplate" column="payload_template"/>
+        <result property="retryCount" column="retry_count"/>
+        <result property="timeoutMs" column="timeout_ms"/>
+        <result property="enabled" column="enabled"/>
+        <result property="lastDeliveryStatus" column="last_delivery_status"/>
+        <result property="lastHttpStatus" column="last_http_status"/>
+        <result property="lastDeliveryTime" column="last_delivery_time"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <resultMap type="com.ruoyi.crm.domain.CrmOutboundWebhook" id="CrmOutboundWebhookResult">
+        <result property="webhookId" column="webhook_id"/>
+        <result property="tenantId" column="tenant_id"/>
+        <result property="name" column="name"/>
+        <result property="url" column="url"/>
+        <result property="secretEnc" column="secret_enc"/>
+        <result property="eventType" column="event_type"/>
+        <result property="payloadTemplate" column="payload_template"/>
+        <result property="retryCount" column="retry_count"/>
+        <result property="timeoutMs" column="timeout_ms"/>
+        <result property="enabled" column="enabled"/>
+        <result property="delFlag" column="del_flag"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <sql id="selectVoColumns">
+        select w.webhook_id, w.name, w.url,
+               case when w.secret_enc is not null and w.secret_enc &lt;&gt; '' then true else false end as secret_configured,
+               w.event_type, w.payload_template, w.retry_count, w.timeout_ms, w.enabled,
+               d.status as last_delivery_status, d.http_status as last_http_status, d.create_time as last_delivery_time,
+               w.create_time, w.update_time
+        from crm_outbound_webhook w
+        left join lateral (
+            select status, http_status, create_time
+            from crm_outbound_webhook_delivery
+            where tenant_id = w.tenant_id and webhook_id = w.webhook_id
+            order by create_time desc
+            limit 1
+        ) d on true
+    </sql>
+
+    <select id="selectList" resultMap="OutboundWebhookVoResult">
+        <include refid="selectVoColumns"/>
+        where w.del_flag = '0' and w.tenant_id = #{tenantId}
+        <if test="eventType != null and eventType != ''">
+            and w.event_type = #{eventType}
+        </if>
+        <if test="enabled != null and enabled != ''">
+            and w.enabled = #{enabled}
+        </if>
+        order by w.update_time desc
+    </select>
+
+    <select id="selectById" resultMap="OutboundWebhookVoResult">
+        <include refid="selectVoColumns"/>
+        where w.del_flag = '0'
+          and w.tenant_id = #{tenantId}
+          and w.webhook_id = #{webhookId}
+    </select>
+
+    <select id="selectEntityById" resultMap="CrmOutboundWebhookResult">
+        select webhook_id, tenant_id, name, url, secret_enc, event_type, payload_template,
+               retry_count, timeout_ms, enabled, del_flag, create_by, create_time, update_by, update_time
+        from crm_outbound_webhook
+        where del_flag = '0'
+          and tenant_id = #{tenantId}
+          and webhook_id = #{webhookId}
+    </select>
+
+    <select id="selectEnabledByEvent" resultMap="CrmOutboundWebhookResult">
+        select webhook_id, tenant_id, name, url, secret_enc, event_type, payload_template,
+               retry_count, timeout_ms, enabled, del_flag, create_by, create_time, update_by, update_time
+        from crm_outbound_webhook
+        where del_flag = '0'
+          and tenant_id = #{tenantId}
+          and enabled = '1'
+          and event_type = #{eventType}
+    </select>
+
+    <select id="countActive" resultType="int">
+        select count(1) from crm_outbound_webhook
+        where del_flag = '0' and tenant_id = #{tenantId}
+    </select>
+
+    <insert id="insertCrmOutboundWebhook" parameterType="com.ruoyi.crm.domain.CrmOutboundWebhook">
+        insert into crm_outbound_webhook (
+            webhook_id, tenant_id, name, url, secret_enc, event_type, payload_template,
+            retry_count, timeout_ms, enabled, del_flag, create_by, create_time, update_by, update_time
+        ) values (
+            #{webhookId}, #{tenantId}, #{name}, #{url}, #{secretEnc}, #{eventType}, #{payloadTemplate},
+            #{retryCount}, #{timeoutMs}, #{enabled}, #{delFlag}, #{createBy}, #{createTime}, #{updateBy}, #{updateTime}
+        )
+    </insert>
+
+    <update id="updateCrmOutboundWebhook" parameterType="com.ruoyi.crm.domain.CrmOutboundWebhook">
+        update crm_outbound_webhook
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="name != null and name != ''">name = #{name},</if>
+            <if test="url != null and url != ''">url = #{url},</if>
+            secret_enc = #{secretEnc},
+            <if test="eventType != null and eventType != ''">event_type = #{eventType},</if>
+            payload_template = #{payloadTemplate},
+            <if test="retryCount != null">retry_count = #{retryCount},</if>
+            <if test="timeoutMs != null">timeout_ms = #{timeoutMs},</if>
+            <if test="enabled != null and enabled != ''">enabled = #{enabled},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where webhook_id = #{webhookId}
+          and tenant_id = #{tenantId}
+          and del_flag = '0'
+    </update>
+
+    <update id="logicalDeleteById">
+        update crm_outbound_webhook
+        set del_flag = '1',
+            update_by = #{updateBy},
+            update_time = CURRENT_TIMESTAMP
+        where webhook_id = #{webhookId}
+          and tenant_id = #{tenantId}
+          and del_flag = '0'
+    </update>
+</mapper>

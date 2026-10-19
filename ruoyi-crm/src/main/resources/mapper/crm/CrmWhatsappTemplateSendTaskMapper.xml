@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmWhatsappTemplateSendTaskMapper">
+
+    <resultMap id="TaskResult" type="com.ruoyi.crm.domain.CrmWhatsappTemplateSendTask">
+        <id property="id" column="id"/>
+        <result property="tenantId" column="tenant_id"/>
+        <result property="phoneNumberId" column="phone_number_id"/>
+        <result property="templateName" column="template_name"/>
+        <result property="language" column="language"/>
+        <result property="components" column="components"/>
+        <result property="audienceType" column="audience_type"/>
+        <result property="audienceRef" column="audience_ref"/>
+        <result property="status" column="status"/>
+        <result property="totalCount" column="total_count"/>
+        <result property="successCount" column="success_count"/>
+        <result property="failedCount" column="failed_count"/>
+        <result property="skippedCount" column="skipped_count"/>
+        <result property="errorMessage" column="error_message"/>
+        <result property="createdBy" column="created_by"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="startedAt" column="started_at"/>
+        <result property="finishedAt" column="finished_at"/>
+    </resultMap>
+
+    <sql id="selectCols">
+        id, tenant_id, phone_number_id, template_name, language, components,
+        audience_type, audience_ref, status, total_count, success_count, failed_count,
+        skipped_count, error_message, created_by, created_at, started_at, finished_at
+    </sql>
+
+    <insert id="insert" parameterType="com.ruoyi.crm.domain.CrmWhatsappTemplateSendTask"
+            useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO crm_whatsapp_template_send_task (
+            tenant_id, phone_number_id, template_name, language, components,
+            audience_type, audience_ref, status, total_count, success_count,
+            failed_count, skipped_count, error_message, created_by, created_at
+        ) VALUES (
+            #{tenantId}, #{phoneNumberId}, #{templateName}, #{language}, #{components}::jsonb,
+            #{audienceType}, #{audienceRef}::jsonb, #{status}, #{totalCount}, #{successCount},
+            #{failedCount}, #{skippedCount}, #{errorMessage}, #{createdBy}, #{createdAt}
+        )
+    </insert>
+
+    <select id="selectById" resultMap="TaskResult">
+        SELECT <include refid="selectCols"/>
+        FROM crm_whatsapp_template_send_task
+        WHERE id = #{id} AND tenant_id = #{tenantId}
+    </select>
+
+    <select id="selectPage" resultMap="TaskResult">
+        SELECT <include refid="selectCols"/>
+        FROM crm_whatsapp_template_send_task
+        WHERE tenant_id = #{tenantId}
+        <if test="status != null and status != ''">
+            AND status = #{status}
+        </if>
+        ORDER BY created_at DESC
+    </select>
+
+    <update id="claimPending">
+        UPDATE crm_whatsapp_template_send_task
+        SET status = 'running', started_at = #{startedAt}
+        WHERE id = #{id} AND tenant_id = #{tenantId} AND status = 'pending'
+    </update>
+
+    <update id="updateCounts">
+        UPDATE crm_whatsapp_template_send_task
+        SET success_count = #{successCount},
+            failed_count = #{failedCount},
+            skipped_count = #{skippedCount}
+        WHERE id = #{id}
+    </update>
+
+    <update id="markFinished">
+        UPDATE crm_whatsapp_template_send_task
+        SET status = #{status},
+            error_message = #{errorMessage},
+            finished_at = #{finishedAt}
+            <if test="successCount != null">, success_count = #{successCount}</if>
+            <if test="failedCount != null">, failed_count = #{failedCount}</if>
+            <if test="skippedCount != null">, skipped_count = #{skippedCount}</if>
+        WHERE id = #{id}
+    </update>
+
+    <update id="reopenForRetry">
+        UPDATE crm_whatsapp_template_send_task
+        SET status = 'pending',
+            failed_count = #{failedCount},
+            finished_at = NULL,
+            error_message = NULL,
+            started_at = NULL
+        WHERE id = #{id} AND tenant_id = #{tenantId}
+    </update>
+</mapper>

@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmWebchatMessageMapper">
+
+    <resultMap id="CrmWebchatMessageResult" type="com.ruoyi.crm.domain.CrmWebchatMessage">
+        <id property="id" column="id"/>
+        <result property="tenantId" column="tenant_id"/>
+        <result property="conversationId" column="conversation_id"/>
+        <result property="visitorId" column="visitor_id"/>
+        <result property="clientMessageId" column="client_message_id"/>
+        <result property="messageType" column="message_type"/>
+        <result property="content" column="content"/>
+        <result property="direction" column="direction"/>
+        <result property="senderType" column="sender_type"/>
+        <result property="status" column="status"/>
+        <result property="errorMessage" column="error_message"/>
+        <result property="agentUserId" column="agent_user_id"/>
+        <result property="source" column="source"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.ruoyi.crm.domain.CrmWebchatMessage"
+            useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO crm_webchat_message (
+            tenant_id, conversation_id, visitor_id, client_message_id, message_type,
+            content, direction, sender_type, status, error_message, agent_user_id, source,
+            create_time, update_time
+        ) VALUES (
+            #{tenantId}, #{conversationId}, #{visitorId}, #{clientMessageId}, #{messageType},
+            #{content}, #{direction}, #{senderType}, #{status}, #{errorMessage}, #{agentUserId}, #{source},
+            COALESCE(#{createTime}, now()), #{updateTime}
+        )
+        ON CONFLICT (tenant_id, conversation_id, client_message_id)
+            WHERE client_message_id IS NOT NULL
+        DO NOTHING
+    </insert>
+
+    <select id="selectByClientMessageId" resultMap="CrmWebchatMessageResult">
+        SELECT id, tenant_id, conversation_id, visitor_id, client_message_id, message_type,
+               content, direction, sender_type, status, error_message, agent_user_id, source,
+               create_time, update_time
+        FROM crm_webchat_message
+        WHERE tenant_id = #{tenantId}
+          AND conversation_id = #{conversationId}
+          AND client_message_id = #{clientMessageId}
+        LIMIT 1
+    </select>
+
+    <select id="selectById" resultMap="CrmWebchatMessageResult">
+        SELECT id, tenant_id, conversation_id, visitor_id, client_message_id, message_type,
+               content, direction, sender_type, status, error_message, agent_user_id, source,
+               create_time, update_time
+        FROM crm_webchat_message
+        WHERE tenant_id = #{tenantId} AND id = #{id}
+        LIMIT 1
+    </select>
+
+    <select id="selectByConversationId" resultMap="CrmWebchatMessageResult">
+        SELECT id, tenant_id, conversation_id, visitor_id, client_message_id, message_type,
+               content, direction, sender_type, status, error_message, agent_user_id, source,
+               create_time, update_time
+        FROM crm_webchat_message
+        WHERE conversation_id = #{conversationId}
+        <if test="beforeId != null">
+            AND id &lt; #{beforeId}
+        </if>
+        ORDER BY create_time DESC, id DESC
+        LIMIT #{pageSize}
+    </select>
+</mapper>

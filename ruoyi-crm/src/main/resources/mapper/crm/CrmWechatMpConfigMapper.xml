@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.wechatmp.mapper.CrmWechatMpConfigMapper">
+
+    <resultMap id="CrmWechatMpConfigResult" type="com.ruoyi.crm.wechatmp.domain.CrmWechatMpConfig">
+        <id property="id" column="id"/>
+        <result property="appId" column="app_id"/>
+        <result property="secretEnc" column="secret_enc"/>
+        <result property="token" column="token"/>
+        <result property="encodingAesKey" column="encoding_aes_key"/>
+        <result property="verifySignature" column="verify_signature"/>
+        <result property="connected" column="connected"/>
+        <result property="lastError" column="last_error"/>
+        <result property="accountType" column="account_type"/>
+        <result property="accountName" column="account_name"/>
+        <result property="accountSyncedAt" column="account_synced_at"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <select id="selectByAppId" resultMap="CrmWechatMpConfigResult">
+        SELECT id, app_id, secret_enc, token, encoding_aes_key, verify_signature, connected, last_error,
+               account_type, account_name, account_synced_at,
+               create_by, create_time, update_by, update_time
+        FROM crm_wechat_mp_config WHERE app_id = #{appId} LIMIT 1
+    </select>
+
+    <select id="selectById" resultMap="CrmWechatMpConfigResult">
+        SELECT id, app_id, secret_enc, token, encoding_aes_key, verify_signature, connected, last_error,
+               account_type, account_name, account_synced_at,
+               create_by, create_time, update_by, update_time
+        FROM crm_wechat_mp_config WHERE id = #{id}
+    </select>
+
+    <select id="selectAll" resultMap="CrmWechatMpConfigResult">
+        SELECT id, app_id, secret_enc, token, encoding_aes_key, verify_signature, connected, last_error,
+               account_type, account_name, account_synced_at,
+               create_by, create_time, update_by, update_time
+        FROM crm_wechat_mp_config ORDER BY id ASC
+    </select>
+
+    <insert id="insert" parameterType="com.ruoyi.crm.wechatmp.domain.CrmWechatMpConfig" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO crm_wechat_mp_config (
+            app_id, secret_enc, token, encoding_aes_key, verify_signature, connected, last_error,
+            create_by, create_time, update_by, update_time
+        ) VALUES (
+            #{appId}, #{secretEnc}, #{token}, #{encodingAesKey},
+            #{verifySignature,jdbcType=BOOLEAN}, #{connected,jdbcType=BOOLEAN}, #{lastError},
+            #{createBy}, #{createTime}, #{updateBy}, #{updateTime}
+        )
+    </insert>
+
+    <update id="update" parameterType="com.ruoyi.crm.wechatmp.domain.CrmWechatMpConfig">
+        UPDATE crm_wechat_mp_config
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="appId != null">app_id = #{appId},</if>
+            <if test="secretEnc != null">secret_enc = #{secretEnc},</if>
+            <if test="token != null">token = #{token},</if>
+            <if test="encodingAesKey != null">encoding_aes_key = #{encodingAesKey},</if>
+            <if test="verifySignature != null">verify_signature = #{verifySignature,jdbcType=BOOLEAN},</if>
+            <if test="connected != null">connected = #{connected,jdbcType=BOOLEAN},</if>
+            <if test="lastError != null">last_error = #{lastError},</if>
+            <if test="accountType != null">account_type = #{accountType},</if>
+            <if test="accountName != null">account_name = #{accountName},</if>
+            <if test="accountSyncedAt != null">account_synced_at = #{accountSyncedAt},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM crm_wechat_mp_config WHERE id = #{id}
+    </delete>
+</mapper>

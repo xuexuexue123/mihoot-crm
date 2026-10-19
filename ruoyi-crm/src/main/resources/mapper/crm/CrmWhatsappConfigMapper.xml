@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmWhatsappConfigMapper">
+
+    <resultMap id="CrmWhatsappConfigResult" type="com.ruoyi.crm.domain.CrmWhatsappConfig">
+        <id property="id" column="id"/>
+        <result property="tenantId" column="tenant_id"/>
+        <result property="phoneNumberId" column="phone_number_id"/>
+        <result property="wabaId" column="waba_id"/>
+        <result property="businessName" column="business_name"/>
+        <result property="accessTokenEnc" column="access_token_enc"/>
+        <result property="webhookVerifyTokenEnc" column="webhook_verify_token_enc"/>
+        <result property="appSecretEnc" column="app_secret_enc"/>
+        <result property="webhookConfigured" column="webhook_configured"/>
+        <result property="lastError" column="last_error"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <select id="selectByTenantId" resultMap="CrmWhatsappConfigResult">
+        SELECT id, tenant_id, phone_number_id, waba_id, business_name,
+               access_token_enc, webhook_verify_token_enc, app_secret_enc,
+               webhook_configured, last_error,
+               create_by, create_time, update_by, update_time
+        FROM crm_whatsapp_config
+        WHERE tenant_id = #{tenantId}
+        LIMIT 1
+    </select>
+
+    <select id="selectByPhoneNumberId" resultMap="CrmWhatsappConfigResult">
+        SELECT id, tenant_id, phone_number_id, waba_id, business_name,
+               access_token_enc, webhook_verify_token_enc, app_secret_enc,
+               webhook_configured, last_error,
+               create_by, create_time, update_by, update_time
+        FROM crm_whatsapp_config
+        WHERE phone_number_id = #{phoneNumberId}
+        LIMIT 1
+    </select>
+
+    <insert id="insertOrUpdate" parameterType="com.ruoyi.crm.domain.CrmWhatsappConfig"
+            useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO crm_whatsapp_config (
+            tenant_id, phone_number_id, waba_id, business_name,
+            access_token_enc, webhook_verify_token_enc, app_secret_enc,
+            webhook_configured, last_error,
+            create_by, create_time, update_by, update_time
+        ) VALUES (
+            #{tenantId}, #{phoneNumberId}, #{wabaId}, #{businessName},
+            #{accessTokenEnc}, #{webhookVerifyTokenEnc}, #{appSecretEnc},
+            #{webhookConfigured}, #{lastError},
+            #{createBy}, #{createTime}, #{updateBy}, #{updateTime}
+        )
+        ON CONFLICT (tenant_id) DO UPDATE SET
+            phone_number_id = EXCLUDED.phone_number_id,
+            waba_id = EXCLUDED.waba_id,
+            business_name = EXCLUDED.business_name,
+            access_token_enc = EXCLUDED.access_token_enc,
+            webhook_verify_token_enc = COALESCE(EXCLUDED.webhook_verify_token_enc, crm_whatsapp_config.webhook_verify_token_enc),
+            app_secret_enc = COALESCE(EXCLUDED.app_secret_enc, crm_whatsapp_config.app_secret_enc),
+            webhook_configured = EXCLUDED.webhook_configured,
+            last_error = EXCLUDED.last_error,
+            update_by = EXCLUDED.update_by,
+            update_time = EXCLUDED.update_time
+    </insert>
+</mapper>

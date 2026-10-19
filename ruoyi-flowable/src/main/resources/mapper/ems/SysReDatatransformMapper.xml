@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.ems.mapper.SysReDatatransformMapper">
+    
+    <resultMap type="SysReDatatransform" id="SysReDatatransformResult">
+        <result property="pyId"    column="py_id"    />
+        <result property="caseTypeId"    column="case_type_id"    />
+        <result property="pyLabel"    column="py_label"    />
+        <result property="pyName"    column="py_name"    />
+        <result property="target"    column="target"    />
+        <result property="source"    column="source"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectSysReDatatransformVo">
+        select py_id, case_type_id, py_label, py_name, target, source, create_by, create_time, update_by, update_time from sys_re_datatransform
+    </sql>
+
+    <select id="selectSysReDatatransformList" parameterType="SysReDatatransform" resultMap="SysReDatatransformResult">
+        <include refid="selectSysReDatatransformVo"/>
+        <where>  
+            <if test="caseTypeId != null "> and case_type_id = #{caseTypeId}</if>
+            <if test="pyLabel != null  and pyLabel != ''"> and py_label = #{pyLabel}</if>
+            <if test="pyName != null  and pyName != ''"> and py_name like concat('%', #{pyName}, '%')</if>
+            <if test="target != null  and target != ''"> and target = #{target}</if>
+            <if test="source != null  and source != ''"> and source = #{source}</if>
+        </where>
+    </select>
+    
+    <select id="selectSysReDatatransformByPyId" parameterType="Long" resultMap="SysReDatatransformResult">
+        <include refid="selectSysReDatatransformVo"/>
+        where py_id = #{pyId}
+    </select>
+
+    <select id="selectSysReDatatransformByCase" parameterType="SysReDatatransform" resultMap="SysReDatatransformResult">
+        <include refid="selectSysReDatatransformVo"/>
+        <where>
+            <if test="caseTypeId != null "> and case_type_id = #{caseTypeId}</if>
+            <if test="pyName != null  and pyName != ''"> and py_name like concat('%', #{pyName}, '%')</if>
+        </where>
+    </select>
+
+    <insert id="insertSysReDatatransform" parameterType="SysReDatatransform" useGeneratedKeys="true" keyProperty="pyId">
+        insert into sys_re_datatransform
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="caseTypeId != null">case_type_id,</if>
+            <if test="pyLabel != null">py_label,</if>
+            <if test="pyName != null">py_name,</if>
+            <if test="target != null">target,</if>
+            <if test="source != null">source,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="caseTypeId != null">#{caseTypeId},</if>
+            <if test="pyLabel != null">#{pyLabel},</if>
+            <if test="pyName != null">#{pyName},</if>
+            <if test="target != null">#{target},</if>
+            <if test="source != null">#{source},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateSysReDatatransform" parameterType="SysReDatatransform">
+        update sys_re_datatransform
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="caseTypeId != null">case_type_id = #{caseTypeId},</if>
+            <if test="pyLabel != null">py_label = #{pyLabel},</if>
+            <if test="pyName != null">py_name = #{pyName},</if>
+            <if test="target != null">target = #{target},</if>
+            <if test="source != null">source = #{source},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where py_id = #{pyId}
+    </update>
+
+    <delete id="deleteSysReDatatransformByPyId" parameterType="Long">
+        delete from sys_re_datatransform where py_id = #{pyId}
+    </delete>
+
+    <delete id="deleteSysReDatatransformByPyIds" parameterType="String">
+        delete from sys_re_datatransform where py_id in 
+        <foreach item="pyId" collection="array" open="(" separator="," close=")">
+            #{pyId}
+        </foreach>
+    </delete>
+</mapper>

@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmWecomMaterialMapper">
+
+    <resultMap id="CrmWecomMaterialResult" type="com.ruoyi.crm.domain.CrmWecomMaterial">
+        <id property="id" column="id"/>
+        <result property="fileTitle" column="file_title"/>
+        <result property="fileName" column="file_name"/>
+        <result property="originalName" column="original_name"/>
+        <result property="fileType" column="file_type"/>
+        <result property="fileSize" column="file_size"/>
+        <result property="mediaType" column="media_type"/>
+        <result property="mediaId" column="media_id"/>
+        <result property="wecomUploadedAt" column="wecom_uploaded_at"/>
+        <result property="mediaCreatedAt" column="media_created_at"/>
+        <result property="expiresAt" column="expires_at"/>
+        <result property="status" column="status"/>
+        <result property="errmsg" column="errmsg"/>
+        <result property="attachmentType" column="attachment_type"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <sql id="selectColumns">
+        id, file_title, file_name, original_name, file_type, file_size,
+        media_type, media_id, wecom_uploaded_at, media_created_at, expires_at,
+        status, errmsg, attachment_type, create_by, create_time, update_by, update_time
+    </sql>
+
+    <insert id="insert" parameterType="com.ruoyi.crm.domain.CrmWecomMaterial" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO crm_wecom_material (
+            file_title, file_name, original_name, file_type, file_size,
+            media_type, attachment_type, status, create_by, create_time
+        ) VALUES (
+            #{fileTitle}, #{fileName}, #{originalName}, #{fileType}, #{fileSize},
+            #{mediaType}, #{attachmentType}, #{status}, #{createBy}, #{createTime}
+        )
+    </insert>
+
+    <select id="selectById" resultMap="CrmWecomMaterialResult">
+        SELECT <include refid="selectColumns"/>
+        FROM crm_wecom_material
+        WHERE id = #{id}
+    </select>
+
+    <select id="selectPage" resultMap="CrmWecomMaterialResult">
+        SELECT <include refid="selectColumns"/>
+        FROM crm_wecom_material
+        <where>
+            <if test="attachmentType != null">
+                AND attachment_type = #{attachmentType}
+            </if>
+            <if test="mediaType != null and mediaType != ''">
+                AND media_type = #{mediaType}
+            </if>
+            <if test="status != null and status != ''">
+                AND status = #{status}
+            </if>
+            <if test="fileTitle != null and fileTitle != ''">
+                AND file_title LIKE CONCAT('%', #{fileTitle}, '%')
+            </if>
+        </where>
+        ORDER BY create_time DESC
+    </select>
+
+    <update id="updateWecomUploadResult">
+        UPDATE crm_wecom_material
+        SET status = #{status},
+            media_id = #{mediaId},
+            media_created_at = #{mediaCreatedAt},
+            expires_at = #{expiresAt},
+            wecom_uploaded_at = #{wecomUploadedAt},
+            errmsg = #{errmsg},
+            update_time = CURRENT_TIMESTAMP
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM crm_wecom_material WHERE id = #{id}
+    </delete>
+
+    <select id="selectExpiredUploaded" resultMap="CrmWecomMaterialResult">
+        SELECT <include refid="selectColumns"/>
+        FROM crm_wecom_material
+        WHERE status = 'uploaded' AND expires_at &lt; CURRENT_TIMESTAMP
+    </select>
+
+    <update id="batchUpdateExpired">
+        UPDATE crm_wecom_material
+        SET status = 'expired', update_time = CURRENT_TIMESTAMP
+        WHERE id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
+
+</mapper>

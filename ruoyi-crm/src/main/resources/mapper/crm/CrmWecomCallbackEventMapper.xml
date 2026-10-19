@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmWecomCallbackEventMapper">
+
+    <resultMap id="CrmWecomCallbackEventResult" type="com.ruoyi.crm.domain.CrmWecomCallbackEvent">
+        <id property="id" column="id"/>
+        <result property="corpId" column="corp_id"/>
+        <result property="event" column="event"/>
+        <result property="changeType" column="change_type"/>
+        <result property="userId" column="user_id"/>
+        <result property="externalUserid" column="external_userid"/>
+        <result property="chatId" column="chat_id"/>
+        <result property="tagId" column="tag_id"/>
+        <result property="tagType" column="tag_type"/>
+        <result property="updateDetail" column="update_detail"/>
+        <result property="state" column="state"/>
+        <result property="source" column="source"/>
+        <result property="failReason" column="fail_reason"/>
+        <result property="rawXml" column="raw_xml"/>
+        <result property="createTime" column="create_time"/>
+        <result property="createBy" column="create_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="remark" column="remark"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.ruoyi.crm.domain.CrmWecomCallbackEvent" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO crm_wecom_callback_event (
+            corp_id, event, change_type, user_id, external_userid, chat_id, tag_id, tag_type,
+            update_detail, state, source, fail_reason, raw_xml, create_time
+        ) VALUES (
+            #{corpId}, #{event}, #{changeType}, #{userId}, #{externalUserid}, #{chatId}, #{tagId}, #{tagType},
+            #{updateDetail}, #{state}, #{source}, #{failReason}, #{rawXml}, #{createTime}
+        )
+    </insert>
+
+    <select id="selectList" resultMap="CrmWecomCallbackEventResult">
+        SELECT id, corp_id, event, change_type, user_id, external_userid, chat_id, tag_id, tag_type,
+               update_detail, state, source, fail_reason, raw_xml, create_time, create_by, update_time, update_by, remark
+        FROM crm_wecom_callback_event
+        <where>
+            <if test="corpId != null and corpId != ''">
+                AND corp_id = #{corpId}
+            </if>
+            <if test="event != null and event != ''">
+                AND event = #{event}
+            </if>
+            <if test="changeType != null and changeType != ''">
+                AND change_type = #{changeType}
+            </if>
+            <if test="params.beginTime != null and params.beginTime != ''">
+                AND create_time &gt;= #{params.beginTime}::timestamp
+            </if>
+            <if test="params.endTime != null and params.endTime != ''">
+                AND create_time &lt;= #{params.endTime}::timestamp
+            </if>
+        </where>
+        ORDER BY id DESC
+    </select>
+
+    <select id="countByEventType" resultType="java.util.HashMap">
+        SELECT event, COALESCE(change_type, '') AS change_type, COUNT(*) AS cnt
+        FROM crm_wecom_callback_event
+        <where>
+            <if test="corpId != null and corpId != ''">
+                AND corp_id = #{corpId}
+            </if>
+            <if test="event != null and event != ''">
+                AND event = #{event}
+            </if>
+            <if test="changeType != null and changeType != ''">
+                AND change_type = #{changeType}
+            </if>
+            <if test="params.beginTime != null and params.beginTime != ''">
+                AND create_time &gt;= #{params.beginTime}::timestamp
+            </if>
+            <if test="params.endTime != null and params.endTime != ''">
+                AND create_time &lt;= #{params.endTime}::timestamp
+            </if>
+        </where>
+        GROUP BY event, change_type
+        ORDER BY event, change_type
+    </select>
+</mapper>

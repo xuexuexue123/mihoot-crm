@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.ems.mapper.SysProcessMapper">
+    
+    <resultMap type="SysProcess" id="SysProcessResult">
+        <result property="processId"    column="process_id"    />
+        <result property="processSort"    column="process_sort"    />
+        <result property="processLabel"    column="process_label"    />
+        <result property="processName"    column="process_name"    />
+        <result property="processType"    column="process_type"    />
+        <result property="caseTypeId"    column="case_type_id"    />
+        <result property="stageId"    column="stage_id"    />
+        <result property="skipProcess"    column="skip_process"    />
+        <result property="skipCondition"    column="skip_condition"    />
+        <result property="deploymentName"    column="deployment_name"    />
+        <result property="deploymentKey"    column="deployment_key"    />
+        <result property="deploymentId"    column="deployment_id"    />
+        <result property="procDefId"    column="proc_def_id"    />
+        <result property="formKey"    column="form_key"    />
+        <result property="beforeActivity"    column="before_activity"    />
+        <result property="beforeDatatransform"    column="before_datatransform"    />
+        <result property="afterActivity"    column="after_activity"    />
+        <result property="afterDatatransform"    column="after_datatransform"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="reactflowJson"    column="reactflow_json"    />
+        <result property="bpmnXml"    column="bpmn_xml"    />
+        <result property="status"    column="status"    />
+    </resultMap>
+
+    <sql id="selectSysProcessVo">
+        select process_id, process_sort, process_label, process_name, process_type, case_type_id, stage_id, skip_process, skip_condition, deployment_name, deployment_key, deployment_id, proc_def_id, form_key, before_activity, before_datatransform, after_activity, after_datatransform, create_by, create_time, update_by, update_time, reactflow_json, bpmn_xml, status from sys_re_process
+    </sql>
+
+    <select id="selectSysProcessList" parameterType="SysProcess" resultMap="SysProcessResult">
+        <include refid="selectSysProcessVo"/>
+        <where>
+            <if test="processSort != null "> and process_sort = #{processSort}</if>
+            <if test="processLabel != null  and processLabel != ''"> and process_label = #{processLabel}</if>
+            <if test="processName != null  and processName != ''"> and process_name like concat('%', #{processName}, '%')</if>
+            <if test="processType != null  and processType != ''"> and process_type = #{processType}</if>
+            <if test="caseTypeId != null  and caseTypeId != ''"> and case_type_id = #{caseTypeId}</if>
+            <if test="stageId != null  and stageId != ''"> and stage_id = #{stageId}</if>
+            <if test="skipProcess != null  and skipProcess != ''"> and skip_process = #{skipProcess}</if>
+            <if test="skipCondition != null  and skipCondition != ''"> and skip_condition = #{skipCondition}</if>
+            <if test="deploymentName != null  and deploymentName != ''"> and deployment_name like concat('%', #{deploymentName}, '%')</if>
+            <if test="deploymentKey != null  and deploymentKey != ''"> and deployment_key = #{deploymentKey}</if>
+            <if test="deploymentId != null  and deploymentId != ''"> and deployment_id = #{deploymentId}</if>
+            <if test="procDefId != null  and procDefId != ''"> and proc_def_id = #{procDefId}</if>
+            <if test="formKey != null  and formKey != ''"> and form_key = #{formKey}</if>
+            <if test="beforeActivity != null  and beforeActivity != ''"> and before_activity = #{beforeActivity}</if>
+            <if test="beforeDatatransform != null  and beforeDatatransform != ''"> and before_datatransform = #{beforeDatatransform}</if>
+            <if test="afterActivity != null  and afterActivity != ''"> and after_activity = #{afterActivity}</if>
+            <if test="afterDatatransform != null  and afterDatatransform != ''"> and after_datatransform = #{afterDatatransform}</if>
+            <if test="status != null  and status != ''"> and status = #{status}</if>
+        </where>
+        order by process_sort
+    </select>
+    
+    <select id="selectSysProcessByProcessId" parameterType="String" resultMap="SysProcessResult">
+        <include refid="selectSysProcessVo"/>
+        where process_id = #{processId}
+    </select>
+
+    <select id="selectSysProcessByProcDefId" parameterType="String" resultMap="SysProcessResult">
+        <include refid="selectSysProcessVo"/>
+        where proc_def_id = #{procDefId}
+    </select>
+
+    <insert id="insertSysProcess" parameterType="SysProcess" useGeneratedKeys="true" keyProperty="processId">
+        insert into sys_re_process
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="processId != null">process_id,</if>
+            <if test="processSort != null">process_sort,</if>
+            <if test="processLabel != null">process_label,</if>
+            <if test="processName != null">process_name,</if>
+            <if test="processType != null">process_type,</if>
+            <if test="caseTypeId != null">case_type_id,</if>
+            <if test="stageId != null">stage_id,</if>
+            <if test="skipProcess != null">skip_process,</if>
+            <if test="skipCondition != null">skip_condition,</if>
+            <if test="deploymentName != null">deployment_name,</if>
+            <if test="deploymentKey != null">deployment_key,</if>
+            <if test="deploymentId != null">deployment_id,</if>
+            <if test="procDefId != null">proc_def_id,</if>
+            <if test="formKey != null">form_key,</if>
+            <if test="beforeActivity != null">before_activity,</if>
+            <if test="beforeDatatransform != null">before_datatransform,</if>
+            <if test="afterActivity != null">after_activity,</if>
+            <if test="afterDatatransform != null">after_datatransform,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="reactflowJson != null">reactflow_json,</if>
+            <if test="bpmnXml != null">bpmn_xml,</if>
+            <if test="status != null">status,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="processId != null">#{processId},</if>
+            <if test="processSort != null">#{processSort},</if>
+            <if test="processLabel != null">#{processLabel},</if>
+            <if test="processName != null">#{processName},</if>
+            <if test="processType != null">#{processType},</if>
+            <if test="caseTypeId != null">#{caseTypeId},</if>
+            <if test="stageId != null">#{stageId},</if>
+            <if test="skipProcess != null">#{skipProcess},</if>
+            <if test="skipCondition != null">#{skipCondition},</if>
+            <if test="deploymentName != null">#{deploymentName},</if>
+            <if test="deploymentKey != null">#{deploymentKey},</if>
+            <if test="deploymentId != null">#{deploymentId},</if>
+            <if test="procDefId != null">#{procDefId},</if>
+            <if test="formKey != null">#{formKey},</if>
+            <if test="beforeActivity != null">#{beforeActivity},</if>
+            <if test="beforeDatatransform != null">#{beforeDatatransform},</if>
+            <if test="afterActivity != null">#{afterActivity},</if>
+            <if test="afterDatatransform != null">#{afterDatatransform},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="reactflowJson != null">CAST(NULLIF(TRIM(#{reactflowJson}), '') AS jsonb),</if>
+            <if test="bpmnXml != null">#{bpmnXml},</if>
+            <if test="status != null">#{status},</if>
+         </trim>
+    </insert>
+
+    <update id="updateSysProcess" parameterType="SysProcess">
+        update sys_re_process
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="processSort != null">process_sort = #{processSort},</if>
+            <if test="processLabel != null">process_label = #{processLabel},</if>
+            <if test="processName != null">process_name = #{processName},</if>
+            <if test="processType != null">process_type = #{processType},</if>
+            <if test="caseTypeId != null">case_type_id = #{caseTypeId},</if>
+            <if test="stageId != null">stage_id = #{stageId},</if>
+            <if test="skipProcess != null">skip_process = #{skipProcess},</if>
+            <if test="skipCondition != null">skip_condition = #{skipCondition},</if>
+            <if test="deploymentName != null">deployment_name = #{deploymentName},</if>
+            <if test="deploymentKey != null">deployment_key = #{deploymentKey},</if>
+            <if test="deploymentId != null">deployment_id = #{deploymentId},</if>
+            <if test="procDefId != null">proc_def_id = #{procDefId},</if>
+            <if test="formKey != null">form_key = #{formKey},</if>
+            <if test="beforeActivity != null">before_activity = #{beforeActivity},</if>
+            <if test="beforeDatatransform != null">before_datatransform = #{beforeDatatransform},</if>
+            <if test="afterActivity != null">after_activity = #{afterActivity},</if>
+            <if test="afterDatatransform != null">after_datatransform = #{afterDatatransform},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="reactflowJson != null">reactflow_json = CAST(NULLIF(TRIM(#{reactflowJson}), '') AS jsonb),</if>
+            <if test="bpmnXml != null">bpmn_xml = #{bpmnXml},</if>
+            <if test="status != null">status = #{status},</if>
+        </trim>
+        where process_id = #{processId}
+    </update>
+
+    <delete id="deleteSysProcessByProcessId" parameterType="String">
+        delete from sys_re_process where process_id = #{processId}
+    </delete>
+
+    <delete id="deleteSysProcessByProcessIds" parameterType="String">
+        delete from sys_re_process where process_id in 
+        <foreach item="processId" collection="array" open="(" separator="," close=")">
+            #{processId}
+        </foreach>
+    </delete>
+</mapper>

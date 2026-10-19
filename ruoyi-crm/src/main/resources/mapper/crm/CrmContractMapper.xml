@@ -1,0 +1,396 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmContractMapper">
+    
+    <resultMap type="CrmContract" id="CrmContractResult">
+        <result property="contractId"    column="contract_id"    />
+        <result property="contractName"    column="contract_name"    />
+        <result property="contractType"    column="contract_type"    />
+        <result property="contractCode"    column="contract_code"    />
+        <result property="contractStatus"    column="contract_status"    />
+        <result property="contractIdentity"    column="contract_identity"    />
+        <result property="contractFundsdirec"    column="contract_fundsdirec"    />
+        <result property="optyId"    column="opty_id"    />
+        <result property="optyName"    column="opty_name"    />
+        <result property="accountId"    column="account_id"    />
+        <result property="accountName"    column="account_name"    />
+        <result property="contactId"    column="contact_id"    />
+        <result property="contactName"    column="contact_name"    />
+        <result property="contactPhone"    column="contact_phone"    />
+        <result property="amount"    column="amount"    />
+        <result property="taxRatio"    column="tax_ratio"    />
+        <result property="taxAmount"    column="tax_amount"    />
+        <result property="totalAmount"    column="total_amount"    />
+        <result property="signAmount"    column="sign_amount"    />
+        <result property="changedAmount"    column="changed_amount"    />
+        <result property="executionAmount"    column="execution_amount"    />
+        <result property="receivedAmount"    column="received_amount"    />
+        <result property="receivable"    column="receivable"    />
+        <result property="pendingReceivable"    column="pending_receivable"    />
+        <result property="invoicedAmount"    column="invoiced_amount"    />
+        <result property="cost"    column="cost"    />
+        <result property="expense"    column="expense"    />
+        <result property="margin"    column="margin"    />
+        <result property="paymentTerms"    column="payment_terms"    />
+        <result property="isChange"    column="is_change"    />
+        <result property="isDestroy"    column="is_destroy"    />
+        <result property="operatorId"    column="operator_id"    />
+        <result property="operatorName"    column="operator_name"    />
+        <result property="ownerId"    column="owner_id"    />
+        <result property="ownerName"    column="owner_name"    />
+        <result property="status"    column="status"    />
+        <result property="duration"    column="duration"    />
+        <result property="effectiveTime"    column="effective_time"    />
+        <result property="losteffectiveTime"    column="losteffective_time"    />
+        <result property="endTime"    column="end_time"    />
+        <result property="signTime"    column="sign_time"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="userId"    column="user_id"    />
+        <result property="deptId"    column="dept_id"    />
+        <result property="commentFile"    column="comment_file"    />
+    </resultMap>
+
+    <resultMap id="CrmContractCrmPaymenttermResult" type="CrmContract" extends="CrmContractResult">
+        <collection property="crmPaymenttermList" notNullColumn="sub_term_id" javaType="java.util.List" resultMap="CrmPaymenttermResult" />
+    </resultMap>
+
+    <resultMap type="CrmPaymentterm" id="CrmPaymenttermResult">
+        <result property="termId"    column="sub_term_id"    />
+        <result property="termName"    column="sub_term_name"    />
+        <result property="termDate"    column="sub_term_date"    />
+        <result property="termIndex"    column="sub_term_index"    />
+        <result property="paidAmount"    column="sub_paid_amount"    />
+        <result property="termAmount"    column="sub_term_amount"    />
+        <result property="contractId"    column="sub_contract_id"    />
+        <result property="contractName"    column="sub_contract_name"    />
+        <result property="accountId"    column="sub_account_id"    />
+        <result property="accountName"    column="sub_account_name"    />
+        <result property="ownerId"    column="sub_owner_id"    />
+        <result property="ownerName"    column="sub_owner_name"    />
+        <result property="isPaid"    column="sub_is_paid"    />
+        <result property="operatorName"    column="sub_operator_name"    />
+        <result property="collectDate"    column="sub_collect_date"    />
+        <result property="description"    column="sub_description"    />
+        <result property="createBy"    column="sub_create_by"    />
+        <result property="createTime"    column="sub_create_time"    />
+        <result property="updateBy"    column="sub_update_by"    />
+        <result property="updateTime"    column="sub_update_time"    />
+        <result property="startDate"    column="sub_start_date"    />
+        <result property="endDate"    column="sub_end_date"    />
+    </resultMap>
+
+    <sql id="selectCrmContractVo">
+        select c.contract_id, c.contract_name, c.contract_type, c.contract_code, c.contract_status, c.contract_identity, c.contract_fundsdirec, c.opty_id, c.opty_name, c.account_id, c.account_name, c.contact_id, c.contact_name, c.contact_phone, c.amount, c.tax_ratio, c.tax_amount, c.total_amount, c.sign_amount, c.changed_amount, c.execution_amount, c.received_amount, c.receivable, c.pending_receivable, c.invoiced_amount, c.cost, c.expense, c.margin, c.payment_terms, c.is_change, c.is_destroy, c.operator_id, c.operator_name, c.owner_id, c.owner_name, c.status, c.duration, c.effective_time, c.losteffective_time, c.end_time, c.sign_time, c.create_by, c.create_time, c.update_by, c.update_time, c.user_id, c.dept_id, c.comment_file
+        from crm_contract c
+         left join sys_user u on u.user_id = c.user_id
+         left join sys_dept d on u.dept_id = d.dept_id
+    </sql>
+
+    <select id="selectCrmContractDueList" parameterType="CrmContract" resultMap="CrmContractResult">
+    <include refid="selectCrmContractVo"/>
+    where 1=1
+        <if test="losteffectiveTime != null "> and (c.losteffective_time::date - CAST(#{losteffectiveTime} AS date)) between 0 and 5</if>
+        <!-- 数据范围过滤 -->
+        ${params.dataScope}
+    </select>
+
+    <select id="selectCrmContractList" parameterType="CrmContract" resultMap="CrmContractResult">
+        <include refid="selectCrmContractVo"/>
+        where 1=1
+            <if test="contractName != null  and contractName != ''"> and contract_name like concat('%', #{contractName}, '%')</if>
+            <if test="contractType != null  and contractType != ''"> and contract_type = #{contractType}</if>
+            <if test="contractCode != null  and contractCode != ''"> and contract_code = #{contractCode}</if>
+            <if test="contractStatus != null  and contractStatus != ''"> and contract_status = #{contractStatus}</if>
+            <if test="contractIdentity != null  and contractIdentity != ''"> and contract_identity = #{contractIdentity}</if>
+            <if test="contractFundsdirec != null  and contractFundsdirec != ''"> and contract_fundsdirec = #{contractFundsdirec}</if>
+            <if test="optyId != null  and optyId != ''"> and opty_id = #{optyId}</if>
+            <if test="optyName != null  and optyName != ''"> and opty_name like concat('%', #{optyName}, '%')</if>
+            <if test="accountId != null  and accountId != ''"> and account_id = #{accountId}</if>
+            <if test="accountName != null  and accountName != ''"> and account_name like concat('%', #{accountName}, '%')</if>
+            <if test="contactId != null  and contactId != ''"> and contact_id = #{contactId}</if>
+            <if test="contactName != null  and contactName != ''"> and contact_name like concat('%', #{contactName}, '%')</if>
+            <if test="contactPhone != null  and contactPhone != ''"> and contact_phone = #{contactPhone}</if>
+            <if test="amount != null "> and amount = #{amount}</if>
+            <if test="taxRatio != null "> and tax_ratio = #{taxRatio}</if>
+            <if test="taxAmount != null "> and tax_amount = #{taxAmount}</if>
+            <if test="totalAmount != null "> and total_amount = #{totalAmount}</if>
+            <if test="signAmount != null "> and sign_amount = #{signAmount}</if>
+            <if test="changedAmount != null "> and changed_amount = #{changedAmount}</if>
+            <if test="executionAmount != null "> and execution_amount = #{executionAmount}</if>
+            <if test="receivedAmount != null "> and received_amount = #{receivedAmount}</if>
+            <if test="receivable != null "> and receivable = #{receivable}</if>
+            <if test="pendingReceivable != null "> and pending_receivable = #{pendingReceivable}</if>
+            <if test="invoicedAmount != null "> and invoiced_amount = #{invoicedAmount}</if>
+            <if test="cost != null "> and cost = #{cost}</if>
+            <if test="expense != null "> and expense = #{expense}</if>
+            <if test="margin != null "> and margin = #{margin}</if>
+            <if test="paymentTerms != null "> and payment_terms = #{paymentTerms}</if>
+            <if test="isChange != null  and isChange != ''"> and is_change = #{isChange}</if>
+            <if test="isDestroy != null  and isDestroy != ''"> and is_destroy = #{isDestroy}</if>
+            <if test="operatorId != null  and operatorId != ''"> and operator_id = #{operatorId}</if>
+            <if test="operatorName != null  and operatorName != ''"> and operator_name like concat('%', #{operatorName}, '%')</if>
+            <if test="ownerId != null  and ownerId != ''"> and owner_id = #{ownerId}</if>
+            <if test="ownerName != null  and ownerName != ''"> and owner_name like concat('%', #{ownerName}, '%')</if>
+            <if test="status != null  and status != ''"> and status = #{status}</if>
+            <if test="duration != null "> and duration = #{duration}</if>
+            <if test="effectiveTime != null "> and effective_time = #{effectiveTime}</if>
+            <if test="losteffectiveTime != null "> and losteffective_time = #{losteffectiveTime}</if>
+            <if test="endTime != null "> and end_time = #{endTime}</if>
+            <if test="signTime != null "> and sign_time = #{signTime}</if>
+            <if test="userId != null "> and user_id = #{userId}</if>
+            <if test="deptId != null "> and dept_id = #{deptId}</if>
+        <!-- 数据范围过滤 -->
+        ${params.dataScope}
+    </select>
+
+    <select id="selectCrmContractListWeekly" parameterType="CrmContract" resultMap="CrmContractResult">
+        <include refid="selectCrmContractVo"/>
+        where 1=1
+        and to_char(sign_time::date, 'IYYYIW') = to_char(CURRENT_DATE, 'IYYYIW')
+        <if test="contractName != null  and contractName != ''"> and contract_name like concat('%', #{contractName}, '%')</if>
+        <if test="contractType != null  and contractType != ''"> and contract_type = #{contractType}</if>
+        <if test="contractCode != null  and contractCode != ''"> and contract_code = #{contractCode}</if>
+        <if test="contractStatus != null  and contractStatus != ''"> and contract_status = #{contractStatus}</if>
+        <if test="contractIdentity != null  and contractIdentity != ''"> and contract_identity = #{contractIdentity}</if>
+        <if test="contractFundsdirec != null  and contractFundsdirec != ''"> and contract_fundsdirec = #{contractFundsdirec}</if>
+        <if test="optyId != null  and optyId != ''"> and opty_id = #{optyId}</if>
+        <if test="optyName != null  and optyName != ''"> and opty_name like concat('%', #{optyName}, '%')</if>
+        <if test="accountId != null  and accountId != ''"> and account_id = #{accountId}</if>
+        <if test="accountName != null  and accountName != ''"> and account_name like concat('%', #{accountName}, '%')</if>
+        <if test="contactId != null  and contactId != ''"> and contact_id = #{contactId}</if>
+        <if test="contactName != null  and contactName != ''"> and contact_name like concat('%', #{contactName}, '%')</if>
+        <if test="contactPhone != null  and contactPhone != ''"> and contact_phone = #{contactPhone}</if>
+        <if test="amount != null "> and amount = #{amount}</if>
+        <if test="taxRatio != null "> and tax_ratio = #{taxRatio}</if>
+        <if test="taxAmount != null "> and tax_amount = #{taxAmount}</if>
+        <if test="totalAmount != null "> and total_amount = #{totalAmount}</if>
+        <if test="signAmount != null "> and sign_amount = #{signAmount}</if>
+        <if test="changedAmount != null "> and changed_amount = #{changedAmount}</if>
+        <if test="executionAmount != null "> and execution_amount = #{executionAmount}</if>
+        <if test="receivedAmount != null "> and received_amount = #{receivedAmount}</if>
+        <if test="receivable != null "> and receivable = #{receivable}</if>
+        <if test="pendingReceivable != null "> and pending_receivable = #{pendingReceivable}</if>
+        <if test="invoicedAmount != null "> and invoiced_amount = #{invoicedAmount}</if>
+        <if test="cost != null "> and cost = #{cost}</if>
+        <if test="expense != null "> and expense = #{expense}</if>
+        <if test="margin != null "> and margin = #{margin}</if>
+        <if test="paymentTerms != null "> and payment_terms = #{paymentTerms}</if>
+        <if test="isChange != null  and isChange != ''"> and is_change = #{isChange}</if>
+        <if test="isDestroy != null  and isDestroy != ''"> and is_destroy = #{isDestroy}</if>
+        <if test="operatorId != null  and operatorId != ''"> and operator_id = #{operatorId}</if>
+        <if test="operatorName != null  and operatorName != ''"> and operator_name like concat('%', #{operatorName}, '%')</if>
+        <if test="ownerId != null  and ownerId != ''"> and owner_id = #{ownerId}</if>
+        <if test="ownerName != null  and ownerName != ''"> and owner_name like concat('%', #{ownerName}, '%')</if>
+        <if test="status != null  and status != ''"> and status = #{status}</if>
+        <if test="duration != null "> and duration = #{duration}</if>
+        <if test="effectiveTime != null "> and effective_time = #{effectiveTime}</if>
+        <if test="losteffectiveTime != null "> and losteffective_time = #{losteffectiveTime}</if>
+        <if test="endTime != null "> and end_time = #{endTime}</if>
+        <if test="signTime != null "> and sign_time = #{signTime}</if>
+        <if test="userId != null "> and user_id = #{userId}</if>
+        <if test="deptId != null "> and dept_id = #{deptId}</if>
+        <!-- 数据范围过滤 -->
+        ${params.dataScope}
+    </select>
+
+    <select id="selectCrmContractByContractId" parameterType="String" resultMap="CrmContractCrmPaymenttermResult">
+        select a.contract_id, a.contract_name, a.contract_type, a.contract_code, a.contract_status, a.contract_identity, a.contract_fundsdirec, a.opty_id, a.opty_name, a.account_id, a.account_name, a.contact_id, a.contact_name, a.contact_phone, a.amount, a.tax_ratio, a.tax_amount, a.total_amount, a.sign_amount, a.changed_amount, a.execution_amount, a.received_amount, a.receivable, a.pending_receivable, a.invoiced_amount, a.cost, a.expense, a.margin, a.payment_terms, a.is_change, a.is_destroy, a.operator_id, a.operator_name, a.owner_id, a.owner_name, a.status, a.duration, a.effective_time, a.losteffective_time, a.end_time, a.sign_time, a.create_by, a.create_time, a.update_by, a.update_time, a.user_id, a.dept_id, a.comment_file,
+ b.term_id as sub_term_id, b.term_name as sub_term_name, b.term_date as sub_term_date, b.term_index as sub_term_index, b.paid_amount as sub_paid_amount, b.term_amount as sub_term_amount, b.contract_id as sub_contract_id, b.contract_name as sub_contract_name, b.account_id as sub_account_id, b.account_name as sub_account_name, b.owner_id as sub_owner_id, b.owner_name as sub_owner_name, b.is_paid as sub_is_paid, b.operator_name as sub_operator_name, b.collect_date as sub_collect_date, b.description as sub_description, b.create_by as sub_create_by, b.create_time as sub_create_time, b.update_by as sub_update_by, b.update_time as sub_update_time
+        from crm_contract a
+        left join crm_paymentterm b on b.contract_id = a.contract_id
+        where a.contract_id = #{contractId}
+        order by b.term_date
+    </select>
+        
+    <insert id="insertCrmContract" parameterType="CrmContract">
+        insert into crm_contract
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="contractId != null">contract_id,</if>
+            <if test="contractName != null">contract_name,</if>
+            <if test="contractType != null">contract_type,</if>
+            <if test="contractCode != null">contract_code,</if>
+            <if test="contractStatus != null">contract_status,</if>
+            <if test="contractIdentity != null">contract_identity,</if>
+            <if test="contractFundsdirec != null">contract_fundsdirec,</if>
+            <if test="optyId != null">opty_id,</if>
+            <if test="optyName != null">opty_name,</if>
+            <if test="accountId != null and accountId != ''">account_id,</if>
+            <if test="accountName != null">account_name,</if>
+            <if test="contactId != null and contactId != ''">contact_id,</if>
+            <if test="contactName != null">contact_name,</if>
+            <if test="contactPhone != null">contact_phone,</if>
+            <if test="amount != null">amount,</if>
+            <if test="taxRatio != null">tax_ratio,</if>
+            <if test="taxAmount != null">tax_amount,</if>
+            <if test="totalAmount != null">total_amount,</if>
+            <if test="signAmount != null">sign_amount,</if>
+            <if test="changedAmount != null">changed_amount,</if>
+            <if test="executionAmount != null">execution_amount,</if>
+            <if test="receivedAmount != null">received_amount,</if>
+            <if test="receivable != null">receivable,</if>
+            <if test="pendingReceivable != null">pending_receivable,</if>
+            <if test="invoicedAmount != null">invoiced_amount,</if>
+            <if test="cost != null">cost,</if>
+            <if test="expense != null">expense,</if>
+            <if test="margin != null">margin,</if>
+            <if test="paymentTerms != null">payment_terms,</if>
+            <if test="isChange != null">is_change,</if>
+            <if test="isDestroy != null">is_destroy,</if>
+            <if test="operatorId != null">operator_id,</if>
+            <if test="operatorName != null">operator_name,</if>
+            <if test="ownerId != null">owner_id,</if>
+            <if test="ownerName != null">owner_name,</if>
+            <if test="status != null">status,</if>
+            <if test="duration != null">duration,</if>
+            <if test="effectiveTime != null">effective_time,</if>
+            <if test="losteffectiveTime != null">losteffective_time,</if>
+            <if test="endTime != null">end_time,</if>
+            <if test="signTime != null">sign_time,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="userId != null">user_id,</if>
+            <if test="deptId != null">dept_id,</if>
+            <if test="commentFile != null">comment_file,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="contractId != null">#{contractId},</if>
+            <if test="contractName != null">#{contractName},</if>
+            <if test="contractType != null">#{contractType},</if>
+            <if test="contractCode != null">#{contractCode},</if>
+            <if test="contractStatus != null">#{contractStatus},</if>
+            <if test="contractIdentity != null">#{contractIdentity},</if>
+            <if test="contractFundsdirec != null">#{contractFundsdirec},</if>
+            <if test="optyId != null">#{optyId},</if>
+            <if test="optyName != null">#{optyName},</if>
+            <if test="accountId != null and accountId != ''">#{accountId},</if>
+            <if test="accountName != null">#{accountName},</if>
+            <if test="contactId != null and contactId != ''">#{contactId},</if>
+            <if test="contactName != null">#{contactName},</if>
+            <if test="contactPhone != null">#{contactPhone},</if>
+            <if test="amount != null">#{amount},</if>
+            <if test="taxRatio != null">#{taxRatio},</if>
+            <if test="taxAmount != null">#{taxAmount},</if>
+            <if test="totalAmount != null">#{totalAmount},</if>
+            <if test="signAmount != null">#{signAmount},</if>
+            <if test="changedAmount != null">#{changedAmount},</if>
+            <if test="executionAmount != null">#{executionAmount},</if>
+            <if test="receivedAmount != null">#{receivedAmount},</if>
+            <if test="receivable != null">#{receivable},</if>
+            <if test="pendingReceivable != null">#{pendingReceivable},</if>
+            <if test="invoicedAmount != null">#{invoicedAmount},</if>
+            <if test="cost != null">#{cost},</if>
+            <if test="expense != null">#{expense},</if>
+            <if test="margin != null">#{margin},</if>
+            <if test="paymentTerms != null">#{paymentTerms},</if>
+            <if test="isChange != null">#{isChange},</if>
+            <if test="isDestroy != null">#{isDestroy},</if>
+            <if test="operatorId != null">#{operatorId},</if>
+            <if test="operatorName != null">#{operatorName},</if>
+            <if test="ownerId != null">#{ownerId},</if>
+            <if test="ownerName != null">#{ownerName},</if>
+            <if test="status != null">#{status},</if>
+            <if test="duration != null">#{duration},</if>
+            <if test="effectiveTime != null">#{effectiveTime},</if>
+            <if test="losteffectiveTime != null">#{losteffectiveTime},</if>
+            <if test="endTime != null">#{endTime},</if>
+            <if test="signTime != null">#{signTime},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="userId != null">#{userId},</if>
+            <if test="deptId != null">#{deptId},</if>
+            <if test="commentFile != null">CAST(NULLIF(TRIM(#{commentFile,jdbcType=VARCHAR}), '') AS jsonb),</if>
+         </trim>
+    </insert>
+
+    <update id="updateCrmContract" parameterType="CrmContract">
+        update crm_contract
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="contractName != null">contract_name = #{contractName},</if>
+            <if test="contractType != null">contract_type = #{contractType},</if>
+            <if test="contractCode != null">contract_code = #{contractCode},</if>
+            <if test="contractStatus != null">contract_status = #{contractStatus},</if>
+            <if test="contractIdentity != null">contract_identity = #{contractIdentity},</if>
+            <if test="contractFundsdirec != null">contract_fundsdirec = #{contractFundsdirec},</if>
+            <if test="optyId != null">opty_id = #{optyId},</if>
+            <if test="optyName != null">opty_name = #{optyName},</if>
+            <if test="accountId != null and accountId != ''">account_id = #{accountId},</if>
+            <if test="accountName != null">account_name = #{accountName},</if>
+            <if test="contactId != null and contactId != ''">contact_id = #{contactId},</if>
+            <if test="contactName != null">contact_name = #{contactName},</if>
+            <if test="contactPhone != null">contact_phone = #{contactPhone},</if>
+            <if test="amount != null">amount = #{amount},</if>
+            <if test="taxRatio != null">tax_ratio = #{taxRatio},</if>
+            <if test="taxAmount != null">tax_amount = #{taxAmount},</if>
+            <if test="totalAmount != null">total_amount = #{totalAmount},</if>
+            <if test="signAmount != null">sign_amount = #{signAmount},</if>
+            <if test="changedAmount != null">changed_amount = #{changedAmount},</if>
+            <if test="executionAmount != null">execution_amount = #{executionAmount},</if>
+            <if test="receivedAmount != null">received_amount = #{receivedAmount},</if>
+            <if test="receivable != null">receivable = #{receivable},</if>
+            <if test="pendingReceivable != null">pending_receivable = #{pendingReceivable},</if>
+            <if test="invoicedAmount != null">invoiced_amount = #{invoicedAmount},</if>
+            <if test="cost != null">cost = #{cost},</if>
+            <if test="expense != null">expense = #{expense},</if>
+            <if test="margin != null">margin = #{margin},</if>
+            <if test="paymentTerms != null">payment_terms = #{paymentTerms},</if>
+            <if test="isChange != null">is_change = #{isChange},</if>
+            <if test="isDestroy != null">is_destroy = #{isDestroy},</if>
+            <if test="operatorId != null">operator_id = #{operatorId},</if>
+            <if test="operatorName != null">operator_name = #{operatorName},</if>
+            <if test="ownerId != null">owner_id = #{ownerId},</if>
+            <if test="ownerName != null">owner_name = #{ownerName},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="duration != null">duration = #{duration},</if>
+            <if test="effectiveTime != null">effective_time = #{effectiveTime},</if>
+            <if test="losteffectiveTime != null">losteffective_time = #{losteffectiveTime},</if>
+            <if test="endTime != null">end_time = #{endTime},</if>
+            <if test="signTime != null">sign_time = #{signTime},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="userId != null">user_id = #{userId},</if>
+            <if test="deptId != null">dept_id = #{deptId},</if>
+            <if test="commentFile != null">comment_file = CAST(NULLIF(TRIM(#{commentFile,jdbcType=VARCHAR}), '') AS jsonb),</if>
+        </trim>
+        where contract_id = #{contractId}
+    </update>
+
+    <delete id="deleteCrmContractByContractId" parameterType="String">
+        delete from crm_contract where contract_id = #{contractId}
+    </delete>
+
+    <delete id="deleteCrmContractByContractIds" parameterType="String">
+        delete from crm_contract where contract_id in 
+        <foreach item="contractId" collection="array" open="(" separator="," close=")">
+            #{contractId}
+        </foreach>
+    </delete>
+    
+    <delete id="deleteCrmPaymenttermByContractIds" parameterType="String">
+        delete from crm_paymentterm where contract_id in 
+        <foreach item="contractId" collection="array" open="(" separator="," close=")">
+            #{contractId}
+        </foreach>
+    </delete>
+
+    <delete id="deleteCrmPaymenttermByContractId" parameterType="String">
+        delete from crm_paymentterm where contract_id = #{contractId}
+    </delete>
+
+    <insert id="batchCrmPaymentterm">
+        insert into crm_paymentterm( term_id, term_name, term_date, term_index, paid_amount, term_amount, contract_id, contract_name, account_id, account_name, owner_id, owner_name, is_paid, operator_name, collect_date, description, create_by, create_time, update_by, update_time, user_id, dept_id, start_date, end_date) values
+		<foreach item="item" index="index" collection="list" separator=",">
+            ( #{item.termId}, #{item.termName}, #{item.termDate}, #{item.termIndex}, #{item.paidAmount}, #{item.termAmount}, #{item.contractId}, #{item.contractName}, #{item.accountId}, #{item.accountName}, #{item.ownerId}, #{item.ownerName}, #{item.isPaid}, #{item.operatorName}, #{item.collectDate}, #{item.description}, #{item.createBy}, #{item.createTime}, #{item.updateBy}, #{item.updateTime}, #{item.userId}, #{item.deptId}, #{item.startDate}, #{item.endDate})
+        </foreach>
+    </insert>
+</mapper>

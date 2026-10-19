@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.tenant.mapper.SysWecomCorpTenantMapper">
+
+    <resultMap type="com.ruoyi.tenant.domain.SysWecomCorpTenant" id="SysWecomCorpTenantResult">
+        <result property="corpId" column="corp_id"/>
+        <result property="tenant" column="tenant"/>
+    </resultMap>
+
+    <select id="selectByCorpId" resultMap="SysWecomCorpTenantResult">
+        SELECT corp_id, tenant FROM sys_wecom_corp_tenant WHERE corp_id = #{corpId}
+    </select>
+
+    <delete id="deleteByTenant">
+        DELETE FROM sys_wecom_corp_tenant WHERE tenant = #{tenant}
+    </delete>
+
+    <insert id="insert" parameterType="com.ruoyi.tenant.domain.SysWecomCorpTenant">
+        INSERT INTO sys_wecom_corp_tenant (corp_id, tenant) VALUES (#{corpId}, #{tenant})
+    </insert>
+</mapper>

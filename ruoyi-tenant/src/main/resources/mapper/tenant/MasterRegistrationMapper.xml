@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.tenant.mapper.MasterRegistrationMapper">
+    
+    <resultMap type="MasterRegistration" id="MasterRegistrationResult">
+        <result property="registId"    column="regist_id"    />
+        <result property="contactName"    column="contact_name"    />
+        <result property="companyName"    column="company_name"    />
+        <result property="mobile"    column="mobile"    />
+        <result property="email"    column="email"    />
+        <result property="startDate"    column="start_date"    />
+        <result property="endDate"    column="end_date"    />
+        <result property="operIp"    column="oper_ip"    />
+        <result property="operLocation"    column="oper_location"    />
+        <result property="plan"    column="plan"    />
+        <result property="status"    column="status"    />
+        <result property="remark"    column="remark"    />
+        <result property="operTime"    column="oper_time"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectMasterRegistrationVo">
+        select regist_id, contact_name, company_name, mobile, email, start_date, end_date, oper_ip, oper_location, plan, status, remark, oper_time, create_by, create_time, update_by, update_time from master_registration
+    </sql>
+
+    <select id="selectMasterRegistrationList" parameterType="MasterRegistration" resultMap="MasterRegistrationResult">
+        <include refid="selectMasterRegistrationVo"/>
+        <where>  
+            <if test="contactName != null  and contactName != ''"> and contact_name like concat('%', #{contactName}, '%')</if>
+            <if test="companyName != null  and companyName != ''"> and company_name like concat('%', #{companyName}, '%')</if>
+            <if test="mobile != null  and mobile != ''"> and mobile = #{mobile}</if>
+            <if test="email != null  and email != ''"> and email = #{email}</if>
+            <if test="startDate != null "> and start_date = #{startDate}</if>
+            <if test="endDate != null "> and end_date = #{endDate}</if>
+            <if test="operIp != null  and operIp != ''"> and oper_ip = #{operIp}</if>
+            <if test="operLocation != null  and operLocation != ''"> and oper_location = #{operLocation}</if>
+            <if test="plan != null  and plan != ''"> and plan = #{plan}</if>
+            <if test="status != null "> and status = #{status}</if>
+            <if test="operTime != null "> and oper_time = #{operTime}</if>
+        </where>
+    </select>
+    
+    <select id="selectMasterRegistrationByRegistId" parameterType="Long" resultMap="MasterRegistrationResult">
+        <include refid="selectMasterRegistrationVo"/>
+        where regist_id = #{registId}
+    </select>
+        
+    <insert id="insertMasterRegistration" parameterType="MasterRegistration" useGeneratedKeys="true" keyProperty="registId">
+        insert into master_registration
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="contactName != null">contact_name,</if>
+            <if test="companyName != null">company_name,</if>
+            <if test="mobile != null">mobile,</if>
+            <if test="email != null">email,</if>
+            <if test="startDate != null">start_date,</if>
+            <if test="endDate != null">end_date,</if>
+            <if test="operIp != null">oper_ip,</if>
+            <if test="operLocation != null">oper_location,</if>
+            <if test="plan != null">plan,</if>
+            <if test="status != null">status,</if>
+            <if test="remark != null">remark,</if>
+            <if test="operTime != null">oper_time,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="contactName != null">#{contactName},</if>
+            <if test="companyName != null">#{companyName},</if>
+            <if test="mobile != null">#{mobile},</if>
+            <if test="email != null">#{email},</if>
+            <if test="startDate != null">#{startDate},</if>
+            <if test="endDate != null">#{endDate},</if>
+            <if test="operIp != null">#{operIp},</if>
+            <if test="operLocation != null">#{operLocation},</if>
+            <if test="plan != null">#{plan},</if>
+            <if test="status != null">#{status},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="operTime != null">#{operTime},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateMasterRegistration" parameterType="MasterRegistration">
+        update master_registration
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="contactName != null">contact_name = #{contactName},</if>
+            <if test="companyName != null">company_name = #{companyName},</if>
+            <if test="mobile != null">mobile = #{mobile},</if>
+            <if test="email != null">email = #{email},</if>
+            <if test="startDate != null">start_date = #{startDate},</if>
+            <if test="endDate != null">end_date = #{endDate},</if>
+            <if test="operIp != null">oper_ip = #{operIp},</if>
+            <if test="operLocation != null">oper_location = #{operLocation},</if>
+            <if test="plan != null">plan = #{plan},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="operTime != null">oper_time = #{operTime},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where regist_id = #{registId}
+    </update>
+
+    <select id="checkCompanyNameUnique" parameterType="String" resultType="int">
+        select count(1) from master_registration where company_name = #{companyName} limit 1
+    </select>
+
+    <select id="checkMobileUnique" parameterType="String" resultType="int">
+        select count(1) from master_registration where mobile = #{mobile} limit 1
+    </select>
+
+    <select id="checkEmailUnique" parameterType="String" resultType="int">
+        select count(1) from master_registration where email = #{email} limit 1
+    </select>
+
+    <delete id="deleteMasterRegistrationByRegistId" parameterType="Long">
+        delete from master_registration where regist_id = #{registId}
+    </delete>
+
+    <delete id="deleteMasterRegistrationByRegistIds" parameterType="String">
+        delete from master_registration where regist_id in 
+        <foreach item="registId" collection="array" open="(" separator="," close=")">
+            #{registId}
+        </foreach>
+    </delete>
+</mapper>

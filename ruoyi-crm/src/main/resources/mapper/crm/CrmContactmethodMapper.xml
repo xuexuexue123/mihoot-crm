@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmContactmethodMapper">
+    
+    <resultMap type="CrmContactmethod" id="CrmContactmethodResult">
+        <result property="methodId"    column="method_id"    />
+        <result property="methodType"    column="method_type"    />
+        <result property="detail"    column="detail"    />
+        <result property="isPrimary"    column="is_primary"    />
+        <result property="relateType"    column="relate_type"    />
+        <result property="relateName"    column="relate_name"    />
+        <result property="sourceId"    column="source_id"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectCrmContactmethodVo">
+        select method_id, method_type, detail, is_primary, relate_type, relate_name, source_id, create_by, create_time, update_by, update_time from crm_contactmethod
+    </sql>
+
+    <select id="selectCrmContactmethodList" parameterType="CrmContactmethod" resultMap="CrmContactmethodResult">
+        <include refid="selectCrmContactmethodVo"/>
+        <where>  
+            <if test="methodType != null  and methodType != ''"> and method_type = #{methodType}</if>
+            <if test="detail != null  and detail != ''"> and detail = #{detail}</if>
+            <if test="isPrimary != null "> and is_primary = #{isPrimary}</if>
+            <if test="relateType != null  and relateType != ''"> and relate_type = #{relateType}</if>
+            <if test="relateName != null  and relateName != ''"> and relate_name like concat('%', #{relateName}, '%')</if>
+            <if test="sourceId != null  and sourceId != ''"> and source_id = #{sourceId}</if>
+        </where>
+    </select>
+    
+    <select id="selectCrmContactmethodByMethodId" parameterType="String" resultMap="CrmContactmethodResult">
+        <include refid="selectCrmContactmethodVo"/>
+        where method_id = #{methodId}
+    </select>
+        
+    <insert id="insertCrmContactmethod" parameterType="CrmContactmethod">
+        insert into crm_contactmethod
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="methodId != null">method_id,</if>
+            <if test="methodType != null">method_type,</if>
+            <if test="detail != null">detail,</if>
+            <if test="isPrimary != null">is_primary,</if>
+            <if test="relateType != null">relate_type,</if>
+            <if test="relateName != null">relate_name,</if>
+            <if test="sourceId != null and sourceId != ''">source_id,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="methodId != null">#{methodId},</if>
+            <if test="methodType != null">#{methodType},</if>
+            <if test="detail != null">#{detail},</if>
+            <if test="isPrimary != null">#{isPrimary},</if>
+            <if test="relateType != null">#{relateType},</if>
+            <if test="relateName != null">#{relateName},</if>
+            <if test="sourceId != null and sourceId != ''">#{sourceId},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateCrmContactmethod" parameterType="CrmContactmethod">
+        update crm_contactmethod
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="methodType != null">method_type = #{methodType},</if>
+            <if test="detail != null">detail = #{detail},</if>
+            <if test="isPrimary != null">is_primary = #{isPrimary},</if>
+            <if test="relateType != null">relate_type = #{relateType},</if>
+            <if test="relateName != null">relate_name = #{relateName},</if>
+            <if test="sourceId != null and sourceId != ''">source_id = #{sourceId},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where method_id = #{methodId}
+    </update>
+
+    <delete id="deleteCrmContactmethodByMethodId" parameterType="String">
+        delete from crm_contactmethod where method_id = #{methodId}
+    </delete>
+
+    <delete id="deleteCrmContactmethodByMethodIds" parameterType="String">
+        delete from crm_contactmethod where method_id in 
+        <foreach item="methodId" collection="array" open="(" separator="," close=")">
+            #{methodId}
+        </foreach>
+    </delete>
+</mapper>

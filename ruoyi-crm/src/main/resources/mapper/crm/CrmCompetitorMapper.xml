@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmCompetitorMapper">
+    
+    <resultMap type="CrmCompetitor" id="CrmCompetitorResult">
+        <result property="competitorId"    column="competitor_id"    />
+        <result property="competitorName"    column="competitor_name"    />
+        <result property="website"    column="website"    />
+        <result property="industry"    column="industry"    />
+        <result property="employeeCount"    column="employee_count"    />
+        <result property="revenue"    column="revenue"    />
+        <result property="description"    column="description"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectCrmCompetitorVo">
+        select competitor_id, competitor_name, website, industry, employee_count, revenue, description, create_by, create_time, update_by, update_time from crm_competitor
+    </sql>
+
+    <select id="selectCrmCompetitorList" parameterType="CrmCompetitor" resultMap="CrmCompetitorResult">
+        <include refid="selectCrmCompetitorVo"/>
+        <where>  
+            <if test="competitorName != null  and competitorName != ''"> and competitor_name like concat('%', #{competitorName}, '%')</if>
+            <if test="website != null  and website != ''"> and website = #{website}</if>
+            <if test="industry != null  and industry != ''"> and industry = #{industry}</if>
+            <if test="employeeCount != null "> and employee_count = #{employeeCount}</if>
+            <if test="revenue != null "> and revenue = #{revenue}</if>
+            <if test="description != null  and description != ''"> and description = #{description}</if>
+        </where>
+    </select>
+    
+    <select id="selectCrmCompetitorByCompetitorId" parameterType="String" resultMap="CrmCompetitorResult">
+        <include refid="selectCrmCompetitorVo"/>
+        where competitor_id = #{competitorId}
+    </select>
+        
+    <insert id="insertCrmCompetitor" parameterType="CrmCompetitor">
+        insert into crm_competitor
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="competitorId != null">competitor_id,</if>
+            <if test="competitorName != null">competitor_name,</if>
+            <if test="website != null">website,</if>
+            <if test="industry != null">industry,</if>
+            <if test="employeeCount != null">employee_count,</if>
+            <if test="revenue != null">revenue,</if>
+            <if test="description != null">description,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="competitorId != null">#{competitorId},</if>
+            <if test="competitorName != null">#{competitorName},</if>
+            <if test="website != null">#{website},</if>
+            <if test="industry != null">#{industry},</if>
+            <if test="employeeCount != null">#{employeeCount},</if>
+            <if test="revenue != null">#{revenue},</if>
+            <if test="description != null">#{description},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateCrmCompetitor" parameterType="CrmCompetitor">
+        update crm_competitor
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="competitorName != null">competitor_name = #{competitorName},</if>
+            <if test="website != null">website = #{website},</if>
+            <if test="industry != null">industry = #{industry},</if>
+            <if test="employeeCount != null">employee_count = #{employeeCount},</if>
+            <if test="revenue != null">revenue = #{revenue},</if>
+            <if test="description != null">description = #{description},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where competitor_id = #{competitorId}
+    </update>
+
+    <delete id="deleteCrmCompetitorByCompetitorId" parameterType="String">
+        delete from crm_competitor where competitor_id = #{competitorId}
+    </delete>
+
+    <delete id="deleteCrmCompetitorByCompetitorIds" parameterType="String">
+        delete from crm_competitor where competitor_id in 
+        <foreach item="competitorId" collection="array" open="(" separator="," close=")">
+            #{competitorId}
+        </foreach>
+    </delete>
+</mapper>

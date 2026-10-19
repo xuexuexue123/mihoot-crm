@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmSemanticProfileMapper">
+
+    <resultMap type="com.ruoyi.crm.domain.vo.SemanticProfileVO" id="SemanticProfileVOResult">
+        <result property="profileId" column="profile_id"/>
+        <result property="industryKey" column="industry_key"/>
+        <result property="enabled" column="enabled"/>
+        <result property="profileVersion" column="profile_version"/>
+        <result property="profileJson" column="profile_json"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <resultMap type="com.ruoyi.crm.domain.CrmSemanticProfile" id="CrmSemanticProfileResult">
+        <result property="profileId" column="profile_id"/>
+        <result property="tenantId" column="tenant_id"/>
+        <result property="industryKey" column="industry_key"/>
+        <result property="enabled" column="enabled"/>
+        <result property="profileVersion" column="profile_version"/>
+        <result property="profileJson" column="profile_json"/>
+        <result property="delFlag" column="del_flag"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="remark" column="remark"/>
+    </resultMap>
+
+    <select id="selectByTenantId" resultMap="SemanticProfileVOResult">
+        select profile_id, industry_key, enabled, profile_version, profile_json, update_time
+        from crm_semantic_profile
+        where del_flag = '0'
+          and tenant_id = #{tenantId}
+        limit 1
+    </select>
+
+    <select id="selectEntityByTenantIdAny" resultMap="CrmSemanticProfileResult">
+        select profile_id, tenant_id, industry_key, enabled, profile_version, profile_json,
+               del_flag, create_by, create_time, update_by, update_time, remark
+        from crm_semantic_profile
+        where tenant_id = #{tenantId}
+        limit 1
+    </select>
+
+    <insert id="insertCrmSemanticProfile" parameterType="com.ruoyi.crm.domain.CrmSemanticProfile">
+        insert into crm_semantic_profile
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="profileId != null and profileId != ''">profile_id,</if>
+            <if test="tenantId != null and tenantId != ''">tenant_id,</if>
+            <if test="industryKey != null and industryKey != ''">industry_key,</if>
+            <if test="enabled != null and enabled != ''">enabled,</if>
+            <if test="profileVersion != null">profile_version,</if>
+            <if test="profileJson != null">profile_json,</if>
+            <if test="delFlag != null and delFlag != ''">del_flag,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="remark != null">remark,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="profileId != null and profileId != ''">#{profileId},</if>
+            <if test="tenantId != null and tenantId != ''">#{tenantId},</if>
+            <if test="industryKey != null and industryKey != ''">#{industryKey},</if>
+            <if test="enabled != null and enabled != ''">#{enabled},</if>
+            <if test="profileVersion != null">#{profileVersion},</if>
+            <if test="profileJson != null">#{profileJson},</if>
+            <if test="delFlag != null and delFlag != ''">#{delFlag},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="remark != null">#{remark},</if>
+        </trim>
+    </insert>
+
+    <update id="updateCrmSemanticProfile" parameterType="com.ruoyi.crm.domain.CrmSemanticProfile">
+        update crm_semantic_profile
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="industryKey != null and industryKey != ''">industry_key = #{industryKey},</if>
+            <if test="enabled != null and enabled != ''">enabled = #{enabled},</if>
+            <if test="profileVersion != null">profile_version = #{profileVersion},</if>
+            profile_json = #{profileJson},
+            <if test="delFlag != null and delFlag != ''">del_flag = #{delFlag},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="remark != null">remark = #{remark},</if>
+        </trim>
+        where profile_id = #{profileId}
+    </update>
+
+    <update id="logicalDeleteByTenantId">
+        update crm_semantic_profile
+        set del_flag = '1',
+            update_by = #{updateBy},
+            update_time = CURRENT_TIMESTAMP
+        where tenant_id = #{tenantId}
+          and del_flag = '0'
+    </update>
+</mapper>

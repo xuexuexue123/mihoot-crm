@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmSanctionSourceTagMapper">
+
+    <resultMap type="CrmSanctionSourceTag" id="CrmSanctionSourceTagResult">
+        <result property="id" column="id"/>
+        <result property="tagCode" column="tag_code"/>
+        <result property="tagName" column="tag_name"/>
+        <result property="authority" column="authority"/>
+        <result property="description" column="description"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="delFlag" column="del_flag"/>
+    </resultMap>
+
+    <sql id="selectCrmSanctionSourceTagVo">
+        select id, tag_code, tag_name, authority, description,
+               create_by, create_time, update_by, update_time, del_flag
+        from crm_sanction_source_tag
+    </sql>
+
+    <select id="selectCrmSanctionSourceTagById" parameterType="String" resultMap="CrmSanctionSourceTagResult">
+        <include refid="selectCrmSanctionSourceTagVo"/>
+        where id = #{id}
+          and del_flag = '0'
+    </select>
+
+    <select id="selectCrmSanctionSourceTagByTagCode" resultMap="CrmSanctionSourceTagResult">
+        <include refid="selectCrmSanctionSourceTagVo"/>
+        where tag_code = #{tagCode}
+          and del_flag = '0'
+        limit 1
+    </select>
+
+    <select id="selectCrmSanctionSourceTagList" parameterType="CrmSanctionSourceTag" resultMap="CrmSanctionSourceTagResult">
+        <include refid="selectCrmSanctionSourceTagVo"/>
+        <where>
+            del_flag = '0'
+            <if test="searchQuery != null and searchQuery != ''">
+                and (
+                    tag_code ILIKE CONCAT('%', #{searchQuery}, '%')
+                    or tag_name ILIKE CONCAT('%', #{searchQuery}, '%')
+                    or authority ILIKE CONCAT('%', #{searchQuery}, '%')
+                    or description ILIKE CONCAT('%', #{searchQuery}, '%')
+                )
+            </if>
+        </where>
+        order by update_time desc nulls last, tag_code asc
+    </select>
+
+    <insert id="insertCrmSanctionSourceTag" parameterType="CrmSanctionSourceTag">
+        insert into crm_sanction_source_tag (
+            id, tag_code, tag_name, authority, description,
+            create_by, create_time, update_by, update_time, del_flag
+        ) values (
+            #{id},
+            #{tagCode},
+            #{tagName},
+            #{authority},
+            #{description},
+            #{createBy},
+            #{createTime},
+            #{updateBy},
+            #{updateTime},
+            COALESCE(#{delFlag}, '0')
+        )
+    </insert>
+
+    <update id="updateCrmSanctionSourceTag" parameterType="CrmSanctionSourceTag">
+        update crm_sanction_source_tag
+        set tag_code = #{tagCode},
+            tag_name = #{tagName},
+            authority = #{authority},
+            description = #{description},
+            update_by = #{updateBy},
+            update_time = #{updateTime}
+        where id = #{id}
+          and del_flag = '0'
+    </update>
+
+    <update id="logicalDeleteById">
+        update crm_sanction_source_tag
+        set del_flag = '1',
+            update_by = #{updateBy},
+            update_time = CURRENT_TIMESTAMP
+        where id = #{id}
+          and del_flag = '0'
+    </update>
+</mapper>

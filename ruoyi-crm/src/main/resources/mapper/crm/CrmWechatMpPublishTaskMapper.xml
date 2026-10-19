@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.wechatmp.mapper.CrmWechatMpPublishTaskMapper">
+
+    <resultMap id="PublishTaskResult" type="com.ruoyi.crm.wechatmp.domain.CrmWechatMpPublishTask">
+        <id property="id" column="id"/>
+        <result property="appId" column="app_id"/>
+        <result property="mediaId" column="media_id"/>
+        <result property="publishId" column="publish_id"/>
+        <result property="msgDataId" column="msg_data_id"/>
+        <result property="articleId" column="article_id"/>
+        <result property="indexInMsg" column="index_in_msg"/>
+        <result property="publishStatus" column="publish_status"/>
+        <result property="failIdxs" column="fail_idxs"/>
+        <result property="articleUrl" column="article_url"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+    </resultMap>
+
+    <insert id="insert">
+        INSERT INTO crm_wechat_mp_publish_task (
+            app_id, media_id, publish_id, msg_data_id,
+            index_in_msg, publish_status
+        ) VALUES (
+            #{appId}, #{mediaId}, #{publishId}, #{msgDataId},
+            #{indexInMsg}, #{publishStatus}
+        )
+    </insert>
+
+    <update id="updateByPublishId">
+        UPDATE crm_wechat_mp_publish_task SET
+            publish_status = #{publishStatus},
+            article_id = #{articleId},
+            article_url = #{articleUrl},
+            fail_idxs = #{failIdxs},
+            updated_at = now()
+        WHERE publish_id = #{publishId}
+    </update>
+
+    <select id="selectByPublishId" resultMap="PublishTaskResult">
+        SELECT * FROM crm_wechat_mp_publish_task
+        WHERE publish_id = #{publishId}
+        LIMIT 1
+    </select>
+
+    <select id="selectByMsgDataId" resultMap="PublishTaskResult">
+        SELECT * FROM crm_wechat_mp_publish_task
+        WHERE msg_data_id = #{msgDataId}
+        ORDER BY created_at DESC
+    </select>
+
+    <select id="selectByMediaId" resultMap="PublishTaskResult">
+        SELECT * FROM crm_wechat_mp_publish_task
+        WHERE app_id = #{appId} AND media_id = #{mediaId}
+        ORDER BY created_at DESC
+    </select>
+
+    <select id="selectAllPending" resultMap="PublishTaskResult">
+        SELECT * FROM crm_wechat_mp_publish_task
+        WHERE publish_status = 1
+        ORDER BY created_at ASC
+    </select>
+
+    <select id="selectRecentSuccessWithMsgDataId" resultMap="PublishTaskResult">
+        SELECT * FROM crm_wechat_mp_publish_task
+        WHERE app_id = #{appId}
+          AND publish_status = 0
+          AND msg_data_id IS NOT NULL
+          AND msg_data_id &lt;&gt; ''
+          AND created_at &gt;= (now() - (#{lookbackDays} || ' days')::interval)
+        ORDER BY created_at DESC
+        LIMIT #{limit}
+    </select>
+
+    <select id="selectByAppIdAndMsgDataId" resultMap="PublishTaskResult">
+        SELECT * FROM crm_wechat_mp_publish_task
+        WHERE app_id = #{appId}
+          AND msg_data_id = #{msgDataId}
+          <if test="indexInMsg != null">
+            AND index_in_msg = #{indexInMsg}
+          </if>
+        ORDER BY created_at DESC
+    </select>
+
+</mapper>

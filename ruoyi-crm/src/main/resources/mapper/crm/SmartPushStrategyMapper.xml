@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.SmartPushStrategyMapper">
+
+    <resultMap id="SmartPushStrategyResult" type="com.ruoyi.crm.domain.SmartPushStrategy">
+        <id property="id" column="id"/>
+        <result property="strategyType" column="strategy_type"/>
+        <result property="name" column="name"/>
+        <result property="enabled" column="enabled"/>
+        <result property="cronExpression" column="cron_expression"/>
+        <result property="channel" column="channel"/>
+        <result property="targetMode" column="target_mode"/>
+        <result property="messageTemplate" column="message_template"/>
+        <result property="configJson" column="config_json"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+    </resultMap>
+
+    <select id="selectListByType" resultMap="SmartPushStrategyResult">
+        SELECT id, strategy_type, name, enabled, cron_expression, channel, target_mode,
+               message_template, config_json, created_at, updated_at
+        FROM smart_push_strategy
+        WHERE 1=1
+        <if test="strategyType != null and strategyType != ''">
+            AND strategy_type = #{strategyType}
+        </if>
+        ORDER BY id ASC
+    </select>
+
+    <select id="selectById" resultMap="SmartPushStrategyResult">
+        SELECT id, strategy_type, name, enabled, cron_expression, channel, target_mode,
+               message_template, config_json, created_at, updated_at
+        FROM smart_push_strategy
+        WHERE id = #{id}
+    </select>
+
+    <select id="selectEnabledByType" resultMap="SmartPushStrategyResult">
+        SELECT id, strategy_type, name, enabled, cron_expression, channel, target_mode,
+               message_template, config_json, created_at, updated_at
+        FROM smart_push_strategy
+        WHERE strategy_type = #{strategyType} AND enabled = 1
+        ORDER BY id ASC
+    </select>
+
+    <select id="selectEnabledBirthday" resultMap="SmartPushStrategyResult">
+        SELECT id, strategy_type, name, enabled, cron_expression, channel, target_mode,
+               message_template, config_json, created_at, updated_at
+        FROM smart_push_strategy
+        WHERE strategy_type = 'birthday' AND enabled = 1
+        ORDER BY id ASC
+    </select>
+
+    <select id="selectEnabledScheduled" resultMap="SmartPushStrategyResult">
+        SELECT id, strategy_type, name, enabled, cron_expression, channel, target_mode,
+               message_template, config_json, created_at, updated_at
+        FROM smart_push_strategy
+        WHERE strategy_type = 'scheduled' AND enabled = 1
+        ORDER BY id ASC
+    </select>
+
+    <select id="selectEnabledOnEvent" resultMap="SmartPushStrategyResult">
+        SELECT id, strategy_type, name, enabled, cron_expression, channel, target_mode,
+               message_template, config_json, created_at, updated_at
+        FROM smart_push_strategy
+        WHERE strategy_type = 'on_event' AND enabled = 1
+          AND config_json->>'triggerEvent' = #{triggerEvent}
+        ORDER BY id ASC
+    </select>
+
+    <insert id="insert" parameterType="com.ruoyi.crm.domain.SmartPushStrategy" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO smart_push_strategy (
+            strategy_type, name, enabled, cron_expression, channel, target_mode,
+            message_template, config_json, created_at, updated_at
+        ) VALUES (
+            #{strategyType}, #{name}, CASE WHEN #{enabled} THEN 1 ELSE 0 END, #{cronExpression},
+            #{channel}, #{targetMode}, #{messageTemplate}, #{configJson}::jsonb,
+            #{createdAt}, #{updatedAt}
+        )
+    </insert>
+
+    <update id="update" parameterType="com.ruoyi.crm.domain.SmartPushStrategy">
+        UPDATE smart_push_strategy
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="name != null">name = #{name},</if>
+            <if test="enabled != null">enabled = CASE WHEN #{enabled} THEN 1 ELSE 0 END,</if>
+            <if test="cronExpression != null">cron_expression = #{cronExpression},</if>
+            <if test="channel != null">channel = #{channel},</if>
+            <if test="targetMode != null">target_mode = #{targetMode},</if>
+            <if test="messageTemplate != null">message_template = #{messageTemplate},</if>
+            <if test="configJson != null">config_json = #{configJson}::jsonb,</if>
+            <if test="updatedAt != null">updated_at = #{updatedAt},</if>
+        </trim>
+        WHERE id = #{id}
+    </update>
+</mapper>

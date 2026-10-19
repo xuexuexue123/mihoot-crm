@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmWhatsappMessageMapper">
+
+    <resultMap id="CrmWhatsappMessageResult" type="com.ruoyi.crm.domain.CrmWhatsappMessage">
+        <id property="id" column="id"/>
+        <result property="tenantId" column="tenant_id"/>
+        <result property="conversationId" column="conversation_id"/>
+        <result property="waId" column="wa_id"/>
+        <result property="messageId" column="message_id"/>
+        <result property="messageType" column="message_type"/>
+        <result property="content" column="content"/>
+        <result property="direction" column="direction"/>
+        <result property="sendTime" column="send_time"/>
+        <result property="status" column="status"/>
+        <result property="mediaId" column="media_id"/>
+        <result property="mediaUrl" column="media_url"/>
+        <result property="mediaMimeType" column="media_mime_type"/>
+        <result property="filename" column="filename"/>
+        <result property="rawJson" column="raw_json"/>
+        <result property="source" column="source"/>
+        <result property="createTime" column="create_time"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.ruoyi.crm.domain.CrmWhatsappMessage"
+            useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO crm_whatsapp_message (
+            tenant_id, conversation_id, wa_id, message_id, message_type,
+            content, direction, send_time, status,
+            media_id, media_url, media_mime_type, filename, raw_json, source,
+            create_time
+        ) VALUES (
+            #{tenantId}, #{conversationId}, #{waId}, #{messageId}, #{messageType},
+            #{content}, #{direction}, #{sendTime}, #{status},
+            #{mediaId}, #{mediaUrl}, #{mediaMimeType}, #{filename}, #{rawJson}, #{source},
+            #{createTime}
+        )
+    </insert>
+
+    <select id="selectByMessageId" resultMap="CrmWhatsappMessageResult">
+        SELECT id, tenant_id, conversation_id, wa_id, message_id, message_type,
+               content, direction, send_time, status,
+               media_id, media_url, media_mime_type, filename, raw_json, source,
+               create_time
+        FROM crm_whatsapp_message
+        WHERE tenant_id = #{tenantId} AND message_id = #{messageId}
+        LIMIT 1
+    </select>
+
+    <update id="updateStatusByMessageId">
+        UPDATE crm_whatsapp_message
+        SET status = #{status}
+        WHERE tenant_id = #{tenantId} AND message_id = #{messageId}
+    </update>
+
+    <select id="selectByConversationId" resultMap="CrmWhatsappMessageResult">
+        SELECT id, tenant_id, conversation_id, wa_id, message_id, message_type,
+               content, direction, send_time, status,
+               media_id, media_url, media_mime_type, filename, raw_json, source,
+               create_time
+        FROM crm_whatsapp_message
+        WHERE conversation_id = #{conversationId}
+        <if test="beforeMsgId != null">
+            AND id &lt; #{beforeMsgId}
+        </if>
+        ORDER BY send_time DESC, id DESC
+        LIMIT #{pageSize}
+    </select>
+
+    <select id="selectByMediaId" resultMap="CrmWhatsappMessageResult">
+        SELECT id, tenant_id, conversation_id, wa_id, message_id, message_type,
+               content, direction, send_time, status,
+               media_id, media_url, media_mime_type, filename, raw_json, source,
+               create_time
+        FROM crm_whatsapp_message
+        WHERE tenant_id = #{tenantId} AND media_id = #{mediaId}
+        ORDER BY id DESC
+        LIMIT 1
+    </select>
+
+    <select id="selectById" resultMap="CrmWhatsappMessageResult">
+        SELECT id, tenant_id, conversation_id, wa_id, message_id, message_type,
+               content, direction, send_time, status,
+               media_id, media_url, media_mime_type, filename, raw_json, source,
+               create_time
+        FROM crm_whatsapp_message
+        WHERE tenant_id = #{tenantId} AND id = #{id}
+        LIMIT 1
+    </select>
+
+    <update id="updateMediaUrl">
+        UPDATE crm_whatsapp_message
+        SET media_url = #{mediaUrl}
+        WHERE tenant_id = #{tenantId} AND id = #{id}
+    </update>
+
+    <select id="countTemplateOutbound" resultType="long">
+        SELECT COUNT(1)
+        FROM crm_whatsapp_message m
+        <if test="phoneNumberId != null and phoneNumberId != ''">
+            INNER JOIN crm_whatsapp_conversation c ON c.id = m.conversation_id
+        </if>
+        WHERE m.tenant_id = #{tenantId}
+          AND m.direction = 1
+          AND m.message_type = 'template'
+          <if test="startTime != null">
+              AND m.send_time &gt;= #{startTime}
+          </if>
+          <if test="endTime != null">
+              AND m.send_time &lt;= #{endTime}
+          </if>
+          <if test="phoneNumberId != null and phoneNumberId != ''">
+              AND c.phone_number_id = #{phoneNumberId}
+          </if>
+          <if test="statuses != null and statuses.size() &gt; 0">
+              AND LOWER(m.status) IN
+              <foreach collection="statuses" item="s" open="(" separator="," close=")">
+                  LOWER(#{s})
+              </foreach>
+          </if>
+    </select>
+
+    <select id="countTemplateConversations" resultType="long">
+        SELECT COUNT(DISTINCT m.conversation_id)
+        FROM crm_whatsapp_message m
+        <if test="phoneNumberId != null and phoneNumberId != ''">
+            INNER JOIN crm_whatsapp_conversation c ON c.id = m.conversation_id
+        </if>
+        WHERE m.tenant_id = #{tenantId}
+          AND m.direction = 1
+          AND m.message_type = 'template'
+          AND m.conversation_id IS NOT NULL
+          <if test="startTime != null">
+              AND m.send_time &gt;= #{startTime}
+          </if>
+          <if test="endTime != null">
+              AND m.send_time &lt;= #{endTime}
+          </if>
+          <if test="phoneNumberId != null and phoneNumberId != ''">
+              AND c.phone_number_id = #{phoneNumberId}
+          </if>
+    </select>
+
+    <!-- 模板发送后 replyWindowMs 内同会话有入站消息的会话数 -->
+    <select id="countTemplateConversationsWithReply" resultType="long">
+        SELECT COUNT(DISTINCT t.conversation_id)
+        FROM crm_whatsapp_message t
+        <if test="phoneNumberId != null and phoneNumberId != ''">
+            INNER JOIN crm_whatsapp_conversation c ON c.id = t.conversation_id
+        </if>
+        WHERE t.tenant_id = #{tenantId}
+          AND t.direction = 1
+          AND t.message_type = 'template'
+          AND t.conversation_id IS NOT NULL
+          <if test="startTime != null">
+              AND t.send_time &gt;= #{startTime}
+          </if>
+          <if test="endTime != null">
+              AND t.send_time &lt;= #{endTime}
+          </if>
+          <if test="phoneNumberId != null and phoneNumberId != ''">
+              AND c.phone_number_id = #{phoneNumberId}
+          </if>
+          AND EXISTS (
+              SELECT 1 FROM crm_whatsapp_message r
+              WHERE r.tenant_id = t.tenant_id
+                AND r.conversation_id = t.conversation_id
+                AND r.direction = 0
+                AND r.send_time &gt;= t.send_time
+                AND r.send_time &lt;= t.send_time + #{replyWindowMs}
+          )
+    </select>
+
+    <select id="countInboundByWaId" resultType="long">
+        SELECT COUNT(1)
+        FROM crm_whatsapp_message
+        WHERE tenant_id = #{tenantId}
+          AND wa_id = #{waId}
+          AND direction = 0
+    </select>
+
+    <!--
+      按自然日聚合模板指标。
+      sent = status in sent/delivered/read
+      delivered = delivered/read
+      read = read
+      template_conv = distinct conversation with template send that day
+      template_conv_replied = among those, replied within replyWindowMs
+    -->
+    <select id="selectTemplateDailyStats" resultType="java.util.HashMap">
+        SELECT
+            to_char(to_timestamp(m.send_time / 1000.0), 'YYYY-MM-DD') AS date,
+            COUNT(1) FILTER (
+                WHERE LOWER(m.status) IN ('sent', 'delivered', 'read')
+            ) AS sent,
+            COUNT(1) FILTER (
+                WHERE LOWER(m.status) IN ('delivered', 'read')
+            ) AS delivered,
+            COUNT(1) FILTER (
+                WHERE LOWER(m.status) = 'read'
+            ) AS read,
+            COUNT(DISTINCT m.conversation_id) FILTER (
+                WHERE m.conversation_id IS NOT NULL
+                  AND LOWER(m.status) IN ('sent', 'delivered', 'read')
+            ) AS template_conv,
+            COUNT(DISTINCT m.conversation_id) FILTER (
+                WHERE m.conversation_id IS NOT NULL
+                  AND LOWER(m.status) IN ('sent', 'delivered', 'read')
+                  AND EXISTS (
+                      SELECT 1 FROM crm_whatsapp_message r
+                      WHERE r.tenant_id = m.tenant_id
+                        AND r.conversation_id = m.conversation_id
+                        AND r.direction = 0
+                        AND r.send_time &gt;= m.send_time
+                        AND r.send_time &lt;= m.send_time + #{replyWindowMs}
+                  )
+            ) AS template_conv_replied
+        FROM crm_whatsapp_message m
+        <if test="phoneNumberId != null and phoneNumberId != ''">
+            INNER JOIN crm_whatsapp_conversation c ON c.id = m.conversation_id
+        </if>
+        WHERE m.tenant_id = #{tenantId}
+          AND m.direction = 1
+          AND m.message_type = 'template'
+          AND m.send_time IS NOT NULL
+          <if test="startTime != null">
+              AND m.send_time &gt;= #{startTime}
+          </if>
+          <if test="endTime != null">
+              AND m.send_time &lt;= #{endTime}
+          </if>
+          <if test="phoneNumberId != null and phoneNumberId != ''">
+              AND c.phone_number_id = #{phoneNumberId}
+          </if>
+        GROUP BY to_char(to_timestamp(m.send_time / 1000.0), 'YYYY-MM-DD')
+        ORDER BY date ASC
+    </select>
+</mapper>

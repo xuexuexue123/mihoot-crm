@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmSubjectMapMapper">
+
+    <resultMap id="CrmSubjectMapResult" type="com.ruoyi.crm.domain.CrmSubjectMap">
+        <id     property="id"                column="id"    />
+        <result property="parentSubjectType" column="parent_subject_type"    />
+        <result property="parentSubjectId"   column="parent_subject_id"    />
+        <result property="childSubjectType"  column="child_subject_type"    />
+        <result property="childSubjectId"    column="child_subject_id"    />
+        <result property="createTime"        column="create_time"    />
+    </resultMap>
+
+    <!-- PostgreSQL UPSERT：ON CONFLICT ON CONSTRAINT uk_child DO UPDATE -->
+    <insert id="upsert" parameterType="com.ruoyi.crm.domain.CrmSubjectMap">
+        INSERT INTO crm_subject_map (
+            parent_subject_type, parent_subject_id,
+            child_subject_type, child_subject_id,
+            create_time
+        ) VALUES (
+            #{parentSubjectType}, #{parentSubjectId},
+            #{childSubjectType}, #{childSubjectId},
+            NOW()
+        )
+        ON CONFLICT (child_subject_type, child_subject_id)
+        DO UPDATE SET
+            parent_subject_type = EXCLUDED.parent_subject_type,
+            parent_subject_id   = EXCLUDED.parent_subject_id
+    </insert>
+
+    <select id="selectByChild" resultMap="CrmSubjectMapResult">
+        SELECT id, parent_subject_type, parent_subject_id,
+               child_subject_type, child_subject_id, create_time
+        FROM crm_subject_map
+        WHERE child_subject_type = #{param1}
+          AND child_subject_id   = #{param2}
+    </select>
+
+    <select id="selectByParent" resultMap="CrmSubjectMapResult">
+        SELECT id, parent_subject_type, parent_subject_id,
+               child_subject_type, child_subject_id, create_time
+        FROM crm_subject_map
+        WHERE parent_subject_type = #{param1}
+          AND parent_subject_id   = #{param2}
+    </select>
+
+</mapper>

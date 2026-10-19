@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmCashflowMapper">
+    
+    <resultMap type="CrmCashflow" id="CrmCashflowResult">
+        <result property="cashflowId"    column="cashflow_id"    />
+        <result property="cashflowType"    column="cashflow_type"    />
+        <result property="relateId"    column="relate_id"    />
+        <result property="relateName"    column="relate_name"    />
+        <result property="relateBackaccount"    column="relate_backaccount"    />
+        <result property="transactionDate"    column="transaction_date"    />
+        <result property="amount"    column="amount"    />
+        <result property="comment"    column="comment"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="category"    column="category"    />
+        <result property="accountId"    column="account_id"    />
+    </resultMap>
+
+    <sql id="selectCrmCashflowVo">
+        select cashflow_id, cashflow_type, relate_id, relate_name, relate_backaccount, transaction_date, amount, comment, create_by, create_time, update_by, update_time, category, account_id  from crm_cashflow
+    </sql>
+
+    <select id="selectCrmCashflowList" parameterType="CrmCashflow" resultMap="CrmCashflowResult">
+        <include refid="selectCrmCashflowVo"/>
+        <where>  
+            <if test="cashflowType != null  and cashflowType != ''"> and cashflow_type = #{cashflowType}</if>
+            <if test="relateId != null  and relateId != ''"> and relate_id = #{relateId}</if>
+            <if test="relateName != null  and relateName != ''"> and relate_name like concat('%', #{relateName}, '%')</if>
+            <if test="relateBackaccount != null  and relateBackaccount != ''"> and relate_backaccount = #{relateBackaccount}</if>
+            <if test="transactionDate != null "> and transaction_date = #{transactionDate}</if>
+            <if test="amount != null "> and amount = #{amount}</if>
+            <if test="comment != null  and comment != ''"> and comment = #{comment}</if>
+            <if test="category != null  and category != ''"> and category = #{category}</if>
+            <if test="accountId != null  and accountId != ''"> and account_id = #{accountId}</if>
+        </where>
+    </select>
+    
+    <select id="selectCrmCashflowByCashflowId" parameterType="String" resultMap="CrmCashflowResult">
+        <include refid="selectCrmCashflowVo"/>
+        where cashflow_id = #{cashflowId}
+    </select>
+        
+    <insert id="insertCrmCashflow" parameterType="CrmCashflow">
+        insert into crm_cashflow
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="cashflowId != null">cashflow_id,</if>
+            <if test="cashflowType != null">cashflow_type,</if>
+            <if test="relateId != null and relateId != ''">relate_id,</if>
+            <if test="relateName != null">relate_name,</if>
+            <if test="relateBackaccount != null">relate_backaccount,</if>
+            <if test="transactionDate != null">transaction_date,</if>
+            <if test="amount != null">amount,</if>
+            <if test="comment != null">comment,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="category != null">category,</if>
+            <if test="accountId != null">account_id,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="cashflowId != null">#{cashflowId},</if>
+            <if test="cashflowType != null">#{cashflowType},</if>
+            <if test="relateId != null and relateId != ''">#{relateId},</if>
+            <if test="relateName != null">#{relateName},</if>
+            <if test="relateBackaccount != null">#{relateBackaccount},</if>
+            <if test="transactionDate != null">#{transactionDate},</if>
+            <if test="amount != null">#{amount},</if>
+            <if test="comment != null">#{comment},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="category != null">#{category},</if>
+            <if test="accountId != null">#{accountId},</if>
+         </trim>
+    </insert>
+
+    <update id="updateCrmCashflow" parameterType="CrmCashflow">
+        update crm_cashflow
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="cashflowType != null">cashflow_type = #{cashflowType},</if>
+            <if test="relateId != null and relateId != ''">relate_id = #{relateId},</if>
+            <if test="relateName != null">relate_name = #{relateName},</if>
+            <if test="relateBackaccount != null">relate_backaccount = #{relateBackaccount},</if>
+            <if test="transactionDate != null">transaction_date = #{transactionDate},</if>
+            <if test="amount != null">amount = #{amount},</if>
+            <if test="comment != null">comment = #{comment},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="category != null">category = #{category},</if>
+            <if test="accountId != null">account_id = #{accountId},</if>
+        </trim>
+        where cashflow_id = #{cashflowId}
+    </update>
+
+    <delete id="deleteCrmCashflowByCashflowId" parameterType="String">
+        delete from crm_cashflow where cashflow_id = #{cashflowId}
+    </delete>
+
+    <delete id="deleteCrmCashflowByCashflowIds" parameterType="String">
+        delete from crm_cashflow where cashflow_id in 
+        <foreach item="cashflowId" collection="array" open="(" separator="," close=")">
+            #{cashflowId}
+        </foreach>
+    </delete>
+</mapper>

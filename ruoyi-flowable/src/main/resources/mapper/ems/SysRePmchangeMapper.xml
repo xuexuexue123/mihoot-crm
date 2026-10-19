@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.ems.mapper.SysRePmchangeMapper">
+    
+    <resultMap type="SysRePmchange" id="SysRePmchangeResult">
+        <result property="changeId"    column="change_id"    />
+        <result property="projectId"    column="project_id"    />
+        <result property="taskId"    column="task_id"    />
+        <result property="changePoint"    column="change_point"    />
+        <result property="reason"    column="reason"    />
+        <result property="applicant"    column="applicant"    />
+        <result property="approver"    column="approver"    />
+        <result property="approvedResult"    column="approved_result"    />
+        <result property="approvedComment"    column="approved_comment"    />
+        <result property="impactToCost"    column="impact_to_cost"    />
+        <result property="impactToProgress"    column="impact_to_progress"    />
+        <result property="impactToResource"    column="impact_to_resource"    />
+        <result property="whatifNoChange"    column="whatif_no_change"    />
+        <result property="impactLevel"    column="impact_level"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectSysRePmchangeVo">
+        select change_id, project_id, task_id, change_point, reason, applicant, approver, approved_result, approved_comment, impact_to_cost, impact_to_progress, impact_to_resource, whatif_no_change, impact_level, create_by, create_time, update_by, update_time from sys_re_pmchange
+    </sql>
+
+    <select id="selectSysRePmchangeList" parameterType="SysRePmchange" resultMap="SysRePmchangeResult">
+        <include refid="selectSysRePmchangeVo"/>
+        <where>  
+            <if test="projectId != null  and projectId != ''"> and project_id = #{projectId}</if>
+            <if test="taskId != null  and taskId != ''"> and task_id = #{taskId}</if>
+            <if test="changePoint != null  and changePoint != ''"> and change_point = #{changePoint}</if>
+            <if test="reason != null  and reason != ''"> and reason = #{reason}</if>
+            <if test="applicant != null  and applicant != ''"> and applicant = #{applicant}</if>
+            <if test="approver != null  and approver != ''"> and approver = #{approver}</if>
+            <if test="approvedResult != null  and approvedResult != ''"> and approved_result = #{approvedResult}</if>
+            <if test="approvedComment != null  and approvedComment != ''"> and approved_comment = #{approvedComment}</if>
+            <if test="impactToCost != null  and impactToCost != ''"> and impact_to_cost = #{impactToCost}</if>
+            <if test="impactToProgress != null  and impactToProgress != ''"> and impact_to_progress = #{impactToProgress}</if>
+            <if test="impactToResource != null  and impactToResource != ''"> and impact_to_resource = #{impactToResource}</if>
+            <if test="whatifNoChange != null  and whatifNoChange != ''"> and whatif_no_change = #{whatifNoChange}</if>
+            <if test="impactLevel != null  and impactLevel != ''"> and impact_level = #{impactLevel}</if>
+        </where>
+    </select>
+    
+    <select id="selectSysRePmchangeByChangeId" parameterType="String" resultMap="SysRePmchangeResult">
+        <include refid="selectSysRePmchangeVo"/>
+        where change_id = #{changeId}
+    </select>
+        
+    <insert id="insertSysRePmchange" parameterType="SysRePmchange">
+        insert into sys_re_pmchange
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="changeId != null">change_id,</if>
+            <if test="projectId != null">project_id,</if>
+            <if test="taskId != null">task_id,</if>
+            <if test="changePoint != null">change_point,</if>
+            <if test="reason != null">reason,</if>
+            <if test="applicant != null">applicant,</if>
+            <if test="approver != null">approver,</if>
+            <if test="approvedResult != null">approved_result,</if>
+            <if test="approvedComment != null">approved_comment,</if>
+            <if test="impactToCost != null">impact_to_cost,</if>
+            <if test="impactToProgress != null">impact_to_progress,</if>
+            <if test="impactToResource != null">impact_to_resource,</if>
+            <if test="whatifNoChange != null">whatif_no_change,</if>
+            <if test="impactLevel != null">impact_level,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="changeId != null">#{changeId},</if>
+            <if test="projectId != null">#{projectId},</if>
+            <if test="taskId != null">#{taskId},</if>
+            <if test="changePoint != null">#{changePoint},</if>
+            <if test="reason != null">#{reason},</if>
+            <if test="applicant != null">#{applicant},</if>
+            <if test="approver != null">#{approver},</if>
+            <if test="approvedResult != null">#{approvedResult},</if>
+            <if test="approvedComment != null">#{approvedComment},</if>
+            <if test="impactToCost != null">#{impactToCost},</if>
+            <if test="impactToProgress != null">#{impactToProgress},</if>
+            <if test="impactToResource != null">#{impactToResource},</if>
+            <if test="whatifNoChange != null">#{whatifNoChange},</if>
+            <if test="impactLevel != null">#{impactLevel},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateSysRePmchange" parameterType="SysRePmchange">
+        update sys_re_pmchange
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="projectId != null">project_id = #{projectId},</if>
+            <if test="taskId != null">task_id = #{taskId},</if>
+            <if test="changePoint != null">change_point = #{changePoint},</if>
+            <if test="reason != null">reason = #{reason},</if>
+            <if test="applicant != null">applicant = #{applicant},</if>
+            <if test="approver != null">approver = #{approver},</if>
+            <if test="approvedResult != null">approved_result = #{approvedResult},</if>
+            <if test="approvedComment != null">approved_comment = #{approvedComment},</if>
+            <if test="impactToCost != null">impact_to_cost = #{impactToCost},</if>
+            <if test="impactToProgress != null">impact_to_progress = #{impactToProgress},</if>
+            <if test="impactToResource != null">impact_to_resource = #{impactToResource},</if>
+            <if test="whatifNoChange != null">whatif_no_change = #{whatifNoChange},</if>
+            <if test="impactLevel != null">impact_level = #{impactLevel},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where change_id = #{changeId}
+    </update>
+
+    <delete id="deleteSysRePmchangeByChangeId" parameterType="String">
+        delete from sys_re_pmchange where change_id = #{changeId}
+    </delete>
+
+    <delete id="deleteSysRePmchangeByChangeIds" parameterType="String">
+        delete from sys_re_pmchange where change_id in 
+        <foreach item="changeId" collection="array" open="(" separator="," close=")">
+            #{changeId}
+        </foreach>
+    </delete>
+</mapper>

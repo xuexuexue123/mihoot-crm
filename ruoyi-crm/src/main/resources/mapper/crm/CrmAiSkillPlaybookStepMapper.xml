@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmAiSkillPlaybookStepMapper">
+
+    <resultMap type="com.ruoyi.crm.domain.CrmAiSkillPlaybookStep" id="CrmAiSkillPlaybookStepResult">
+        <id property="id" column="id"/>
+        <result property="playbookId" column="playbook_id"/>
+        <result property="stepKey" column="step_key"/>
+        <result property="skillId" column="skill_id"/>
+        <result property="stepType" column="step_type"/>
+        <result property="parallelGroup" column="parallel_group"/>
+        <result property="dependsOn" column="depends_on"/>
+        <result property="trackKey" column="track_key"/>
+        <result property="sortOrder" column="sort_order"/>
+        <result property="enabled" column="enabled"/>
+        <result property="skillName" column="skill_name"/>
+    </resultMap>
+
+    <select id="selectByPlaybookId" resultMap="CrmAiSkillPlaybookStepResult">
+        select id, playbook_id, step_key, skill_id, step_type, parallel_group, depends_on,
+               track_key, sort_order, enabled
+        from crm_ai_skill_playbook_step
+        where playbook_id = #{playbookId}
+        order by sort_order asc, id asc
+    </select>
+
+    <select id="selectByPlaybookIdWithSkillName" resultMap="CrmAiSkillPlaybookStepResult">
+        select s.id, s.playbook_id, s.step_key, s.skill_id, s.step_type, s.parallel_group, s.depends_on,
+               s.track_key, s.sort_order, s.enabled, sk.name as skill_name
+        from crm_ai_skill_playbook_step s
+        left join crm_ai_skill sk on sk.id = s.skill_id
+        where s.playbook_id = #{playbookId}
+        order by s.sort_order asc, s.id asc
+    </select>
+
+    <delete id="deleteByPlaybookId">
+        delete from crm_ai_skill_playbook_step where playbook_id = #{playbookId}
+    </delete>
+
+    <insert id="insertBatch">
+        insert into crm_ai_skill_playbook_step (
+            playbook_id, step_key, skill_id, step_type, parallel_group, depends_on,
+            track_key, sort_order, enabled
+        ) values
+        <foreach collection="list" item="item" separator=",">
+            (#{item.playbookId}, #{item.stepKey}, #{item.skillId}, #{item.stepType}, #{item.parallelGroup},
+             #{item.dependsOn}, #{item.trackKey}, #{item.sortOrder}, #{item.enabled})
+        </foreach>
+    </insert>
+
+    <select id="selectFirstStepIdBySkillId" resultType="java.lang.Long">
+        select s.id
+        from crm_ai_skill_playbook_step s
+        inner join crm_ai_skill_playbook p on p.id = s.playbook_id
+        where s.skill_id = #{skillId} and p.tenant_id = #{tenantId}
+        limit 1
+    </select>
+
+    <select id="countByPlaybookId" resultType="int">
+        select count(*) from crm_ai_skill_playbook_step where playbook_id = #{playbookId}
+    </select>
+
+    <select id="selectDistinctTrackKeys" resultType="java.lang.String">
+        select distinct track_key
+        from crm_ai_skill_playbook_step
+        where playbook_id = #{playbookId}
+          and track_key is not null
+          and trim(track_key) &lt;&gt; ''
+        order by track_key
+    </select>
+</mapper>

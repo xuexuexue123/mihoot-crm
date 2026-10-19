@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmWhatsappTemplateSendItemMapper">
+
+    <resultMap id="ItemResult" type="com.ruoyi.crm.domain.CrmWhatsappTemplateSendItem">
+        <id property="id" column="id"/>
+        <result property="tenantId" column="tenant_id"/>
+        <result property="taskId" column="task_id"/>
+        <result property="waId" column="wa_id"/>
+        <result property="contactId" column="contact_id"/>
+        <result property="ruleId" column="rule_id"/>
+        <result property="businessKey" column="business_key"/>
+        <result property="status" column="status"/>
+        <result property="messageId" column="message_id"/>
+        <result property="errorCode" column="error_code"/>
+        <result property="errorMessage" column="error_message"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+    </resultMap>
+
+    <sql id="selectCols">
+        id, tenant_id, task_id, wa_id, contact_id, rule_id, business_key,
+        status, message_id, error_code, error_message, created_at, updated_at
+    </sql>
+
+    <insert id="insert" parameterType="com.ruoyi.crm.domain.CrmWhatsappTemplateSendItem"
+            useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO crm_whatsapp_template_send_item (
+            tenant_id, task_id, wa_id, contact_id, rule_id, business_key,
+            status, message_id, error_code, error_message, created_at, updated_at
+        ) VALUES (
+            #{tenantId}, #{taskId}, #{waId}, #{contactId}, #{ruleId}, #{businessKey},
+            #{status}, #{messageId}, #{errorCode}, #{errorMessage}, #{createdAt}, #{updatedAt}
+        )
+    </insert>
+
+    <insert id="insertBatch">
+        INSERT INTO crm_whatsapp_template_send_item (
+            tenant_id, task_id, wa_id, contact_id, rule_id, business_key,
+            status, message_id, error_code, error_message, created_at, updated_at
+        ) VALUES
+        <foreach collection="list" item="item" separator=",">
+            (
+                #{item.tenantId}, #{item.taskId}, #{item.waId}, #{item.contactId},
+                #{item.ruleId}, #{item.businessKey}, #{item.status}, #{item.messageId},
+                #{item.errorCode}, #{item.errorMessage}, #{item.createdAt}, #{item.updatedAt}
+            )
+        </foreach>
+    </insert>
+
+    <select id="selectByTaskId" resultMap="ItemResult">
+        SELECT <include refid="selectCols"/>
+        FROM crm_whatsapp_template_send_item
+        WHERE task_id = #{taskId} AND tenant_id = #{tenantId}
+        <choose>
+            <when test="failedFirst">
+                ORDER BY CASE WHEN status = 'failed' THEN 0 ELSE 1 END, id ASC
+            </when>
+            <otherwise>
+                ORDER BY id ASC
+            </otherwise>
+        </choose>
+    </select>
+
+    <select id="selectPendingByTaskId" resultMap="ItemResult">
+        SELECT <include refid="selectCols"/>
+        FROM crm_whatsapp_template_send_item
+        WHERE task_id = #{taskId} AND status = 'pending'
+        ORDER BY id ASC
+    </select>
+
+    <update id="updateSendResult">
+        UPDATE crm_whatsapp_template_send_item
+        SET status = #{status},
+            message_id = #{messageId},
+            error_code = #{errorCode},
+            error_message = #{errorMessage},
+            updated_at = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <update id="updateStatusByMessageId">
+        UPDATE crm_whatsapp_template_send_item
+        SET status = #{status}, updated_at = NOW()
+        WHERE tenant_id = #{tenantId}
+          AND message_id = #{messageId}
+    </update>
+
+    <select id="countByRuleAndBusinessKey" resultType="int">
+        SELECT COUNT(1)
+        FROM crm_whatsapp_template_send_item
+        WHERE rule_id = #{ruleId} AND business_key = #{businessKey}
+    </select>
+
+    <update id="resetFailedToPending">
+        UPDATE crm_whatsapp_template_send_item
+        SET status = 'pending',
+            message_id = NULL,
+            error_code = NULL,
+            error_message = NULL,
+            updated_at = NOW()
+        WHERE task_id = #{taskId}
+          AND tenant_id = #{tenantId}
+          AND status = 'failed'
+    </update>
+
+    <select id="countByTaskAndStatus" resultType="int">
+        SELECT COUNT(1)
+        FROM crm_whatsapp_template_send_item
+        WHERE task_id = #{taskId} AND status = #{status}
+    </select>
+</mapper>

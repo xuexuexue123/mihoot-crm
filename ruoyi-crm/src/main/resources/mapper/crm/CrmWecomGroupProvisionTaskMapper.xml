@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmWecomGroupProvisionTaskMapper">
+
+    <resultMap type="com.ruoyi.crm.domain.CrmWecomGroupProvisionTask" id="CrmWecomGroupProvisionTaskResult">
+        <result property="taskId" column="task_id"/>
+        <result property="tenantId" column="tenant_id"/>
+        <result property="contactId" column="contact_id"/>
+        <result property="assigneeUserid" column="assignee_userid"/>
+        <result property="assigneeCrmUserId" column="assignee_crm_user_id"/>
+        <result property="status" column="status"/>
+        <result property="notifiedAt" column="notified_at"/>
+        <result property="remindCount" column="remind_count"/>
+        <result property="expiresAt" column="expires_at"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <sql id="selectCols">
+        task_id, tenant_id, contact_id, assignee_userid, assignee_crm_user_id, status,
+        notified_at, remind_count, expires_at, create_time, update_time
+    </sql>
+
+    <select id="selectByTaskId" resultMap="CrmWecomGroupProvisionTaskResult">
+        select <include refid="selectCols"/>
+        from crm_wecom_group_provision_task
+        where task_id = #{taskId}
+    </select>
+
+    <select id="selectPendingByContact" resultMap="CrmWecomGroupProvisionTaskResult">
+        select <include refid="selectCols"/>
+        from crm_wecom_group_provision_task
+        where tenant_id = #{tenantId} and contact_id = #{contactId} and status = 'pending'
+        order by create_time desc
+        limit 1
+    </select>
+
+    <insert id="insert" parameterType="com.ruoyi.crm.domain.CrmWecomGroupProvisionTask">
+        insert into crm_wecom_group_provision_task (
+            task_id, tenant_id, contact_id, assignee_userid, assignee_crm_user_id, status,
+            notified_at, remind_count, expires_at, create_time, update_time
+        ) values (
+            #{taskId}, #{tenantId}, #{contactId}, #{assigneeUserid}, #{assigneeCrmUserId}, #{status},
+            #{notifiedAt}, #{remindCount}, #{expiresAt}, #{createTime}, #{updateTime}
+        )
+    </insert>
+
+    <update id="update" parameterType="com.ruoyi.crm.domain.CrmWecomGroupProvisionTask">
+        update crm_wecom_group_provision_task
+        <set>
+            <if test="status != null">status = #{status},</if>
+            <if test="notifiedAt != null">notified_at = #{notifiedAt},</if>
+            <if test="remindCount != null">remind_count = #{remindCount},</if>
+            <if test="expiresAt != null">expires_at = #{expiresAt},</if>
+            update_time = #{updateTime}
+        </set>
+        where task_id = #{taskId}
+    </update>
+</mapper>

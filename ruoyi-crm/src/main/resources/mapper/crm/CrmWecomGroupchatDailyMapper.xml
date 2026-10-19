@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmWecomGroupchatDailyMapper">
+
+    <resultMap id="GroupchatAggregateResult" type="com.ruoyi.crm.domain.dto.wecom.GroupChatDayItem">
+        <result property="statTime" column="stat_time"/>
+        <association property="data" javaType="com.ruoyi.crm.domain.dto.wecom.GroupChatDayItem$GroupChatData">
+            <result property="newChatCnt" column="new_chat_cnt"/>
+            <result property="chatTotal" column="chat_total"/>
+            <result property="chatHasMsg" column="chat_has_msg"/>
+            <result property="newMemberCnt" column="new_member_cnt"/>
+            <result property="memberTotal" column="member_total"/>
+            <result property="memberHasMsg" column="member_has_msg"/>
+            <result property="msgTotal" column="msg_total"/>
+            <result property="migrateTraineeChatCnt" column="migrate_trainee_chat_cnt"/>
+        </association>
+    </resultMap>
+
+    <resultMap id="MemberNameResult" type="com.ruoyi.crm.mapper.CrmWecomStatsMemberNameRow">
+        <result property="userid" column="userid"/>
+        <result property="name" column="name"/>
+    </resultMap>
+
+    <insert id="upsertGroupchatDaily">
+        INSERT INTO crm_wecom_groupchat_daily (
+            corp_id, owner_userid, owner_name, stat_time,
+            new_chat_cnt, chat_total, chat_has_msg, new_member_cnt,
+            member_total, member_has_msg, msg_total, migrate_trainee_chat_cnt,
+            raw_json, updated_at
+        ) VALUES (
+            #{corpId}, #{ownerUserid}, #{ownerName}, #{statTime},
+            #{newChatCnt}, #{chatTotal}, #{chatHasMsg}, #{newMemberCnt},
+            #{memberTotal}, #{memberHasMsg}, #{msgTotal}, #{migrateTraineeChatCnt},
+            #{rawJson}, CURRENT_TIMESTAMP
+        )
+        ON CONFLICT (owner_userid, stat_time) DO UPDATE SET
+            corp_id = EXCLUDED.corp_id,
+            owner_name = EXCLUDED.owner_name,
+            new_chat_cnt = EXCLUDED.new_chat_cnt,
+            chat_total = EXCLUDED.chat_total,
+            chat_has_msg = EXCLUDED.chat_has_msg,
+            new_member_cnt = EXCLUDED.new_member_cnt,
+            member_total = EXCLUDED.member_total,
+            member_has_msg = EXCLUDED.member_has_msg,
+            msg_total = EXCLUDED.msg_total,
+            migrate_trainee_chat_cnt = EXCLUDED.migrate_trainee_chat_cnt,
+            raw_json = EXCLUDED.raw_json,
+            updated_at = CURRENT_TIMESTAMP
+    </insert>
+
+    <select id="aggregateGroupchatByStatTime" resultMap="GroupchatAggregateResult">
+        SELECT stat_time,
+               SUM(new_chat_cnt) AS new_chat_cnt,
+               SUM(chat_total) AS chat_total,
+               SUM(chat_has_msg) AS chat_has_msg,
+               SUM(new_member_cnt) AS new_member_cnt,
+               SUM(member_total) AS member_total,
+               SUM(member_has_msg) AS member_has_msg,
+               SUM(msg_total) AS msg_total,
+               SUM(migrate_trainee_chat_cnt) AS migrate_trainee_chat_cnt
+        FROM crm_wecom_groupchat_daily
+        WHERE stat_time BETWEEN #{startTime} AND #{endTime}
+        <if test="ownerUserids != null and ownerUserids.size() > 0">
+            AND owner_userid IN
+            <foreach collection="ownerUserids" item="uid" open="(" separator="," close=")">
+                #{uid}
+            </foreach>
+        </if>
+        GROUP BY stat_time
+        ORDER BY stat_time
+    </select>
+
+    <select id="selectDistinctOwnerNames" resultMap="MemberNameResult">
+        SELECT owner_userid AS userid, MAX(owner_name) AS name
+        FROM crm_wecom_groupchat_daily
+        GROUP BY owner_userid
+    </select>
+
+</mapper>

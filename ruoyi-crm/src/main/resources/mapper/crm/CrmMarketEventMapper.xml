@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmMarketEventMapper">
+
+    <resultMap type="CrmMarketEvent" id="CrmMarketEventResult">
+        <result property="id" column="id"/>
+        <result property="titleCn" column="title_cn"/>
+        <result property="titleVn" column="title_vn"/>
+        <result property="titleEn" column="title_en"/>
+        <result property="eventType" column="event_type"/>
+        <result property="status" column="status"/>
+        <result property="organizer" column="organizer"/>
+        <result property="industry" column="industry"/>
+        <result property="startDate" column="start_date"/>
+        <result property="endDate" column="end_date"/>
+        <result property="province" column="province"/>
+        <result property="venue" column="venue"/>
+        <result property="targetAudience" column="target_audience"/>
+        <result property="scale" column="scale"/>
+        <result property="entryFee" column="entry_fee"/>
+        <result property="registrationLink" column="registration_link"/>
+        <result property="contactPerson" column="contact_person"/>
+        <result property="highlights" column="highlights"/>
+        <result property="notes" column="notes"/>
+        <result property="relatedParkId" column="related_park_id"/>
+        <result property="coverUrl" column="cover_url"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="delFlag" column="del_flag"/>
+    </resultMap>
+
+    <sql id="selectCrmMarketEventVo">
+        select id, title_cn, title_vn, title_en, event_type, status, organizer, industry,
+               start_date, end_date, province, venue, target_audience, scale, entry_fee,
+               registration_link, contact_person, highlights, notes, related_park_id, cover_url,
+               create_by, create_time, update_by, update_time, del_flag
+        from crm_market_event
+    </sql>
+
+    <select id="selectCrmMarketEventById" parameterType="String" resultMap="CrmMarketEventResult">
+        <include refid="selectCrmMarketEventVo"/>
+        where id = #{id}
+          and del_flag = '0'
+    </select>
+
+    <select id="selectCrmMarketEventList" parameterType="CrmMarketEvent" resultMap="CrmMarketEventResult">
+        <include refid="selectCrmMarketEventVo"/>
+        <where>
+            del_flag = '0'
+            <if test="searchQuery != null and searchQuery != ''">
+                and (
+                    title_cn ILIKE CONCAT('%', #{searchQuery}, '%')
+                    or title_vn ILIKE CONCAT('%', #{searchQuery}, '%')
+                    or title_en ILIKE CONCAT('%', #{searchQuery}, '%')
+                    or organizer ILIKE CONCAT('%', #{searchQuery}, '%')
+                    or industry ILIKE CONCAT('%', #{searchQuery}, '%')
+                    or venue ILIKE CONCAT('%', #{searchQuery}, '%')
+                    or highlights ILIKE CONCAT('%', #{searchQuery}, '%')
+                    or target_audience ILIKE CONCAT('%', #{searchQuery}, '%')
+                )
+            </if>
+            <if test="eventType != null and eventType != '' and eventType != 'ALL'">
+                and event_type = #{eventType}
+            </if>
+            <if test="status != null and status != '' and status != 'ALL'">
+                and status = #{status}
+            </if>
+            <if test="province != null and province != '' and province != 'ALL'">
+                and province ILIKE CONCAT('%', #{province}, '%')
+            </if>
+        </where>
+        order by
+            case when start_date &gt;= to_char(current_date, 'YYYY-MM-DD') then 0 else 1 end,
+            case when start_date &gt;= to_char(current_date, 'YYYY-MM-DD') then start_date end asc nulls last,
+            case when start_date &lt; to_char(current_date, 'YYYY-MM-DD') then start_date end desc nulls last,
+            title_cn asc
+    </select>
+
+    <insert id="insertCrmMarketEvent" parameterType="CrmMarketEvent">
+        insert into crm_market_event (
+            id, title_cn, title_vn, title_en, event_type, status, organizer, industry,
+            start_date, end_date, province, venue, target_audience, scale, entry_fee,
+            registration_link, contact_person, highlights, notes, related_park_id, cover_url,
+            create_by, create_time, update_by, update_time, del_flag
+        ) values (
+            #{id},
+            #{titleCn},
+            #{titleVn},
+            #{titleEn},
+            #{eventType},
+            #{status},
+            #{organizer},
+            COALESCE(#{industry}, ''),
+            #{startDate},
+            #{endDate},
+            #{province},
+            COALESCE(#{venue}, ''),
+            COALESCE(#{targetAudience}, ''),
+            #{scale},
+            #{entryFee},
+            #{registrationLink},
+            #{contactPerson},
+            #{highlights},
+            #{notes},
+            #{relatedParkId},
+            #{coverUrl},
+            #{createBy},
+            #{createTime},
+            #{updateBy},
+            #{updateTime},
+            COALESCE(#{delFlag}, '0')
+        )
+    </insert>
+
+    <update id="updateCrmMarketEvent" parameterType="CrmMarketEvent">
+        update crm_market_event
+        set title_cn = #{titleCn},
+            title_vn = #{titleVn},
+            title_en = #{titleEn},
+            event_type = #{eventType},
+            status = #{status},
+            organizer = #{organizer},
+            industry = COALESCE(#{industry}, ''),
+            start_date = #{startDate},
+            end_date = #{endDate},
+            province = #{province},
+            venue = COALESCE(#{venue}, ''),
+            target_audience = COALESCE(#{targetAudience}, ''),
+            scale = #{scale},
+            entry_fee = #{entryFee},
+            registration_link = #{registrationLink},
+            contact_person = #{contactPerson},
+            highlights = #{highlights},
+            notes = #{notes},
+            related_park_id = #{relatedParkId},
+            cover_url = #{coverUrl},
+            update_by = #{updateBy},
+            update_time = #{updateTime}
+        where id = #{id}
+          and del_flag = '0'
+    </update>
+
+    <update id="logicalDeleteById">
+        update crm_market_event
+        set del_flag = '1',
+            update_by = #{updateBy},
+            update_time = CURRENT_TIMESTAMP
+        where id = #{id}
+          and del_flag = '0'
+    </update>
+</mapper>

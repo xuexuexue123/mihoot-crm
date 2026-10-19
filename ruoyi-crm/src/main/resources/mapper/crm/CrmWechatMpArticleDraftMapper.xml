@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.wechatmp.mapper.CrmWechatMpArticleDraftMapper">
+
+    <resultMap id="DraftResult" type="com.ruoyi.crm.wechatmp.domain.CrmWechatMpArticleDraft">
+        <id property="id" column="id"/>
+        <result property="appId" column="app_id"/>
+        <result property="mediaId" column="media_id"/>
+        <result property="indexInMsg" column="index_in_msg"/>
+        <result property="articleType" column="article_type"/>
+        <result property="title" column="title"/>
+        <result property="author" column="author"/>
+        <result property="digest" column="digest"/>
+        <result property="content" column="content"/>
+        <result property="contentMd" column="content_md"/>
+        <result property="contentSourceUrl" column="content_source_url"/>
+        <result property="thumbMediaId" column="thumb_media_id"/>
+        <result property="needOpenComment" column="need_open_comment"/>
+        <result property="onlyFansCanComment" column="only_fans_can_comment"/>
+        <result property="url" column="url"/>
+        <result property="synced" column="synced"/>
+        <result property="published" column="published"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+    </resultMap>
+
+    <select id="selectMaxUpdateTime" resultType="java.time.OffsetDateTime">
+        SELECT MAX(update_time) FROM crm_wechat_mp_article_draft WHERE app_id = #{appId}
+    </select>
+
+    <select id="selectPageByAppId" resultMap="DraftResult">
+        SELECT * FROM crm_wechat_mp_article_draft
+        WHERE app_id = #{appId}
+        ORDER BY update_time DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="countByAppId" resultType="long">
+        SELECT COUNT(*) FROM crm_wechat_mp_article_draft
+        WHERE app_id = #{appId}
+    </select>
+
+    <select id="selectByMediaId" resultMap="DraftResult">
+        SELECT * FROM crm_wechat_mp_article_draft
+        WHERE app_id = #{appId} AND media_id = #{mediaId}
+        LIMIT 1
+    </select>
+
+    <insert id="batchUpsert">
+        INSERT INTO crm_wechat_mp_article_draft (
+            app_id, media_id, index_in_msg, article_type,
+            title, author, digest, content, content_md,
+            content_source_url, thumb_media_id,
+            need_open_comment, only_fans_can_comment,
+            url, synced, published, update_time
+        ) VALUES
+        <foreach collection="list" item="row" separator=",">
+        (
+            #{row.appId}, #{row.mediaId}, #{row.indexInMsg}, #{row.articleType},
+            #{row.title}, #{row.author}, #{row.digest}, #{row.content}, #{row.contentMd},
+            #{row.contentSourceUrl}, #{row.thumbMediaId},
+            #{row.needOpenComment}, #{row.onlyFansCanComment},
+            #{row.url}, #{row.synced}, COALESCE(#{row.published}, false), #{row.updateTime}
+        )
+        </foreach>
+        ON CONFLICT (app_id, media_id, index_in_msg) DO UPDATE SET
+            article_type = EXCLUDED.article_type,
+            title = COALESCE(EXCLUDED.title, crm_wechat_mp_article_draft.title),
+            author = COALESCE(EXCLUDED.author, crm_wechat_mp_article_draft.author),
+            digest = COALESCE(EXCLUDED.digest, crm_wechat_mp_article_draft.digest),
+            content = COALESCE(EXCLUDED.content, crm_wechat_mp_article_draft.content),
+            content_md = COALESCE(EXCLUDED.content_md, crm_wechat_mp_article_draft.content_md),
+            content_source_url = COALESCE(EXCLUDED.content_source_url, crm_wechat_mp_article_draft.content_source_url),
+            thumb_media_id = COALESCE(EXCLUDED.thumb_media_id, crm_wechat_mp_article_draft.thumb_media_id),
+            need_open_comment = COALESCE(EXCLUDED.need_open_comment, crm_wechat_mp_article_draft.need_open_comment),
+            only_fans_can_comment = COALESCE(EXCLUDED.only_fans_can_comment, crm_wechat_mp_article_draft.only_fans_can_comment),
+            url = COALESCE(EXCLUDED.url, crm_wechat_mp_article_draft.url),
+            synced = COALESCE(EXCLUDED.synced, crm_wechat_mp_article_draft.synced),
+            -- 同步 upsert 不覆盖本地发布标记；新插入行由 VALUES 中 COALESCE(..., false) 兜底
+            published = crm_wechat_mp_article_draft.published,
+            update_time = COALESCE(EXCLUDED.update_time, crm_wechat_mp_article_draft.update_time),
+            updated_at = now()
+    </insert>
+
+    <update id="updateSyncedByMediaId">
+        UPDATE crm_wechat_mp_article_draft SET
+            synced = #{synced},
+            media_id = #{newMediaId},
+            updated_at = now()
+        WHERE app_id = #{appId} AND media_id = #{mediaId}
+    </update>
+
+    <delete id="deleteByMediaId">
+        DELETE FROM crm_wechat_mp_article_draft
+        WHERE app_id = #{appId} AND media_id = #{mediaId}
+    </delete>
+
+    <update id="updatePublished">
+        UPDATE crm_wechat_mp_article_draft SET
+            published = #{published},
+            updated_at = now()
+        WHERE app_id = #{appId} AND media_id = #{mediaId}
+    </update>
+
+</mapper>

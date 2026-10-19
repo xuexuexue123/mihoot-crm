@@ -1,0 +1,74 @@
+package com.ruoyi.ems.service;
+
+import java.util.List;
+import com.ruoyi.ems.domain.SysReParticipant;
+
+/**
+ * 项目干系人Service接口
+ * 
+ * @author luohd
+ * @date 2023-05-19
+ */
+public interface ISysReParticipantService 
+{
+    /**
+     * 查询项目干系人
+     * 
+     * @param partId 项目干系人主键
+     * @return 项目干系人
+     */
+    public SysReParticipant selectSysReParticipantByPartId(String partId);
+
+    /**
+     * 查询项目干系人列表
+     * 
+     * @param sysReParticipant 项目干系人
+     * @return 项目干系人集合
+     */
+    public List<SysReParticipant> selectSysReParticipantList(SysReParticipant sysReParticipant);
+
+    /**
+     *
+     * @param sysReParticipant
+     * @return
+     */
+    public List<SysReParticipant> selectAllTeamMemberList(SysReParticipant sysReParticipant);
+
+    /**
+     *
+     * @param sysReParticipant
+     * @return
+     */
+    public List<SysReParticipant> selectOtherParticipantList(SysReParticipant sysReParticipant);
+    /**
+     * 新增项目干系人
+     * 
+     * @param sysReParticipant 项目干系人
+     * @return 结果
+     */
+    public int insertSysReParticipant(SysReParticipant sysReParticipant);
+
+    /**
+     * 修改项目干系人
+     * 
+     * @param sysReParticipant 项目干系人
+     * @return 结果
+     */
+    public int updateSysReParticipant(SysReParticipant sysReParticipant);
+
+    /**
+     * 批量删除项目干系人
+     * 
+     * @param partIds 需要删除的项目干系人主键集合
+     * @return 结果
+     */
+    public int deleteSysReParticipantByPartIds(String[] partIds);
+
+    /**
+     * 删除项目干系人信息
+     * 
+     * @param partId 项目干系人主键
+     * @return 结果
+     */
+    public int deleteSysReParticipantByPartId(String partId);
+}

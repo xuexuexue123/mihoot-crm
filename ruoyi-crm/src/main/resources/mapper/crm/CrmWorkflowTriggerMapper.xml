@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmWorkflowTriggerMapper">
+    
+    <resultMap type="CrmWorkflowTrigger" id="CrmWorkflowTriggerResult">
+        <result property="id"    column="id"    />
+        <result property="processDefinitionKey"    column="process_definition_key"    />
+        <result property="eventType"    column="event_type"    />
+        <result property="triggerSourceId"    column="trigger_source_id"    />
+        <result property="conditionExpression"    column="condition_expression"    />
+        <result property="variableMapping"    column="variable_mapping"    />
+        <result property="tenantId"    column="tenant_id"    />
+        <result property="isActive"    column="is_active"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectCrmWorkflowTriggerVo">
+        select id, process_definition_key, event_type, trigger_source_id, condition_expression, variable_mapping, tenant_id, is_active, create_by, create_time, update_by, update_time from crm_workflow_trigger
+    </sql>
+
+    <select id="selectCrmWorkflowTriggerList" parameterType="CrmWorkflowTrigger" resultMap="CrmWorkflowTriggerResult">
+        <include refid="selectCrmWorkflowTriggerVo"/>
+        <where>  
+            <if test="processDefinitionKey != null  and processDefinitionKey != ''"> and process_definition_key = #{processDefinitionKey}</if>
+            <if test="eventType != null  and eventType != ''"> and event_type = #{eventType}</if>
+            <if test="triggerSourceId != null  and triggerSourceId != ''"> and trigger_source_id = #{triggerSourceId}</if>
+            <if test="conditionExpression != null  and conditionExpression != ''"> and condition_expression = #{conditionExpression}</if>
+            <if test="variableMapping != null  and variableMapping != ''"> and variable_mapping = #{variableMapping}</if>
+            <if test="tenantId != null  and tenantId != ''"> and tenant_id = #{tenantId}</if>
+            <if test="isActive != null "> and is_active = #{isActive}</if>
+        </where>
+    </select>
+    
+    <select id="selectCrmWorkflowTriggerById" parameterType="Long" resultMap="CrmWorkflowTriggerResult">
+        <include refid="selectCrmWorkflowTriggerVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertCrmWorkflowTrigger" parameterType="CrmWorkflowTrigger" useGeneratedKeys="true" keyProperty="id">
+        insert into crm_workflow_trigger
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="processDefinitionKey != null and processDefinitionKey != ''">process_definition_key,</if>
+            <if test="eventType != null and eventType != ''">event_type,</if>
+            <if test="triggerSourceId != null and triggerSourceId != ''">trigger_source_id,</if>
+            <if test="conditionExpression != null">condition_expression,</if>
+            <if test="variableMapping != null">variable_mapping,</if>
+            <if test="tenantId != null">tenant_id,</if>
+            <if test="isActive != null">is_active,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="processDefinitionKey != null and processDefinitionKey != ''">#{processDefinitionKey},</if>
+            <if test="eventType != null and eventType != ''">#{eventType},</if>
+            <if test="triggerSourceId != null and triggerSourceId != ''">#{triggerSourceId},</if>
+            <if test="conditionExpression != null">#{conditionExpression},</if>
+            <if test="variableMapping != null">#{variableMapping},</if>
+            <if test="tenantId != null">#{tenantId},</if>
+            <if test="isActive != null">#{isActive},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateCrmWorkflowTrigger" parameterType="CrmWorkflowTrigger">
+        update crm_workflow_trigger
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="processDefinitionKey != null and processDefinitionKey != ''">process_definition_key = #{processDefinitionKey},</if>
+            <if test="eventType != null and eventType != ''">event_type = #{eventType},</if>
+            <if test="triggerSourceId != null and triggerSourceId != ''">trigger_source_id = #{triggerSourceId},</if>
+            <if test="conditionExpression != null">condition_expression = #{conditionExpression},</if>
+            <if test="variableMapping != null">variable_mapping = #{variableMapping},</if>
+            <if test="tenantId != null">tenant_id = #{tenantId},</if>
+            <if test="isActive != null">is_active = #{isActive},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteCrmWorkflowTriggerById" parameterType="Long">
+        delete from crm_workflow_trigger where id = #{id}
+    </delete>
+
+    <delete id="deleteCrmWorkflowTriggerByIds" parameterType="String">
+        delete from crm_workflow_trigger where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>
