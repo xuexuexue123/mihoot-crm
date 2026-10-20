@@ -13,7 +13,7 @@ public class MGSamples {
             String htmlBody) throws UnirestException {
         String apiKey = System.getenv("API_KEY");
         if (apiKey == null) {
-            apiKey = "2afd83c79a14e36bd8c983fe3c62ec30-f6202374-b395e31a";
+            apiKey = "2afsdfsdf9a2374-b39sdf1a";
         }
 
 

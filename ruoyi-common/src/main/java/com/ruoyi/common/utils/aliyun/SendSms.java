@@ -12,9 +12,9 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 public class SendSms {
-    private static final String ACCESS_KEY_ID = "LTAI5tPJpcvuvZgZZcSXmAdD";
-    private static final String SYS_DOMIN = "dysmsapi.aliyuncs.com";
-    private static final String ACCESS_SECRET = "4sQHaxIX8QFUpXcRhng1RNe1AlccZe";
+    private static final String ACCESS_KEY_ID = "LTa1s212dfad232321sfAI5tPJp";
+    private static final String SYS_DOMIN = "d23ysmsapi.aliyuncs.com";
+    private static final String ACCESS_SECRET = "4asdfsQasdfsadfHaxIX8Q";
     private static final String SIGN_NAME = "四川米胡信息技术";
     private static final String TEMPLATE_CODE = "SMS_296465362";
 

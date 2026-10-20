@@ -9,8 +9,8 @@ import java.util.Base64;
 public class AESUtil {
 
     private static final String ALGORITHM = "AES/CBC/PKCS5Padding";
-    private static final String SECRET_KEY = "91511800MABXM1U5"; // 必须与前端一致
-    private static final String IV = "abcdef9876543210"; // 必须与前端一致
+    private static final String SECRET_KEY = "911231235131231231U5"; // 必须与前端一致
+    private static final String IV = "12312312sdfsabcdef9876543210"; // 必须与前端一致
 
     public static String encrypt(String plainText) throws Exception {
         SecretKeySpec secretKeySpec = new SecretKeySpec(SECRET_KEY.getBytes(StandardCharsets.UTF_8), "AES");

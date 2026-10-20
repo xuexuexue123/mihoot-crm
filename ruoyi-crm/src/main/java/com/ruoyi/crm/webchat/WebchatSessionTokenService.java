@@ -21,7 +21,7 @@ import com.ruoyi.common.exception.ServiceException;
 @Component
 public class WebchatSessionTokenService
 {
-    private static final String DEFAULT_DEV_KEY = "webchat-dev-session-signing-key-change-me";
+    private static final String DEFAULT_DEV_KEY = "sdjfjsk-dev123123-session-signing-key-change-me123123123123";
     private static final long TTL_MS = TimeUnit.DAYS.toMillis(7);
 
     @Value("${webchat.session-signing-key:}")

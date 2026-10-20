@@ -22,7 +22,7 @@ import java.util.Optional;
 
 public class MoonshotAiUtils {
 
-    private static final String API_KEY = "sk-eCeI4rktHy0vubpNRqmgPSjq";
+    private static final String API_KEY = "sk-eCeI4rksdftHy0vasdfasdfubp23234NRqmgPSjq";
     private static final String MODELS_URL = "https://api.moonshot.cn/v1/models";
     private static final String FILES_URL = "https://api.moonshot.cn/v1/files";
     private static final String ESTIMATE_TOKEN_COUNT_URL = "https://api.moonshot.cn/v1/tokenizers/estimate-token-count";
