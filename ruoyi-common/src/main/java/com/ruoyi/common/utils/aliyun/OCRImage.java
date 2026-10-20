@@ -12,8 +12,8 @@ import java.util.Arrays;
 
 public class OCRImage {
 
-    private static final String ALIBABA_CLOUD_ACCESS_KEY_ID = "LTAI5tPJpcvuvZgZZcSXmAdD";
-    private static final String ALIBABA_CLOUD_ACCESS_KEY_SECRET = "4sQHaxIX8QFUpXcRhng1RNe1AlccZe";
+    private static final String ALIBABA_CLOUD_ACCESS_KEY_ID = "L515645TAI5tPJ";
+    private static final String ALIBABA_CLOUD_ACCESS_KEY_SECRET = "4sQH87786axIX8";
 
     public static com.aliyun.ocr_api20210707.Client createClient() throws Exception {
         // 工程代码建议使用更安全的无AK方式，凭据配置方式请参见：https://help.aliyun.com/document_detail/378657.html。

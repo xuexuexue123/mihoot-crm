@@ -5,7 +5,7 @@ import java.nio.charset.StandardCharsets;
 
 public class HmacUtil {
 
-    private static String secretKey = "91511800MABXM1U51C";  // 服务器端密钥
+    private static String secretKey = "9134534551113123123800MABXM1U51C";  // 服务器端密钥
 
     public static String generateToken(String inputStr) {
         return Hashing.hmacSha256(secretKey.getBytes(StandardCharsets.UTF_8))

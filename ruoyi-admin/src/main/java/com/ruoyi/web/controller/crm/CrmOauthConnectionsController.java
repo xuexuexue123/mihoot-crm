@@ -52,8 +52,8 @@ public class CrmOauthConnectionsController extends BaseController
             // 构建 POST 参数
             MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
             params.add("code", request.getCode());
-            params.add("client_id", "810266755269-l39gkus2tbrpsst1vht689bu7h630g3e.apps.googleusercontent.com");
-            params.add("client_secret", "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");
+            params.add("client_id", "81asdfasdfom");
+            params.add("client_secret", "GOasdfasdfN5");
             params.add("redirect_uri", request.getRedirectUri());
             params.add("grant_type", "authorization_code");
 
@@ -124,8 +124,8 @@ public class CrmOauthConnectionsController extends BaseController
         try{
             String tokenEndpoint = "https://login.microsoftonline.com/common/oauth2/v2.0/token";
             MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-            params.add("client_id", "c0c69045-54ee-4bf0-b24b-4e60c4f12f41");
-            params.add("client_secret", "8J58Q~gA7zavXpRbN8NARfWX-gSo~H2lZ8HwZa2A");
+            params.add("client_id", "123123b24b-42f41");
+            params.add("client_secret", "N8asdfasdfHwZa2A");
             params.add("code", request.getCode());
             params.add("redirect_uri", request.getRedirectUri());
             params.add("grant_type", "authorization_code");

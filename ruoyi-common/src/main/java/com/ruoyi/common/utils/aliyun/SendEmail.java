@@ -24,9 +24,9 @@ import java.io.*;
 
 public class SendEmail {
 
-    private static final String ALIBABA_CLOUD_ACCESS_KEY_ID = "LTAI5tPJpcvuvZgZZcSXmAdD";
-    private static final String ALIBABA_CLOUD_ACCESS_KEY_SECRET = "4sQHaxIX8QFUpXcRhng1RNe1AlccZe";
-    private static final String ALIBABA_EMAIL_ACCOUNT_NAME = "mail@notify.MihootCRM.cn";
+    private static final String ALIBABA_CLOUD_ACCESS_KEY_ID = "LTsefAI5tPJp";
+    private static final String ALIBABA_CLOUD_ACCESS_KEY_SECRET = "4sQHaxIwerX";
+    private static final String ALIBABA_EMAIL_ACCOUNT_NAME = "mail@n";
     private static final Integer ALIBABA_EMAIL_ADDRESS_TYPE = 1;
     private static final Boolean ALIBABA_EMAIL_REPLY_TO_ADDRESS = false;
 

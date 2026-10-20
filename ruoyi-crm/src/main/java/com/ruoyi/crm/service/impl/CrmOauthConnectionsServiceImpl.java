@@ -35,10 +35,10 @@ import com.ruoyi.crm.service.ICrmOauthConnectionsService;
 @Service
 public class CrmOauthConnectionsServiceImpl implements ICrmOauthConnectionsService 
 {
-    private static final String GMAIL_CLIENT_ID = "810266755269-l39gkus2tbrpsst1vht689bu7h630g3e.apps.googleusercontent.com";
-    private static final String GMAIL_CLIENT_SECRET = "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";
-    private static final String OUTLOOK_CLIENT_ID = "c0c69045-54ee-4bf0-b24b-4e60c4f12f41";
-    private static final String OUTLOOK_CLIENT_SECRET = "8J58Q~gA7zavXpRbN8NARfWX-gSo~H2lZ8HwZa2A";
+    private static final String GMAIL_CLIENT_ID = "8102asdfasdfgleusercontent.com";
+    private static final String GMAIL_CLIENT_SECRET = "1231231sadf";
+    private static final String OUTLOOK_CLIENT_ID = "c0c69012312asdsdf314f12fasdf41";
+    private static final String OUTLOOK_CLIENT_SECRET = "8Jaaa58asdfasdfHwsdfgZa2A";
 
     @Autowired
     private CrmOauthConnectionsMapper crmOauthConnectionsMapper;
