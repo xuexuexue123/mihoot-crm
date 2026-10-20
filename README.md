@@ -1,14 +1,16 @@
-## 联系我
-
-微信扫码添加好友。
-
-<img src="docs/qrcode.JPG" alt="微信二维码：Ninestars" width="280" />
-
 # MihootCRM 系统架构说明书
 
 ## 1. 系统概述
 
-MihootCRM 的后端基于 RuoYi 框架，版本号 3.8.4，系统版本 1.0.4。本仓库只包含后端。界面由独立的 React 应用提供，不再使用 RuoYi 自带的 `ruoyi-ui`（Vue.js）。系统集成了客户关系管理(CRM)、工作流引擎(Flowable)、智能决策引擎(Drools)等模块。
+MihootCRM是多租户（独立数据库）的开发平台，集成了Flowable作为人工业务流程，独立实现了类似n8n的自动化流程引擎。目前在本平台上实现了一个CRM系统，涵盖营销、销售管理、客户服务、内部运营四个部分，其中营销管理集成了企业微信、微信公众号、微信客服、WhatsApp、Facebook Messenger、独立的企业网站、网页chat、Email、SMS等渠道。
+
+本系统的后端基于 RuoYi 框架，版本号 3.8.4，系统版本 1.0.4。本仓库只包含后端。界面由独立的 React 应用提供，不再使用 RuoYi 自带的 `ruoyi-ui`（Vue.js）。系统集成了客户关系管理(CRM)、工作流引擎(Flowable)、智能决策引擎(Drools)等模块。
+
+## 联系我
+
+本仓库仅包含后端源码。如需前端代码库，请扫码添加微信好友，商谈购买事宜。
+
+<img src="docs/qrcode.JPG" alt="微信二维码：Ninestars" width="280" />
 
 ### 1.1 系统名称与版本
 - **项目名称**: MihootCRM
