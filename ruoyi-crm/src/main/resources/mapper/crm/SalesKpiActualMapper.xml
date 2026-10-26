@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.SalesKpiActualMapper">
+
+    <!-- 合同金额：仅 sign_amount；日期 COALESCE(sign_time, create_time)；排除 Draft/Terminated -->
+    <select id="sumContractAmount" resultType="com.ruoyi.crm.domain.dto.SalesKpiActualRow">
+        SELECT c.owner_id AS ownerId,
+               COALESCE(SUM(COALESCE(c.sign_amount, 0)), 0) AS actualValue
+        FROM crm_contract c
+        WHERE c.owner_id IN
+        <foreach collection="ownerIds" item="oid" open="(" separator="," close=")">
+            #{oid}
+        </foreach>
+          AND COALESCE(c.contract_status, '') NOT IN ('Draft', 'Terminated')
+          AND COALESCE(c.sign_time, c.create_time)::date &gt;= #{startDate}::date
+          AND COALESCE(c.sign_time, c.create_time)::date &lt;= #{endDate}::date
+        GROUP BY c.owner_id
+    </select>
+
+    <!-- 赢单合同数：有 sign_time 或 status ∈ {Active, Expired} -->
+    <select id="countWonContracts" resultType="com.ruoyi.crm.domain.dto.SalesKpiActualRow">
+        SELECT c.owner_id AS ownerId,
+               COUNT(*)::numeric AS actualValue
+        FROM crm_contract c
+        WHERE c.owner_id IN
+        <foreach collection="ownerIds" item="oid" open="(" separator="," close=")">
+            #{oid}
+        </foreach>
+          AND COALESCE(c.contract_status, '') NOT IN ('Draft', 'Terminated')
+          AND (
+                c.sign_time IS NOT NULL
+                OR c.contract_status IN ('Active', 'Expired')
+              )
+          AND COALESCE(c.sign_time, c.create_time)::date &gt;= #{startDate}::date
+          AND COALESCE(c.sign_time, c.create_time)::date &lt;= #{endDate}::date
+        GROUP BY c.owner_id
+    </select>
+
+    <!-- 本月关闭商机（关闭日 = COALESCE(close_date, update_time)）；归属 user_id::text -->
+    <select id="selectClosedOpties" resultType="com.ruoyi.crm.domain.dto.SalesKpiOptyCloseRow">
+        SELECT o.user_id::text AS ownerId,
+               o.stage AS stage,
+               o.close_reason AS closeReason,
+               COALESCE(o.close_date, o.update_time) AS closeAt
+        FROM crm_opty o
+        WHERE o.user_id IS NOT NULL
+          AND o.user_id::text IN
+        <foreach collection="ownerIds" item="oid" open="(" separator="," close=")">
+            #{oid}
+        </foreach>
+          AND COALESCE(o.close_date, o.update_time)::date &gt;= #{startDate}::date
+          AND COALESCE(o.close_date, o.update_time)::date &lt;= #{endDate}::date
+          AND (
+                o.close_date IS NOT NULL
+                OR o.stage ILIKE '%closed%'
+                OR o.stage ILIKE '%won%'
+                OR o.stage ILIKE '%lost%'
+                OR o.stage IN ('赢单', '成交', '输单')
+                OR o.close_reason IS NOT NULL
+              )
+    </select>
+
+    <!-- 跟进客户数：按 contact 去重；归属 user_id -->
+    <select id="countFollowedCustomers" resultType="com.ruoyi.crm.domain.dto.SalesKpiActualRow">
+        SELECT a.user_id::text AS ownerId,
+               COUNT(DISTINCT contact_key)::numeric AS actualValue
+        FROM (
+            SELECT a.user_id,
+                   CASE
+                       WHEN LOWER(COALESCE(a.subject_type, '')) IN ('contact', '客户', '联系人') THEN a.subject_id
+                       WHEN LOWER(COALESCE(a.relate_type, '')) IN ('contact', '客户', '联系人', '业务联系人') THEN a.relate_id
+                       ELSE NULL
+                   END AS contact_key,
+                   COALESCE(a.started_date, a.create_time) AS evt_at
+            FROM crm_activity a
+            WHERE a.user_id IS NOT NULL
+              AND a.user_id::text IN
+              <foreach collection="ownerIds" item="oid" open="(" separator="," close=")">
+                  #{oid}
+              </foreach>
+              AND a.event_type IN
+              <foreach collection="eventTypes" item="et" open="(" separator="," close=")">
+                  #{et}
+              </foreach>
+        ) a
+        WHERE a.contact_key IS NOT NULL AND a.contact_key &lt;&gt; ''
+          AND a.evt_at::date &gt;= #{startDate}::date
+          AND a.evt_at::date &lt;= #{endDate}::date
+        GROUP BY a.user_id
+    </select>
+
+    <!-- 见面客户数 -->
+    <select id="countMetCustomers" resultType="com.ruoyi.crm.domain.dto.SalesKpiActualRow">
+        SELECT a.user_id::text AS ownerId,
+               COUNT(DISTINCT contact_key)::numeric AS actualValue
+        FROM (
+            SELECT a.user_id,
+                   CASE
+                       WHEN LOWER(COALESCE(a.subject_type, '')) IN ('contact', '客户', '联系人') THEN a.subject_id
+                       WHEN LOWER(COALESCE(a.relate_type, '')) IN ('contact', '客户', '联系人', '业务联系人') THEN a.relate_id
+                       ELSE NULL
+                   END AS contact_key,
+                   COALESCE(a.started_date, a.create_time) AS evt_at
+            FROM crm_activity a
+            WHERE a.user_id IS NOT NULL
+              AND a.user_id::text IN
+              <foreach collection="ownerIds" item="oid" open="(" separator="," close=")">
+                  #{oid}
+              </foreach>
+              AND a.event_type IN
+              <foreach collection="eventTypes" item="et" open="(" separator="," close=")">
+                  #{et}
+              </foreach>
+              <if test="excludedEventTypes != null and excludedEventTypes.size() &gt; 0">
+              AND a.event_type NOT IN
+              <foreach collection="excludedEventTypes" item="et" open="(" separator="," close=")">
+                  #{et}
+              </foreach>
+              </if>
+              AND COALESCE(a.status, '') NOT IN ('cancelled', 'canceled', 'noshow')
+        ) a
+        WHERE a.contact_key IS NOT NULL AND a.contact_key &lt;&gt; ''
+          AND a.evt_at::date &gt;= #{startDate}::date
+          AND a.evt_at::date &lt;= #{endDate}::date
+        GROUP BY a.user_id
+    </select>
+
+    <!-- 分配客户数：lead.assigned，按 lead 去重；归属 payload.assigned_toid；不含企微转接 -->
+    <select id="countAssignedCustomers" resultType="com.ruoyi.crm.domain.dto.SalesKpiActualRow">
+        SELECT assignee AS ownerId,
+               COUNT(DISTINCT lead_key)::numeric AS actualValue
+        FROM (
+            SELECT COALESCE(
+                       NULLIF(a.payload->>'assigned_toid', ''),
+                       NULLIF(a.assigned_toid, ''),
+                       a.user_id::text
+                   ) AS assignee,
+                   COALESCE(NULLIF(a.subject_id, ''), a.relate_id) AS lead_key,
+                   COALESCE(a.started_date, a.create_time) AS evt_at
+            FROM crm_activity a
+            WHERE a.event_type = 'lead.assigned'
+              AND COALESCE(a.channel, '') &lt;&gt; 'wecom_transfer'
+              AND COALESCE(a.source, '') NOT IN ('wecom_transfer', 'transfer_customer')
+        ) t
+        WHERE t.assignee IS NOT NULL AND t.assignee &lt;&gt; ''
+          AND t.assignee IN
+          <foreach collection="ownerIds" item="oid" open="(" separator="," close=")">
+              #{oid}
+          </foreach>
+          AND t.lead_key IS NOT NULL AND t.lead_key &lt;&gt; ''
+          AND t.evt_at::date &gt;= #{startDate}::date
+          AND t.evt_at::date &lt;= #{endDate}::date
+        GROUP BY t.assignee
+    </select>
+
+    <!-- 跟进次数：不去重 -->
+    <select id="countFollowups" resultType="com.ruoyi.crm.domain.dto.SalesKpiActualRow">
+        SELECT a.user_id::text AS ownerId,
+               COUNT(*)::numeric AS actualValue
+        FROM crm_activity a
+        WHERE a.user_id IS NOT NULL
+          AND a.user_id::text IN
+          <foreach collection="ownerIds" item="oid" open="(" separator="," close=")">
+              #{oid}
+          </foreach>
+          AND a.event_type IN
+          <foreach collection="eventTypes" item="et" open="(" separator="," close=")">
+              #{et}
+          </foreach>
+          AND COALESCE(a.started_date, a.create_time)::date &gt;= #{startDate}::date
+          AND COALESCE(a.started_date, a.create_time)::date &lt;= #{endDate}::date
+        GROUP BY a.user_id
+    </select>
+
+    <select id="countOpties" resultType="com.ruoyi.crm.domain.dto.SalesKpiActualRow">
+        SELECT o.user_id::text AS ownerId,
+               COUNT(*)::numeric AS actualValue
+        FROM crm_opty o
+        WHERE o.user_id IS NOT NULL
+          AND o.user_id::text IN
+          <foreach collection="ownerIds" item="oid" open="(" separator="," close=")">
+              #{oid}
+          </foreach>
+          AND o.create_time::date &gt;= #{startDate}::date
+          AND o.create_time::date &lt;= #{endDate}::date
+        GROUP BY o.user_id
+    </select>
+
+    <select id="sumOptyAmount" resultType="com.ruoyi.crm.domain.dto.SalesKpiActualRow">
+        SELECT o.user_id::text AS ownerId,
+               COALESCE(SUM(COALESCE(o.amount, 0)), 0) AS actualValue
+        FROM crm_opty o
+        WHERE o.user_id IS NOT NULL
+          AND o.user_id::text IN
+          <foreach collection="ownerIds" item="oid" open="(" separator="," close=")">
+              #{oid}
+          </foreach>
+          AND o.create_time::date &gt;= #{startDate}::date
+          AND o.create_time::date &lt;= #{endDate}::date
+        GROUP BY o.user_id
+    </select>
+</mapper>

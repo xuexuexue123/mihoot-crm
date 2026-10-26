@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmQuoteoptionMapper">
+    
+    <resultMap type="CrmQuoteoption" id="CrmQuoteoptionResult">
+        <result property="optionId"    column="option_id"    />
+        <result property="quoteId"    column="quote_id"    />
+        <result property="quoteCode"    column="quote_code"    />
+        <result property="quoteName"    column="quote_name"    />
+        <result property="quoteType"    column="quote_type"    />
+        <result property="totalAmount"    column="total_amount"    />
+        <result property="productId"    column="product_id"    />
+        <result property="productName"    column="product_name"    />
+        <result property="productDesc"    column="product_desc"    />
+        <result property="unitPrice"    column="unit_price"    />
+        <result property="quantity"    column="quantity"    />
+        <result property="discount"    column="discount"    />
+        <result property="ownerId"    column="owner_id"    />
+        <result property="ownerName"    column="owner_name"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectCrmQuoteoptionVo">
+        select option_id, quote_id, quote_code, quote_name, quote_type, total_amount, product_id, product_name, product_desc, unit_price, quantity, discount, owner_id, owner_name, create_by, create_time, update_by, update_time from crm_quoteoption
+    </sql>
+
+    <select id="selectCrmQuoteoptionList" parameterType="CrmQuoteoption" resultMap="CrmQuoteoptionResult">
+        <include refid="selectCrmQuoteoptionVo"/>
+        <where>  
+            <if test="quoteId != null  and quoteId != ''"> and quote_id = #{quoteId}</if>
+            <if test="quoteCode != null  and quoteCode != ''"> and quote_code = #{quoteCode}</if>
+            <if test="quoteName != null  and quoteName != ''"> and quote_name like concat('%', #{quoteName}, '%')</if>
+            <if test="quoteType != null  and quoteType != ''"> and quote_type = #{quoteType}</if>
+            <if test="totalAmount != null "> and total_amount = #{totalAmount}</if>
+            <if test="productId != null  and productId != ''"> and product_id = #{productId}</if>
+            <if test="productName != null  and productName != ''"> and product_name like concat('%', #{productName}, '%')</if>
+            <if test="productDesc != null  and productDesc != ''"> and product_desc = #{productDesc}</if>
+            <if test="unitPrice != null "> and unit_price = #{unitPrice}</if>
+            <if test="quantity != null "> and quantity = #{quantity}</if>
+            <if test="discount != null "> and discount = #{discount}</if>
+            <if test="ownerId != null  and ownerId != ''"> and owner_id = #{ownerId}</if>
+            <if test="ownerName != null  and ownerName != ''"> and owner_name like concat('%', #{ownerName}, '%')</if>
+        </where>
+    </select>
+    
+    <select id="selectCrmQuoteoptionByOptionId" parameterType="String" resultMap="CrmQuoteoptionResult">
+        <include refid="selectCrmQuoteoptionVo"/>
+        where option_id = #{optionId}
+    </select>
+        
+    <insert id="insertCrmQuoteoption" parameterType="CrmQuoteoption">
+        insert into crm_quoteoption
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="optionId != null">option_id,</if>
+            <if test="quoteId != null and quoteId != ''">quote_id,</if>
+            <if test="quoteCode != null and quoteCode != ''">quote_code,</if>
+            <if test="quoteName != null">quote_name,</if>
+            <if test="quoteType != null">quote_type,</if>
+            <if test="totalAmount != null">total_amount,</if>
+            <if test="productId != null">product_id,</if>
+            <if test="productName != null">product_name,</if>
+            <if test="productDesc != null">product_desc,</if>
+            <if test="unitPrice != null">unit_price,</if>
+            <if test="quantity != null">quantity,</if>
+            <if test="discount != null">discount,</if>
+            <if test="ownerId != null">owner_id,</if>
+            <if test="ownerName != null">owner_name,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="optionId != null">#{optionId},</if>
+            <if test="quoteId != null and quoteId != ''">#{quoteId},</if>
+            <if test="quoteCode != null and quoteCode != ''">#{quoteCode},</if>
+            <if test="quoteName != null">#{quoteName},</if>
+            <if test="quoteType != null">#{quoteType},</if>
+            <if test="totalAmount != null">#{totalAmount},</if>
+            <if test="productId != null">#{productId},</if>
+            <if test="productName != null">#{productName},</if>
+            <if test="productDesc != null">#{productDesc},</if>
+            <if test="unitPrice != null">#{unitPrice},</if>
+            <if test="quantity != null">#{quantity},</if>
+            <if test="discount != null">#{discount},</if>
+            <if test="ownerId != null">#{ownerId},</if>
+            <if test="ownerName != null">#{ownerName},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateCrmQuoteoption" parameterType="CrmQuoteoption">
+        update crm_quoteoption
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="quoteId != null and quoteId != ''">quote_id = #{quoteId},</if>
+            <if test="quoteCode != null and quoteCode != ''">quote_code = #{quoteCode},</if>
+            <if test="quoteName != null">quote_name = #{quoteName},</if>
+            <if test="quoteType != null">quote_type = #{quoteType},</if>
+            <if test="totalAmount != null">total_amount = #{totalAmount},</if>
+            <if test="productId != null">product_id = #{productId},</if>
+            <if test="productName != null">product_name = #{productName},</if>
+            <if test="productDesc != null">product_desc = #{productDesc},</if>
+            <if test="unitPrice != null">unit_price = #{unitPrice},</if>
+            <if test="quantity != null">quantity = #{quantity},</if>
+            <if test="discount != null">discount = #{discount},</if>
+            <if test="ownerId != null">owner_id = #{ownerId},</if>
+            <if test="ownerName != null">owner_name = #{ownerName},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where option_id = #{optionId}
+    </update>
+
+    <delete id="deleteCrmQuoteoptionByOptionId" parameterType="String">
+        delete from crm_quoteoption where option_id = #{optionId}
+    </delete>
+
+    <delete id="deleteCrmQuoteoptionByOptionIds" parameterType="String">
+        delete from crm_quoteoption where option_id in 
+        <foreach item="optionId" collection="array" open="(" separator="," close=")">
+            #{optionId}
+        </foreach>
+    </delete>
+</mapper>

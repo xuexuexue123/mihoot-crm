@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmDashboardSnapshotMapper">
+
+    <resultMap id="CrmDashboardSnapshotResult" type="com.ruoyi.crm.domain.CrmDashboardSnapshot">
+        <id property="id" column="id"/>
+        <result property="corpId" column="corp_id"/>
+        <result property="snapshotDate" column="snapshot_date"/>
+        <result property="metricType" column="metric_type"/>
+        <result property="metricData" column="metric_data"/>
+        <result property="detailData" column="detail_data"/>
+        <result property="rawJson" column="raw_json"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+    </resultMap>
+
+    <insert id="upsert" parameterType="com.ruoyi.crm.domain.CrmDashboardSnapshot">
+        INSERT INTO crm_dashboard_snapshot (
+            corp_id, snapshot_date, metric_type,
+            metric_data, detail_data, raw_json, updated_at
+        ) VALUES (
+            #{corpId}, #{snapshotDate}, #{metricType},
+            CAST(#{metricData} AS jsonb),
+            CAST(NULLIF(TRIM(#{detailData,jdbcType=VARCHAR}), '') AS jsonb),
+            #{rawJson}, CURRENT_TIMESTAMP
+        )
+        ON CONFLICT (corp_id, snapshot_date, metric_type) DO UPDATE SET
+            metric_data = EXCLUDED.metric_data,
+            detail_data = EXCLUDED.detail_data,
+            raw_json    = EXCLUDED.raw_json,
+            updated_at  = CURRENT_TIMESTAMP
+    </insert>
+
+    <select id="selectByDateAndType" resultMap="CrmDashboardSnapshotResult">
+        SELECT id, corp_id, snapshot_date, metric_type,
+               CAST(metric_data AS text) AS metric_data,
+               CAST(detail_data AS text) AS detail_data,
+               raw_json, created_at, updated_at
+        FROM crm_dashboard_snapshot
+        WHERE snapshot_date = #{snapshotDate}
+          AND metric_type = #{metricType}
+        LIMIT 1
+    </select>
+
+    <select id="selectByDate" resultMap="CrmDashboardSnapshotResult">
+        SELECT id, corp_id, snapshot_date, metric_type,
+               CAST(metric_data AS text) AS metric_data,
+               CAST(detail_data AS text) AS detail_data,
+               raw_json, created_at, updated_at
+        FROM crm_dashboard_snapshot
+        WHERE snapshot_date = #{snapshotDate}
+        ORDER BY metric_type
+    </select>
+
+</mapper>

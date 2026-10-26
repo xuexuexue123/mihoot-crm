@@ -1,0 +1,341 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmTagGovernanceMapper">
+
+    <select id="selectUsage" resultType="com.ruoyi.crm.domain.vo.CrmTagUsageVo">
+        SELECT dict_value AS dictValue,
+               SUM(contact_count)::bigint AS contactCount,
+               SUM(lead_count)::bigint AS leadCount
+        FROM (
+            SELECT t.id AS dict_value,
+                   COUNT(DISTINCT c.contact_id)::bigint AS contact_count,
+                   0::bigint AS lead_count
+            FROM crm_contact c
+            CROSS JOIN LATERAL unnest(crm_tag_ids(c.tag::text)) AS t(id)
+            <where>
+                <if test="dictValue != null and dictValue != ''">
+                    AND t.id = #{dictValue}
+                </if>
+            </where>
+            GROUP BY t.id
+            UNION ALL
+            SELECT t.id AS dict_value,
+                   0::bigint AS contact_count,
+                   COUNT(DISTINCT l.lead_id)::bigint AS lead_count
+            FROM crm_lead l
+            CROSS JOIN LATERAL unnest(crm_tag_ids(l.tag::text)) AS t(id)
+            <where>
+                <if test="dictValue != null and dictValue != ''">
+                    AND t.id = #{dictValue}
+                </if>
+            </where>
+            GROUP BY t.id
+        ) u
+        GROUP BY dict_value
+        ORDER BY dict_value
+    </select>
+
+    <select id="selectUsageOne" resultType="com.ruoyi.crm.domain.vo.CrmTagUsageVo">
+        SELECT #{dictValue} AS dictValue,
+               COALESCE((
+                   SELECT COUNT(DISTINCT c.contact_id)
+                   FROM crm_contact c
+                   CROSS JOIN LATERAL unnest(crm_tag_ids(c.tag::text)) AS t(id)
+                   WHERE t.id = #{dictValue}
+               ), 0)::bigint AS contactCount,
+               COALESCE((
+                   SELECT COUNT(DISTINCT l.lead_id)
+                   FROM crm_lead l
+                   CROSS JOIN LATERAL unnest(crm_tag_ids(l.tag::text)) AS t(id)
+                   WHERE t.id = #{dictValue}
+               ), 0)::bigint AS leadCount
+    </select>
+
+    <!-- orphan：实体 tag 的 id 不在词表 dict_value，且 text 不匹配任一 label（含多语言） -->
+    <select id="selectOrphans" resultType="com.ruoyi.crm.domain.vo.CrmTagOrphanVo">
+        WITH catalog AS (
+            SELECT lower(trim(dict_value)) AS v,
+                   lower(trim(dict_label)) AS lab,
+                   lower(trim(COALESCE(dict_label_en, ''))) AS lab_en,
+                   lower(trim(COALESCE(dict_label_th, ''))) AS lab_th
+            FROM sys_dict_data
+            WHERE dict_type = 'crm_tag'
+        ),
+        entity_tags AS (
+            SELECT e->>'id' AS id, e->>'text' AS text
+            FROM crm_contact c,
+                 LATERAL jsonb_array_elements(
+                     CASE WHEN jsonb_typeof(COALESCE(c.tag, '[]'::jsonb)) = 'array'
+                          THEN c.tag ELSE '[]'::jsonb END
+                 ) e
+            UNION ALL
+            SELECT e->>'id' AS id, e->>'text' AS text
+            FROM crm_lead l,
+                 LATERAL jsonb_array_elements(
+                     CASE WHEN jsonb_typeof(COALESCE(l.tag, '[]'::jsonb)) = 'array'
+                          THEN l.tag ELSE '[]'::jsonb END
+                 ) e
+        )
+        SELECT et.id, et.text, COUNT(*)::bigint AS count
+        FROM entity_tags et
+        WHERE et.id IS NOT NULL AND btrim(et.id) &lt;&gt; ''
+          AND NOT EXISTS (
+              SELECT 1 FROM catalog c
+              WHERE c.v = lower(trim(et.id))
+                 OR (et.text IS NOT NULL AND btrim(et.text) &lt;&gt; '' AND (
+                        c.lab = lower(trim(et.text))
+                     OR (c.lab_en &lt;&gt; '' AND c.lab_en = lower(trim(et.text)))
+                     OR (c.lab_th &lt;&gt; '' AND c.lab_th = lower(trim(et.text)))
+                 ))
+          )
+        GROUP BY et.id, et.text
+        ORDER BY count DESC, et.id, et.text
+    </select>
+
+    <select id="countContactMembers" resultType="long">
+        SELECT COUNT(*)
+        FROM crm_contact c
+        WHERE crm_tag_ids(c.tag::text) @&gt; ARRAY[#{dictValue}]::text[]
+    </select>
+
+    <select id="selectContactMembers" resultType="com.ruoyi.crm.domain.vo.CrmTagMemberVo">
+        SELECT 'contact' AS entity,
+               c.contact_id AS id,
+               COALESCE(
+                   NULLIF(TRIM(c.lead_name), ''),
+                   NULLIF(TRIM(c.name), ''),
+                   NULLIF(TRIM(c.wecom_name), ''),
+                   c.contact_id
+               ) AS name,
+               c.mobile_phone AS mobile_phone
+        FROM crm_contact c
+        WHERE crm_tag_ids(c.tag::text) @&gt; ARRAY[#{dictValue}]::text[]
+        ORDER BY c.contact_id
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="countLeadMembers" resultType="long">
+        SELECT COUNT(*)
+        FROM crm_lead l
+        WHERE crm_tag_ids(l.tag::text) @&gt; ARRAY[#{dictValue}]::text[]
+    </select>
+
+    <select id="selectLeadMembers" resultType="com.ruoyi.crm.domain.vo.CrmTagMemberVo">
+        SELECT 'lead' AS entity,
+               l.lead_id::text AS id,
+               COALESCE(
+                   NULLIF(TRIM(l.lead_name), ''),
+                   NULLIF(TRIM(l.full_name), ''),
+                   NULLIF(TRIM(l.contact_name), ''),
+                   l.lead_id::text
+               ) AS name,
+               l.mobile_phone AS mobile_phone
+        FROM crm_lead l
+        WHERE crm_tag_ids(l.tag::text) @&gt; ARRAY[#{dictValue}]::text[]
+        ORDER BY l.lead_id
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="selectContactIdsForMerge" resultType="java.lang.String">
+        SELECT c.contact_id
+        FROM crm_contact c
+        WHERE c.tag IS NOT NULL
+          AND EXISTS (
+            SELECT 1
+            FROM jsonb_array_elements(
+                     CASE WHEN jsonb_typeof(c.tag) = 'array' THEN c.tag ELSE '[]'::jsonb END
+                 ) e
+            WHERE (#{fromId} IS NOT NULL AND #{fromId} &lt;&gt; '' AND e->>'id' = #{fromId})
+               OR (#{fromText} IS NOT NULL AND #{fromText} &lt;&gt; '' AND e->>'text' = #{fromText})
+          )
+        ORDER BY c.contact_id
+        LIMIT #{limit}
+    </select>
+
+    <select id="selectLeadIdsForMerge" resultType="java.lang.String">
+        SELECT l.lead_id
+        FROM crm_lead l
+        WHERE l.tag IS NOT NULL
+          AND EXISTS (
+            SELECT 1
+            FROM jsonb_array_elements(
+                     CASE WHEN jsonb_typeof(l.tag) = 'array' THEN l.tag ELSE '[]'::jsonb END
+                 ) e
+            WHERE (#{fromId} IS NOT NULL AND #{fromId} &lt;&gt; '' AND e->>'id' = #{fromId})
+               OR (#{fromText} IS NOT NULL AND #{fromText} &lt;&gt; '' AND e->>'text' = #{fromText})
+          )
+        ORDER BY l.lead_id
+        LIMIT #{limit}
+    </select>
+
+    <!-- 原子改写：匹配 fromId/fromText → 标准标签，按 id 去重 -->
+    <update id="mergeContactTagsBatch">
+        UPDATE crm_contact c
+        SET tag = (
+            SELECT COALESCE(jsonb_agg(
+                       jsonb_build_object('id', new_id,
+                           'text', CASE WHEN new_id = #{toDictValue} THEN #{toLabel} ELSE first_text END)
+                       ORDER BY min_ord), '[]'::jsonb)
+            FROM (
+                SELECT new_id,
+                       (array_agg(elem_text ORDER BY ord))[1] AS first_text,
+                       MIN(ord) AS min_ord
+                FROM (
+                    SELECT
+                        CASE
+                            WHEN (#{fromId} IS NOT NULL AND #{fromId} &lt;&gt; '' AND elem->>'id' = #{fromId})
+                              OR (#{fromText} IS NOT NULL AND #{fromText} &lt;&gt; '' AND elem->>'text' = #{fromText})
+                            THEN #{toDictValue}
+                            ELSE elem->>'id'
+                        END AS new_id,
+                        elem->>'text' AS elem_text,
+                        ord
+                    FROM jsonb_array_elements(
+                             CASE WHEN jsonb_typeof(COALESCE(c.tag, '[]'::jsonb)) = 'array'
+                                  THEN c.tag ELSE '[]'::jsonb END
+                         ) WITH ORDINALITY AS t(elem, ord)
+                ) s
+                WHERE new_id IS NOT NULL AND btrim(new_id) &lt;&gt; ''
+                GROUP BY new_id
+            ) d
+        )
+        WHERE c.contact_id IN
+        <foreach collection="contactIds" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
+
+    <update id="mergeLeadTagsBatch">
+        UPDATE crm_lead l
+        SET tag = (
+            SELECT COALESCE(jsonb_agg(
+                       jsonb_build_object('id', new_id,
+                           'text', CASE WHEN new_id = #{toDictValue} THEN #{toLabel} ELSE first_text END)
+                       ORDER BY min_ord), '[]'::jsonb)
+            FROM (
+                SELECT new_id,
+                       (array_agg(elem_text ORDER BY ord))[1] AS first_text,
+                       MIN(ord) AS min_ord
+                FROM (
+                    SELECT
+                        CASE
+                            WHEN (#{fromId} IS NOT NULL AND #{fromId} &lt;&gt; '' AND elem->>'id' = #{fromId})
+                              OR (#{fromText} IS NOT NULL AND #{fromText} &lt;&gt; '' AND elem->>'text' = #{fromText})
+                            THEN #{toDictValue}
+                            ELSE elem->>'id'
+                        END AS new_id,
+                        elem->>'text' AS elem_text,
+                        ord
+                    FROM jsonb_array_elements(
+                             CASE WHEN jsonb_typeof(COALESCE(l.tag, '[]'::jsonb)) = 'array'
+                                  THEN l.tag ELSE '[]'::jsonb END
+                         ) WITH ORDINALITY AS t(elem, ord)
+                ) s
+                WHERE new_id IS NOT NULL AND btrim(new_id) &lt;&gt; ''
+                GROUP BY new_id
+            ) d
+        )
+        WHERE l.lead_id IN
+        <foreach collection="leadIds" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
+
+    <resultMap id="MappingResult" type="com.ruoyi.crm.domain.CrmTagChannelMapping">
+        <id property="id" column="id"/>
+        <result property="dictValue" column="dict_value"/>
+        <result property="channel" column="channel"/>
+        <result property="channelTagId" column="channel_tag_id"/>
+        <result property="channelTagName" column="channel_tag_name"/>
+        <result property="status" column="status"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <select id="selectAllMappings" resultMap="MappingResult">
+        SELECT id, dict_value, channel, channel_tag_id, channel_tag_name, status,
+               create_by, create_time, update_by, update_time
+        FROM crm_tag_channel_mapping
+        ORDER BY dict_value, channel
+    </select>
+
+    <select id="selectMapping" resultMap="MappingResult">
+        SELECT id, dict_value, channel, channel_tag_id, channel_tag_name, status,
+               create_by, create_time, update_by, update_time
+        FROM crm_tag_channel_mapping
+        WHERE dict_value = #{dictValue} AND channel = #{channel}
+        LIMIT 1
+    </select>
+
+    <insert id="upsertMapping" parameterType="com.ruoyi.crm.domain.CrmTagChannelMapping"
+            useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO crm_tag_channel_mapping (
+            dict_value, channel, channel_tag_id, channel_tag_name, status,
+            create_by, create_time, update_by, update_time
+        ) VALUES (
+            #{dictValue}, #{channel}, #{channelTagId}, #{channelTagName}, #{status},
+            #{createBy}, #{createTime}, #{updateBy}, #{updateTime}
+        )
+        ON CONFLICT (dict_value, channel) DO UPDATE SET
+            channel_tag_id = EXCLUDED.channel_tag_id,
+            channel_tag_name = EXCLUDED.channel_tag_name,
+            status = EXCLUDED.status,
+            update_by = EXCLUDED.update_by,
+            update_time = EXCLUDED.update_time
+    </insert>
+
+    <delete id="deleteMapping">
+        DELETE FROM crm_tag_channel_mapping
+        WHERE dict_value = #{dictValue} AND channel = #{channel}
+    </delete>
+
+    <resultMap id="DispatchTaskResult" type="com.ruoyi.crm.domain.CrmTagDispatchTask">
+        <id property="id" column="id"/>
+        <result property="segmentId" column="segment_id"/>
+        <result property="dictValue" column="dict_value"/>
+        <result property="channel" column="channel"/>
+        <result property="channelTagId" column="channel_tag_id"/>
+        <result property="appId" column="app_id"/>
+        <result property="status" column="status"/>
+        <result property="total" column="total"/>
+        <result property="succeeded" column="succeeded"/>
+        <result property="failed" column="failed"/>
+        <result property="errorMessage" column="error_message"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <insert id="insertDispatchTask" parameterType="com.ruoyi.crm.domain.CrmTagDispatchTask"
+            useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO crm_tag_dispatch_task (
+            segment_id, dict_value, channel, channel_tag_id, app_id, status,
+            total, succeeded, failed, error_message, create_by, create_time, update_time
+        ) VALUES (
+            #{segmentId}, #{dictValue}, #{channel}, #{channelTagId}, #{appId}, #{status},
+            #{total}, #{succeeded}, #{failed}, #{errorMessage}, #{createBy}, #{createTime}, #{updateTime}
+        )
+    </insert>
+
+    <select id="selectDispatchTaskById" resultMap="DispatchTaskResult">
+        SELECT id, segment_id, dict_value, channel, channel_tag_id, app_id, status,
+               total, succeeded, failed, error_message, create_by, create_time, update_time
+        FROM crm_tag_dispatch_task
+        WHERE id = #{id}
+    </select>
+
+    <update id="updateDispatchTask" parameterType="com.ruoyi.crm.domain.CrmTagDispatchTask">
+        UPDATE crm_tag_dispatch_task
+        SET status = #{status},
+            total = #{total},
+            succeeded = #{succeeded},
+            failed = #{failed},
+            error_message = #{errorMessage},
+            update_time = #{updateTime}
+        WHERE id = #{id}
+    </update>
+</mapper>

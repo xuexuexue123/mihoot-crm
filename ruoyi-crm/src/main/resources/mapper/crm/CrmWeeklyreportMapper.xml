@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmWeeklyreportMapper">
+
+    <resultMap type="CrmWeeklyreport" id="CrmWeeklyreportResult">
+        <result property="reportId"    column="report_id"    />
+        <result property="nickName"    column="nick_name"    />
+        <result property="reviewed"    column="reviewed"    />
+        <result property="approved"    column="approved"    />
+        <result property="approver"    column="approver"    />
+        <result property="approverId"    column="approver_id"    />
+        <result property="reportContent"    column="report_content"    />
+        <result property="managerComment"    column="manager_comment"    />
+        <result property="startTime"    column="start_time"    />
+        <result property="endTime"    column="end_time"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="userId"    column="user_id"    />
+        <result property="deptId"    column="dept_id"    />
+    </resultMap>
+
+    <resultMap id="CrmWeeklyreportCrmReportdetailResult" type="CrmWeeklyreport" extends="CrmWeeklyreportResult">
+        <collection property="crmReportdetailList" notNullColumn="sub_detail_id" javaType="java.util.List" resultMap="CrmReportdetailResult" />
+    </resultMap>
+
+    <resultMap type="CrmReportdetail" id="CrmReportdetailResult">
+        <result property="detailId"    column="sub_detail_id"    />
+        <result property="reportId"    column="sub_report_id"    />
+        <result property="dayOrder"    column="sub_day_order"    />
+        <result property="coldCall"    column="sub_cold_call"    />
+        <result property="followupCall"    column="sub_followup_call"    />
+        <result property="emailSent"    column="sub_email_sent"    />
+        <result property="meetingArranged"    column="sub_meeting_arranged"    />
+        <result property="visitsCompleted"    column="sub_visits_completed"    />
+        <result property="leadGenerated"    column="sub_lead_generated"    />
+        <result property="dealClosed"    column="sub_deal_closed"    />
+        <result property="salesRevenue"    column="sub_sales_revenue"    />
+        <result property="targetAmount"    column="sub_target_amount"    />
+        <result property="variance"    column="sub_variance"    />
+        <result property="notes"    column="sub_notes"    />
+        <result property="createBy"    column="sub_create_by"    />
+        <result property="createTime"    column="sub_create_time"    />
+        <result property="updateBy"    column="sub_update_by"    />
+        <result property="updateTime"    column="sub_update_time"    />
+        <result property="userId"    column="sub_user_id"    />
+        <result property="deptId"    column="sub_dept_id"    />
+        <result property="reportOrder"    column="sub_report_order"    />
+    </resultMap>
+
+    <sql id="selectCrmWeeklyreportVo">
+        select w.report_id, w.nick_name, w.reviewed, w.approved, w.approver, w.approver_id, w.report_content, w.manager_comment, w.start_time, w.end_time, w.create_by, w.create_time, w.update_by, w.update_time, w.user_id, w.dept_id
+        from crm_weeklyreport w
+         left join sys_user u on u.user_id = w.user_id
+         left join sys_dept d on u.dept_id = d.dept_id
+    </sql>
+
+    <select id="selectCrmWeeklyreportList" parameterType="CrmWeeklyreport" resultMap="CrmWeeklyreportResult">
+        <include refid="selectCrmWeeklyreportVo"/>
+        where 1=1
+        <if test="nickName != null  and nickName != ''"> and nick_name like concat('%', #{nickName}, '%')</if>
+        <if test="reviewed != null "> and reviewed = #{reviewed}</if>
+        <if test="approved != null "> and approved = #{approved}</if>
+        <if test="approver != null  and approver != ''"> and approver = #{approver}</if>
+        <if test="approverId != null  and approverId != ''"> and approver_id = #{approverId}</if>
+        <if test="reportContent != null  and reportContent != ''"> and report_content = #{reportContent}</if>
+        <if test="managerComment != null  and managerComment != ''"> and manager_comment = #{managerComment}</if>
+        <if test="startTime != null "> and start_time = #{startTime}</if>
+        <if test="endTime != null "> and end_time = #{endTime}</if>
+        <if test="userId != null "> and w.user_id = #{userId}</if>
+        <if test="deptId != null "> and dept_id = #{deptId}</if>
+        <!-- 数据范围过滤 -->
+        ${params.dataScope}
+    </select>
+
+    <select id="selectCrmWeeklyreportListWeekly" parameterType="CrmWeeklyreport" resultMap="CrmWeeklyreportResult">
+        <include refid="selectCrmWeeklyreportVo"/>
+        where 1=1
+        and to_char(start_time::date, 'IYYYIW') = to_char(CURRENT_DATE, 'IYYYIW')
+        <if test="nickName != null  and nickName != ''"> and nick_name like concat('%', #{nickName}, '%')</if>
+        <if test="reviewed != null "> and reviewed = #{reviewed}</if>
+        <if test="approved != null "> and approved = #{approved}</if>
+        <if test="approver != null  and approver != ''"> and approver = #{approver}</if>
+        <if test="approverId != null  and approverId != ''"> and approver_id = #{approverId}</if>
+        <if test="reportContent != null  and reportContent != ''"> and report_content = #{reportContent}</if>
+        <if test="managerComment != null  and managerComment != ''"> and manager_comment = #{managerComment}</if>
+        <if test="startTime != null "> and start_time = #{startTime}</if>
+        <if test="endTime != null "> and end_time = #{endTime}</if>
+        <if test="userId != null "> and w.user_id = #{userId}</if>
+        <if test="deptId != null "> and dept_id = #{deptId}</if>
+        <!-- 数据范围过滤 -->
+        ${params.dataScope}
+    </select>
+
+    <select id="selectCrmWeeklyreportByReportId" parameterType="String" resultMap="CrmWeeklyreportCrmReportdetailResult">
+        select a.report_id, a.nick_name, a.reviewed, a.approved, a.approver, a.approver_id, a.report_content, a.manager_comment, a.start_time, a.end_time, a.create_by, a.create_time, a.update_by, a.update_time, a.user_id, a.dept_id,
+               b.detail_id as sub_detail_id, b.report_id as sub_report_id, b.day_order as sub_day_order, b.cold_call as sub_cold_call, b.followup_call as sub_followup_call, b.email_sent as sub_email_sent, b.meeting_arranged as sub_meeting_arranged, b.visits_completed as sub_visits_completed, b.lead_generated as sub_lead_generated, b.deal_closed as sub_deal_closed, b.sales_revenue as sub_sales_revenue, b.target_amount as sub_target_amount, b.variance as sub_variance, b.notes as sub_notes, b.create_by as sub_create_by, b.create_time as sub_create_time, b.update_by as sub_update_by, b.update_time as sub_update_time, b.user_id as sub_user_id, b.dept_id as sub_dept_id, b.report_order as sub_report_order
+        from crm_weeklyreport a
+                 left join crm_reportdetail b on b.report_id = a.report_id
+        where a.report_id = #{reportId}
+        order by sub_report_order
+    </select>
+
+    <insert id="insertCrmWeeklyreport" parameterType="CrmWeeklyreport">
+        insert into crm_weeklyreport
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="reportId != null">report_id,</if>
+            <if test="nickName != null">nick_name,</if>
+            <if test="reviewed != null">reviewed,</if>
+            <if test="approved != null">approved,</if>
+            <if test="approver != null">approver,</if>
+            <if test="approverId != null">approver_id,</if>
+            <if test="reportContent != null">report_content,</if>
+            <if test="managerComment != null">manager_comment,</if>
+            <if test="startTime != null">start_time,</if>
+            <if test="endTime != null">end_time,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="userId != null">user_id,</if>
+            <if test="deptId != null">dept_id,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="reportId != null">#{reportId},</if>
+            <if test="nickName != null">#{nickName},</if>
+            <if test="reviewed != null">#{reviewed},</if>
+            <if test="approved != null">#{approved},</if>
+            <if test="approver != null">#{approver},</if>
+            <if test="approverId != null">#{approverId},</if>
+            <if test="reportContent != null">#{reportContent},</if>
+            <if test="managerComment != null">#{managerComment},</if>
+            <if test="startTime != null">#{startTime},</if>
+            <if test="endTime != null">#{endTime},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="userId != null">#{userId},</if>
+            <if test="deptId != null">#{deptId},</if>
+        </trim>
+    </insert>
+
+    <update id="updateCrmWeeklyreport" parameterType="CrmWeeklyreport">
+        update crm_weeklyreport
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="nickName != null">nick_name = #{nickName},</if>
+            <if test="reviewed != null">reviewed = #{reviewed},</if>
+            <if test="approved != null">approved = #{approved},</if>
+            <if test="approver != null">approver = #{approver},</if>
+            <if test="approverId != null">approver_id = #{approverId},</if>
+            <if test="reportContent != null">report_content = #{reportContent},</if>
+            <if test="managerComment != null">manager_comment = #{managerComment},</if>
+            <if test="startTime != null">start_time = #{startTime},</if>
+            <if test="endTime != null">end_time = #{endTime},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="userId != null">user_id = #{userId},</if>
+            <if test="deptId != null">dept_id = #{deptId},</if>
+        </trim>
+        where report_id = #{reportId}
+    </update>
+
+    <delete id="deleteCrmWeeklyreportByReportId" parameterType="String">
+        delete from crm_weeklyreport where report_id = #{reportId}
+    </delete>
+
+    <delete id="deleteCrmWeeklyreportByReportIds" parameterType="String">
+        delete from crm_weeklyreport where report_id in
+        <foreach item="reportId" collection="array" open="(" separator="," close=")">
+            #{reportId}
+        </foreach>
+    </delete>
+
+    <delete id="deleteCrmReportdetailByReportIds" parameterType="String">
+        delete from crm_reportdetail where report_id in
+        <foreach item="reportId" collection="array" open="(" separator="," close=")">
+            #{reportId}
+        </foreach>
+    </delete>
+
+    <delete id="deleteCrmReportdetailByReportId" parameterType="String">
+        delete from crm_reportdetail where report_id = #{reportId}
+    </delete>
+
+    <insert id="batchCrmReportdetail">
+        insert into crm_reportdetail( detail_id, report_id, day_order, cold_call, followup_call, email_sent, meeting_arranged, visits_completed, lead_generated, deal_closed, sales_revenue, target_amount, variance, notes, create_by, create_time, update_by, update_time, user_id, dept_id, report_order) values
+        <foreach item="item" index="index" collection="list" separator=",">
+            ( #{item.detailId}, #{item.reportId}, #{item.dayOrder}, #{item.coldCall}, #{item.followupCall}, #{item.emailSent}, #{item.meetingArranged}, #{item.visitsCompleted}, #{item.leadGenerated}, #{item.dealClosed}, #{item.salesRevenue}, #{item.targetAmount}, #{item.variance}, #{item.notes}, #{item.createBy}, #{item.createTime}, #{item.updateBy}, #{item.updateTime}, #{item.userId}, #{item.deptId}, #{item.reportOrder})
+        </foreach>
+    </insert>
+</mapper>

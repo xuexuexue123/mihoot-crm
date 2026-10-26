@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.ems.mapper.SysReParticipantMapper">
+    
+    <resultMap type="SysReParticipant" id="SysReParticipantResult">
+        <result property="partId"    column="part_id"    />
+        <result property="projectId"    column="project_id"    />
+        <result property="partName"    column="part_name"    />
+        <result property="category"    column="category"    />
+        <result property="role"    column="role"    />
+        <result property="department"    column="department"    />
+        <result property="title"    column="title"    />
+        <result property="responsibility"    column="responsibility"    />
+        <result property="mobilePhone"    column="mobile_phone"    />
+        <result property="manager"    column="manager"    />
+        <result property="entryDate"    column="entry_date"    />
+        <result property="leaveDate"    column="leave_date"    />
+        <result property="effort"    column="effort"    />
+        <result property="status"    column="status"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="email"    column="email"    />
+        <result property="code"    column="code"    />
+    </resultMap>
+
+    <sql id="selectSysReParticipantVo">
+        select part_id, project_id, part_name, category, role, department, title, responsibility, mobile_phone, manager, entry_date, leave_date, effort, status, create_by, create_time, update_by, update_time, email, code  from sys_re_participant
+    </sql>
+
+    <select id="selectSysReParticipantList" parameterType="SysReParticipant" resultMap="SysReParticipantResult">
+        <include refid="selectSysReParticipantVo"/>
+        <where>  
+            <if test="projectId != null  and projectId != ''"> and project_id = #{projectId}</if>
+            <if test="partName != null  and partName != ''"> and part_name like concat('%', #{partName}, '%')</if>
+            <if test="category != null  and category != ''"> and category = #{category}</if>
+            <if test="role != null  and role != ''"> and role = #{role}</if>
+            <if test="department != null  and department != ''"> and department = #{department}</if>
+            <if test="title != null  and title != ''"> and title = #{title}</if>
+            <if test="responsibility != null  and responsibility != ''"> and responsibility = #{responsibility}</if>
+            <if test="mobilePhone != null  and mobilePhone != ''"> and mobile_phone = #{mobilePhone}</if>
+            <if test="manager != null  and manager != ''"> and manager = #{manager}</if>
+            <if test="entryDate != null "> and entry_date = #{entryDate}</if>
+            <if test="leaveDate != null "> and leave_date = #{leaveDate}</if>
+            <if test="effort != null "> and effort = #{effort}</if>
+            <if test="status != null "> and status = #{status}</if>
+            <if test="email != null  and email != ''"> and email = #{email}</if>
+            <if test="code != null  and code != ''"> and code = #{code}</if>
+        </where>
+    </select>
+    
+    <select id="selectSysReParticipantByPartId" parameterType="String" resultMap="SysReParticipantResult">
+        <include refid="selectSysReParticipantVo"/>
+        where part_id = #{partId}
+    </select>
+
+
+    <select id="selectAllTeamMemberList" parameterType="SysReParticipant" resultMap="SysReParticipantResult">
+        <include refid="selectSysReParticipantVo"/>
+        where category = #{category} and project_id = #{projectId}
+    </select>
+
+    <select id="selectOtherParticipantList" parameterType="SysReParticipant" resultMap="SysReParticipantResult">
+        <include refid="selectSysReParticipantVo"/>
+        where category != #{category} and project_id = #{projectId}
+    </select>
+
+
+    <insert id="insertSysReParticipant" parameterType="SysReParticipant">
+        insert into sys_re_participant
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="partId != null">part_id,</if>
+            <if test="projectId != null">project_id,</if>
+            <if test="partName != null">part_name,</if>
+            <if test="category != null">category,</if>
+            <if test="role != null">role,</if>
+            <if test="department != null">department,</if>
+            <if test="title != null">title,</if>
+            <if test="responsibility != null">responsibility,</if>
+            <if test="mobilePhone != null">mobile_phone,</if>
+            <if test="manager != null">manager,</if>
+            <if test="entryDate != null">entry_date,</if>
+            <if test="leaveDate != null">leave_date,</if>
+            <if test="effort != null">effort,</if>
+            <if test="status != null">status,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="email != null">email,</if>
+            <if test="code != null">code,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="partId != null">#{partId},</if>
+            <if test="projectId != null">#{projectId},</if>
+            <if test="partName != null">#{partName},</if>
+            <if test="category != null">#{category},</if>
+            <if test="role != null">#{role},</if>
+            <if test="department != null">#{department},</if>
+            <if test="title != null">#{title},</if>
+            <if test="responsibility != null">#{responsibility},</if>
+            <if test="mobilePhone != null">#{mobilePhone},</if>
+            <if test="manager != null">#{manager},</if>
+            <if test="entryDate != null">#{entryDate},</if>
+            <if test="leaveDate != null">#{leaveDate},</if>
+            <if test="effort != null">#{effort},</if>
+            <if test="status != null">#{status},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="email != null">#{email},</if>
+            <if test="code != null">#{code},</if>
+         </trim>
+    </insert>
+
+    <update id="updateSysReParticipant" parameterType="SysReParticipant">
+        update sys_re_participant
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="projectId != null">project_id = #{projectId},</if>
+            <if test="partName != null">part_name = #{partName},</if>
+            <if test="category != null">category = #{category},</if>
+            <if test="role != null">role = #{role},</if>
+            <if test="department != null">department = #{department},</if>
+            <if test="title != null">title = #{title},</if>
+            <if test="responsibility != null">responsibility = #{responsibility},</if>
+            <if test="mobilePhone != null">mobile_phone = #{mobilePhone},</if>
+            <if test="manager != null">manager = #{manager},</if>
+            <if test="entryDate != null">entry_date = #{entryDate},</if>
+            <if test="leaveDate != null">leave_date = #{leaveDate},</if>
+            <if test="effort != null">effort = #{effort},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="email != null">email = #{email},</if>
+            <if test="code != null">code = #{code},</if>
+        </trim>
+        where part_id = #{partId}
+    </update>
+
+    <delete id="deleteSysReParticipantByPartId" parameterType="String">
+        delete from sys_re_participant where part_id = #{partId}
+    </delete>
+
+    <delete id="deleteSysReParticipantByPartIds" parameterType="String">
+        delete from sys_re_participant where part_id in 
+        <foreach item="partId" collection="array" open="(" separator="," close=")">
+            #{partId}
+        </foreach>
+    </delete>
+</mapper>

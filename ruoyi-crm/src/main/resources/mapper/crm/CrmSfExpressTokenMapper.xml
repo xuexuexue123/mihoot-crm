@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmSfExpressTokenMapper">
+
+    <resultMap id="CrmSfExpressTokenResult" type="com.ruoyi.crm.domain.CrmSfExpressToken">
+        <id property="id" column="id"/>
+        <result property="accessTokenEnc" column="access_token_enc"/>
+        <result property="expiresAt" column="expires_at"/>
+        <result property="lastRefreshAt" column="last_refresh_at"/>
+        <result property="lastError" column="last_error"/>
+    </resultMap>
+
+    <select id="selectFirst" resultMap="CrmSfExpressTokenResult">
+        SELECT id, access_token_enc, expires_at, last_refresh_at, last_error
+        FROM crm_sf_express_token ORDER BY id ASC LIMIT 1
+    </select>
+
+    <insert id="insert" parameterType="com.ruoyi.crm.domain.CrmSfExpressToken" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO crm_sf_express_token (
+            access_token_enc, expires_at, last_refresh_at, last_error
+        ) VALUES (
+            #{accessTokenEnc}, #{expiresAt}, #{lastRefreshAt}, #{lastError}
+        )
+    </insert>
+
+    <update id="update" parameterType="com.ruoyi.crm.domain.CrmSfExpressToken">
+        UPDATE crm_sf_express_token
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="accessTokenEnc != null">access_token_enc = #{accessTokenEnc},</if>
+            <if test="expiresAt != null">expires_at = #{expiresAt},</if>
+            <if test="lastRefreshAt != null">last_refresh_at = #{lastRefreshAt},</if>
+            <if test="lastError != null">last_error = #{lastError},</if>
+        </trim>
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteAll">
+        DELETE FROM crm_sf_express_token
+    </delete>
+</mapper>

@@ -1,0 +1,137 @@
+package com.ruoyi.ems.domain;
+
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
+import com.ruoyi.common.annotation.Excel;
+import com.ruoyi.common.core.domain.BaseEntity;
+
+/**
+ * 策略管理对象 sys_re_strategy
+ * 
+ * @author luohd
+ * @date 2023-04-01
+ */
+public class SysReStrategy extends BaseEntity
+{
+    private static final long serialVersionUID = 1L;
+
+    /** 编码 */
+    private String pyId;
+
+    /** 业务Id */
+    @Excel(name = "业务Id")
+    private String caseTypeId;
+
+    /** 中文名 */
+    @Excel(name = "中文名")
+    private String pyLabel;
+
+    /** 名称 */
+    @Excel(name = "名称")
+    private String pyName;
+
+    /** 版本 */
+    @Excel(name = "版本")
+    private String version;
+
+    /** 结果属性 */
+    @Excel(name = "结果属性")
+    private String resultProperty;
+
+    /** 策略头 */
+    private String strategyHeader;
+
+    /** 策略数据 */
+    private String strategy;
+
+    public void setPyId(String pyId) 
+    {
+        this.pyId = pyId;
+    }
+
+    public String getPyId() 
+    {
+        return pyId;
+    }
+    public void setCaseTypeId(String caseTypeId) 
+    {
+        this.caseTypeId = caseTypeId;
+    }
+
+    public String getCaseTypeId() 
+    {
+        return caseTypeId;
+    }
+    public void setPyLabel(String pyLabel) 
+    {
+        this.pyLabel = pyLabel;
+    }
+
+    public String getPyLabel() 
+    {
+        return pyLabel;
+    }
+    public void setPyName(String pyName) 
+    {
+        this.pyName = pyName;
+    }
+
+    public String getPyName() 
+    {
+        return pyName;
+    }
+    public void setVersion(String version) 
+    {
+        this.version = version;
+    }
+
+    public String getVersion() 
+    {
+        return version;
+    }
+    public void setResultProperty(String resultProperty) 
+    {
+        this.resultProperty = resultProperty;
+    }
+
+    public String getResultProperty() 
+    {
+        return resultProperty;
+    }
+    public void setStrategyHeader(String strategyHeader) 
+    {
+        this.strategyHeader = strategyHeader;
+    }
+
+    public String getStrategyHeader() 
+    {
+        return strategyHeader;
+    }
+    public void setStrategy(String strategy) 
+    {
+        this.strategy = strategy;
+    }
+
+    public String getStrategy() 
+    {
+        return strategy;
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
+            .append("pyId", getPyId())
+            .append("caseTypeId", getCaseTypeId())
+            .append("pyLabel", getPyLabel())
+            .append("pyName", getPyName())
+            .append("version", getVersion())
+            .append("resultProperty", getResultProperty())
+            .append("strategyHeader", getStrategyHeader())
+            .append("strategy", getStrategy())
+            .append("createBy", getCreateBy())
+            .append("createTime", getCreateTime())
+            .append("updateBy", getUpdateBy())
+            .append("updateTime", getUpdateTime())
+            .toString();
+    }
+}

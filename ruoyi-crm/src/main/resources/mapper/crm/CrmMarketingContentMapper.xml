@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmMarketingContentMapper">
+
+    <resultMap id="CrmMarketingContentResult" type="com.ruoyi.crm.domain.CrmMarketingContent">
+        <id property="id" column="id"/>
+        <result property="title" column="title"/>
+        <result property="author" column="author"/>
+        <result property="digest" column="digest"/>
+        <result property="coverUrl" column="cover_url"/>
+        <result property="contentMd" column="content_md"/>
+        <result property="contentHtml" column="content_html"/>
+        <result property="status" column="status"/>
+        <result property="websiteVisible" column="website_visible"/>
+        <result property="websitePublishedAt" column="website_published_at"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <resultMap id="MarketingContentListVoResult" type="com.ruoyi.crm.domain.vo.MarketingContentListVo">
+        <id property="id" column="id"/>
+        <result property="title" column="title"/>
+        <result property="author" column="author"/>
+        <result property="digest" column="digest"/>
+        <result property="coverUrl" column="cover_url"/>
+        <result property="status" column="status"/>
+        <result property="websiteVisible" column="website_visible"/>
+        <result property="websitePublishedAt" column="website_published_at"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        <association property="latestPublish" javaType="com.ruoyi.crm.domain.vo.MarketingContentLatestPublishVo"
+                     notNullColumn="lp_app_id">
+            <result property="appId" column="lp_app_id"/>
+            <result property="status" column="lp_status"/>
+            <result property="articleUrl" column="lp_article_url"/>
+            <result property="publishedAt" column="lp_published_at"/>
+            <result property="mediaId" column="lp_media_id"/>
+        </association>
+    </resultMap>
+
+    <resultMap id="PublicWebsiteContentCardResult" type="com.ruoyi.crm.domain.vo.PublicWebsiteContentCardVo">
+        <id property="id" column="id"/>
+        <result property="title" column="title"/>
+        <result property="author" column="author"/>
+        <result property="digest" column="digest"/>
+        <result property="coverUrl" column="cover_url"/>
+        <result property="websitePublishedAt" column="website_published_at"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <sql id="selectContentColumns">
+        id, title, author, digest, cover_url, content_md, content_html, status,
+        website_visible, website_published_at,
+        create_by, create_time, update_by, update_time
+    </sql>
+
+    <select id="selectList" parameterType="com.ruoyi.crm.domain.dto.MarketingContentQuery"
+            resultMap="MarketingContentListVoResult">
+        SELECT
+            c.id, c.title, c.author, c.digest, c.cover_url, c.status,
+            c.website_visible, c.website_published_at,
+            c.create_time, c.update_time,
+            lp.app_id AS lp_app_id,
+            lp.status AS lp_status,
+            lp.article_url AS lp_article_url,
+            lp.published_at AS lp_published_at,
+            lp.media_id AS lp_media_id
+        FROM crm_marketing_content c
+        LEFT JOIN LATERAL (
+            SELECT p.app_id, p.status, p.article_url, p.published_at, p.media_id
+            FROM crm_marketing_content_publish p
+            WHERE p.content_id = c.id
+            ORDER BY p.update_time DESC NULLS LAST
+            LIMIT 1
+        ) lp ON TRUE
+        <where>
+            <if test="keyword != null and keyword != ''">
+                AND (
+                    c.title ILIKE '%' || #{keyword} || '%'
+                    OR c.author ILIKE '%' || #{keyword} || '%'
+                    OR c.digest ILIKE '%' || #{keyword} || '%'
+                )
+            </if>
+            <if test="status != null and status != ''">
+                AND c.status = #{status}
+            </if>
+            <if test="websiteVisible != null">
+                AND c.website_visible = #{websiteVisible}
+            </if>
+            <if test="published != null and published == true">
+                AND EXISTS (
+                    SELECT 1 FROM crm_marketing_content_publish p2
+                    WHERE p2.content_id = c.id AND p2.status = 'published'
+                )
+            </if>
+            <if test="published != null and published == false">
+                AND NOT EXISTS (
+                    SELECT 1 FROM crm_marketing_content_publish p2
+                    WHERE p2.content_id = c.id AND p2.status = 'published'
+                )
+            </if>
+        </where>
+        ORDER BY c.update_time DESC NULLS LAST
+    </select>
+
+    <select id="selectById" resultMap="CrmMarketingContentResult">
+        SELECT <include refid="selectContentColumns"/>
+        FROM crm_marketing_content
+        WHERE id = #{id}::uuid
+    </select>
+
+    <select id="selectPublicWebsiteVisible" resultMap="PublicWebsiteContentCardResult">
+        SELECT id, title, author, digest, cover_url, website_published_at, update_time
+        FROM crm_marketing_content
+        WHERE website_visible = true
+        ORDER BY website_published_at DESC NULLS LAST, update_time DESC NULLS LAST
+        LIMIT #{limit}
+    </select>
+
+    <select id="selectPublicById" resultMap="CrmMarketingContentResult">
+        SELECT <include refid="selectContentColumns"/>
+        FROM crm_marketing_content
+        WHERE id = #{id}::uuid
+          AND website_visible = true
+    </select>
+
+    <insert id="insert" parameterType="com.ruoyi.crm.domain.CrmMarketingContent">
+        INSERT INTO crm_marketing_content (
+            id, title, author, digest, cover_url, content_md, content_html, status,
+            website_visible, website_published_at,
+            create_by, create_time, update_by, update_time
+        ) VALUES (
+            #{id}::uuid,
+            #{title},
+            #{author},
+            #{digest},
+            #{coverUrl},
+            COALESCE(#{contentMd}, ''),
+            #{contentHtml},
+            COALESCE(#{status}, 'draft'),
+            COALESCE(#{websiteVisible}, false),
+            #{websitePublishedAt},
+            #{createBy},
+            COALESCE(#{createTime}, now()),
+            #{updateBy},
+            COALESCE(#{updateTime}, now())
+        )
+    </insert>
+
+    <update id="update" parameterType="com.ruoyi.crm.domain.CrmMarketingContent">
+        UPDATE crm_marketing_content
+        <set>
+            <if test="title != null">title = #{title},</if>
+            <if test="author != null">author = #{author},</if>
+            <if test="digest != null">digest = #{digest},</if>
+            <if test="coverUrl != null">cover_url = #{coverUrl},</if>
+            <if test="contentMd != null">content_md = #{contentMd},</if>
+            <if test="contentHtml != null">content_html = #{contentHtml},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="websiteVisible != null">
+                website_visible = #{websiteVisible},
+                website_published_at = #{websitePublishedAt},
+            </if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            update_time = COALESCE(#{updateTime}, now())
+        </set>
+        WHERE id = #{id}::uuid
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM crm_marketing_content WHERE id = #{id}::uuid
+    </delete>
+
+</mapper>

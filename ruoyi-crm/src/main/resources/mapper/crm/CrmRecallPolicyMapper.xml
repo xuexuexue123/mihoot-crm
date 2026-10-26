@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmRecallPolicyMapper">
+
+    <resultMap type="com.ruoyi.crm.domain.CrmRecallPolicy" id="CrmRecallPolicyResult">
+        <result property="policyId" column="policy_id"/>
+        <result property="tenantId" column="tenant_id"/>
+        <result property="name" column="name"/>
+        <result property="description" column="description"/>
+        <result property="enabled" column="enabled"/>
+        <result property="isSystem" column="is_system"/>
+        <result property="priority" column="priority"/>
+        <result property="matchJson" column="match_json"/>
+        <result property="intervalValue" column="interval_value"/>
+        <result property="intervalUnit" column="interval_unit"/>
+        <result property="delFlag" column="del_flag"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <sql id="selectColumns">
+        select policy_id, tenant_id, name, description, enabled, is_system, priority,
+               match_json, interval_value, interval_unit, del_flag,
+               create_by, create_time, update_by, update_time
+        from crm_recall_policy
+    </sql>
+
+    <select id="selectList" resultMap="CrmRecallPolicyResult">
+        <include refid="selectColumns"/>
+        where del_flag = '0' and tenant_id = #{tenantId}
+        <if test="enabled != null and enabled != ''">
+            and enabled = #{enabled}
+        </if>
+        order by priority asc, update_time desc
+    </select>
+
+    <select id="selectEntityById" resultMap="CrmRecallPolicyResult">
+        <include refid="selectColumns"/>
+        where del_flag = '0' and tenant_id = #{tenantId} and policy_id = #{policyId}
+        limit 1
+    </select>
+
+    <select id="selectEnabledOrdered" resultMap="CrmRecallPolicyResult">
+        <include refid="selectColumns"/>
+        where del_flag = '0' and tenant_id = #{tenantId} and enabled = '1'
+        order by priority asc
+    </select>
+
+    <insert id="insertCrmRecallPolicy" parameterType="com.ruoyi.crm.domain.CrmRecallPolicy">
+        insert into crm_recall_policy (
+            policy_id, tenant_id, name, description, enabled, is_system, priority,
+            match_json, interval_value, interval_unit, del_flag,
+            create_by, create_time, update_by, update_time
+        ) values (
+            #{policyId}, #{tenantId}, #{name}, #{description}, #{enabled}, #{isSystem}, #{priority},
+            #{matchJson}, #{intervalValue}, #{intervalUnit}, COALESCE(#{delFlag}, '0'),
+            #{createBy}, #{createTime}, #{updateBy}, #{updateTime}
+        )
+    </insert>
+
+    <update id="updateCrmRecallPolicy" parameterType="com.ruoyi.crm.domain.CrmRecallPolicy">
+        update crm_recall_policy
+        set name = #{name},
+            description = #{description},
+            enabled = #{enabled},
+            priority = #{priority},
+            match_json = #{matchJson},
+            interval_value = #{intervalValue},
+            interval_unit = #{intervalUnit},
+            update_by = #{updateBy},
+            update_time = #{updateTime}
+        where policy_id = #{policyId}
+          and tenant_id = #{tenantId}
+          and del_flag = '0'
+    </update>
+
+    <update id="logicalDeleteById">
+        update crm_recall_policy
+        set del_flag = '1',
+            update_by = #{updateBy},
+            update_time = CURRENT_TIMESTAMP
+        where policy_id = #{policyId}
+          and tenant_id = #{tenantId}
+          and del_flag = '0'
+          and is_system = '0'
+    </update>
+</mapper>

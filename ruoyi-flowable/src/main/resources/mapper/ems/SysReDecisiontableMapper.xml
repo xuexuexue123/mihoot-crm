@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.ems.mapper.SysReDecisiontableMapper">
+    
+    <resultMap type="SysReDecisiontable" id="SysReDecisiontableResult">
+        <result property="pyId"    column="py_id"    />
+        <result property="caseTypeId"    column="case_type_id"    />
+        <result property="pyLabel"    column="py_label"    />
+        <result property="pyName"    column="py_name"    />
+        <result property="version"    column="version"    />
+        <result property="resultProperty"    column="result_property"    />
+        <result property="decisionTableHeader"    column="decision_table_header"    />
+        <result property="decisionTable"    column="decision_table"    />
+        <result property="decisionTableRule"    column="decision_table_rule"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectSysReDecisiontableVo">
+        select py_id, case_type_id, py_label, py_name, version, result_property, decision_table_header, decision_table, decision_table_rule, create_by, create_time, update_by, update_time from sys_re_decisiontable
+    </sql>
+
+    <select id="selectSysReDecisiontableList" parameterType="SysReDecisiontable" resultMap="SysReDecisiontableResult">
+        <include refid="selectSysReDecisiontableVo"/>
+        <where>  
+            <if test="pyId != null  and pyId != ''"> and py_id = #{pyId}</if>
+            <if test="caseTypeId != null  and caseTypeId != ''"> and case_type_id = #{caseTypeId}</if>
+        </where>
+    </select>
+    
+    <select id="selectSysReDecisiontableByPyId" parameterType="String" resultMap="SysReDecisiontableResult">
+        <include refid="selectSysReDecisiontableVo"/>
+        where py_id = #{pyId}
+    </select>
+        
+    <insert id="insertSysReDecisiontable" parameterType="SysReDecisiontable">
+        insert into sys_re_decisiontable
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="pyId != null">py_id,</if>
+            <if test="caseTypeId != null">case_type_id,</if>
+            <if test="pyLabel != null">py_label,</if>
+            <if test="pyName != null">py_name,</if>
+            <if test="version != null">version,</if>
+            <if test="resultProperty != null">result_property,</if>
+            <if test="decisionTableHeader != null">decision_table_header,</if>
+            <if test="decisionTable != null">decision_table,</if>
+            <if test="decisionTableRule != null">decision_table_rule,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="pyId != null">#{pyId},</if>
+            <if test="caseTypeId != null">#{caseTypeId},</if>
+            <if test="pyLabel != null">#{pyLabel},</if>
+            <if test="pyName != null">#{pyName},</if>
+            <if test="version != null">#{version},</if>
+            <if test="resultProperty != null">#{resultProperty},</if>
+            <if test="decisionTableHeader != null">#{decisionTableHeader},</if>
+            <if test="decisionTable != null">#{decisionTable},</if>
+            <if test="decisionTableRule != null">#{decisionTableRule},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateSysReDecisiontable" parameterType="SysReDecisiontable">
+        update sys_re_decisiontable
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="caseTypeId != null">case_type_id = #{caseTypeId},</if>
+            <if test="pyLabel != null">py_label = #{pyLabel},</if>
+            <if test="pyName != null">py_name = #{pyName},</if>
+            <if test="version != null">version = #{version},</if>
+            <if test="resultProperty != null">result_property = #{resultProperty},</if>
+            <if test="decisionTableHeader != null">decision_table_header = #{decisionTableHeader},</if>
+            <if test="decisionTable != null">decision_table = #{decisionTable},</if>
+            <if test="decisionTableRule != null">decision_table_rule = #{decisionTableRule},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where py_id = #{pyId}
+    </update>
+
+    <delete id="deleteSysReDecisiontableByPyId" parameterType="String">
+        delete from sys_re_decisiontable where py_id = #{pyId}
+    </delete>
+
+    <delete id="deleteSysReDecisiontableByPyIds" parameterType="String">
+        delete from sys_re_decisiontable where py_id in 
+        <foreach item="pyId" collection="array" open="(" separator="," close=")">
+            #{pyId}
+        </foreach>
+    </delete>
+</mapper>

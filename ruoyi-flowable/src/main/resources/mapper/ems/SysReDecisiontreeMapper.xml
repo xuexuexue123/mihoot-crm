@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.ems.mapper.SysReDecisiontreeMapper">
+    
+    <resultMap type="SysReDecisiontree" id="SysReDecisiontreeResult">
+        <result property="pyId"    column="py_id"    />
+        <result property="caseTypeId"    column="case_type_id"    />
+        <result property="pyLabel"    column="py_label"    />
+        <result property="pyName"    column="py_name"    />
+        <result property="version"    column="version"    />
+        <result property="resultProperty"    column="result_property"    />
+        <result property="decisionTree"    column="decision_tree"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectSysReDecisiontreeVo">
+        select py_id, case_type_id, py_label, py_name, version, result_property, decision_tree, create_by, create_time, update_by, update_time from sys_re_decisiontree
+    </sql>
+
+    <select id="selectSysReDecisiontreeList" parameterType="SysReDecisiontree" resultMap="SysReDecisiontreeResult">
+        <include refid="selectSysReDecisiontreeVo"/>
+        <where>  
+            <if test="pyId != null  and pyId != ''"> and py_id = #{pyId}</if>
+            <if test="caseTypeId != null  and caseTypeId != ''"> and case_type_id = #{caseTypeId}</if>
+            <if test="pyLabel != null  and pyLabel != ''"> and py_label = #{pyLabel}</if>
+            <if test="pyName != null  and pyName != ''"> and py_name like concat('%', #{pyName}, '%')</if>
+        </where>
+    </select>
+    
+    <select id="selectSysReDecisiontreeByPyId" parameterType="String" resultMap="SysReDecisiontreeResult">
+        <include refid="selectSysReDecisiontreeVo"/>
+        where py_id = #{pyId}
+    </select>
+        
+    <insert id="insertSysReDecisiontree" parameterType="SysReDecisiontree">
+        insert into sys_re_decisiontree
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="pyId != null">py_id,</if>
+            <if test="caseTypeId != null">case_type_id,</if>
+            <if test="pyLabel != null">py_label,</if>
+            <if test="pyName != null">py_name,</if>
+            <if test="version != null">version,</if>
+            <if test="resultProperty != null">result_property,</if>
+            <if test="decisionTree != null">decision_tree,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="pyId != null">#{pyId},</if>
+            <if test="caseTypeId != null">#{caseTypeId},</if>
+            <if test="pyLabel != null">#{pyLabel},</if>
+            <if test="pyName != null">#{pyName},</if>
+            <if test="version != null">#{version},</if>
+            <if test="resultProperty != null">#{resultProperty},</if>
+            <if test="decisionTree != null">#{decisionTree},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateSysReDecisiontree" parameterType="SysReDecisiontree">
+        update sys_re_decisiontree
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="caseTypeId != null">case_type_id = #{caseTypeId},</if>
+            <if test="pyLabel != null">py_label = #{pyLabel},</if>
+            <if test="pyName != null">py_name = #{pyName},</if>
+            <if test="version != null">version = #{version},</if>
+            <if test="resultProperty != null">result_property = #{resultProperty},</if>
+            <if test="decisionTree != null">decision_tree = #{decisionTree},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where py_id = #{pyId}
+    </update>
+
+    <delete id="deleteSysReDecisiontreeByPyId" parameterType="String">
+        delete from sys_re_decisiontree where py_id = #{pyId}
+    </delete>
+
+    <delete id="deleteSysReDecisiontreeByPyIds" parameterType="String">
+        delete from sys_re_decisiontree where py_id in 
+        <foreach item="pyId" collection="array" open="(" separator="," close=")">
+            #{pyId}
+        </foreach>
+    </delete>
+</mapper>

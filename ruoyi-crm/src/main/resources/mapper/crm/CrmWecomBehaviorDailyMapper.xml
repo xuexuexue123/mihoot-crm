@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmWecomBehaviorDailyMapper">
+
+    <resultMap id="BehaviorAggregateResult" type="com.ruoyi.crm.domain.dto.wecom.WecomBehaviorDataItem">
+        <result property="statTime" column="stat_time"/>
+        <result property="newApplyCnt" column="new_apply_cnt"/>
+        <result property="newContactCnt" column="new_contact_cnt"/>
+        <result property="chatCnt" column="chat_cnt"/>
+        <result property="messageCnt" column="message_cnt"/>
+        <result property="replyPercentage" column="reply_percentage"/>
+        <result property="avgReplyTime" column="avg_reply_time"/>
+        <result property="negativeFeedbackCnt" column="negative_feedback_cnt"/>
+    </resultMap>
+
+    <resultMap id="BehaviorMemberResult" type="com.ruoyi.crm.domain.dto.wecom.WecomBehaviorMemberRow">
+        <result property="userid" column="userid"/>
+        <result property="name" column="name"/>
+        <result property="newApplyCnt" column="new_apply_cnt"/>
+        <result property="newContactCnt" column="new_contact_cnt"/>
+        <result property="chatCnt" column="chat_cnt"/>
+        <result property="messageCnt" column="message_cnt"/>
+        <result property="replyPercentage" column="reply_percentage"/>
+        <result property="avgReplyTime" column="avg_reply_time"/>
+        <result property="negativeFeedbackCnt" column="negative_feedback_cnt"/>
+    </resultMap>
+
+    <resultMap id="MemberNameResult" type="com.ruoyi.crm.mapper.CrmWecomStatsMemberNameRow">
+        <result property="userid" column="userid"/>
+        <result property="name" column="name"/>
+    </resultMap>
+
+    <insert id="upsertBehaviorDaily">
+        INSERT INTO crm_wecom_behavior_daily (
+            corp_id, userid, user_name, stat_time,
+            new_apply_cnt, new_contact_cnt, chat_cnt, message_cnt,
+            reply_percentage, avg_reply_time, negative_feedback_cnt, raw_json, updated_at
+        ) VALUES (
+            #{corpId}, #{userid}, #{userName}, #{statTime},
+            #{newApplyCnt}, #{newContactCnt}, #{chatCnt}, #{messageCnt},
+            #{replyPercentage}, #{avgReplyTime}, #{negativeFeedbackCnt}, #{rawJson}, CURRENT_TIMESTAMP
+        )
+        ON CONFLICT (userid, stat_time) DO UPDATE SET
+            corp_id = EXCLUDED.corp_id,
+            user_name = EXCLUDED.user_name,
+            new_apply_cnt = EXCLUDED.new_apply_cnt,
+            new_contact_cnt = EXCLUDED.new_contact_cnt,
+            chat_cnt = EXCLUDED.chat_cnt,
+            message_cnt = EXCLUDED.message_cnt,
+            reply_percentage = EXCLUDED.reply_percentage,
+            avg_reply_time = EXCLUDED.avg_reply_time,
+            negative_feedback_cnt = EXCLUDED.negative_feedback_cnt,
+            raw_json = EXCLUDED.raw_json,
+            updated_at = CURRENT_TIMESTAMP
+    </insert>
+
+    <select id="aggregateBehaviorByStatTime" resultMap="BehaviorAggregateResult">
+        SELECT stat_time,
+               SUM(new_apply_cnt) AS new_apply_cnt,
+               SUM(new_contact_cnt) AS new_contact_cnt,
+               SUM(chat_cnt) AS chat_cnt,
+               SUM(message_cnt) AS message_cnt,
+               SUM(negative_feedback_cnt) AS negative_feedback_cnt,
+               CASE WHEN SUM(chat_cnt) > 0
+                    THEN SUM(reply_percentage * chat_cnt) / SUM(chat_cnt) END AS reply_percentage,
+               CASE WHEN SUM(message_cnt) > 0
+                    THEN (SUM(avg_reply_time * message_cnt) / SUM(message_cnt))::INTEGER END AS avg_reply_time
+        FROM crm_wecom_behavior_daily
+        WHERE stat_time BETWEEN #{startTime} AND #{endTime}
+        <if test="userids != null and userids.size() > 0">
+            AND userid IN
+            <foreach collection="userids" item="uid" open="(" separator="," close=")">
+                #{uid}
+            </foreach>
+        </if>
+        GROUP BY stat_time
+        ORDER BY stat_time
+    </select>
+
+    <select id="aggregateBehaviorByMember" resultMap="BehaviorMemberResult">
+        SELECT userid,
+               MAX(user_name) AS name,
+               SUM(new_apply_cnt) AS new_apply_cnt,
+               SUM(new_contact_cnt) AS new_contact_cnt,
+               SUM(chat_cnt) AS chat_cnt,
+               SUM(message_cnt) AS message_cnt,
+               SUM(negative_feedback_cnt) AS negative_feedback_cnt,
+               CASE WHEN SUM(chat_cnt) > 0
+                    THEN SUM(reply_percentage * chat_cnt) / SUM(chat_cnt) END AS reply_percentage,
+               CASE WHEN SUM(message_cnt) > 0
+                    THEN (SUM(avg_reply_time * message_cnt) / SUM(message_cnt))::INTEGER END AS avg_reply_time
+        FROM crm_wecom_behavior_daily
+        WHERE stat_time BETWEEN #{startTime} AND #{endTime}
+        <if test="userids != null and userids.size() > 0">
+            AND userid IN
+            <foreach collection="userids" item="uid" open="(" separator="," close=")">
+                #{uid}
+            </foreach>
+        </if>
+        GROUP BY userid
+        ORDER BY userid
+    </select>
+
+    <select id="selectDistinctMemberNames" resultMap="MemberNameResult">
+        SELECT userid, MAX(user_name) AS name
+        FROM crm_wecom_behavior_daily
+        GROUP BY userid
+    </select>
+
+</mapper>

@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.ems.mapper.SysReRulesetMapper">
+    
+    <resultMap type="SysReRuleset" id="SysReRulesetResult">
+        <result property="pyId"    column="py_id"    />
+        <result property="caseApplicationId"    column="case_application_id"    />
+        <result property="pyLabel"    column="py_label"    />
+        <result property="pyName"    column="py_name"    />
+        <result property="version"    column="version"    />
+        <result property="approvalRequired"    column="approval_required"    />
+        <result property="locked"    column="locked"    />
+        <result property="password"    column="password"    />
+        <result property="effectiveStartTime"    column="effective_start_time"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectSysReRulesetVo">
+        select py_id, case_application_id, py_label, py_name, version, approval_required, locked, password, effective_start_time, create_by, create_time, update_by, update_time from sys_re_ruleset
+    </sql>
+
+    <select id="selectSysReRulesetList" parameterType="SysReRuleset" resultMap="SysReRulesetResult">
+        <include refid="selectSysReRulesetVo"/>
+        <where>  
+            <if test="caseApplicationId != null  and caseApplicationId != ''"> and case_application_id = #{caseApplicationId}</if>
+            <if test="pyLabel != null  and pyLabel != ''"> and py_label = #{pyLabel}</if>
+            <if test="pyName != null  and pyName != ''"> and py_name like concat('%', #{pyName}, '%')</if>
+        </where>
+    </select>
+    
+    <select id="selectSysReRulesetByPyId" parameterType="Long" resultMap="SysReRulesetResult">
+        <include refid="selectSysReRulesetVo"/>
+        where py_id = #{pyId}
+    </select>
+        
+    <insert id="insertSysReRuleset" parameterType="SysReRuleset" useGeneratedKeys="true" keyProperty="pyId">
+        insert into sys_re_ruleset
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="caseApplicationId != null">case_application_id,</if>
+            <if test="pyLabel != null">py_label,</if>
+            <if test="pyName != null">py_name,</if>
+            <if test="version != null">version,</if>
+            <if test="approvalRequired != null">approval_required,</if>
+            <if test="locked != null">locked,</if>
+            <if test="password != null">password,</if>
+            <if test="effectiveStartTime != null">effective_start_time,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="caseApplicationId != null">#{caseApplicationId},</if>
+            <if test="pyLabel != null">#{pyLabel},</if>
+            <if test="pyName != null">#{pyName},</if>
+            <if test="version != null">#{version},</if>
+            <if test="approvalRequired != null">#{approvalRequired},</if>
+            <if test="locked != null">#{locked},</if>
+            <if test="password != null">#{password},</if>
+            <if test="effectiveStartTime != null">#{effectiveStartTime},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateSysReRuleset" parameterType="SysReRuleset">
+        update sys_re_ruleset
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="caseApplicationId != null">case_application_id = #{caseApplicationId},</if>
+            <if test="pyLabel != null">py_label = #{pyLabel},</if>
+            <if test="pyName != null">py_name = #{pyName},</if>
+            <if test="version != null">version = #{version},</if>
+            <if test="approvalRequired != null">approval_required = #{approvalRequired},</if>
+            <if test="locked != null">locked = #{locked},</if>
+            <if test="password != null">password = #{password},</if>
+            <if test="effectiveStartTime != null">effective_start_time = #{effectiveStartTime},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where py_id = #{pyId}
+    </update>
+
+    <delete id="deleteSysReRulesetByPyId" parameterType="Long">
+        delete from sys_re_ruleset where py_id = #{pyId}
+    </delete>
+
+    <delete id="deleteSysReRulesetByPyIds" parameterType="String">
+        delete from sys_re_ruleset where py_id in 
+        <foreach item="pyId" collection="array" open="(" separator="," close=")">
+            #{pyId}
+        </foreach>
+    </delete>
+</mapper>

@@ -1,0 +1,232 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.ems.mapper.SysReProjectMapper">
+
+    <resultMap type="SysReProject" id="SysReProjectResult">
+        <result property="pyId"    column="py_id"    />
+        <result property="caseApplicationId"    column="case_application_id"    />
+        <result property="pyName"    column="py_name"    />
+        <result property="avatar"    column="avatar"    />
+        <result property="category"    column="category"    />
+        <result property="pyCaseId"    column="py_case_id"    />
+        <result property="description"    column="description"    />
+        <result property="archived"    column="archived"    />
+        <result property="owner"    column="owner"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="status"    column="status"    />
+        <result property="customerName"    column="customer_name"    />
+        <result property="contractId"    column="contract_id"    />
+        <result property="costEstimation"    column="cost_estimation"    />
+        <result property="realCost"    column="real_cost"    />
+        <result property="cpi"    column="cpi"    />
+        <result property="pv"    column="pv"    />
+        <result property="ac"    column="ac"    />
+        <result property="ev"    column="ev"    />
+        <result property="spi"    column="spi"    />
+        <result property="bac"    column="bac"    />
+        <result property="eac"    column="eac"    />
+        <result property="etc"    column="etc"    />
+        <result property="durationEstimation"    column="duration_estimation"    />
+        <result property="realDuration"    column="real_duration"    />
+        <result property="stage"    column="stage"    />
+    </resultMap>
+
+    <sql id="selectSysReProjectVo">
+        select py_id, case_application_id, py_name, avatar, category, py_case_id, description, archived, owner, create_by, create_time, update_by, update_time, status, customer_name, contract_id, cost_estimation, real_cost, cpi, pv, ac, ev, spi, bac, eac, etc, duration_estimation, real_duration, stage from sys_re_project
+    </sql>
+
+    <sql id="selectSysReProjectByIdVo">
+        select p.py_id, p.case_application_id, p.py_name, p.avatar, p.category, p.py_case_id, p.description, p.archived, p.owner, p.create_by, p.create_time, p.update_by, p.update_time, p.status, p.customer_name, p.contract_id, p.cost_estimation, p.real_cost, p.cpi, p.pv, p.ac, p.ev, p.spi, p.bac, p.eac, p.etc, p.duration_estimation, p.real_duration, p.stage
+        from sys_re_project p
+         left join sys_re_participant a on a.project_id = p.py_id
+    </sql>
+
+    <select id="selectSysReProjectList" parameterType="SysReProject" resultMap="SysReProjectResult">
+        <include refid="selectSysReProjectVo"/>
+        <where>
+            <if test="caseApplicationId != null  and caseApplicationId != ''"> and case_application_id = #{caseApplicationId}</if>
+            <if test="pyName != null  and pyName != ''"> and py_name like concat('%', #{pyName}, '%')</if>
+            <if test="avatar != null  and avatar != ''"> and avatar = #{avatar}</if>
+            <if test="category != null  and category != ''"> and category = #{category}</if>
+            <if test="pyCaseId != null  and pyCaseId != ''"> and py_case_id = #{pyCaseId}</if>
+            <if test="description != null  and description != ''"> and description = #{description}</if>
+            <if test="archived != null "> and archived = #{archived}</if>
+            <if test="owner != null  and owner != ''"> and owner = #{owner}</if>
+            <if test="status != null  and status != ''"> and status = #{status}</if>
+            <if test="customerName != null  and customerName != ''"> and customer_name like concat('%', #{customerName}, '%')</if>
+            <if test="contractId != null  and contractId != ''"> and contract_id = #{contractId}</if>
+            <if test="costEstimation != null "> and cost_estimation = #{costEstimation}</if>
+            <if test="realCost != null "> and real_cost = #{realCost}</if>
+            <if test="cpi != null "> and cpi = #{cpi}</if>
+            <if test="pv != null "> and pv = #{pv}</if>
+            <if test="ac != null "> and ac = #{ac}</if>
+            <if test="ev != null "> and ev = #{ev}</if>
+            <if test="spi != null "> and spi = #{spi}</if>
+            <if test="bac != null "> and bac = #{bac}</if>
+            <if test="eac != null "> and eac = #{eac}</if>
+            <if test="etc != null "> and etc = #{etc}</if>
+            <if test="durationEstimation != null "> and duration_estimation = #{durationEstimation}</if>
+            <if test="realDuration != null "> and real_duration = #{realDuration}</if>
+            <if test="stage != null  and stage != ''"> and stage = #{stage}</if>
+        </where>
+        order by create_time desc
+    </select>
+
+    <select id="selectSysReProjectListByPartName" parameterType="String" resultMap="SysReProjectResult">
+        <include refid="selectSysReProjectByIdVo"/>
+        where 1=1
+        and a.part_name= #{partName}
+        order by create_time desc
+    </select>
+
+    <select id="selectSysReProjectByPyId" parameterType="String" resultMap="SysReProjectResult">
+        <include refid="selectSysReProjectVo"/>
+        where py_id = #{pyId}
+    </select>
+
+    <insert id="insertSysReProject" parameterType="SysReProject">
+        insert into sys_re_project
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="pyId != null">py_id,</if>
+            <if test="caseApplicationId != null">case_application_id,</if>
+            <if test="pyName != null">py_name,</if>
+            <if test="avatar != null">avatar,</if>
+            <if test="category != null">category,</if>
+            <if test="pyCaseId != null">py_case_id,</if>
+            <if test="description != null">description,</if>
+            <if test="archived != null">archived,</if>
+            <if test="owner != null">owner,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="status != null">status,</if>
+            <if test="customerName != null">customer_name,</if>
+            <if test="contractId != null">contract_id,</if>
+            <if test="costEstimation != null">cost_estimation,</if>
+            <if test="realCost != null">real_cost,</if>
+            <if test="cpi != null">cpi,</if>
+            <if test="pv != null">pv,</if>
+            <if test="ac != null">ac,</if>
+            <if test="ev != null">ev,</if>
+            <if test="spi != null">spi,</if>
+            <if test="bac != null">bac,</if>
+            <if test="eac != null">eac,</if>
+            <if test="etc != null">etc,</if>
+            <if test="durationEstimation != null">duration_estimation,</if>
+            <if test="realDuration != null">real_duration,</if>
+            <if test="stage != null">stage,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="pyId != null">#{pyId},</if>
+            <if test="caseApplicationId != null">#{caseApplicationId},</if>
+            <if test="pyName != null">#{pyName},</if>
+            <if test="avatar != null">#{avatar},</if>
+            <if test="category != null">#{category},</if>
+            <if test="pyCaseId != null">#{pyCaseId},</if>
+            <if test="description != null">#{description},</if>
+            <if test="archived != null">#{archived},</if>
+            <if test="owner != null">#{owner},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="status != null">#{status},</if>
+            <if test="customerName != null">#{customerName},</if>
+            <if test="contractId != null">#{contractId},</if>
+            <if test="costEstimation != null">#{costEstimation},</if>
+            <if test="realCost != null">#{realCost},</if>
+            <if test="cpi != null">#{cpi},</if>
+            <if test="pv != null">#{pv},</if>
+            <if test="ac != null">#{ac},</if>
+            <if test="ev != null">#{ev},</if>
+            <if test="spi != null">#{spi},</if>
+            <if test="bac != null">#{bac},</if>
+            <if test="eac != null">#{eac},</if>
+            <if test="etc != null">#{etc},</if>
+            <if test="durationEstimation != null">#{durationEstimation},</if>
+            <if test="realDuration != null">#{realDuration},</if>
+            <if test="stage != null">#{stage},</if>
+        </trim>
+    </insert>
+
+    <update id="updateSysReProject" parameterType="SysReProject">
+        update sys_re_project
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="caseApplicationId != null">case_application_id = #{caseApplicationId},</if>
+            <if test="pyName != null">py_name = #{pyName},</if>
+            <if test="avatar != null">avatar = #{avatar},</if>
+            <if test="category != null">category = #{category},</if>
+            <if test="pyCaseId != null">py_case_id = #{pyCaseId},</if>
+            <if test="description != null">description = #{description},</if>
+            <if test="archived != null">archived = #{archived},</if>
+            <if test="owner != null">owner = #{owner},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="customerName != null">customer_name = #{customerName},</if>
+            <if test="contractId != null">contract_id = #{contractId},</if>
+            <if test="costEstimation != null">cost_estimation = #{costEstimation},</if>
+            <if test="realCost != null">real_cost = #{realCost},</if>
+            <if test="cpi != null">cpi = #{cpi},</if>
+            <if test="pv != null">pv = #{pv},</if>
+            <if test="ac != null">ac = #{ac},</if>
+            <if test="ev != null">ev = #{ev},</if>
+            <if test="spi != null">spi = #{spi},</if>
+            <if test="bac != null">bac = #{bac},</if>
+            <if test="eac != null">eac = #{eac},</if>
+            <if test="etc != null">etc = #{etc},</if>
+            <if test="durationEstimation != null">duration_estimation = #{durationEstimation},</if>
+            <if test="realDuration != null">real_duration = #{realDuration},</if>
+            <if test="stage != null">stage = #{stage},</if>
+        </trim>
+        where py_id = #{pyId}
+    </update>
+
+    <delete id="deleteSysReProjectByPyId" parameterType="String">
+        delete from sys_re_project where py_id = #{pyId}
+    </delete>
+    <delete id="deleteSysReBoardByPyId" parameterType="String">
+        delete from sys_re_board where project_id = #{pyId}
+    </delete>
+    <delete id="deleteSysReWorktaskByPyId" parameterType="String">
+        delete from sys_re_worktask where project_id = #{pyId}
+    </delete>
+    <delete id="deleteSysReAcceptanceByPyId" parameterType="String">
+        delete from sys_re_acceptance where project_id = #{pyId}
+    </delete>
+    <delete id="deleteSysRePmriskByPyId" parameterType="String">
+        delete from sys_re_pmrisk where project_id = #{pyId}
+    </delete>
+    <delete id="deleteSysRePmchangeByPyId" parameterType="String">
+        delete from sys_re_pmchange where project_id = #{pyId}
+    </delete>
+    <delete id="deleteSysReParticipantByPyId" parameterType="String">
+        delete from sys_re_participant where project_id = #{pyId}
+    </delete>
+    <delete id="deleteSysReTalkingplanByPyId" parameterType="String">
+        delete from sys_re_talkingplan where project_id = #{pyId}
+    </delete>
+    <delete id="deleteSysRePmlogByPyId" parameterType="String">
+        delete from sys_pm_log where project_id = #{pyId}
+    </delete>
+    <delete id="deleteSysCorresByPyId" parameterType="String">
+        delete from sys_re_corres where case_id = #{pyId}
+    </delete>
+
+
+
+    <delete id="deleteSysReProjectByPyIds" parameterType="String">
+        delete from sys_re_project where py_id in
+        <foreach item="pyId" collection="array" open="(" separator="," close=")">
+            #{pyId}
+        </foreach>
+    </delete>
+</mapper>

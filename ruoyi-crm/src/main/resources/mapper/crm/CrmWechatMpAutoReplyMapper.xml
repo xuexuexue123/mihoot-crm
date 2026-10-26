@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.wechatmp.mapper.CrmWechatMpAutoReplyMapper">
+
+    <resultMap id="AutoReplyResult" type="com.ruoyi.crm.wechatmp.domain.CrmWechatMpAutoReply">
+        <id property="id" column="id"/>
+        <result property="appId" column="app_id"/>
+        <result property="ruleType" column="rule_type"/>
+        <result property="matchValue" column="match_value"/>
+        <result property="replyType" column="reply_type"/>
+        <result property="replyContent" column="reply_content"/>
+        <result property="enabled" column="enabled"/>
+        <result property="priority" column="priority"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <select id="selectList" resultMap="AutoReplyResult">
+        SELECT * FROM crm_wechat_mp_auto_reply
+        <where>
+            <if test="appId != null and appId != ''">AND app_id = #{appId}</if>
+            <if test="ruleType != null and ruleType != ''">AND rule_type = #{ruleType}</if>
+            <if test="enabled != null">AND enabled = #{enabled}</if>
+        </where>
+        ORDER BY priority DESC, id ASC
+    </select>
+
+    <select id="selectById" resultMap="AutoReplyResult">
+        SELECT * FROM crm_wechat_mp_auto_reply WHERE id = #{id}
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO crm_wechat_mp_auto_reply (
+            app_id, rule_type, match_value, reply_type, reply_content, enabled, priority, create_by, create_time, update_time
+        ) VALUES (
+            #{appId}, #{ruleType}, #{matchValue}, #{replyType}, #{replyContent}, #{enabled}, #{priority},
+            #{createBy}, #{createTime}, #{updateTime}
+        )
+    </insert>
+
+    <update id="update">
+        UPDATE crm_wechat_mp_auto_reply SET
+            rule_type = #{ruleType}, match_value = #{matchValue}, reply_type = #{replyType},
+            reply_content = #{replyContent}, enabled = #{enabled}, priority = #{priority}, update_time = #{updateTime}
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM crm_wechat_mp_auto_reply WHERE id = #{id}
+    </delete>
+
+    <select id="selectEnabledByType" resultMap="AutoReplyResult">
+        SELECT * FROM crm_wechat_mp_auto_reply
+        WHERE app_id = #{appId} AND rule_type = #{ruleType} AND enabled = true
+        ORDER BY priority DESC, id ASC
+    </select>
+</mapper>

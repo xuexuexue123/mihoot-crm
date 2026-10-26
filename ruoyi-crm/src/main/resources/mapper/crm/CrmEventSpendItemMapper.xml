@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmEventSpendItemMapper">
+
+    <resultMap type="com.ruoyi.crm.domain.CrmEventSpendItem" id="CrmEventSpendItemResult">
+        <result property="id" column="id"/>
+        <result property="tenantId" column="tenant_id"/>
+        <result property="eventId" column="event_id"/>
+        <result property="channelKey" column="channel_key"/>
+        <result property="category" column="category"/>
+        <result property="amount" column="amount"/>
+        <result property="spentAt" column="spent_at"/>
+        <result property="remark" column="remark"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <select id="selectByEventId" resultMap="CrmEventSpendItemResult">
+        SELECT id, tenant_id, event_id, channel_key, category, amount, spent_at, remark, create_by, create_time, update_time
+        FROM crm_event_spend_item
+        WHERE tenant_id = #{tenantId} AND event_id = #{eventId}
+        ORDER BY create_time ASC, id ASC
+    </select>
+
+    <delete id="deleteByEventId">
+        DELETE FROM crm_event_spend_item WHERE tenant_id = #{tenantId} AND event_id = #{eventId}
+    </delete>
+
+    <insert id="insertBatch">
+        INSERT INTO crm_event_spend_item (tenant_id, event_id, channel_key, category, amount, spent_at, remark, create_by, create_time)
+        VALUES
+        <foreach collection="items" item="item" separator=",">
+            (#{item.tenantId}, #{item.eventId}, #{item.channelKey}, #{item.category}, #{item.amount},
+             #{item.spentAt}, #{item.remark}, #{item.createBy}, NOW())
+        </foreach>
+    </insert>
+
+    <select id="selectSpendByChannel" resultType="java.util.HashMap">
+        SELECT channel_key AS channelKey, COALESCE(SUM(amount), 0) AS amount
+        FROM crm_event_spend_item
+        WHERE tenant_id = #{tenantId} AND event_id = #{eventId}
+        GROUP BY channel_key
+    </select>
+
+    <select id="selectTotalAmount" resultType="java.math.BigDecimal">
+        SELECT COALESCE(SUM(amount), 0) FROM crm_event_spend_item
+        WHERE tenant_id = #{tenantId} AND event_id = #{eventId}
+    </select>
+
+</mapper>

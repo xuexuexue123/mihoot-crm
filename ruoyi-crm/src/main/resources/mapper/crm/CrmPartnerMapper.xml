@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmPartnerMapper">
+    
+    <resultMap type="CrmPartner" id="CrmPartnerResult">
+        <result property="partnerId"    column="partner_id"    />
+        <result property="name"    column="name"    />
+        <result property="owner"    column="owner"    />
+        <result property="ownerId"    column="owner_id"    />
+        <result property="contactName"    column="contact_name"    />
+        <result property="mobilePhone"    column="mobile_phone"    />
+        <result property="workEmail"    column="work_email"    />
+        <result property="website"    column="website"    />
+        <result property="territory"    column="territory"    />
+        <result property="industry"    column="industry"    />
+        <result property="employeeCount"    column="employee_count"    />
+        <result property="revenue"    column="revenue"    />
+        <result property="pipelineOpen"    column="pipeline_open"    />
+        <result property="won"    column="won"    />
+        <result property="quota"    column="quota"    />
+        <result property="quotaAttained"    column="quota_attained"    />
+        <result property="description"    column="description"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="delFlag"    column="del_flag"    />
+    </resultMap>
+
+    <sql id="selectCrmPartnerVo">
+        select partner_id, name, owner, owner_id, contact_name, mobile_phone, work_email, website, territory, industry, employee_count, revenue, pipeline_open, won, quota, quota_attained, description, create_by, create_time, update_by, update_time, del_flag from crm_partner
+    </sql>
+
+    <select id="selectCrmPartnerList" parameterType="CrmPartner" resultMap="CrmPartnerResult">
+        <include refid="selectCrmPartnerVo"/>
+        <where>  
+            <if test="name != null  and name != ''"> and name like concat('%', #{name}, '%')</if>
+            <if test="owner != null  and owner != ''"> and owner = #{owner}</if>
+            <if test="ownerId != null  and ownerId != ''"> and owner_id = #{ownerId}</if>
+            <if test="contactName != null  and contactName != ''"> and contact_name like concat('%', #{contactName}, '%')</if>
+            <if test="mobilePhone != null  and mobilePhone != ''"> and mobile_phone = #{mobilePhone}</if>
+            <if test="workEmail != null  and workEmail != ''"> and work_email = #{workEmail}</if>
+            <if test="website != null  and website != ''"> and website = #{website}</if>
+            <if test="territory != null  and territory != ''"> and territory = #{territory}</if>
+            <if test="industry != null  and industry != ''"> and industry = #{industry}</if>
+            <if test="employeeCount != null "> and employee_count = #{employeeCount}</if>
+            <if test="revenue != null "> and revenue = #{revenue}</if>
+            <if test="pipelineOpen != null "> and pipeline_open = #{pipelineOpen}</if>
+            <if test="won != null "> and won = #{won}</if>
+            <if test="quota != null "> and quota = #{quota}</if>
+            <if test="quotaAttained != null "> and quota_attained = #{quotaAttained}</if>
+            <if test="description != null  and description != ''"> and description = #{description}</if>
+            <if test="delFlag != null  and delFlag != ''"> and del_flag = #{delFlag}</if>
+        </where>
+    </select>
+    
+    <select id="selectCrmPartnerByPartnerId" parameterType="String" resultMap="CrmPartnerResult">
+        <include refid="selectCrmPartnerVo"/>
+        where partner_id = #{partnerId}
+    </select>
+        
+    <insert id="insertCrmPartner" parameterType="CrmPartner">
+        insert into crm_partner
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="partnerId != null">partner_id,</if>
+            <if test="name != null">name,</if>
+            <if test="owner != null">owner,</if>
+            <if test="ownerId != null">owner_id,</if>
+            <if test="contactName != null">contact_name,</if>
+            <if test="mobilePhone != null">mobile_phone,</if>
+            <if test="workEmail != null">work_email,</if>
+            <if test="website != null">website,</if>
+            <if test="territory != null">territory,</if>
+            <if test="industry != null">industry,</if>
+            <if test="employeeCount != null">employee_count,</if>
+            <if test="revenue != null">revenue,</if>
+            <if test="pipelineOpen != null">pipeline_open,</if>
+            <if test="won != null">won,</if>
+            <if test="quota != null">quota,</if>
+            <if test="quotaAttained != null">quota_attained,</if>
+            <if test="description != null">description,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="delFlag != null">del_flag,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="partnerId != null">#{partnerId},</if>
+            <if test="name != null">#{name},</if>
+            <if test="owner != null">#{owner},</if>
+            <if test="ownerId != null">#{ownerId},</if>
+            <if test="contactName != null">#{contactName},</if>
+            <if test="mobilePhone != null">#{mobilePhone},</if>
+            <if test="workEmail != null">#{workEmail},</if>
+            <if test="website != null">#{website},</if>
+            <if test="territory != null">#{territory},</if>
+            <if test="industry != null">#{industry},</if>
+            <if test="employeeCount != null">#{employeeCount},</if>
+            <if test="revenue != null">#{revenue},</if>
+            <if test="pipelineOpen != null">#{pipelineOpen},</if>
+            <if test="won != null">#{won},</if>
+            <if test="quota != null">#{quota},</if>
+            <if test="quotaAttained != null">#{quotaAttained},</if>
+            <if test="description != null">#{description},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="delFlag != null">#{delFlag},</if>
+         </trim>
+    </insert>
+
+    <update id="updateCrmPartner" parameterType="CrmPartner">
+        update crm_partner
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="name != null">name = #{name},</if>
+            <if test="owner != null">owner = #{owner},</if>
+            <if test="ownerId != null">owner_id = #{ownerId},</if>
+            <if test="contactName != null">contact_name = #{contactName},</if>
+            <if test="mobilePhone != null">mobile_phone = #{mobilePhone},</if>
+            <if test="workEmail != null">work_email = #{workEmail},</if>
+            <if test="website != null">website = #{website},</if>
+            <if test="territory != null">territory = #{territory},</if>
+            <if test="industry != null">industry = #{industry},</if>
+            <if test="employeeCount != null">employee_count = #{employeeCount},</if>
+            <if test="revenue != null">revenue = #{revenue},</if>
+            <if test="pipelineOpen != null">pipeline_open = #{pipelineOpen},</if>
+            <if test="won != null">won = #{won},</if>
+            <if test="quota != null">quota = #{quota},</if>
+            <if test="quotaAttained != null">quota_attained = #{quotaAttained},</if>
+            <if test="description != null">description = #{description},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="delFlag != null">del_flag = #{delFlag},</if>
+        </trim>
+        where partner_id = #{partnerId}
+    </update>
+
+    <delete id="deleteCrmPartnerByPartnerId" parameterType="String">
+        delete from crm_partner where partner_id = #{partnerId}
+    </delete>
+
+    <delete id="deleteCrmPartnerByPartnerIds" parameterType="String">
+        delete from crm_partner where partner_id in 
+        <foreach item="partnerId" collection="array" open="(" separator="," close=")">
+            #{partnerId}
+        </foreach>
+    </delete>
+</mapper>

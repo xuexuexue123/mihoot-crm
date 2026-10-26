@@ -1,0 +1,254 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmAccountMapper">
+    
+    <resultMap type="CrmAccount" id="CrmAccountResult">
+        <result property="accountId"    column="account_id"    />
+        <result property="accountType"    column="account_type"    />
+        <result property="leadId"    column="lead_id"    />
+        <result property="leadName"    column="lead_name"    />
+        <result property="orgId"    column="org_id"    />
+        <result property="name"    column="name"    />
+        <result property="shortName"    column="short_name"    />
+        <result property="code"    column="code"    />
+        <result property="fullName"    column="full_name"    />
+        <result property="industry"    column="industry"    />
+        <result property="phoneNumber"    column="phone_number"    />
+        <result property="territory"    column="territory"    />
+        <result property="owner"    column="owner"    />
+        <result property="employeeCount"    column="employee_count"    />
+        <result property="website"    column="website"    />
+        <result property="activeOptyCount"    column="active_opty_count"    />
+        <result property="activeContactCount"    column="active_contact_count"    />
+        <result property="activeLeadCount"    column="active_lead_count"    />
+        <result property="activeOptyAmount"    column="active_opty_amount"    />
+        <result property="revenue"    column="revenue"    />
+        <result property="isTarget"    column="is_target"    />
+        <result property="status"    column="status"    />
+        <result property="description"    column="description"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="userId"    column="user_id"    />
+        <result property="deptId"    column="dept_id"    />
+        <result property="location"    column="location"    />
+        <result property="address"    column="address"    />
+        <result property="currency"    column="currency"    />
+        <result property="customField"    column="custom_field"    />
+        <result property="inactiveOptyCount"    column="inactive_opty_count"    />
+    </resultMap>
+
+    <sql id="selectCrmAccountVo">
+        select a.account_id, a.account_type, a.lead_id, a.lead_name, a.org_id, a.name, a.short_name, a.code, a.full_name, a.industry, a.phone_number, a.territory, a.owner, a.employee_count, a.website, a.active_opty_count, a.active_contact_count, a.active_lead_count, a.active_opty_amount, a.revenue, a.is_target, a.status, a.description, a.create_by, a.create_time, a.update_by, a.update_time, a.user_id, a.dept_id, a.location, a.address, a.currency, a.custom_field, a.inactive_opty_count
+        from crm_account a
+         left join sys_user u on u.user_id = a.user_id
+         left join sys_dept d on u.dept_id = d.dept_id
+    </sql>
+
+    <select id="selectCrmAccountByLp" parameterType="String" resultMap="CrmAccountResult">
+        <include refid="selectCrmAccountVo"/>
+        left join crm_fundinvestor f on a.account_id = f.account_id
+        where f.account_id = #{accountId}
+    </select>
+
+    <select id="selectCrmAccountByParticipant" parameterType="String" resultMap="CrmAccountResult">
+        <include refid="selectCrmAccountVo"/>
+        left join sys_re_participant p on p.project_id = a.account_id
+        where p.part_name = #{partName}
+    </select>
+
+    <select id="selectCrmAccountList" parameterType="CrmAccount" resultMap="CrmAccountResult">
+        <include refid="selectCrmAccountVo"/>
+        where 1=1
+        <if test="accountType != null  and accountType != ''"> and account_type = #{accountType}</if>
+        <if test="leadId != null  and leadId != ''"> and lead_id = #{leadId}</if>
+        <if test="leadName != null  and leadName != ''"> and lead_name like concat('%', #{leadName}, '%')</if>
+        <if test="orgId != null  and orgId != ''"> and org_id = #{orgId}</if>
+        <if test="name != null  and name != ''"> and name like concat('%', #{name}, '%')</if>
+        <if test="shortName != null  and shortName != ''"> and short_name like concat('%', #{shortName}, '%')</if>
+        <if test="code != null  and code != ''"> and code = #{code}</if>
+        <if test="fullName != null  and fullName != ''"> and full_name like concat('%', #{fullName}, '%')</if>
+        <if test="industry != null  and industry != ''"> and industry = #{industry}</if>
+        <if test="phoneNumber != null  and phoneNumber != ''"> and phone_number = #{phoneNumber}</if>
+        <if test="territory != null  and territory != ''"> and territory = #{territory}</if>
+        <if test="owner != null  and owner != ''"> and owner = #{owner}</if>
+        <if test="employeeCount != null "> and employee_count = #{employeeCount}</if>
+        <if test="website != null  and website != ''"> and website = #{website}</if>
+        <if test="activeOptyCount != null "> and active_opty_count = #{activeOptyCount}</if>
+        <if test="activeContactCount != null "> and active_contact_count = #{activeContactCount}</if>
+        <if test="activeLeadCount != null "> and active_lead_count = #{activeLeadCount}</if>
+        <if test="activeOptyAmount != null "> and active_opty_amount = #{activeOptyAmount}</if>
+        <if test="revenue != null "> and revenue = #{revenue}</if>
+        <if test="isTarget != null  and isTarget != ''"> and is_target = #{isTarget}</if>
+        <if test="status != null  and status != ''"> and status = #{status}</if>
+        <if test="description != null  and description != ''"> and description = #{description}</if>
+        <if test="userId != null "> and user_id = #{userId}</if>
+        <if test="deptId != null "> and dept_id = #{deptId}</if>
+        <if test="location != null  and location != ''"> and location = #{location}</if>
+        <if test="address != null  and address != ''"> and address = #{address}</if>
+        <if test="currency != null  and currency != ''"> and currency = #{currency}</if>
+        <if test="customField != null  and customField != ''"> and custom_field = CAST(NULLIF(TRIM(#{customField,jdbcType=VARCHAR}), '') AS jsonb)</if>
+        <if test="inactiveOptyCount != null "> and inactive_opty_count = #{inactiveOptyCount}</if>
+
+        <!-- 数据范围过滤 -->
+        ${params.dataScope}
+    </select>
+    
+    <select id="selectCrmAccountByAccountId" parameterType="String" resultMap="CrmAccountResult">
+        <include refid="selectCrmAccountVo"/>
+        where account_id = #{accountId}
+    </select>
+        
+    <insert id="insertCrmAccount" parameterType="CrmAccount">
+        insert into crm_account
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="accountId != null">account_id,</if>
+            <if test="accountType != null and accountType != ''">account_type,</if>
+            <if test="leadId != null">lead_id,</if>
+            <if test="leadName != null">lead_name,</if>
+            <if test="orgId != null and orgId != ''">org_id,</if>
+            <if test="name != null">name,</if>
+            <if test="shortName != null">short_name,</if>
+            <if test="code != null">code,</if>
+            <if test="fullName != null">full_name,</if>
+            <if test="industry != null">industry,</if>
+            <if test="phoneNumber != null">phone_number,</if>
+            <if test="territory != null">territory,</if>
+            <if test="owner != null">owner,</if>
+            <if test="employeeCount != null">employee_count,</if>
+            <if test="website != null">website,</if>
+            <if test="activeOptyCount != null">active_opty_count,</if>
+            <if test="activeContactCount != null">active_contact_count,</if>
+            <if test="activeLeadCount != null">active_lead_count,</if>
+            <if test="activeOptyAmount != null">active_opty_amount,</if>
+            <if test="revenue != null">revenue,</if>
+            <if test="isTarget != null">is_target,</if>
+            <if test="status != null">status,</if>
+            <if test="description != null">description,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="userId != null">user_id,</if>
+            <if test="deptId != null">dept_id,</if>
+            <if test="location != null">location,</if>
+            <if test="address != null">address,</if>
+            <if test="currency != null">currency,</if>
+            <if test="customField != null">custom_field,</if>
+            <if test="inactiveOptyCount != null">inactive_opty_count,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="accountId != null">#{accountId},</if>
+            <if test="accountType != null and accountType != ''">#{accountType},</if>
+            <if test="leadId != null">#{leadId},</if>
+            <if test="leadName != null">#{leadName},</if>
+            <if test="orgId != null and orgId != ''">#{orgId},</if>
+            <if test="name != null">#{name},</if>
+            <if test="shortName != null">#{shortName},</if>
+            <if test="code != null">#{code},</if>
+            <if test="fullName != null">#{fullName},</if>
+            <if test="industry != null">#{industry},</if>
+            <if test="phoneNumber != null">#{phoneNumber},</if>
+            <if test="territory != null">#{territory},</if>
+            <if test="owner != null">#{owner},</if>
+            <if test="employeeCount != null">#{employeeCount},</if>
+            <if test="website != null">#{website},</if>
+            <if test="activeOptyCount != null">#{activeOptyCount},</if>
+            <if test="activeContactCount != null">#{activeContactCount},</if>
+            <if test="activeLeadCount != null">#{activeLeadCount},</if>
+            <if test="activeOptyAmount != null">#{activeOptyAmount},</if>
+            <if test="revenue != null">#{revenue},</if>
+            <if test="isTarget != null">#{isTarget},</if>
+            <if test="status != null">#{status},</if>
+            <if test="description != null">#{description},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="userId != null">#{userId},</if>
+            <if test="deptId != null">#{deptId},</if>
+            <if test="location != null">#{location},</if>
+            <if test="address != null">#{address},</if>
+            <if test="currency != null">#{currency},</if>
+            <if test="customField != null">CAST(NULLIF(TRIM(#{customField,jdbcType=VARCHAR}), '') AS jsonb),</if>
+            <if test="inactiveOptyCount != null">#{inactiveOptyCount},</if>
+         </trim>
+    </insert>
+
+    <update id="updateCrmAccount" parameterType="CrmAccount">
+        update crm_account
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="accountType != null and accountType != ''">account_type = #{accountType},</if>
+            <if test="leadId != null">lead_id = #{leadId},</if>
+            <if test="leadName != null">lead_name = #{leadName},</if>
+            <if test="orgId != null and orgId != ''">org_id = #{orgId},</if>
+            <if test="name != null">name = #{name},</if>
+            <if test="shortName != null">short_name = #{shortName},</if>
+            <if test="code != null">code = #{code},</if>
+            <if test="fullName != null">full_name = #{fullName},</if>
+            <if test="industry != null">industry = #{industry},</if>
+            <if test="phoneNumber != null">phone_number = #{phoneNumber},</if>
+            <if test="territory != null">territory = #{territory},</if>
+            <if test="owner != null">owner = #{owner},</if>
+            <if test="employeeCount != null">employee_count = #{employeeCount},</if>
+            <if test="website != null">website = #{website},</if>
+            <if test="activeOptyCount != null">active_opty_count = #{activeOptyCount},</if>
+            <if test="activeContactCount != null">active_contact_count = #{activeContactCount},</if>
+            <if test="activeLeadCount != null">active_lead_count = #{activeLeadCount},</if>
+            <if test="activeOptyAmount != null">active_opty_amount = #{activeOptyAmount},</if>
+            <if test="revenue != null">revenue = #{revenue},</if>
+            <if test="isTarget != null">is_target = #{isTarget},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="description != null">description = #{description},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="userId != null">user_id = #{userId},</if>
+            <if test="deptId != null">dept_id = #{deptId},</if>
+            <if test="location != null">location = #{location},</if>
+            <if test="address != null">address = #{address},</if>
+            <if test="currency != null">currency = #{currency},</if>
+            <if test="customField != null">custom_field = CAST(NULLIF(TRIM(#{customField,jdbcType=VARCHAR}), '') AS jsonb),</if>
+            <if test="inactiveOptyCount != null">inactive_opty_count = #{inactiveOptyCount},</if>
+        </trim>
+        where account_id = #{accountId}
+    </update>
+
+    <delete id="deleteCrmAccountByAccountId" parameterType="String">
+        delete from crm_account where account_id = #{accountId}
+    </delete>
+
+    <delete id="deleteCrmAccountByAccountIds" parameterType="String">
+        delete from crm_account where account_id in 
+        <foreach item="accountId" collection="array" open="(" separator="," close=")">
+            #{accountId}
+        </foreach>
+    </delete>
+
+    <resultMap type="com.ruoyi.crm.domain.CrmFamilyLtvVo" id="CrmFamilyLtvResult">
+        <result property="contractTotal" column="contract_total"/>
+        <result property="wonTreatmentTotal" column="won_treatment_total"/>
+        <result property="receivedTotal" column="received_total"/>
+        <result property="currency" column="currency"/>
+        <result property="memberCount" column="member_count"/>
+    </resultMap>
+
+    <select id="selectFamilyLtvByAccountId" parameterType="String" resultMap="CrmFamilyLtvResult">
+        SELECT
+          (SELECT COALESCE(SUM(COALESCE(c.sign_amount, c.total_amount, c.amount, 0)), 0) FROM crm_contract c WHERE c.account_id = #{accountId}) AS contract_total,
+          (SELECT COALESCE(SUM(o.amount), 0) FROM crm_opty o
+             WHERE o.account_id = #{accountId}
+               AND EXISTS (
+                 SELECT 1 FROM sys_dict_data d
+                 WHERE d.dict_type = 'crm_opty_stage_closed_won' AND d.status = '0' AND d.dict_value = o.stage
+               )
+          ) AS won_treatment_total,
+          (SELECT COALESCE(SUM(c2.received_amount), 0) FROM crm_contract c2 WHERE c2.account_id = #{accountId}) AS received_total,
+          (SELECT COALESCE(NULLIF(TRIM(MAX(a.currency)), ''), 'CNY') FROM crm_account a WHERE a.account_id = #{accountId}) AS currency,
+          (SELECT COUNT(*)::integer FROM crm_contact cc WHERE cc.account_id = #{accountId}) AS member_count
+    </select>
+</mapper>

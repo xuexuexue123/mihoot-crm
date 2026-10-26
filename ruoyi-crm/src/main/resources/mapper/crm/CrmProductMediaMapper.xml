@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmProductMediaMapper">
+
+    <resultMap id="CrmProductMediaResult" type="com.ruoyi.crm.domain.CrmProductMedia">
+        <result property="mediaId" column="media_id"/>
+        <result property="productId" column="product_id"/>
+        <result property="mediaType" column="media_type"/>
+        <result property="url" column="url"/>
+        <result property="fileName" column="file_name"/>
+        <result property="mimeType" column="mime_type"/>
+        <result property="isCover" column="is_cover"/>
+        <result property="sortOrder" column="sort_order"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="delFlag" column="del_flag"/>
+    </resultMap>
+
+    <select id="selectByProductId" resultMap="CrmProductMediaResult">
+        select media_id, product_id, media_type, url, file_name, mime_type, is_cover, sort_order,
+               create_by, create_time, update_by, update_time, del_flag
+        from crm_product_media
+        where product_id = #{productId} and del_flag = '0'
+        order by is_cover desc, sort_order asc, create_time asc
+    </select>
+
+    <insert id="insert" parameterType="com.ruoyi.crm.domain.CrmProductMedia">
+        insert into crm_product_media (
+            media_id, product_id, media_type, url, file_name, mime_type, is_cover, sort_order,
+            create_by, create_time, update_by, update_time, del_flag
+        ) values (
+            #{mediaId}, #{productId}, #{mediaType}, #{url}, #{fileName}, #{mimeType}, #{isCover}, #{sortOrder},
+            #{createBy}, #{createTime}, #{updateBy}, #{updateTime}, #{delFlag}
+        )
+    </insert>
+
+    <update id="update" parameterType="com.ruoyi.crm.domain.CrmProductMedia">
+        update crm_product_media
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="mediaType != null">media_type = #{mediaType},</if>
+            <if test="url != null">url = #{url},</if>
+            <if test="fileName != null">file_name = #{fileName},</if>
+            <if test="mimeType != null">mime_type = #{mimeType},</if>
+            <if test="isCover != null">is_cover = #{isCover},</if>
+            <if test="sortOrder != null">sort_order = #{sortOrder},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where media_id = #{mediaId} and del_flag = '0'
+    </update>
+
+    <update id="logicalDeleteByProductId">
+        update crm_product_media
+        set del_flag = '1', update_by = #{updateBy}, update_time = CURRENT_TIMESTAMP
+        where product_id = #{productId} and del_flag = '0'
+    </update>
+
+    <update id="logicalDelete">
+        update crm_product_media
+        set del_flag = '1', update_by = #{updateBy}, update_time = CURRENT_TIMESTAMP
+        where media_id = #{mediaId} and del_flag = '0'
+    </update>
+
+    <update id="clearCoverByProductId">
+        update crm_product_media set is_cover = '0'
+        where product_id = #{productId} and del_flag = '0'
+    </update>
+</mapper>

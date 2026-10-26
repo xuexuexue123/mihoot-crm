@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.tenant.mapper.SysWhatsappPhoneTenantMapper">
+
+    <resultMap type="com.ruoyi.tenant.domain.SysWhatsappPhoneTenant" id="SysWhatsappPhoneTenantResult">
+        <result property="phoneNumberId" column="phone_number_id"/>
+        <result property="tenant" column="tenant"/>
+    </resultMap>
+
+    <select id="selectByPhoneNumberId" resultMap="SysWhatsappPhoneTenantResult">
+        SELECT phone_number_id, tenant FROM sys_whatsapp_phone_tenant WHERE phone_number_id = #{phoneNumberId}
+    </select>
+
+    <select id="selectAll" resultMap="SysWhatsappPhoneTenantResult">
+        SELECT phone_number_id, tenant FROM sys_whatsapp_phone_tenant
+    </select>
+
+    <delete id="deleteByTenant">
+        DELETE FROM sys_whatsapp_phone_tenant WHERE tenant = #{tenant}
+    </delete>
+
+    <insert id="insert" parameterType="com.ruoyi.tenant.domain.SysWhatsappPhoneTenant">
+        INSERT INTO sys_whatsapp_phone_tenant (phone_number_id, tenant) VALUES (#{phoneNumberId}, #{tenant})
+    </insert>
+</mapper>

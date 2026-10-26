@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmRespondentsMapper">
+    
+    <resultMap type="CrmRespondents" id="CrmRespondentsResult">
+        <result property="id"    column="id"    />
+        <result property="relateId"    column="relate_id"    />
+        <result property="relateName"    column="relate_name"    />
+        <result property="contactId"    column="contact_id"    />
+        <result property="sessionId"    column="session_id"    />
+        <result property="metadata"    column="metadata"    />
+        <result property="description"    column="description"    />
+        <result property="status"    column="status"    />
+        <result property="surveyJson"    column="survey_json"    />
+        <result property="startedAt"    column="started_at"    />
+        <result property="completedAt"    column="completed_at"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectCrmRespondentsVo">
+        select id, relate_id, relate_name, contact_id, session_id, metadata, description, status, survey_json, started_at, completed_at, create_by, create_time, update_by, update_time from crm_respondents
+    </sql>
+
+    <select id="selectCrmRespondentsList" parameterType="CrmRespondents" resultMap="CrmRespondentsResult">
+        <include refid="selectCrmRespondentsVo"/>
+        <where>  
+            <if test="relateId != null  and relateId != ''"> and relate_id = #{relateId}</if>
+            <if test="relateName != null  and relateName != ''"> and relate_name like concat('%', #{relateName}, '%')</if>
+            <if test="contactId != null  and contactId != ''"> and contact_id = #{contactId}</if>
+            <if test="sessionId != null  and sessionId != ''"> and session_id = #{sessionId}</if>
+            <if test="metadata != null  and metadata != ''"> and metadata = CAST(NULLIF(TRIM(#{metadata}), '') AS jsonb)</if>
+            <if test="description != null  and description != ''"> and description = #{description}</if>
+            <if test="status != null  and status != ''"> and status = #{status}</if>
+            <if test="surveyJson != null  and surveyJson != ''"> and survey_json = CAST(NULLIF(TRIM(#{surveyJson}), '') AS jsonb)</if>
+            <if test="startedAt != null "> and started_at = #{startedAt}</if>
+            <if test="completedAt != null "> and completed_at = #{completedAt}</if>
+        </where>
+        order by completed_at desc nulls last, create_time desc
+    </select>
+    
+    <select id="selectCrmRespondentsById" parameterType="String" resultMap="CrmRespondentsResult">
+        <include refid="selectCrmRespondentsVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertCrmRespondents" parameterType="CrmRespondents">
+        insert into crm_respondents
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">id,</if>
+            <if test="relateId != null">relate_id,</if>
+            <if test="relateName != null">relate_name,</if>
+            <if test="contactId != null">contact_id,</if>
+            <if test="sessionId != null">session_id,</if>
+            <if test="metadata != null">metadata,</if>
+            <if test="description != null">description,</if>
+            <if test="status != null">status,</if>
+            <if test="surveyJson != null">survey_json,</if>
+            <if test="startedAt != null">started_at,</if>
+            <if test="completedAt != null">completed_at,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">#{id},</if>
+            <if test="relateId != null">#{relateId},</if>
+            <if test="relateName != null">#{relateName},</if>
+            <if test="contactId != null">#{contactId},</if>
+            <if test="sessionId != null">#{sessionId},</if>
+            <if test="metadata != null">CAST(NULLIF(TRIM(#{metadata}), '') AS jsonb),</if>
+            <if test="description != null">#{description},</if>
+            <if test="status != null">#{status},</if>
+            <if test="surveyJson != null">CAST(NULLIF(TRIM(#{surveyJson}), '') AS jsonb),</if>
+            <if test="startedAt != null">#{startedAt},</if>
+            <if test="completedAt != null">#{completedAt},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateCrmRespondents" parameterType="CrmRespondents">
+        update crm_respondents
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="relateId != null">relate_id = #{relateId},</if>
+            <if test="relateName != null">relate_name = #{relateName},</if>
+            <if test="contactId != null">contact_id = #{contactId},</if>
+            <if test="sessionId != null">session_id = #{sessionId},</if>
+            <if test="metadata != null">metadata = CAST(NULLIF(TRIM(#{metadata}), '') AS jsonb),</if>
+            <if test="description != null">description = #{description},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="surveyJson != null">survey_json = CAST(NULLIF(TRIM(#{surveyJson}), '') AS jsonb),</if>
+            <if test="startedAt != null">started_at = #{startedAt},</if>
+            <if test="completedAt != null">completed_at = #{completedAt},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteCrmRespondentsById" parameterType="String">
+        delete from crm_respondents where id = #{id}
+    </delete>
+
+    <delete id="deleteCrmRespondentsByIds" parameterType="String">
+        delete from crm_respondents where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <select id="countByRelateId" resultType="long">
+        SELECT COUNT(*) FROM crm_respondents WHERE relate_id = #{relateId}
+    </select>
+</mapper>

@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.WWorkflowMapper">
+    
+    <resultMap type="WWorkflow" id="WWorkflowResult">
+        <result property="id"    column="id"    />
+        <result property="name"    column="name"    />
+        <result property="createdAt"    column="created_at"    />
+        <result property="updatedAt"    column="updated_at"    />
+        <result property="userId"    column="user_id"    />
+        <result property="organizationId"    column="organization_id"    />
+        <result property="publishAssistant"    column="publish_assistant"    />
+        <result property="publishSidebar"    column="publish_sidebar"    />
+        <result property="isTemplate"    column="is_template"    />
+        <result property="description"    column="description"    />
+    </resultMap>
+
+    <sql id="selectWWorkflowVo">
+        select id, name, created_at, updated_at, user_id, organization_id, publish_assistant, publish_sidebar, is_template, description from w_workflow
+    </sql>
+
+    <select id="selectWWorkflowList" parameterType="WWorkflow" resultMap="WWorkflowResult">
+        <include refid="selectWWorkflowVo"/>
+        <where>  
+            <if test="name != null  and name != ''"> and name like concat('%', #{name}, '%')</if>
+            <if test="createdAt != null "> and created_at = #{createdAt}</if>
+            <if test="updatedAt != null "> and updated_at = #{updatedAt}</if>
+            <if test="userId != null  and userId != ''"> and user_id = #{userId}</if>
+            <if test="organizationId != null  and organizationId != ''"> and organization_id = #{organizationId}</if>
+            <if test="publishAssistant != null"> and publish_assistant = #{publishAssistant}</if>
+            <if test="publishSidebar != null"> and publish_sidebar = #{publishSidebar}</if>
+            <if test="isTemplate != null"> and is_template = #{isTemplate}</if>
+        </where>
+    </select>
+    
+    <select id="selectWWorkflowById" parameterType="String" resultMap="WWorkflowResult">
+        <include refid="selectWWorkflowVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertWWorkflow" parameterType="WWorkflow">
+        insert into w_workflow
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null and id != ''">id,</if>
+            <if test="name != null and name != ''">name,</if>
+            <if test="userId != null and userId != ''">user_id,</if>
+            <if test="organizationId != null and organizationId != ''">organization_id,</if>
+            <if test="publishAssistant != null">publish_assistant,</if>
+            <if test="publishSidebar != null">publish_sidebar,</if>
+            <if test="isTemplate != null">is_template,</if>
+            <if test="description != null">description,</if>
+            created_at,
+            updated_at,
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null and id != ''">#{id},</if>
+            <if test="name != null and name != ''">#{name},</if>
+            <if test="userId != null and userId != ''">#{userId},</if>
+            <if test="organizationId != null and organizationId != ''">#{organizationId},</if>
+            <if test="publishAssistant != null">#{publishAssistant},</if>
+            <if test="publishSidebar != null">#{publishSidebar},</if>
+            <if test="isTemplate != null">#{isTemplate},</if>
+            <if test="description != null">#{description},</if>
+            <choose>
+                <when test="createdAt != null">#{createdAt},</when>
+                <otherwise>now(),</otherwise>
+            </choose>
+            <choose>
+                <when test="updatedAt != null">#{updatedAt},</when>
+                <otherwise>now(),</otherwise>
+            </choose>
+         </trim>
+    </insert>
+
+    <update id="updateWWorkflow" parameterType="WWorkflow">
+        update w_workflow
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="name != null and name != ''">name = #{name},</if>
+            <if test="userId != null and userId != ''">user_id = #{userId},</if>
+            <if test="organizationId != null">organization_id = #{organizationId},</if>
+            <if test="publishAssistant != null">publish_assistant = #{publishAssistant},</if>
+            <if test="publishSidebar != null">publish_sidebar = #{publishSidebar},</if>
+            <if test="isTemplate != null">is_template = #{isTemplate},</if>
+            <if test="description != null">description = #{description},</if>
+            <choose>
+                <when test="updatedAt != null">updated_at = #{updatedAt},</when>
+                <otherwise>updated_at = now(),</otherwise>
+            </choose>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <update id="updateWWorkflowPublishFlags" parameterType="WWorkflow">
+        update w_workflow
+        set publish_assistant = #{publishAssistant},
+            publish_sidebar = #{publishSidebar},
+            updated_at = now()
+        where id = #{id}
+    </update>
+
+    <update id="updateWWorkflowTemplateFlag" parameterType="WWorkflow">
+        update w_workflow
+        set is_template = #{isTemplate},
+            publish_assistant = #{publishAssistant},
+            publish_sidebar = #{publishSidebar},
+            updated_at = now()
+        where id = #{id}
+    </update>
+
+    <update id="updateWWorkflowName" parameterType="WWorkflow">
+        update w_workflow
+        set name = #{name},
+            updated_at = now()
+        where id = #{id}
+    </update>
+
+    <update id="updateWWorkflowMeta" parameterType="WWorkflow">
+        update w_workflow
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="name != null and name != ''">name = #{name},</if>
+            <if test="description != null">description = #{description},</if>
+            updated_at = now(),
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteWWorkflowById" parameterType="String">
+        delete from w_workflow where id = #{id}
+    </delete>
+
+    <delete id="deleteWWorkflowByIds" parameterType="String">
+        delete from w_workflow where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

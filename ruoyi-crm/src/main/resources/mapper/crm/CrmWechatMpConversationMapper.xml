@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.wechatmp.mapper.CrmWechatMpConversationMapper">
+
+    <resultMap id="ConvResult" type="com.ruoyi.crm.wechatmp.domain.CrmWechatMpConversation">
+        <id property="id" column="id"/>
+        <result property="appId" column="app_id"/>
+        <result property="openId" column="open_id"/>
+        <result property="nickname" column="nickname"/>
+        <result property="avatarUrl" column="avatar_url"/>
+        <result property="lastMessage" column="last_message"/>
+        <result property="lastMessageAt" column="last_message_at"/>
+        <result property="lastCustomerMessageAt" column="last_customer_message_at"/>
+        <result property="messageCount" column="message_count"/>
+        <result property="unreadCount" column="unread_count"/>
+        <result property="userId" column="user_id"/>
+        <result property="owner" column="owner"/>
+        <result property="assignedAt" column="assigned_at"/>
+        <result property="hostedByAi" column="hosted_by_ai"/>
+        <result property="contactId" column="contact_id"/>
+        <result property="leadId" column="lead_id"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="accountName" column="account_name"/>
+        <result property="accountType" column="account_type"/>
+        <result property="contactName" column="contact_name"/>
+        <result property="leadName" column="lead_name"/>
+    </resultMap>
+
+    <sql id="selectColumns">
+        cv.id, cv.app_id, cv.open_id, cv.nickname, cv.avatar_url,
+        cv.last_message, cv.last_message_at, cv.last_customer_message_at,
+        cv.message_count, cv.unread_count, cv.user_id, cv.owner, cv.assigned_at,
+        cv.hosted_by_ai, cv.contact_id, cv.lead_id, cv.create_time, cv.update_time,
+        cfg.account_name, cfg.account_type,
+        c.name AS contact_name,
+        COALESCE(l.lead_name, l.full_name) AS lead_name
+    </sql>
+
+    <sql id="fromJoins">
+        FROM crm_wechat_mp_conversation cv
+        LEFT JOIN crm_wechat_mp_config cfg ON cfg.app_id = cv.app_id
+        LEFT JOIN crm_contact c ON c.contact_id = cv.contact_id
+        LEFT JOIN crm_lead l ON l.lead_id = cv.lead_id
+    </sql>
+
+    <select id="selectPage" parameterType="com.ruoyi.crm.wechatmp.dto.WechatMpConversationQuery"
+            resultMap="ConvResult">
+        SELECT <include refid="selectColumns"/>
+        <include refid="fromJoins"/>
+        <if test="scope != null and scope == 'team'">
+            LEFT JOIN sys_user u ON u.user_id = cv.user_id
+            LEFT JOIN sys_dept d ON u.dept_id = d.dept_id
+        </if>
+        <where>
+            <choose>
+                <when test="legacyAll">
+                    <!-- 旧营销页：仅按 app 过滤，不按归属 -->
+                </when>
+                <when test="scope != null and scope == 'open'">
+                    AND cv.user_id IS NULL
+                </when>
+                <when test="scope != null and scope == 'mine'">
+                    AND cv.user_id = #{currentUserId}
+                </when>
+                <when test="scope != null and scope == 'team'">
+                    AND cv.user_id IS NOT NULL
+                    AND cv.user_id &lt;&gt; #{currentUserId}
+                    ${params.dataScope}
+                </when>
+            </choose>
+            <if test="appId != null and appId != ''">
+                AND cv.app_id = #{appId}
+            </if>
+            <if test="appIds != null and appIds.size() &gt; 0">
+                AND cv.app_id IN
+                <foreach collection="appIds" item="aid" open="(" separator="," close=")">
+                    #{aid}
+                </foreach>
+            </if>
+            <if test="keyword != null and keyword != ''">
+                AND (
+                    cv.nickname ILIKE '%' || #{keyword} || '%'
+                    OR cv.open_id ILIKE '%' || #{keyword} || '%'
+                    OR c.name ILIKE '%' || #{keyword} || '%'
+                    OR cfg.account_name ILIKE '%' || #{keyword} || '%'
+                )
+            </if>
+            <if test="conversationId != null">
+                AND cv.id = #{conversationId}
+            </if>
+        </where>
+        ORDER BY cv.last_message_at DESC NULLS LAST
+    </select>
+
+    <select id="countInScope" parameterType="com.ruoyi.crm.wechatmp.dto.WechatMpConversationQuery"
+            resultType="int">
+        SELECT COUNT(1)
+        FROM crm_wechat_mp_conversation cv
+        <if test="scope != null and scope == 'team'">
+            LEFT JOIN sys_user u ON u.user_id = cv.user_id
+            LEFT JOIN sys_dept d ON u.dept_id = d.dept_id
+        </if>
+        <where>
+            <if test="scope != null and scope == 'team'">
+                AND cv.user_id IS NOT NULL
+                AND cv.user_id &lt;&gt; #{currentUserId}
+                ${params.dataScope}
+            </if>
+            <if test="conversationId != null">
+                AND cv.id = #{conversationId}
+            </if>
+        </where>
+    </select>
+
+    <select id="selectById" resultMap="ConvResult">
+        SELECT <include refid="selectColumns"/>
+        <include refid="fromJoins"/>
+        WHERE cv.id = #{id}
+    </select>
+
+    <select id="selectByIdForUpdate" resultMap="ConvResult">
+        SELECT id, app_id, open_id, nickname, avatar_url,
+               last_message, last_message_at, last_customer_message_at,
+               message_count, unread_count, user_id, owner, assigned_at,
+               hosted_by_ai, contact_id, lead_id, create_time, update_time
+        FROM crm_wechat_mp_conversation
+        WHERE id = #{id}
+        FOR UPDATE
+    </select>
+
+    <select id="selectByAppOpenId" resultMap="ConvResult">
+        SELECT <include refid="selectColumns"/>
+        <include refid="fromJoins"/>
+        WHERE cv.app_id = #{appId} AND cv.open_id = #{openId}
+        LIMIT 1
+    </select>
+
+    <insert id="upsertOnInbound" parameterType="com.ruoyi.crm.wechatmp.domain.CrmWechatMpConversation"
+            useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO crm_wechat_mp_conversation (
+            app_id, open_id, nickname, avatar_url,
+            last_message, last_message_at, last_customer_message_at,
+            message_count, unread_count, contact_id, create_time, update_time
+        ) VALUES (
+            #{appId}, #{openId}, #{nickname}, #{avatarUrl},
+            #{lastMessage}, #{lastMessageAt}, #{lastCustomerMessageAt},
+            COALESCE(#{messageCount}, 1), COALESCE(#{unreadCount}, 1), #{contactId},
+            now(), now()
+        )
+        ON CONFLICT (app_id, open_id) DO UPDATE SET
+            nickname = COALESCE(EXCLUDED.nickname, crm_wechat_mp_conversation.nickname),
+            avatar_url = COALESCE(EXCLUDED.avatar_url, crm_wechat_mp_conversation.avatar_url),
+            last_message = EXCLUDED.last_message,
+            last_message_at = EXCLUDED.last_message_at,
+            last_customer_message_at = EXCLUDED.last_customer_message_at,
+            message_count = crm_wechat_mp_conversation.message_count + 1,
+            unread_count = crm_wechat_mp_conversation.unread_count + 1,
+            contact_id = COALESCE(EXCLUDED.contact_id, crm_wechat_mp_conversation.contact_id),
+            update_time = now()
+    </insert>
+
+    <insert id="upsertOnOutbound" parameterType="com.ruoyi.crm.wechatmp.domain.CrmWechatMpConversation"
+            useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO crm_wechat_mp_conversation (
+            app_id, open_id, nickname, avatar_url,
+            last_message, last_message_at,
+            message_count, unread_count, contact_id, create_time, update_time
+        ) VALUES (
+            #{appId}, #{openId}, #{nickname}, #{avatarUrl},
+            #{lastMessage}, #{lastMessageAt},
+            0, 0, #{contactId}, now(), now()
+        )
+        ON CONFLICT (app_id, open_id) DO UPDATE SET
+            nickname = COALESCE(EXCLUDED.nickname, crm_wechat_mp_conversation.nickname),
+            avatar_url = COALESCE(EXCLUDED.avatar_url, crm_wechat_mp_conversation.avatar_url),
+            last_message = EXCLUDED.last_message,
+            last_message_at = EXCLUDED.last_message_at,
+            contact_id = COALESCE(EXCLUDED.contact_id, crm_wechat_mp_conversation.contact_id),
+            update_time = now()
+    </insert>
+
+    <update id="clearUnread">
+        UPDATE crm_wechat_mp_conversation
+        SET unread_count = 0, update_time = now()
+        WHERE id = #{id}
+    </update>
+
+    <update id="updateAssignment">
+        UPDATE crm_wechat_mp_conversation
+        SET user_id = #{userId},
+            owner = #{owner},
+            assigned_at = #{assignedAt},
+            update_time = now()
+        WHERE id = #{id}
+    </update>
+
+    <update id="clearAssignment">
+        UPDATE crm_wechat_mp_conversation
+        SET user_id = NULL,
+            owner = NULL,
+            assigned_at = NULL,
+            update_time = now()
+        WHERE id = #{id}
+    </update>
+
+    <update id="updateHostedByAi">
+        UPDATE crm_wechat_mp_conversation
+        SET hosted_by_ai = #{hostedByAi,jdbcType=BOOLEAN},
+            update_time = now()
+        WHERE id = #{id}
+    </update>
+
+    <update id="updateLeadId">
+        UPDATE crm_wechat_mp_conversation
+        SET lead_id = #{leadId}, update_time = now()
+        WHERE id = #{id}
+    </update>
+
+    <update id="updateContactId">
+        UPDATE crm_wechat_mp_conversation
+        SET contact_id = #{contactId}, update_time = now()
+        WHERE app_id = #{appId} AND open_id = #{openId}
+    </update>
+
+    <update id="updateProfile">
+        UPDATE crm_wechat_mp_conversation
+        SET nickname = COALESCE(#{nickname}, nickname),
+            avatar_url = COALESCE(#{avatarUrl}, avatar_url),
+            update_time = now()
+        WHERE app_id = #{appId} AND open_id = #{openId}
+    </update>
+</mapper>

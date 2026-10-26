@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.ems.mapper.SysReDtitemMapper">
+    
+    <resultMap type="SysReDtitem" id="SysReDtitemResult">
+        <result property="pyId"    column="py_id"    />
+        <result property="dtId"    column="dt_id"    />
+        <result property="parentId"    column="parent_id"    />
+        <result property="pySort"    column="py_sort"    />
+        <result property="pyLabel"    column="py_label"    />
+        <result property="pyName"    column="py_name"    />
+        <result property="action"    column="action"    />
+        <result property="target"    column="target"    />
+        <result property="relation"    column="relation"    />
+        <result property="source"    column="source"    />
+        <result property="caseTypeId"    column="case_type_id"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectSysReDtitemVo">
+        select py_id, dt_id, parent_id, py_sort, py_label, py_name, action, target, relation, source, case_type_id, create_by, create_time, update_by, update_time from sys_re_dtitem
+    </sql>
+
+    <select id="selectSysReDtitemList" parameterType="SysReDtitem" resultMap="SysReDtitemResult">
+        <include refid="selectSysReDtitemVo"/>
+        <where>  
+            <if test="dtId != null "> and dt_id = #{dtId}</if>
+        </where>
+        order by py_sort
+    </select>
+    
+    <select id="selectSysReDtitemByPyId" parameterType="String" resultMap="SysReDtitemResult">
+        <include refid="selectSysReDtitemVo"/>
+        where py_id = #{pyId}
+    </select>
+        
+    <insert id="insertSysReDtitem" parameterType="SysReDtitem" keyProperty="pyId">
+        insert into sys_re_dtitem
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="pyId != null">py_id,</if>
+            <if test="dtId != null">dt_id,</if>
+            <if test="parentId != null">parent_id,</if>
+            <if test="pySort != null">py_sort,</if>
+            <if test="pyLabel != null">py_label,</if>
+            <if test="pyName != null">py_name,</if>
+            <if test="action != null">action,</if>
+            <if test="target != null">target,</if>
+            <if test="relation != null">relation,</if>
+            <if test="source != null">source,</if>
+            <if test="caseTypeId != null">case_type_id,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="pyId != null">#{pyId},</if>
+            <if test="dtId != null">#{dtId},</if>
+            <if test="parentId != null">#{parentId},</if>
+            <if test="pySort != null">#{pySort},</if>
+            <if test="pyLabel != null">#{pyLabel},</if>
+            <if test="pyName != null">#{pyName},</if>
+            <if test="action != null">#{action},</if>
+            <if test="target != null">#{target},</if>
+            <if test="relation != null">#{relation},</if>
+            <if test="source != null">#{source},</if>
+            <if test="caseTypeId != null">#{caseTypeId},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateSysReDtitem" parameterType="SysReDtitem">
+        update sys_re_dtitem
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="dtId != null">dt_id = #{dtId},</if>
+            <if test="parentId != null">parent_id = #{parentId},</if>
+            <if test="pySort != null">py_sort = #{pySort},</if>
+            <if test="pyLabel != null">py_label = #{pyLabel},</if>
+            <if test="pyName != null">py_name = #{pyName},</if>
+            <if test="action != null">action = #{action},</if>
+            <if test="target != null">target = #{target},</if>
+            <if test="relation != null">relation = #{relation},</if>
+            <if test="source != null">source = #{source},</if>
+            <if test="caseTypeId != null">case_type_id = #{caseTypeId},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where py_id = #{pyId}
+    </update>
+
+    <delete id="deleteSysReDtitemByPyId" parameterType="String">
+        delete from sys_re_dtitem where py_id = #{pyId}
+    </delete>
+
+    <delete id="deleteSysReDtitemByDtId" parameterType="Long">
+        delete from sys_re_dtitem where dt_id = #{dtId}
+    </delete>
+
+    <delete id="deleteSysReDtitemByPyIds" parameterType="String">
+        delete from sys_re_dtitem where py_id in 
+        <foreach item="pyId" collection="array" open="(" separator="," close=")">
+            #{pyId}
+        </foreach>
+    </delete>
+
+    <insert id="batchSysReDtitemList">
+        insert into sys_re_dtitem( py_id, dt_id, parent_id, py_sort, py_label, py_name, action, target, relation, source, case_type_id, create_by, create_time, update_by, update_time) values
+        <foreach item="item" index="index" collection="list" separator=",">
+            ( #{item.pyId}, #{item.dtId}, #{item.parentId}, #{item.pySort}, #{item.pyLabel}, #{item.pyName}, #{item.action}, #{item.target}, #{item.relation},  #{item.source}, #{item.caseTypeId}, #{item.createBy}, #{item.createTime}, #{item.updateBy}, #{item.updateTime})
+        </foreach>
+    </insert>
+
+</mapper>

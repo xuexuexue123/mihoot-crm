@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.wechatmp.mapper.CrmWechatMpArticleStatMapper">
+
+    <resultMap id="ArticleStatResult" type="com.ruoyi.crm.wechatmp.domain.CrmWechatMpArticleStat">
+        <id property="id" column="id"/>
+        <result property="appId" column="app_id"/>
+        <result property="articleId" column="article_id"/>
+        <result property="indexInMsg" column="index_in_msg"/>
+        <result property="refDate" column="ref_date"/>
+        <result property="statDate" column="stat_date"/>
+        <result property="readUser" column="read_user"/>
+        <result property="shareUser" column="share_user"/>
+        <result property="zaikanUser" column="zaikan_user"/>
+        <result property="likeUser" column="like_user"/>
+        <result property="commentCount" column="comment_count"/>
+        <result property="collectionUser" column="collection_user"/>
+        <result property="praiseMoney" column="praise_money"/>
+        <result property="readSubscribeUser" column="read_subscribe_user"/>
+        <result property="readDeliveryRate" column="read_delivery_rate"/>
+        <result property="readFinishRate" column="read_finish_rate"/>
+        <result property="readAvgActivetime" column="read_avg_activetime"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+    </resultMap>
+
+    <insert id="batchUpsert">
+        INSERT INTO crm_wechat_mp_article_stat (
+            app_id, article_id, index_in_msg, ref_date, stat_date,
+            read_user, share_user, zaikan_user, like_user, comment_count,
+            collection_user, praise_money, read_subscribe_user,
+            read_delivery_rate, read_finish_rate, read_avg_activetime
+        ) VALUES
+        <foreach collection="list" item="row" separator=",">
+        (
+            #{row.appId}, #{row.articleId}, #{row.indexInMsg},
+            #{row.refDate}, #{row.statDate},
+            #{row.readUser}, #{row.shareUser}, #{row.zaikanUser},
+            #{row.likeUser}, #{row.commentCount},
+            #{row.collectionUser}, #{row.praiseMoney},
+            #{row.readSubscribeUser},
+            #{row.readDeliveryRate}, #{row.readFinishRate},
+            #{row.readAvgActivetime}
+        )
+        </foreach>
+        ON CONFLICT (article_id, index_in_msg, stat_date) DO UPDATE SET
+            read_user = EXCLUDED.read_user,
+            share_user = EXCLUDED.share_user,
+            zaikan_user = EXCLUDED.zaikan_user,
+            like_user = EXCLUDED.like_user,
+            comment_count = EXCLUDED.comment_count,
+            collection_user = EXCLUDED.collection_user,
+            praise_money = EXCLUDED.praise_money,
+            read_subscribe_user = EXCLUDED.read_subscribe_user,
+            read_delivery_rate = EXCLUDED.read_delivery_rate,
+            read_finish_rate = EXCLUDED.read_finish_rate,
+            read_avg_activetime = EXCLUDED.read_avg_activetime,
+            updated_at = now()
+    </insert>
+
+    <select id="selectByArticleAndDateRange" resultMap="ArticleStatResult">
+        SELECT * FROM crm_wechat_mp_article_stat
+        WHERE article_id = #{articleId}
+            AND index_in_msg = #{indexInMsg}
+            AND stat_date &gt;= #{beginDate}::date
+            AND stat_date &lt;= #{endDate}::date
+        ORDER BY stat_date ASC
+    </select>
+
+    <select id="selectAggregatedByAppId" resultType="java.util.HashMap">
+        SELECT
+            article_id || ':' || index_in_msg AS stat_key,
+            SUM(read_user)                    AS total_read,
+            SUM(share_user)                   AS total_share,
+            SUM(zaikan_user + like_user)      AS total_like,
+            SUM(comment_count)                AS total_comment,
+            SUM(collection_user)              AS total_collect
+        FROM crm_wechat_mp_article_stat
+        WHERE app_id = #{appId}
+        GROUP BY article_id, index_in_msg
+    </select>
+
+</mapper>

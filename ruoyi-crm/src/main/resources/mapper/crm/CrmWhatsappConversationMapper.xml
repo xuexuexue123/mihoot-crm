@@ -1,0 +1,256 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmWhatsappConversationMapper">
+
+    <resultMap id="CrmWhatsappConversationResult" type="com.ruoyi.crm.domain.CrmWhatsappConversation">
+        <id property="id" column="id"/>
+        <result property="tenantId" column="tenant_id"/>
+        <result property="waId" column="wa_id"/>
+        <result property="phoneNumber" column="phone_number"/>
+        <result property="contactId" column="contact_id"/>
+        <result property="leadId" column="lead_id"/>
+        <result property="phoneNumberId" column="phone_number_id"/>
+        <result property="lastMessageAt" column="last_message_at"/>
+        <result property="lastMessagePreview" column="last_message_preview"/>
+        <result property="lastCustomerMessageAt" column="last_customer_message_at"/>
+        <result property="lastOutboundAt" column="last_outbound_at"/>
+        <result property="unreadCount" column="unread_count"/>
+        <result property="status" column="status"/>
+        <result property="userId" column="user_id"/>
+        <result property="owner" column="owner"/>
+        <result property="assignedAt" column="assigned_at"/>
+        <result property="hostedByAi" column="hosted_by_ai"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <sql id="selectColumns">
+        cv.id, cv.tenant_id, cv.wa_id, cv.phone_number, cv.contact_id, cv.lead_id,
+        cv.phone_number_id, cv.last_message_at, cv.last_message_preview,
+        cv.last_customer_message_at, cv.last_outbound_at, cv.unread_count,
+        cv.status, cv.user_id, cv.owner, cv.assigned_at, cv.hosted_by_ai,
+        cv.create_time, cv.update_time
+    </sql>
+
+    <select id="selectPage" parameterType="com.ruoyi.crm.domain.dto.CrmWhatsappConversationQuery"
+            resultMap="CrmWhatsappConversationResult">
+        SELECT <include refid="selectColumns"/>
+        FROM crm_whatsapp_conversation cv
+        <if test="scope != null and scope == 'team'">
+            LEFT JOIN sys_user u ON u.user_id = cv.user_id
+            LEFT JOIN sys_dept d ON u.dept_id = d.dept_id
+        </if>
+        <where>
+            cv.tenant_id = #{tenantId}
+            <choose>
+                <when test="scope != null and scope == 'open'">
+                    AND cv.user_id IS NULL
+                    AND cv.status &lt;&gt; 'blocked'
+                </when>
+                <when test="scope != null and scope == 'mine'">
+                    AND cv.user_id = #{currentUserId}
+                    AND cv.status &lt;&gt; 'blocked'
+                </when>
+                <when test="scope != null and scope == 'team'">
+                    AND cv.user_id IS NOT NULL
+                    AND cv.status &lt;&gt; 'blocked'
+                    ${params.dataScope}
+                </when>
+                <otherwise>
+                    <if test="status != null and status != ''">
+                        AND cv.status = #{status}
+                    </if>
+                </otherwise>
+            </choose>
+            <if test="phoneNumberId != null and phoneNumberId != ''">
+                AND cv.phone_number_id = #{phoneNumberId}
+            </if>
+            <if test="keyword != null and keyword != ''">
+                AND (cv.wa_id ILIKE '%' || #{keyword} || '%'
+                    OR cv.phone_number ILIKE '%' || #{keyword} || '%'
+                    OR cv.owner ILIKE '%' || #{keyword} || '%')
+            </if>
+            <if test="conversationId != null">
+                AND cv.id = #{conversationId}
+            </if>
+        </where>
+        ORDER BY cv.last_message_at DESC NULLS LAST
+    </select>
+
+    <select id="countInScope" parameterType="com.ruoyi.crm.domain.dto.CrmWhatsappConversationQuery"
+            resultType="int">
+        SELECT COUNT(1)
+        FROM crm_whatsapp_conversation cv
+        <if test="scope != null and scope == 'team'">
+            LEFT JOIN sys_user u ON u.user_id = cv.user_id
+            LEFT JOIN sys_dept d ON u.dept_id = d.dept_id
+        </if>
+        <where>
+            cv.tenant_id = #{tenantId}
+            <if test="scope != null and scope == 'team'">
+                AND cv.user_id IS NOT NULL
+                AND cv.status &lt;&gt; 'blocked'
+                ${params.dataScope}
+            </if>
+            <if test="conversationId != null">
+                AND cv.id = #{conversationId}
+            </if>
+        </where>
+    </select>
+
+    <select id="selectById" resultMap="CrmWhatsappConversationResult">
+        SELECT id, tenant_id, wa_id, phone_number, contact_id, lead_id,
+               phone_number_id, last_message_at, last_message_preview,
+               last_customer_message_at, last_outbound_at, unread_count,
+               status, user_id, owner, assigned_at, hosted_by_ai,
+               create_time, update_time
+        FROM crm_whatsapp_conversation
+        WHERE id = #{id}
+    </select>
+
+    <select id="selectByIdForUpdate" resultMap="CrmWhatsappConversationResult">
+        SELECT id, tenant_id, wa_id, phone_number, contact_id, lead_id,
+               phone_number_id, last_message_at, last_message_preview,
+               last_customer_message_at, last_outbound_at, unread_count,
+               status, user_id, owner, assigned_at, hosted_by_ai,
+               create_time, update_time
+        FROM crm_whatsapp_conversation
+        WHERE id = #{id}
+        FOR UPDATE
+    </select>
+
+    <select id="selectByWaId" resultMap="CrmWhatsappConversationResult">
+        SELECT id, tenant_id, wa_id, phone_number, contact_id, lead_id,
+               phone_number_id, last_message_at, last_message_preview,
+               last_customer_message_at, last_outbound_at, unread_count,
+               status, user_id, owner, assigned_at, hosted_by_ai,
+               create_time, update_time
+        FROM crm_whatsapp_conversation
+        WHERE tenant_id = #{tenantId} AND wa_id = #{waId}
+        LIMIT 1
+    </select>
+
+    <insert id="upsertConversation" parameterType="com.ruoyi.crm.domain.CrmWhatsappConversation"
+            useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO crm_whatsapp_conversation (
+            tenant_id, wa_id, phone_number, contact_id, lead_id, phone_number_id,
+            last_message_at, last_message_preview, last_customer_message_at, last_outbound_at,
+            unread_count, status, create_time, update_time
+        ) VALUES (
+            #{tenantId}, #{waId}, #{phoneNumber}, #{contactId}, #{leadId}, #{phoneNumberId},
+            #{lastMessageAt}, #{lastMessagePreview}, #{lastCustomerMessageAt}, #{lastOutboundAt},
+            COALESCE(#{unreadCount}, 0), COALESCE(#{status}, 'active'), #{createTime}, #{updateTime}
+        )
+        ON CONFLICT (tenant_id, wa_id) DO UPDATE SET
+            phone_number = COALESCE(EXCLUDED.phone_number, crm_whatsapp_conversation.phone_number),
+            last_message_at = EXCLUDED.last_message_at,
+            last_message_preview = EXCLUDED.last_message_preview,
+            last_customer_message_at = COALESCE(EXCLUDED.last_customer_message_at, crm_whatsapp_conversation.last_customer_message_at),
+            last_outbound_at = COALESCE(EXCLUDED.last_outbound_at, crm_whatsapp_conversation.last_outbound_at),
+            unread_count = COALESCE(EXCLUDED.unread_count, crm_whatsapp_conversation.unread_count),
+            update_time = EXCLUDED.update_time
+    </insert>
+
+    <update id="updateContactId">
+        UPDATE crm_whatsapp_conversation
+        SET contact_id = #{contactId}, update_time = now()
+        WHERE tenant_id = #{tenantId} AND wa_id = #{waId}
+    </update>
+
+    <update id="updateLeadId">
+        UPDATE crm_whatsapp_conversation
+        SET lead_id = #{leadId}, update_time = now()
+        WHERE id = #{id} AND tenant_id = #{tenantId}
+    </update>
+
+    <update id="updateLastMessage" parameterType="com.ruoyi.crm.domain.CrmWhatsappConversation">
+        UPDATE crm_whatsapp_conversation
+        SET last_message_at = #{lastMessageAt},
+            last_message_preview = #{lastMessagePreview},
+            <if test="lastOutboundAt != null">
+                last_outbound_at = #{lastOutboundAt},
+            </if>
+            update_time = now()
+        WHERE id = #{id}
+    </update>
+
+    <update id="clearUnread">
+        UPDATE crm_whatsapp_conversation
+        SET unread_count = 0, update_time = now()
+        WHERE id = #{id} AND tenant_id = #{tenantId}
+    </update>
+
+    <update id="updateStatus">
+        UPDATE crm_whatsapp_conversation
+        SET status = #{status}, update_time = now()
+        WHERE id = #{id} AND tenant_id = #{tenantId}
+    </update>
+
+    <update id="updateAssignment">
+        UPDATE crm_whatsapp_conversation
+        SET user_id = #{userId},
+            owner = #{owner},
+            assigned_at = #{assignedAt},
+            update_time = now()
+        WHERE id = #{id} AND tenant_id = #{tenantId}
+    </update>
+
+    <update id="clearAssignment">
+        UPDATE crm_whatsapp_conversation
+        SET user_id = NULL,
+            owner = NULL,
+            assigned_at = NULL,
+            update_time = now()
+        WHERE id = #{id} AND tenant_id = #{tenantId}
+    </update>
+
+    <update id="updateHostedByAi">
+        UPDATE crm_whatsapp_conversation
+        SET hosted_by_ai = #{hostedByAi,jdbcType=BOOLEAN},
+            update_time = now()
+        WHERE id = #{id} AND tenant_id = #{tenantId}
+    </update>
+
+    <!--
+      时间窗内活跃或新建会话：
+      last_message_at / create_time 落入窗，或窗内有任意消息。
+      startTime/endTime 为毫秒 epoch；均为 null 时计全部。
+    -->
+    <select id="countActiveInWindow" resultType="long">
+        SELECT COUNT(DISTINCT c.id)
+        FROM crm_whatsapp_conversation c
+        WHERE c.tenant_id = #{tenantId}
+        <if test="phoneNumberId != null and phoneNumberId != ''">
+            AND c.phone_number_id = #{phoneNumberId}
+        </if>
+        <if test="startTime != null or endTime != null">
+            AND (
+                (
+                    c.last_message_at IS NOT NULL
+                    <if test="startTime != null">
+                        AND EXTRACT(EPOCH FROM c.last_message_at) * 1000 &gt;= #{startTime}
+                    </if>
+                    <if test="endTime != null">
+                        AND EXTRACT(EPOCH FROM c.last_message_at) * 1000 &lt;= #{endTime}
+                    </if>
+                )
+                OR (
+                    c.create_time IS NOT NULL
+                    <if test="startTime != null">
+                        AND EXTRACT(EPOCH FROM c.create_time) * 1000 &gt;= #{startTime}
+                    </if>
+                    <if test="endTime != null">
+                        AND EXTRACT(EPOCH FROM c.create_time) * 1000 &lt;= #{endTime}
+                    </if>
+                )
+                OR EXISTS (
+                    SELECT 1 FROM crm_whatsapp_message m
+                    WHERE m.conversation_id = c.id
+                      AND m.tenant_id = c.tenant_id
+                      <if test="startTime != null">AND m.send_time &gt;= #{startTime}</if>
+                      <if test="endTime != null">AND m.send_time &lt;= #{endTime}</if>
+                )
+            )
+        </if>
+    </select>
+</mapper>

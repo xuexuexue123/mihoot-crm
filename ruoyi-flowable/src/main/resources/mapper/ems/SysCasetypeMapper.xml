@@ -1,0 +1,280 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.ems.mapper.SysCasetypeMapper">
+
+    <resultMap type="SysCasetype" id="SysCasetypeResult">
+        <result property="id"    column="id"    />
+        <result property="caseTypeId"    column="case_type_id"    />
+        <result property="caseSort"    column="case_sort"    />
+        <result property="caseLabel"    column="case_label"    />
+        <result property="caseName"    column="case_name"    />
+        <result property="caseVersion"    column="case_version"    />
+        <result property="caseApplicationId"    column="case_application_id"    />
+        <result property="caseUrgency"    column="case_urgency"    />
+        <result property="casePrefix"    column="case_prefix"    />
+        <result property="caseIcon"    column="case_icon"    />
+        <result property="caseAvailability"    column="case_availability"    />
+        <result property="caseStatusWork"    column="case_status_work"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="caseDescription"    column="case_description"    />
+        <result property="initialData"    column="initial_data"    />
+        <result property="fieldTracking"    column="field_tracking"    />
+        <result property="emailInitialAccount"    column="email_initial_account"    />
+        <result property="goal"    column="goal"    />
+        <result property="deadline"    column="deadline"    />
+        <result property="worklistNotify"    column="worklist_notify"    />
+        <result property="workgroupNotify"    column="workgroup_notify"    />
+    </resultMap>
+
+    <resultMap id="SysCasetypeSysStageResult" type="SysCasetype" extends="SysCasetypeResult">
+        <collection property="sysStageList" notNullColumn="sub_stage_id" javaType="java.util.List" resultMap="SysStageResult" />
+    </resultMap>
+
+    <resultMap id="SysCasetypeSysDatatypeResult" type="SysCasetype" extends="SysCasetypeResult">
+        <collection property="sysDatatypeList" notNullColumn="sub_data_id" javaType="java.util.List" resultMap="SysDatatypeResult" />
+    </resultMap>
+
+    <resultMap type="SysDatatype" id="SysDatatypeResult">
+        <result property="dataId"    column="sub_data_id"    />
+        <result property="dataSort"    column="sub_data_sort"    />
+        <result property="dataLabel"    column="sub_data_label"    />
+        <result property="dataName"    column="sub_data_name"    />
+        <result property="dataType"    column="sub_data_type"    />
+        <result property="caseTypeId"    column="sub_case_type_id"    />
+        <result property="createBy"    column="sub_create_by"    />
+        <result property="createTime"    column="sub_create_time"    />
+        <result property="updateBy"    column="sub_update_by"    />
+        <result property="updateTime"    column="sub_update_time"    />
+    </resultMap>
+
+    <resultMap type="SysStage" id="SysStageResult">
+        <result property="stageId"    column="sub_stage_id"    />
+        <result property="stageSort"    column="sub_stage_sort"    />
+        <result property="stageLabel"    column="sub_stage_label"    />
+        <result property="stageName"    column="sub_stage_name"    />
+        <result property="stageType"    column="sub_stage_type"    />
+        <result property="caseTypeId"    column="sub_case_type_id"    />
+        <result property="skipStage"    column="sub_skip_stage"    />
+        <result property="skipCondition"    column="sub_skip_condition"    />
+        <result property="actionAfterAllCompleted"    column="sub_action_after_all_completed"    />
+        <result property="stageStatusWork"    column="sub_stage_status_work"    />
+        <result property="createBy"    column="sub_create_by"    />
+        <result property="createTime"    column="sub_create_time"    />
+        <result property="updateBy"    column="sub_update_by"    />
+        <result property="updateTime"    column="sub_update_time"    />
+    </resultMap>
+
+    <sql id="selectSysCasetypeVo">
+        select id, case_type_id, case_sort, case_label, case_name, case_version, case_application_id, case_urgency, case_prefix, case_icon, case_availability, case_status_work, create_by, create_time, update_by, update_time, case_description, initial_data, field_tracking, email_initial_account, goal, deadline, worklist_notify, workgroup_notify from sys_re_casetype
+    </sql>
+
+    <select id="selectSysCasetypeList" parameterType="SysCasetype" resultMap="SysCasetypeResult">
+        <include refid="selectSysCasetypeVo"/>
+        <where>
+            <if test="caseTypeId != null  and caseTypeId != ''"> and case_type_id = #{caseTypeId}</if>
+            <if test="caseSort != null "> and case_sort = #{caseSort}</if>
+            <if test="caseLabel != null  and caseLabel != ''"> and case_label = #{caseLabel}</if>
+            <if test="caseName != null  and caseName != ''"> and case_name like concat('%', #{caseName}, '%')</if>
+            <if test="caseVersion != null  and caseVersion != ''"> and case_version = #{caseVersion}</if>
+            <if test="caseApplicationId != null  and caseApplicationId != ''"> and case_application_id = #{caseApplicationId}</if>
+            <if test="caseUrgency != null "> and case_urgency = #{caseUrgency}</if>
+            <if test="casePrefix != null  and casePrefix != ''"> and case_prefix = #{casePrefix}</if>
+            <if test="caseIcon != null  and caseIcon != ''"> and case_icon = #{caseIcon}</if>
+            <if test="caseAvailability != null  and caseAvailability != ''"> and case_availability = #{caseAvailability}</if>
+            <if test="caseStatusWork != null  and caseStatusWork != ''"> and case_status_work = #{caseStatusWork}</if>
+            <if test="caseDescription != null  and caseDescription != ''"> and case_description = #{caseDescription}</if>
+            <if test="initialData != null  and initialData != ''"> and initial_data = #{initialData}</if>
+            <if test="fieldTracking != null "> and field_tracking = #{fieldTracking}</if>
+            <if test="emailInitialAccount != null  and emailInitialAccount != ''"> and email_initial_account = #{emailInitialAccount}</if>
+            <if test="goal != null  and goal != ''"> and goal = #{goal}</if>
+            <if test="deadline != null  and deadline != ''"> and deadline = #{deadline}</if>
+            <if test="worklistNotify != null  and worklistNotify != ''"> and worklist_notify = #{worklistNotify}</if>
+            <if test="workgroupNotify != null  and workgroupNotify != ''"> and workgroup_notify = #{workgroupNotify}</if>
+        </where>
+    </select>
+
+    <select id="selectSysCasetypeById" parameterType="Long" resultMap="SysCasetypeSysStageResult">
+        select a.id, a.case_type_id, a.case_sort, a.case_label, a.case_name, a.case_version, a.case_application_id, a.case_urgency, a.case_prefix, a.case_icon, a.case_availability, a.case_status_work, a.create_by, a.create_time, a.update_by, a.update_time, a.case_description, a.initial_data, a.field_tracking, a.email_initial_account, a.goal, a.deadline, a.worklist_notify, a.workgroup_notify,
+               b.stage_id as sub_stage_id, b.stage_sort as sub_stage_sort, b.stage_label as sub_stage_label, b.stage_name as sub_stage_name, b.stage_type as sub_stage_type, b.case_type_id as sub_case_type_id, b.skip_stage as sub_skip_stage, b.skip_condition as sub_skip_condition, b.action_after_all_completed as sub_action_after_all_completed, b.stage_status_work as sub_stage_status_work, b.create_by as sub_create_by, b.create_time as sub_create_time, b.update_by as sub_update_by, b.update_time as sub_update_time
+        from sys_re_casetype a
+                 left join sys_re_stage b on b.case_type_id = a.case_type_id
+        where a.id = #{id}
+    </select>
+
+    <select id="selectSysCasetypeByCaseTypeId" parameterType="String" resultMap="SysCasetypeResult">
+        select a.id, a.case_type_id, a.case_sort, a.case_label, a.case_name, a.case_version, a.case_application_id, a.case_urgency, a.case_prefix, a.case_icon, a.case_availability, a.case_status_work, a.create_by, a.create_time, a.update_by, a.update_time, a.case_description, a.initial_data, a.field_tracking, a.email_initial_account, a.goal, a.deadline, a.worklist_notify, a.workgroup_notify
+        from sys_re_casetype a
+        where a.case_type_id = #{case_type_id}
+    </select>
+
+    <select id="selectSysCasetypeDatatypeById" parameterType="Long" resultMap="SysCasetypeSysDatatypeResult">
+        select a.id, a.case_type_id, a.case_sort, a.case_label, a.case_name, a.case_version, a.case_application_id, a.case_urgency, a.case_prefix, a.case_icon, a.case_availability, a.case_status_work, a.create_by, a.create_time, a.update_by, a.update_time, a.case_description, a.initial_data, a.field_tracking, a.email_initial_account, a.goal, a.deadline, a.worklist_notify, a.workgroup_notify,
+               b.data_id as sub_data_id, b.data_sort as sub_data_sort, b.data_label as sub_data_label, b.data_name as sub_data_name, b.data_type as sub_data_type, b.case_type_id as sub_case_type_id, b.create_by as sub_create_by, b.create_time as sub_create_time, b.update_by as sub_update_by, b.update_time as sub_update_time
+        from sys_re_casetype a
+                 left join sys_re_datatype b on b.case_type_id = a.case_type_id
+        where a.id = #{id}
+    </select>
+
+    <insert id="insertSysCasetype" parameterType="SysCasetype" useGeneratedKeys="true" keyProperty="id">
+        insert into sys_re_casetype
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="caseTypeId != null">case_type_id,</if>
+            <if test="caseSort != null">case_sort,</if>
+            <if test="caseLabel != null">case_label,</if>
+            <if test="caseName != null">case_name,</if>
+            <if test="caseVersion != null">case_version,</if>
+            <if test="caseApplicationId != null">case_application_id,</if>
+            <if test="caseUrgency != null">case_urgency,</if>
+            <if test="casePrefix != null">case_prefix,</if>
+            <if test="caseIcon != null">case_icon,</if>
+            <if test="caseAvailability != null">case_availability,</if>
+            <if test="caseStatusWork != null">case_status_work,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="caseDescription != null">case_description,</if>
+            <if test="initialData != null">initial_data,</if>
+            <if test="fieldTracking != null">field_tracking,</if>
+            <if test="emailInitialAccount != null">email_initial_account,</if>
+            <if test="goal != null">goal,</if>
+            <if test="deadline != null">deadline,</if>
+            <if test="worklistNotify != null">worklist_notify,</if>
+            <if test="workgroupNotify != null">workgroup_notify,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="caseTypeId != null">#{caseTypeId},</if>
+            <if test="caseSort != null">#{caseSort},</if>
+            <if test="caseLabel != null">#{caseLabel},</if>
+            <if test="caseName != null">#{caseName},</if>
+            <if test="caseVersion != null">#{caseVersion},</if>
+            <if test="caseApplicationId != null">#{caseApplicationId},</if>
+            <if test="caseUrgency != null">#{caseUrgency},</if>
+            <if test="casePrefix != null">#{casePrefix},</if>
+            <if test="caseIcon != null">#{caseIcon},</if>
+            <if test="caseAvailability != null">#{caseAvailability},</if>
+            <if test="caseStatusWork != null">#{caseStatusWork},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="caseDescription != null">#{caseDescription},</if>
+            <if test="initialData != null">#{initialData},</if>
+            <if test="fieldTracking != null">#{fieldTracking},</if>
+            <if test="emailInitialAccount != null">#{emailInitialAccount},</if>
+            <if test="goal != null">#{goal},</if>
+            <if test="deadline != null">#{deadline},</if>
+            <if test="worklistNotify != null">#{worklistNotify},</if>
+            <if test="workgroupNotify != null">#{workgroupNotify},</if>
+        </trim>
+    </insert>
+
+    <update id="updateSysCasetype" parameterType="SysCasetype">
+        update sys_re_casetype
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="caseTypeId != null">case_type_id = #{caseTypeId},</if>
+            <if test="caseSort != null">case_sort = #{caseSort},</if>
+            <if test="caseLabel != null">case_label = #{caseLabel},</if>
+            <if test="caseName != null">case_name = #{caseName},</if>
+            <if test="caseVersion != null">case_version = #{caseVersion},</if>
+            <if test="caseApplicationId != null">case_application_id = #{caseApplicationId},</if>
+            <if test="caseUrgency != null">case_urgency = #{caseUrgency},</if>
+            <if test="casePrefix != null">case_prefix = #{casePrefix},</if>
+            <if test="caseIcon != null">case_icon = #{caseIcon},</if>
+            <if test="caseAvailability != null">case_availability = #{caseAvailability},</if>
+            <if test="caseStatusWork != null">case_status_work = #{caseStatusWork},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="caseDescription != null">case_description = #{caseDescription},</if>
+            <if test="initialData != null">initial_data = #{initialData},</if>
+            <if test="fieldTracking != null">field_tracking = #{fieldTracking},</if>
+            <if test="emailInitialAccount != null">email_initial_account = #{emailInitialAccount},</if>
+            <if test="goal != null">goal = #{goal},</if>
+            <if test="deadline != null">deadline = #{deadline},</if>
+            <if test="worklistNotify != null">worklist_notify = #{worklistNotify},</if>
+            <if test="workgroupNotify != null">workgroup_notify = #{workgroupNotify},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteSysCasetypeById" parameterType="Long">
+        delete from sys_re_casetype where id = #{id}
+    </delete>
+    <delete id="deleteSysCasetypeByCaseTypeId" parameterType="String">
+        delete from sys_re_casetype where case_type_id = #{caseTypeId}
+    </delete>
+    <delete id="deleteSysCasetypeByIds" parameterType="String">
+        delete from sys_re_casetype where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <delete id="deleteSysStageByCaseTypeIds" parameterType="String">
+        delete from sys_re_stage where case_type_id in
+        <foreach item="caseTypeId" collection="array" open="(" separator="," close=")">
+            #{caseTypeId}
+        </foreach>
+    </delete>
+
+    <delete id="deleteSysStageByCaseTypeId" parameterType="String">
+        delete from sys_re_stage where case_type_id = #{caseTypeId}
+    </delete>
+
+    <insert id="batchSysStage">
+        insert into sys_re_stage( stage_id, stage_sort, stage_label, stage_name, stage_type, case_type_id, skip_stage, skip_condition, action_after_all_completed, stage_status_work, create_by, create_time, update_by, update_time) values
+        <foreach item="item" index="index" collection="list" separator=",">
+            ( #{item.stageId}, #{item.stageSort}, #{item.stageLabel}, #{item.stageName}, #{item.stageType}, #{item.caseTypeId}, #{item.skipStage}, #{item.skipCondition}, #{item.actionAfterAllCompleted}, #{item.stageStatusWork}, #{item.createBy}, #{item.createTime}, #{item.updateBy}, #{item.updateTime})
+        </foreach>
+    </insert>
+
+
+    <insert id="batchSysDatatype">
+        insert into sys_re_datatype( data_id, data_sort, data_label, data_name, data_type, case_type_id, create_by, create_time, update_by, update_time) values
+        <foreach item="item" index="index" collection="list" separator=",">
+            ( #{item.dataId}, #{item.dataSort}, #{item.dataLabel}, #{item.dataName}, #{item.dataType}, #{item.caseTypeId}, #{item.createBy}, #{item.createTime}, #{item.updateBy}, #{item.updateTime})
+        </foreach>
+    </insert>
+
+    <delete id="deleteSysProcessByCaseTypeId" parameterType="String">
+        delete from sys_re_process where case_type_id = #{caseTypeId}
+    </delete>
+
+    <delete id="deleteSysDatatypeByCaseTypeId" parameterType="String">
+        delete from sys_re_datatype where case_type_id = #{caseTypeId}
+    </delete>
+
+    <delete id="deleteSysReDatatransformByCaseTypeId" parameterType="String">
+        delete from sys_re_datatransform where case_type_id = #{caseTypeId}
+    </delete>
+
+    <delete id="deleteSysReDtitemByCaseTypeId" parameterType="String">
+        delete from sys_re_dtitem where case_type_id = #{caseTypeId}
+    </delete>
+
+    <delete id="deleteSysReDecisiontreeByCaseTypeId" parameterType="String">
+        delete from sys_re_decisiontree where case_type_id = #{caseTypeId}
+    </delete>
+
+    <delete id="deleteSysReDecisiontableByCaseTypeId" parameterType="String">
+        delete from sys_re_decisiontable where case_type_id = #{caseTypeId}
+    </delete>
+
+    <delete id="deleteSysReWhenByCaseTypeId" parameterType="String">
+        delete from sys_re_when where case_type_id = #{caseTypeId}
+    </delete>
+
+    <delete id="deleteSysReActivityByCaseTypeId" parameterType="String">
+        delete from sys_re_activity where case_type_id = #{caseTypeId}
+    </delete>
+    <delete id="deleteSysReActitemByCaseTypeId" parameterType="String">
+        delete from sys_re_actitem where case_type_id = #{CaseTypeId}
+    </delete>
+</mapper>

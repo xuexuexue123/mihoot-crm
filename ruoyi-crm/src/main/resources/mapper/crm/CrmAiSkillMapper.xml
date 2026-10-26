@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmAiSkillMapper">
+
+    <resultMap type="com.ruoyi.crm.domain.CrmAiSkill" id="CrmAiSkillResult">
+        <id property="id" column="id"/>
+        <result property="tenantId" column="tenant_id"/>
+        <result property="name" column="name"/>
+        <result property="description" column="description"/>
+        <result property="instruction" column="instruction"/>
+        <result property="triggerKeywords" column="trigger_keywords"/>
+        <result property="triggerPatterns" column="trigger_patterns"/>
+        <result property="scope" column="scope"/>
+        <result property="priority" column="priority"/>
+        <result property="enabled" column="enabled"/>
+        <result property="skillType" column="skill_type"/>
+        <result property="domain" column="domain"/>
+        <result property="trackKey" column="track_key"/>
+        <result property="toolBindings" column="tool_bindings"/>
+        <result property="inputContext" column="input_context"/>
+        <result property="outputKey" column="output_key"/>
+        <result property="outputSchema" column="output_schema"/>
+        <result property="mcpServerIds" column="mcp_server_ids"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <sql id="selectColumns">
+        id, tenant_id, name, description, instruction, trigger_keywords, trigger_patterns,
+        scope, priority, enabled, skill_type, domain, track_key, tool_bindings, input_context,
+        output_key, output_schema, mcp_server_ids, create_by, create_time, update_by, update_time
+    </sql>
+
+    <select id="selectList" resultMap="CrmAiSkillResult">
+        select <include refid="selectColumns"/>
+        from crm_ai_skill
+        where tenant_id = #{tenantId}
+        <if test="domain != null and domain != ''">
+            and domain = #{domain}
+        </if>
+        <if test="skillType != null and skillType != ''">
+            and skill_type = #{skillType}
+        </if>
+        <if test="trackKey != null and trackKey != ''">
+            and track_key = #{trackKey}
+        </if>
+        order by priority desc, id asc
+    </select>
+
+    <select id="selectByIdAndTenant" resultMap="CrmAiSkillResult">
+        select <include refid="selectColumns"/>
+        from crm_ai_skill
+        where id = #{id} and tenant_id = #{tenantId}
+    </select>
+
+    <select id="selectByNameAndTenant" resultMap="CrmAiSkillResult">
+        select <include refid="selectColumns"/>
+        from crm_ai_skill
+        where name = #{name} and tenant_id = #{tenantId}
+    </select>
+
+    <select id="selectAllByTenant" resultMap="CrmAiSkillResult">
+        select <include refid="selectColumns"/>
+        from crm_ai_skill
+        where tenant_id = #{tenantId}
+    </select>
+
+    <insert id="insert" parameterType="com.ruoyi.crm.domain.CrmAiSkill" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
+        insert into crm_ai_skill (
+            tenant_id, name, description, instruction, trigger_keywords, trigger_patterns,
+            scope, priority, enabled, skill_type, domain, track_key, tool_bindings, input_context,
+            output_key, output_schema, mcp_server_ids, create_by, create_time, update_by, update_time
+        ) values (
+            #{tenantId}, #{name}, #{description}, #{instruction}, #{triggerKeywords}, #{triggerPatterns},
+            #{scope}, #{priority}, #{enabled}, #{skillType}, #{domain}, #{trackKey}, #{toolBindings}, #{inputContext},
+            #{outputKey}, #{outputSchema}, #{mcpServerIds}, #{createBy}, #{createTime}, #{updateBy}, #{updateTime}
+        )
+    </insert>
+
+    <update id="update" parameterType="com.ruoyi.crm.domain.CrmAiSkill">
+        update crm_ai_skill
+        set name = #{name},
+            description = #{description},
+            instruction = #{instruction},
+            trigger_keywords = #{triggerKeywords},
+            trigger_patterns = #{triggerPatterns},
+            scope = #{scope},
+            priority = #{priority},
+            enabled = #{enabled},
+            skill_type = #{skillType},
+            domain = #{domain},
+            track_key = #{trackKey},
+            tool_bindings = #{toolBindings},
+            input_context = #{inputContext},
+            output_key = #{outputKey},
+            output_schema = #{outputSchema},
+            mcp_server_ids = #{mcpServerIds},
+            update_by = #{updateBy},
+            update_time = #{updateTime}
+        where id = #{id} and tenant_id = #{tenantId}
+    </update>
+
+    <delete id="deleteByIdAndTenant">
+        delete from crm_ai_skill where id = #{id} and tenant_id = #{tenantId}
+    </delete>
+</mapper>

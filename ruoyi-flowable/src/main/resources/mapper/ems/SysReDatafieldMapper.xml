@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.ems.mapper.SysReDatafieldMapper">
+    
+    <resultMap type="SysReDatafield" id="SysReDatafieldResult">
+        <result property="fieldId"    column="field_id"    />
+        <result property="fieldSort"    column="field_sort"    />
+        <result property="fieldLabel"    column="field_label"    />
+        <result property="fieldName"    column="field_name"    />
+        <result property="fieldType"    column="field_type"    />
+        <result property="dataobjId"    column="dataobj_id"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="isShow"    column="is_show"    />
+        <result property="fieldCategory"    column="field_category"    />
+        <result property="fieldDetail"    column="field_detail"    />
+    </resultMap>
+
+    <sql id="selectSysReDatafieldVo">
+        select field_id, field_sort, field_label, field_name, field_type, dataobj_id, create_by, create_time, update_by, update_time, is_show, field_category, field_detail from sys_re_datafield
+    </sql>
+
+    <select id="selectSysReDatafieldList" parameterType="SysReDatafield" resultMap="SysReDatafieldResult">
+        <include refid="selectSysReDatafieldVo"/>
+        <where>  
+            <if test="fieldSort != null "> and field_sort = #{fieldSort}</if>
+            <if test="fieldLabel != null  and fieldLabel != ''"> and field_label = #{fieldLabel}</if>
+            <if test="fieldName != null  and fieldName != ''"> and field_name like concat('%', #{fieldName}, '%')</if>
+            <if test="fieldType != null  and fieldType != ''"> and field_type = #{fieldType}</if>
+            <if test="dataobjId != null  and dataobjId != ''"> and dataobj_id = #{dataobjId}</if>
+            <if test="isShow != null  and isShow != ''"> and is_show = #{isShow}</if>
+            <if test="fieldCategory != null  and fieldCategory != ''"> and field_category = #{fieldCategory}</if>
+            <if test="fieldDetail != null  and fieldDetail != ''"> and field_detail = #{fieldDetail}</if>
+        </where>
+        order by field_sort, field_name, create_time, is_show desc
+    </select>
+    
+    <select id="selectSysReDatafieldByFieldId" parameterType="String" resultMap="SysReDatafieldResult">
+        <include refid="selectSysReDatafieldVo"/>
+        where field_id = #{fieldId}
+    </select>
+        
+    <insert id="insertSysReDatafield" parameterType="SysReDatafield">
+        insert into sys_re_datafield
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="fieldId != null">field_id,</if>
+            <if test="fieldSort != null">field_sort,</if>
+            <if test="fieldLabel != null">field_label,</if>
+            <if test="fieldName != null">field_name,</if>
+            <if test="fieldType != null">field_type,</if>
+            <if test="dataobjId != null">dataobj_id,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="isShow != null">is_show,</if>
+            <if test="fieldCategory != null">field_category,</if>
+            <if test="fieldDetail != null">field_detail,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="fieldId != null">#{fieldId},</if>
+            <if test="fieldSort != null">#{fieldSort},</if>
+            <if test="fieldLabel != null">#{fieldLabel},</if>
+            <if test="fieldName != null">#{fieldName},</if>
+            <if test="fieldType != null">#{fieldType},</if>
+            <if test="dataobjId != null">#{dataobjId},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="isShow != null">#{isShow},</if>
+            <if test="fieldCategory != null">#{fieldCategory},</if>
+            <if test="fieldDetail != null">#{fieldDetail},</if>
+         </trim>
+    </insert>
+
+    <update id="updateSysReDatafield" parameterType="SysReDatafield">
+        update sys_re_datafield
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="fieldSort != null">field_sort = #{fieldSort},</if>
+            <if test="fieldLabel != null">field_label = #{fieldLabel},</if>
+            <if test="fieldName != null">field_name = #{fieldName},</if>
+            <if test="fieldType != null">field_type = #{fieldType},</if>
+            <if test="dataobjId != null">dataobj_id = #{dataobjId},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="isShow != null">is_show = #{isShow},</if>
+            <if test="fieldCategory != null">field_category = #{fieldCategory},</if>
+            <if test="fieldDetail != null">field_detail = #{fieldDetail},</if>
+        </trim>
+        where field_id = #{fieldId}
+    </update>
+
+    <delete id="deleteSysReDatafieldByFieldId" parameterType="String">
+        delete from sys_re_datafield where field_id = #{fieldId}
+    </delete>
+
+    <delete id="deleteSysReDatafieldByFieldIds" parameterType="String">
+        delete from sys_re_datafield where field_id in 
+        <foreach item="fieldId" collection="array" open="(" separator="," close=")">
+            #{fieldId}
+        </foreach>
+    </delete>
+    <insert id="batchInsertSysReDatafieldList">
+        insert into sys_re_datafield( field_id, field_sort, field_label, field_name, field_type, dataobj_id, create_by, create_time, update_by, update_time, is_show, field_category) values
+        <foreach item="item" index="index" collection="list" separator=",">
+            ( #{item.fieldId}, #{item.fieldSort}, #{item.fieldLabel}, #{item.fieldName}, #{item.fieldType}, #{item.dataobjId}, #{item.createBy}, #{item.createTime}, #{item.updateBy}, #{item.updateTime}, #{item.isShow}, #{item.fieldCategory})
+        </foreach>
+    </insert>
+
+</mapper>

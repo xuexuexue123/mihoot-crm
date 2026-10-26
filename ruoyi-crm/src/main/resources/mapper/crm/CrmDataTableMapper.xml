@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmDataTableMapper">
+
+    <resultMap type="com.ruoyi.crm.domain.CrmDataTable" id="CrmDataTableResult">
+        <result property="id" column="id"/>
+        <result property="tenantId" column="tenant_id"/>
+        <result property="name" column="name"/>
+        <result property="description" column="description"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <resultMap type="com.ruoyi.crm.domain.vo.DataTableVO" id="DataTableVOResult">
+        <result property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="description" column="description"/>
+        <result property="rowCount" column="row_count"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <select id="selectByIdAndTenant" resultMap="CrmDataTableResult">
+        select id, tenant_id, name, description, create_by, create_time, update_time
+        from crm_data_table
+        where id = #{id} and tenant_id = #{tenantId}
+    </select>
+
+    <select id="selectListByTenant" resultMap="DataTableVOResult">
+        select t.id, t.name, t.description, t.create_by, t.create_time, t.update_time,
+               (select count(*) from crm_data_table_row r where r.data_table_id = t.id) as row_count
+        from crm_data_table t
+        where t.tenant_id = #{tenantId}
+        order by t.create_time desc
+    </select>
+
+    <select id="countByTenantAndName" resultType="int">
+        select count(*) from crm_data_table
+        where tenant_id = #{tenantId} and name = #{name}
+    </select>
+
+    <select id="countByTenantAndNameExcludeId" resultType="int">
+        select count(*) from crm_data_table
+        where tenant_id = #{tenantId} and name = #{name} and id != #{excludeId}
+    </select>
+
+    <insert id="insert" parameterType="com.ruoyi.crm.domain.CrmDataTable">
+        insert into crm_data_table (id, tenant_id, name, description, create_by, create_time, update_time)
+        values (#{id}, #{tenantId}, #{name}, #{description}, #{createBy},
+                coalesce(#{createTime}, now()), coalesce(#{updateTime}, now()))
+    </insert>
+
+    <update id="update" parameterType="com.ruoyi.crm.domain.CrmDataTable">
+        update crm_data_table
+        set name = #{name},
+            description = #{description},
+            update_time = coalesce(#{updateTime}, now())
+        where id = #{id} and tenant_id = #{tenantId}
+    </update>
+
+    <delete id="deleteByIdAndTenant">
+        delete from crm_data_table where id = #{id} and tenant_id = #{tenantId}
+    </delete>
+</mapper>

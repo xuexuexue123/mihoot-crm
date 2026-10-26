@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmWorkflowAutomationMapper">
+
+    <resultMap type="com.ruoyi.crm.domain.vo.WorkflowAutomationVO" id="WorkflowAutomationVOResult">
+        <result property="configId" column="config_id"/>
+        <result property="automationKey" column="automation_key"/>
+        <result property="workflowId" column="workflow_id"/>
+        <result property="workflowName" column="workflow_name"/>
+        <result property="enabled" column="enabled"/>
+        <result property="triggerEvent" column="trigger_event"/>
+        <result property="configJson" column="config_json"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <resultMap type="com.ruoyi.crm.domain.CrmWorkflowAutomation" id="CrmWorkflowAutomationResult">
+        <result property="configId" column="config_id"/>
+        <result property="tenantId" column="tenant_id"/>
+        <result property="automationKey" column="automation_key"/>
+        <result property="workflowId" column="workflow_id"/>
+        <result property="enabled" column="enabled"/>
+        <result property="triggerEvent" column="trigger_event"/>
+        <result property="configJson" column="config_json"/>
+        <result property="delFlag" column="del_flag"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="remark" column="remark"/>
+    </resultMap>
+
+    <sql id="selectWorkflowAutomationVo">
+        select a.config_id, a.automation_key, a.workflow_id, w.name as workflow_name,
+               a.enabled, a.trigger_event, a.config_json, a.update_time
+        from crm_workflow_automation a
+        left join w_workflow w on a.workflow_id = w.id
+    </sql>
+
+    <select id="selectWorkflowAutomationList" resultMap="WorkflowAutomationVOResult">
+        <include refid="selectWorkflowAutomationVo"/>
+        where a.del_flag = '0' and a.tenant_id = #{tenantId}
+        order by a.automation_key
+    </select>
+
+    <select id="selectByTenantAndKey" resultMap="WorkflowAutomationVOResult">
+        <include refid="selectWorkflowAutomationVo"/>
+        where a.del_flag = '0'
+          and a.tenant_id = #{tenantId}
+          and a.automation_key = #{automationKey}
+        limit 1
+    </select>
+
+    <select id="selectEntityByTenantAndKey" resultMap="CrmWorkflowAutomationResult">
+        select config_id, tenant_id, automation_key, workflow_id, enabled, trigger_event,
+               config_json, del_flag, create_by, create_time, update_by, update_time, remark
+        from crm_workflow_automation
+        where del_flag = '0'
+          and tenant_id = #{tenantId}
+          and automation_key = #{automationKey}
+        limit 1
+    </select>
+
+    <select id="selectEntityByTenantAndKeyAny" resultMap="CrmWorkflowAutomationResult">
+        select config_id, tenant_id, automation_key, workflow_id, enabled, trigger_event,
+               config_json, del_flag, create_by, create_time, update_by, update_time, remark
+        from crm_workflow_automation
+        where tenant_id = #{tenantId}
+          and automation_key = #{automationKey}
+        limit 1
+    </select>
+
+    <insert id="insertCrmWorkflowAutomation" parameterType="com.ruoyi.crm.domain.CrmWorkflowAutomation">
+        insert into crm_workflow_automation
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="configId != null and configId != ''">config_id,</if>
+            <if test="tenantId != null and tenantId != ''">tenant_id,</if>
+            <if test="automationKey != null and automationKey != ''">automation_key,</if>
+            <if test="workflowId != null">workflow_id,</if>
+            <if test="enabled != null and enabled != ''">enabled,</if>
+            <if test="triggerEvent != null">trigger_event,</if>
+            <if test="configJson != null">config_json,</if>
+            <if test="delFlag != null and delFlag != ''">del_flag,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="remark != null">remark,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="configId != null and configId != ''">#{configId},</if>
+            <if test="tenantId != null and tenantId != ''">#{tenantId},</if>
+            <if test="automationKey != null and automationKey != ''">#{automationKey},</if>
+            <if test="workflowId != null">#{workflowId},</if>
+            <if test="enabled != null and enabled != ''">#{enabled},</if>
+            <if test="triggerEvent != null">#{triggerEvent},</if>
+            <if test="configJson != null">#{configJson},</if>
+            <if test="delFlag != null and delFlag != ''">#{delFlag},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="remark != null">#{remark},</if>
+        </trim>
+    </insert>
+
+    <update id="updateCrmWorkflowAutomation" parameterType="com.ruoyi.crm.domain.CrmWorkflowAutomation">
+        update crm_workflow_automation
+        <trim prefix="SET" suffixOverrides=",">
+            workflow_id = #{workflowId},
+            <if test="enabled != null and enabled != ''">enabled = #{enabled},</if>
+            <if test="triggerEvent != null">trigger_event = #{triggerEvent},</if>
+            config_json = #{configJson},
+            <if test="delFlag != null and delFlag != ''">del_flag = #{delFlag},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="remark != null">remark = #{remark},</if>
+        </trim>
+        where config_id = #{configId}
+    </update>
+</mapper>

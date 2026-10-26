@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmEventCheckInMapper">
+
+    <resultMap type="com.ruoyi.crm.domain.CrmEventCheckIn" id="CheckInResult">
+        <result property="checkInId" column="check_in_id"/>
+        <result property="eventId" column="event_id"/>
+        <result property="sessionId" column="session_id"/>
+        <result property="tenantId" column="tenant_id"/>
+        <result property="audienceKey" column="audience_key"/>
+        <result property="registrationId" column="registration_id"/>
+        <result property="checkInMethod" column="check_in_method"/>
+        <result property="checkedInAt" column="checked_in_at"/>
+        <result property="checkedInBy" column="checked_in_by"/>
+        <result property="notes" column="notes"/>
+        <result property="createTime" column="create_time"/>
+    </resultMap>
+
+    <select id="selectBySlot" resultMap="CheckInResult">
+        SELECT * FROM crm_event_check_in
+        WHERE tenant_id = #{tenantId} AND event_id = #{eventId}
+          AND session_id = #{sessionId} AND audience_key = #{audienceKey}
+        LIMIT 1
+    </select>
+
+    <select id="countDistinctBySession" resultType="int">
+        SELECT COUNT(DISTINCT audience_key) FROM crm_event_check_in
+        WHERE tenant_id = #{tenantId} AND event_id = #{eventId} AND session_id = #{sessionId}
+    </select>
+
+    <select id="countDistinctByEvent" resultType="int">
+        SELECT COUNT(DISTINCT audience_key) FROM crm_event_check_in
+        WHERE tenant_id = #{tenantId} AND event_id = #{eventId}
+    </select>
+
+    <select id="countByMethod" resultType="int">
+        SELECT COUNT(*) FROM crm_event_check_in
+        WHERE tenant_id = #{tenantId} AND event_id = #{eventId}
+          AND check_in_method = #{method}
+        <if test="sessionId != null and sessionId != ''">
+            AND session_id = #{sessionId}
+        </if>
+    </select>
+
+    <select id="countAudienceOnly" resultType="int">
+        SELECT COUNT(*) FROM crm_event_check_in
+        WHERE tenant_id = #{tenantId} AND event_id = #{eventId}
+          AND registration_id IS NULL
+        <if test="sessionId != null and sessionId != ''">
+            AND session_id = #{sessionId}
+        </if>
+    </select>
+
+    <insert id="insert" parameterType="com.ruoyi.crm.domain.CrmEventCheckIn">
+        INSERT INTO crm_event_check_in (
+            check_in_id, event_id, session_id, tenant_id, audience_key, registration_id,
+            check_in_method, checked_in_at, checked_in_by, notes, create_time
+        ) VALUES (
+            #{checkInId}, #{eventId}, #{sessionId}, #{tenantId}, #{audienceKey}, #{registrationId},
+            #{checkInMethod}, #{checkedInAt}, #{checkedInBy}, #{notes}, #{createTime}
+        )
+    </insert>
+
+    <select id="selectCheckInRows" resultType="com.ruoyi.crm.domain.vo.EventCheckInRowVo">
+        SELECT c.check_in_id AS checkInId, c.event_id AS eventId, c.session_id AS sessionId,
+               s.name AS sessionName, c.audience_key AS audienceKey, c.registration_id AS registrationId,
+               r.display_name AS displayName, r.mobile_phone AS mobilePhone,
+               c.check_in_method AS checkInMethod, c.checked_in_at AS checkedInAt,
+               c.checked_in_by AS checkedInBy, c.notes AS notes
+        FROM crm_event_check_in c
+        JOIN crm_event_session s ON s.session_id = c.session_id AND s.tenant_id = c.tenant_id
+        LEFT JOIN crm_event_registration r ON r.registration_id = c.registration_id
+        WHERE c.tenant_id = #{tenantId} AND c.event_id = #{eventId}
+        <if test="query != null and query.sessionId != null and query.sessionId != ''">
+            AND c.session_id = #{query.sessionId}
+        </if>
+        <if test="query != null and query.keyword != null and query.keyword != ''">
+            AND (r.display_name ILIKE CONCAT('%', #{query.keyword}, '%')
+                 OR r.mobile_phone ILIKE CONCAT('%', #{query.keyword}, '%')
+                 OR c.audience_key ILIKE CONCAT('%', #{query.keyword}, '%'))
+        </if>
+        ORDER BY c.checked_in_at DESC
+    </select>
+
+    <select id="selectCheckInAggByEvent" resultType="com.ruoyi.crm.service.support.EventCheckInAggRow">
+        SELECT audience_key AS audienceKey, MAX(checked_in_at) AS checkedInAt
+        FROM crm_event_check_in
+        WHERE tenant_id = #{tenantId} AND event_id = #{eventId}
+        GROUP BY audience_key
+    </select>
+
+    <delete id="deleteByEventIds">
+        DELETE FROM crm_event_check_in WHERE event_id IN
+        <foreach item="eventId" collection="eventIds" open="(" separator="," close=")">
+            #{eventId}
+        </foreach>
+    </delete>
+</mapper>

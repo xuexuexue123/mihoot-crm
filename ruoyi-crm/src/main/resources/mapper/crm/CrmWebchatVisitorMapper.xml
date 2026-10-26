@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmWebchatVisitorMapper">
+
+    <resultMap id="CrmWebchatVisitorResult" type="com.ruoyi.crm.domain.CrmWebchatVisitor">
+        <id property="id" column="id"/>
+        <result property="tenantId" column="tenant_id"/>
+        <result property="visitorId" column="visitor_id"/>
+        <result property="websiteSessionId" column="website_session_id"/>
+        <result property="displayName" column="display_name"/>
+        <result property="email" column="email"/>
+        <result property="mobilePhone" column="mobile_phone"/>
+        <result property="whatsapp" column="whatsapp"/>
+        <result property="contactId" column="contact_id"/>
+        <result property="leadId" column="lead_id"/>
+        <result property="userAgent" column="user_agent"/>
+        <result property="firstSeenAt" column="first_seen_at"/>
+        <result property="lastSeenAt" column="last_seen_at"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <sql id="selectColumns">
+        id, tenant_id, visitor_id, website_session_id, display_name, email, mobile_phone, whatsapp,
+        contact_id, lead_id, user_agent, first_seen_at, last_seen_at, create_time, update_time
+    </sql>
+
+    <select id="selectByVisitorId" resultMap="CrmWebchatVisitorResult">
+        SELECT <include refid="selectColumns"/>
+        FROM crm_webchat_visitor
+        WHERE tenant_id = #{tenantId} AND visitor_id = #{visitorId}
+        LIMIT 1
+    </select>
+
+    <insert id="upsertVisitor" parameterType="com.ruoyi.crm.domain.CrmWebchatVisitor"
+            useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO crm_webchat_visitor (
+            tenant_id, visitor_id, website_session_id, display_name, email, mobile_phone, whatsapp,
+            contact_id, lead_id, user_agent, first_seen_at, last_seen_at, create_time, update_time
+        ) VALUES (
+            #{tenantId}, #{visitorId}, #{websiteSessionId}, #{displayName}, #{email}, #{mobilePhone}, #{whatsapp},
+            #{contactId}, #{leadId}, #{userAgent},
+            COALESCE(#{firstSeenAt}, now()), COALESCE(#{lastSeenAt}, now()),
+            COALESCE(#{createTime}, now()), #{updateTime}
+        )
+        ON CONFLICT (tenant_id, visitor_id) DO UPDATE SET
+            website_session_id = COALESCE(EXCLUDED.website_session_id, crm_webchat_visitor.website_session_id),
+            user_agent = COALESCE(EXCLUDED.user_agent, crm_webchat_visitor.user_agent),
+            last_seen_at = COALESCE(EXCLUDED.last_seen_at, now()),
+            update_time = now()
+    </insert>
+
+    <update id="updateProfile" parameterType="com.ruoyi.crm.domain.CrmWebchatVisitor">
+        UPDATE crm_webchat_visitor
+        SET display_name = COALESCE(#{displayName}, display_name),
+            email = COALESCE(#{email}, email),
+            mobile_phone = COALESCE(#{mobilePhone}, mobile_phone),
+            whatsapp = COALESCE(#{whatsapp}, whatsapp),
+            website_session_id = COALESCE(#{websiteSessionId}, website_session_id),
+            user_agent = COALESCE(#{userAgent}, user_agent),
+            last_seen_at = COALESCE(#{lastSeenAt}, now()),
+            update_time = now()
+        WHERE tenant_id = #{tenantId} AND visitor_id = #{visitorId}
+    </update>
+
+    <update id="updateSubjects">
+        UPDATE crm_webchat_visitor
+        SET contact_id = #{contactId},
+            lead_id = #{leadId},
+            update_time = now()
+        WHERE tenant_id = #{tenantId} AND visitor_id = #{visitorId}
+    </update>
+
+    <update id="migrateLeadToContact">
+        UPDATE crm_webchat_visitor
+        SET contact_id = #{newContactId},
+            lead_id = NULL,
+            update_time = now()
+        WHERE lead_id = #{oldLeadId}
+    </update>
+</mapper>

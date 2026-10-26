@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.tenant.mapper.SysWechatMpTenantMapper">
+
+    <resultMap type="com.ruoyi.tenant.domain.SysWechatMpTenant" id="SysWechatMpTenantResult">
+        <result property="appId" column="app_id"/>
+        <result property="tenant" column="tenant"/>
+    </resultMap>
+
+    <select id="selectByAppId" resultMap="SysWechatMpTenantResult">
+        SELECT app_id, tenant FROM sys_wechat_mp_tenant WHERE app_id = #{appId}
+    </select>
+
+    <delete id="deleteByTenant">
+        DELETE FROM sys_wechat_mp_tenant WHERE tenant = #{tenant}
+    </delete>
+
+    <insert id="insert" parameterType="com.ruoyi.tenant.domain.SysWechatMpTenant">
+        INSERT INTO sys_wechat_mp_tenant (app_id, tenant) VALUES (#{appId}, #{tenant})
+    </insert>
+</mapper>

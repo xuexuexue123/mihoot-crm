@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.wechatmp.mapper.CrmWechatMpMaterialMapper">
+
+    <resultMap id="MaterialResult" type="com.ruoyi.crm.wechatmp.domain.CrmWechatMpMaterial">
+        <id property="id" column="id"/>
+        <result property="appId" column="app_id"/>
+        <result property="mediaId" column="media_id"/>
+        <result property="type" column="type"/>
+        <result property="name" column="name"/>
+        <result property="url" column="url"/>
+        <result property="title" column="title"/>
+        <result property="digest" column="digest"/>
+        <result property="thumbUrl" column="thumb_url"/>
+        <result property="description" column="description"/>
+        <result property="downUrl" column="down_url"/>
+        <result property="contentType" column="content_type"/>
+        <result property="newsItemsJson" column="news_items_json"/>
+        <result property="isDefault" column="is_default"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+    </resultMap>
+
+    <select id="selectMaxUpdateTime" resultType="java.time.OffsetDateTime">
+        SELECT MAX(update_time) FROM crm_wechat_mp_material
+        WHERE app_id = #{appId} AND type = #{type}
+    </select>
+
+    <select id="selectPageByAppIdAndType" resultMap="MaterialResult">
+        SELECT * FROM crm_wechat_mp_material
+        WHERE app_id = #{appId} AND type = #{type}
+        ORDER BY update_time DESC NULLS LAST
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="countByAppIdAndType" resultType="long">
+        SELECT COUNT(*) FROM crm_wechat_mp_material
+        WHERE app_id = #{appId} AND type = #{type}
+    </select>
+
+    <select id="selectByMediaId" resultMap="MaterialResult">
+        SELECT * FROM crm_wechat_mp_material
+        WHERE app_id = #{appId} AND media_id = #{mediaId}
+        LIMIT 1
+    </select>
+
+    <select id="selectDefaultByAppId" resultMap="MaterialResult">
+        SELECT * FROM crm_wechat_mp_material
+        WHERE app_id = #{appId} AND is_default = TRUE
+        LIMIT 1
+    </select>
+
+    <update id="clearDefaultByAppId">
+        UPDATE crm_wechat_mp_material
+        SET is_default = FALSE, updated_at = now()
+        WHERE app_id = #{appId} AND is_default = TRUE
+    </update>
+
+    <update id="setDefaultByMediaId">
+        UPDATE crm_wechat_mp_material
+        SET is_default = TRUE, updated_at = now()
+        WHERE app_id = #{appId} AND media_id = #{mediaId}
+    </update>
+
+    <insert id="batchUpsert">
+        INSERT INTO crm_wechat_mp_material (
+            app_id, media_id, type, name, url,
+            title, digest, thumb_url, description, down_url,
+            content_type, news_items_json, update_time
+        ) VALUES
+        <foreach collection="list" item="row" separator=",">
+        (
+            #{row.appId}, #{row.mediaId}, #{row.type}, #{row.name}, #{row.url},
+            #{row.title}, #{row.digest}, #{row.thumbUrl}, #{row.description}, #{row.downUrl},
+            #{row.contentType}, #{row.newsItemsJson}, #{row.updateTime}
+        )
+        </foreach>
+        ON CONFLICT (app_id, media_id) DO UPDATE SET
+            type = EXCLUDED.type,
+            name = COALESCE(EXCLUDED.name, crm_wechat_mp_material.name),
+            url = COALESCE(EXCLUDED.url, crm_wechat_mp_material.url),
+            title = COALESCE(EXCLUDED.title, crm_wechat_mp_material.title),
+            digest = COALESCE(EXCLUDED.digest, crm_wechat_mp_material.digest),
+            thumb_url = COALESCE(EXCLUDED.thumb_url, crm_wechat_mp_material.thumb_url),
+            description = COALESCE(EXCLUDED.description, crm_wechat_mp_material.description),
+            down_url = COALESCE(EXCLUDED.down_url, crm_wechat_mp_material.down_url),
+            content_type = COALESCE(EXCLUDED.content_type, crm_wechat_mp_material.content_type),
+            news_items_json = COALESCE(EXCLUDED.news_items_json, crm_wechat_mp_material.news_items_json),
+            update_time = COALESCE(EXCLUDED.update_time, crm_wechat_mp_material.update_time),
+            updated_at = now()
+    </insert>
+
+    <insert id="upsert">
+        INSERT INTO crm_wechat_mp_material (
+            app_id, media_id, type, name, url,
+            title, digest, thumb_url, description, down_url,
+            content_type, news_items_json, update_time
+        ) VALUES (
+            #{appId}, #{mediaId}, #{type}, #{name}, #{url},
+            #{title}, #{digest}, #{thumbUrl}, #{description}, #{downUrl},
+            #{contentType}, #{newsItemsJson}, #{updateTime}
+        )
+        ON CONFLICT (app_id, media_id) DO UPDATE SET
+            type = EXCLUDED.type,
+            name = COALESCE(EXCLUDED.name, crm_wechat_mp_material.name),
+            url = COALESCE(EXCLUDED.url, crm_wechat_mp_material.url),
+            title = COALESCE(EXCLUDED.title, crm_wechat_mp_material.title),
+            digest = COALESCE(EXCLUDED.digest, crm_wechat_mp_material.digest),
+            thumb_url = COALESCE(EXCLUDED.thumb_url, crm_wechat_mp_material.thumb_url),
+            description = COALESCE(EXCLUDED.description, crm_wechat_mp_material.description),
+            down_url = COALESCE(EXCLUDED.down_url, crm_wechat_mp_material.down_url),
+            content_type = COALESCE(EXCLUDED.content_type, crm_wechat_mp_material.content_type),
+            news_items_json = COALESCE(EXCLUDED.news_items_json, crm_wechat_mp_material.news_items_json),
+            update_time = COALESCE(EXCLUDED.update_time, crm_wechat_mp_material.update_time),
+            updated_at = now()
+    </insert>
+
+    <delete id="deleteByMediaId">
+        DELETE FROM crm_wechat_mp_material
+        WHERE app_id = #{appId} AND media_id = #{mediaId}
+    </delete>
+
+</mapper>

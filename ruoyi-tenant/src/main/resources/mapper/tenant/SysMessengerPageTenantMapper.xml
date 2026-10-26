@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.tenant.mapper.SysMessengerPageTenantMapper">
+
+    <resultMap type="com.ruoyi.tenant.domain.SysMessengerPageTenant" id="SysMessengerPageTenantResult">
+        <result property="pageId" column="page_id"/>
+        <result property="tenant" column="tenant"/>
+    </resultMap>
+
+    <select id="selectByPageId" resultMap="SysMessengerPageTenantResult">
+        SELECT page_id, tenant FROM sys_messenger_page_tenant WHERE page_id = #{pageId}
+    </select>
+
+    <select id="selectAll" resultMap="SysMessengerPageTenantResult">
+        SELECT page_id, tenant FROM sys_messenger_page_tenant
+    </select>
+
+    <delete id="deleteByTenant">
+        DELETE FROM sys_messenger_page_tenant WHERE tenant = #{tenant}
+    </delete>
+
+    <insert id="insert" parameterType="com.ruoyi.tenant.domain.SysMessengerPageTenant">
+        INSERT INTO sys_messenger_page_tenant (page_id, tenant) VALUES (#{pageId}, #{tenant})
+    </insert>
+</mapper>

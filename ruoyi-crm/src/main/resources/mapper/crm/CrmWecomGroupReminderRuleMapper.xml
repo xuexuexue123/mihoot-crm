@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmWecomGroupReminderRuleMapper">
+
+    <resultMap type="com.ruoyi.crm.domain.CrmWecomGroupReminderRule" id="CrmWecomGroupReminderRuleResult">
+        <result property="ruleId" column="rule_id"/>
+        <result property="tenantId" column="tenant_id"/>
+        <result property="name" column="name"/>
+        <result property="description" column="description"/>
+        <result property="enabled" column="enabled"/>
+        <result property="isSystem" column="is_system"/>
+        <result property="priority" column="priority"/>
+        <result property="anchorType" column="anchor_type"/>
+        <result property="offsetValue" column="offset_value"/>
+        <result property="offsetUnit" column="offset_unit"/>
+        <result property="sendTime" column="send_time"/>
+        <result property="templateBody" column="template_body"/>
+        <result property="matchJson" column="match_json"/>
+        <result property="requireActiveGroup" column="require_active_group"/>
+        <result property="delFlag" column="del_flag"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <sql id="selectCols">
+        rule_id, tenant_id, name, description, enabled, is_system, priority, anchor_type,
+        offset_value, offset_unit, send_time, template_body, match_json, require_active_group,
+        del_flag, create_by, create_time, update_by, update_time
+    </sql>
+
+    <select id="selectById" resultMap="CrmWecomGroupReminderRuleResult">
+        select <include refid="selectCols"/>
+        from crm_wecom_group_reminder_rule
+        where tenant_id = #{tenantId} and rule_id = #{ruleId} and del_flag = '0'
+    </select>
+
+    <select id="selectList" parameterType="com.ruoyi.crm.domain.CrmWecomGroupReminderRule" resultMap="CrmWecomGroupReminderRuleResult">
+        select <include refid="selectCols"/>
+        from crm_wecom_group_reminder_rule
+        where tenant_id = #{tenantId} and del_flag = '0'
+        <if test="enabled != null and enabled != ''">and enabled = #{enabled}</if>
+        <if test="anchorType != null and anchorType != ''">and anchor_type = #{anchorType}</if>
+        <if test="name != null and name != ''">and name like concat('%', #{name}, '%')</if>
+        order by priority asc, create_time asc
+    </select>
+
+    <select id="selectEnabledByAnchor" resultMap="CrmWecomGroupReminderRuleResult">
+        select <include refid="selectCols"/>
+        from crm_wecom_group_reminder_rule
+        where tenant_id = #{tenantId}
+          and enabled = '1'
+          and del_flag = '0'
+          and anchor_type = #{anchorType}
+        order by priority asc
+    </select>
+
+    <insert id="insert" parameterType="com.ruoyi.crm.domain.CrmWecomGroupReminderRule">
+        insert into crm_wecom_group_reminder_rule (
+            rule_id, tenant_id, name, description, enabled, is_system, priority, anchor_type,
+            offset_value, offset_unit, send_time, template_body, match_json, require_active_group,
+            del_flag, create_by, create_time, update_by, update_time
+        ) values (
+            #{ruleId}, #{tenantId}, #{name}, #{description}, #{enabled}, #{isSystem}, #{priority}, #{anchorType},
+            #{offsetValue}, #{offsetUnit}, #{sendTime}, #{templateBody}, #{matchJson}, #{requireActiveGroup},
+            #{delFlag}, #{createBy}, #{createTime}, #{updateBy}, #{updateTime}
+        )
+    </insert>
+
+    <update id="update" parameterType="com.ruoyi.crm.domain.CrmWecomGroupReminderRule">
+        update crm_wecom_group_reminder_rule
+        <set>
+            <if test="name != null">name = #{name},</if>
+            <if test="description != null">description = #{description},</if>
+            <if test="enabled != null">enabled = #{enabled},</if>
+            <if test="priority != null">priority = #{priority},</if>
+            <if test="anchorType != null">anchor_type = #{anchorType},</if>
+            <if test="offsetValue != null">offset_value = #{offsetValue},</if>
+            <if test="offsetUnit != null">offset_unit = #{offsetUnit},</if>
+            <if test="sendTime != null">send_time = #{sendTime},</if>
+            <if test="templateBody != null">template_body = #{templateBody},</if>
+            <if test="matchJson != null">match_json = #{matchJson},</if>
+            <if test="requireActiveGroup != null">require_active_group = #{requireActiveGroup},</if>
+            update_by = #{updateBy},
+            update_time = #{updateTime}
+        </set>
+        where tenant_id = #{tenantId} and rule_id = #{ruleId} and del_flag = '0'
+    </update>
+
+    <update id="softDelete">
+        update crm_wecom_group_reminder_rule
+        set del_flag = '1', update_time = now()
+        where tenant_id = #{tenantId} and rule_id = #{ruleId} and is_system = '0' and del_flag = '0'
+    </update>
+</mapper>

@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmStagehistoryMapper">
+    
+    <resultMap type="CrmStagehistory" id="CrmStagehistoryResult">
+        <result property="shId"    column="sh_id"    />
+        <result property="stage"    column="stage"    />
+        <result property="optyId"    column="opty_id"    />
+        <result property="optyName"    column="opty_name"    />
+        <result property="optyAmount"    column="opty_amount"    />
+        <result property="owner"    column="owner"    />
+        <result property="duration"    column="duration"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectCrmStagehistoryVo">
+        select sh_id, stage, opty_id, opty_name, opty_amount, owner, duration, create_by, create_time, update_by, update_time from crm_stagehistory
+    </sql>
+
+    <select id="selectCrmStagehistoryList" parameterType="CrmStagehistory" resultMap="CrmStagehistoryResult">
+        <include refid="selectCrmStagehistoryVo"/>
+        <where>  
+            <if test="stage != null  and stage != ''"> and stage = #{stage}</if>
+            <if test="optyId != null  and optyId != ''"> and opty_id = #{optyId}</if>
+            <if test="optyName != null  and optyName != ''"> and opty_name like concat('%', #{optyName}, '%')</if>
+            <if test="optyAmount != null "> and opty_amount = #{optyAmount}</if>
+            <if test="owner != null  and owner != ''"> and owner = #{owner}</if>
+            <if test="duration != null "> and duration = #{duration}</if>
+        </where>
+        order by create_time desc
+    </select>
+    
+    <select id="selectCrmStagehistoryByShId" parameterType="String" resultMap="CrmStagehistoryResult">
+        <include refid="selectCrmStagehistoryVo"/>
+        where sh_id = #{shId}
+    </select>
+        
+    <insert id="insertCrmStagehistory" parameterType="CrmStagehistory">
+        insert into crm_stagehistory
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="shId != null">sh_id,</if>
+            <if test="stage != null and stage != ''">stage,</if>
+            <if test="optyId != null and optyId != ''">opty_id,</if>
+            <if test="optyName != null">opty_name,</if>
+            <if test="optyAmount != null">opty_amount,</if>
+            <if test="owner != null and owner != ''">owner,</if>
+            <if test="duration != null">duration,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="shId != null">#{shId},</if>
+            <if test="stage != null and stage != ''">#{stage},</if>
+            <if test="optyId != null and optyId != ''">#{optyId},</if>
+            <if test="optyName != null">#{optyName},</if>
+            <if test="optyAmount != null">#{optyAmount},</if>
+            <if test="owner != null and owner != ''">#{owner},</if>
+            <if test="duration != null">#{duration},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateCrmStagehistory" parameterType="CrmStagehistory">
+        update crm_stagehistory
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="stage != null and stage != ''">stage = #{stage},</if>
+            <if test="optyId != null and optyId != ''">opty_id = #{optyId},</if>
+            <if test="optyName != null">opty_name = #{optyName},</if>
+            <if test="optyAmount != null">opty_amount = #{optyAmount},</if>
+            <if test="owner != null and owner != ''">owner = #{owner},</if>
+            <if test="duration != null">duration = #{duration},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where sh_id = #{shId}
+    </update>
+
+    <delete id="deleteCrmStagehistoryByShId" parameterType="String">
+        delete from crm_stagehistory where sh_id = #{shId}
+    </delete>
+
+    <delete id="deleteCrmStagehistoryByShIds" parameterType="String">
+        delete from crm_stagehistory where sh_id in 
+        <foreach item="shId" collection="array" open="(" separator="," close=")">
+            #{shId}
+        </foreach>
+    </delete>
+</mapper>

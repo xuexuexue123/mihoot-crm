@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmTicketMapper">
+    
+    <resultMap type="CrmTicket" id="CrmTicketResult">
+        <result property="id"    column="id"    />
+        <result property="accountId"    column="account_id"    />
+        <result property="accountName"    column="account_name"    />
+        <result property="category"    column="category"    />
+        <result property="subject"    column="subject"    />
+        <result property="source"    column="source"    />
+        <result property="description"    column="description"    />
+        <result property="resolutionNote"    column="resolution_note"    />
+        <result property="priority"    column="priority"    />
+        <result property="owner"    column="owner"    />
+        <result property="status"    column="status"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="closeBy"    column="close_by"    />
+        <result property="closeTime"    column="close_time"    />
+        <result property="userId"    column="user_id"    />
+        <result property="deptId"    column="dept_id"    />
+        <result property="slaDueDate"    column="sla_due_date"    />
+        <result property="slaComplianceStatus"    column="sla_compliance_status"    />
+        <result property="overdueBy"    column="overdue_by"    />
+        <result property="region"    column="region"    />
+        <result property="channel"    column="channel"    />
+        <result property="sourceType"    column="source_type"    />
+        <result property="customerSatisfaction"    column="customer_satisfaction"    />
+        <result property="firstResponseTime"    column="first_response_time"    />
+        <result property="resolutionTime"    column="resolution_time"    />
+    </resultMap>
+
+    <sql id="selectCrmTicketVo">
+        select t.id, t.account_id, t.account_name, t.category, t.subject, t.source, t.description, t.resolution_note, t.priority, t.owner, t.status, t.create_by, t.create_time, t.update_by, t.update_time, t.close_by, t.close_time, t.user_id, t.dept_id, t.sla_due_date, t.sla_compliance_status, t.overdue_by, t.region, t.channel, t.source_type, t.customer_satisfaction, t.first_response_time, t.resolution_time
+        from crm_ticket t
+        left join sys_user u on u.user_id = t.user_id
+        left join sys_dept d on u.dept_id = d.dept_id
+    </sql>
+
+    <select id="selectCrmTicketList" parameterType="CrmTicket" resultMap="CrmTicketResult">
+        <include refid="selectCrmTicketVo"/>
+        <where>  
+            <if test="accountId != null  and accountId != ''"> and account_id = #{accountId}</if>
+            <if test="accountName != null  and accountName != ''"> and account_name like concat('%', #{accountName}, '%')</if>
+            <if test="category != null  and category != ''"> and category = #{category}</if>
+            <if test="subject != null  and subject != ''"> and subject = #{subject}</if>
+            <if test="source != null  and source != ''"> and source = #{source}</if>
+            <if test="description != null  and description != ''"> and description = #{description}</if>
+            <if test="resolutionNote != null  and resolutionNote != ''"> and resolution_note = #{resolutionNote}</if>
+            <if test="priority != null  and priority != ''"> and priority = #{priority}</if>
+            <if test="owner != null  and owner != ''"> and owner = #{owner}</if>
+            <if test="status != null  and status != ''"> and status = #{status}</if>
+            <if test="closeBy != null  and closeBy != ''"> and close_by = #{closeBy}</if>
+            <if test="closeTime != null "> and close_time = #{closeTime}</if>
+            <if test="userId != null "> and user_id = #{userId}</if>
+            <if test="deptId != null "> and dept_id = #{deptId}</if>
+            <if test="slaDueDate != null "> and sla_due_date = #{slaDueDate}</if>
+            <if test="slaComplianceStatus != null  and slaComplianceStatus != ''"> and sla_compliance_status = #{slaComplianceStatus}</if>
+            <if test="overdueBy != null  and overdueBy != ''"> and overdue_by = #{overdueBy}</if>
+            <if test="region != null  and region != ''"> and region = #{region}</if>
+            <if test="channel != null  and channel != ''"> and channel = #{channel}</if>
+            <if test="sourceType != null  and sourceType != ''"> and source_type = #{sourceType}</if>
+            <if test="customerSatisfaction != null "> and customer_satisfaction = #{customerSatisfaction}</if>
+            <if test="firstResponseTime != null "> and first_response_time = #{firstResponseTime}</if>
+            <if test="resolutionTime != null "> and resolution_time = #{resolutionTime}</if>
+        </where>
+        <!-- 数据范围过滤 -->
+        ${params.dataScope}
+        order by status, priority
+    </select>
+    
+    <select id="selectCrmTicketById" parameterType="String" resultMap="CrmTicketResult">
+        <include refid="selectCrmTicketVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertCrmTicket" parameterType="CrmTicket">
+        insert into crm_ticket
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">id,</if>
+            <if test="accountId != null and accountId != ''">account_id,</if>
+            <if test="accountName != null and accountName != ''">account_name,</if>
+            <if test="category != null and category != ''">category,</if>
+            <if test="subject != null">subject,</if>
+            <if test="source != null">source,</if>
+            <if test="description != null">description,</if>
+            <if test="resolutionNote != null">resolution_note,</if>
+            <if test="priority != null">priority,</if>
+            <if test="owner != null">owner,</if>
+            <if test="status != null">status,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="closeBy != null">close_by,</if>
+            <if test="closeTime != null">close_time,</if>
+            <if test="userId != null">user_id,</if>
+            <if test="deptId != null">dept_id,</if>
+            <if test="slaDueDate != null">sla_due_date,</if>
+            <if test="slaComplianceStatus != null">sla_compliance_status,</if>
+            <if test="overdueBy != null">overdue_by,</if>
+            <if test="region != null">region,</if>
+            <if test="channel != null">channel,</if>
+            <if test="sourceType != null">source_type,</if>
+            <if test="customerSatisfaction != null">customer_satisfaction,</if>
+            <if test="firstResponseTime != null">first_response_time,</if>
+            <if test="resolutionTime != null">resolution_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">#{id},</if>
+            <if test="accountId != null and accountId != ''">#{accountId},</if>
+            <if test="accountName != null and accountName != ''">#{accountName},</if>
+            <if test="category != null and category != ''">#{category},</if>
+            <if test="subject != null">#{subject},</if>
+            <if test="source != null">#{source},</if>
+            <if test="description != null">#{description},</if>
+            <if test="resolutionNote != null">#{resolutionNote},</if>
+            <if test="priority != null">#{priority},</if>
+            <if test="owner != null">#{owner},</if>
+            <if test="status != null">#{status},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="closeBy != null">#{closeBy},</if>
+            <if test="closeTime != null">#{closeTime},</if>
+            <if test="userId != null">#{userId},</if>
+            <if test="deptId != null">#{deptId},</if>
+            <if test="slaDueDate != null">#{slaDueDate},</if>
+            <if test="slaComplianceStatus != null">#{slaComplianceStatus},</if>
+            <if test="overdueBy != null">#{overdueBy},</if>
+            <if test="region != null">#{region},</if>
+            <if test="channel != null">#{channel},</if>
+            <if test="sourceType != null">#{sourceType},</if>
+            <if test="customerSatisfaction != null">#{customerSatisfaction},</if>
+            <if test="firstResponseTime != null">#{firstResponseTime},</if>
+            <if test="resolutionTime != null">#{resolutionTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateCrmTicket" parameterType="CrmTicket">
+        update crm_ticket
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="accountId != null and accountId != ''">account_id = #{accountId},</if>
+            <if test="accountName != null and accountName != ''">account_name = #{accountName},</if>
+            <if test="category != null and category != ''">category = #{category},</if>
+            <if test="subject != null">subject = #{subject},</if>
+            <if test="source != null">source = #{source},</if>
+            <if test="description != null">description = #{description},</if>
+            <if test="resolutionNote != null">resolution_note = #{resolutionNote},</if>
+            <if test="priority != null">priority = #{priority},</if>
+            <if test="owner != null">owner = #{owner},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="closeBy != null">close_by = #{closeBy},</if>
+            <if test="closeTime != null">close_time = #{closeTime},</if>
+            <if test="userId != null">user_id = #{userId},</if>
+            <if test="deptId != null">dept_id = #{deptId},</if>
+            <if test="slaDueDate != null">sla_due_date = #{slaDueDate},</if>
+            <if test="slaComplianceStatus != null">sla_compliance_status = #{slaComplianceStatus},</if>
+            <if test="overdueBy != null">overdue_by = #{overdueBy},</if>
+            <if test="region != null">region = #{region},</if>
+            <if test="channel != null">channel = #{channel},</if>
+            <if test="sourceType != null">source_type = #{sourceType},</if>
+            <if test="customerSatisfaction != null">customer_satisfaction = #{customerSatisfaction},</if>
+            <if test="firstResponseTime != null">first_response_time = #{firstResponseTime},</if>
+            <if test="resolutionTime != null">resolution_time = #{resolutionTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteCrmTicketById" parameterType="String">
+        delete from crm_ticket where id = #{id}
+    </delete>
+
+    <delete id="deleteCrmTicketByIds" parameterType="String">
+        delete from crm_ticket where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

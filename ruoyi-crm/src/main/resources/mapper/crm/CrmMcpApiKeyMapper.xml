@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmMcpApiKeyMapper">
+
+    <resultMap type="com.ruoyi.crm.domain.CrmMcpApiKey" id="CrmMcpApiKeyResult">
+        <id property="id" column="id"/>
+        <result property="tenantId" column="tenant_id"/>
+        <result property="name" column="name"/>
+        <result property="keyPrefix" column="key_prefix"/>
+        <result property="keyHash" column="key_hash"/>
+        <result property="boundUserId" column="bound_user_id"/>
+        <result property="allowedTools" column="allowed_tools"/>
+        <result property="enabled" column="enabled"/>
+        <result property="expiresAt" column="expires_at"/>
+        <result property="serviceTokenEnc" column="service_token_enc"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <sql id="selectColumns">
+        id, tenant_id, name, key_prefix, key_hash, bound_user_id, allowed_tools, enabled, expires_at,
+        service_token_enc, create_by, create_time, update_by, update_time
+    </sql>
+
+    <select id="selectListByTenant" resultMap="CrmMcpApiKeyResult">
+        select <include refid="selectColumns"/>
+        from crm_mcp_api_key
+        where tenant_id = #{tenantId}
+        order by id asc
+    </select>
+
+    <select id="selectByIdAndTenant" resultMap="CrmMcpApiKeyResult">
+        select <include refid="selectColumns"/>
+        from crm_mcp_api_key
+        where id = #{id} and tenant_id = #{tenantId}
+    </select>
+
+    <select id="selectByKeyPrefix" resultMap="CrmMcpApiKeyResult">
+        select <include refid="selectColumns"/>
+        from crm_mcp_api_key
+        where key_prefix = #{keyPrefix}
+    </select>
+
+    <select id="selectByNameAndTenant" resultMap="CrmMcpApiKeyResult">
+        select <include refid="selectColumns"/>
+        from crm_mcp_api_key
+        where name = #{name} and tenant_id = #{tenantId}
+    </select>
+
+    <insert id="insert" parameterType="com.ruoyi.crm.domain.CrmMcpApiKey" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
+        insert into crm_mcp_api_key (
+            tenant_id, name, key_prefix, key_hash, bound_user_id, allowed_tools, enabled, expires_at,
+            service_token_enc, create_by, create_time, update_by, update_time
+        ) values (
+            #{tenantId}, #{name}, #{keyPrefix}, #{keyHash}, #{boundUserId},
+            CAST(NULLIF(TRIM(#{allowedTools}), '') AS jsonb), #{enabled},
+            #{expiresAt}, #{serviceTokenEnc}, #{createBy}, #{createTime}, #{updateBy}, #{updateTime}
+        )
+    </insert>
+
+    <update id="update" parameterType="com.ruoyi.crm.domain.CrmMcpApiKey">
+        update crm_mcp_api_key
+        set name = #{name},
+            key_prefix = #{keyPrefix},
+            key_hash = #{keyHash},
+            bound_user_id = #{boundUserId},
+            allowed_tools = CAST(NULLIF(TRIM(#{allowedTools}), '') AS jsonb),
+            enabled = #{enabled},
+            expires_at = #{expiresAt},
+            service_token_enc = #{serviceTokenEnc},
+            update_by = #{updateBy},
+            update_time = #{updateTime}
+        where id = #{id} and tenant_id = #{tenantId}
+    </update>
+
+    <update id="disableByIdAndTenant">
+        update crm_mcp_api_key
+        set enabled = 0,
+            update_by = #{updateBy},
+            update_time = #{updateTime}
+        where id = #{id} and tenant_id = #{tenantId}
+    </update>
+
+    <update id="updateServiceTokenEnc" parameterType="com.ruoyi.crm.domain.CrmMcpApiKey">
+        update crm_mcp_api_key
+        set service_token_enc = #{serviceTokenEnc},
+            update_time = #{updateTime}
+        where id = #{id} and tenant_id = #{tenantId}
+    </update>
+</mapper>

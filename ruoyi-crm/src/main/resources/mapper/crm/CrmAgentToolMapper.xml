@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmAgentToolMapper">
+    
+    <resultMap type="CrmAgentTool" id="CrmAgentToolResult">
+        <result property="id"    column="id"    />
+        <result property="agentId"    column="agent_id"    />
+        <result property="name"    column="name"    />
+        <result property="description"    column="description"    />
+        <result property="category"    column="category"    />
+        <result property="llmModel"    column="llm_model"    />
+        <result property="inputExample"    column="input_example"    />
+        <result property="outputExample"    column="output_example"    />
+        <result property="promptTemplate"    column="prompt_template"    />
+        <result property="enabled"    column="enabled"    />
+        <result property="createdAt"    column="created_at"    />
+        <result property="updatedAt"    column="updated_at"    />
+    </resultMap>
+
+    <sql id="selectCrmAgentToolVo">
+        select id, agent_id, name, description, category, llm_model, input_example, output_example, prompt_template, enabled, created_at, updated_at from crm_agent_tool
+    </sql>
+
+    <select id="selectCrmAgentToolList" parameterType="CrmAgentTool" resultMap="CrmAgentToolResult">
+        <include refid="selectCrmAgentToolVo"/>
+        <where>  
+            <if test="agentId != null  and agentId != ''"> and agent_id = #{agentId}</if>
+            <if test="name != null  and name != ''"> and name like concat('%', #{name}, '%')</if>
+            <if test="description != null  and description != ''"> and description = #{description}</if>
+            <if test="category != null  and category != ''"> and category = #{category}</if>
+            <if test="llmModel != null  and llmModel != ''"> and llm_model = #{llmModel}</if>
+            <if test="inputExample != null  and inputExample != ''"> and input_example = #{inputExample}</if>
+            <if test="outputExample != null  and outputExample != ''"> and output_example = #{outputExample}</if>
+            <if test="promptTemplate != null  and promptTemplate != ''"> and prompt_template = #{promptTemplate}</if>
+            <if test="enabled != null "> and enabled = #{enabled}</if>
+            <if test="createdAt != null "> and created_at = #{createdAt}</if>
+            <if test="updatedAt != null "> and updated_at = #{updatedAt}</if>
+        </where>
+    </select>
+    
+    <select id="selectCrmAgentToolById" parameterType="Long" resultMap="CrmAgentToolResult">
+        <include refid="selectCrmAgentToolVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertCrmAgentTool" parameterType="CrmAgentTool" useGeneratedKeys="true" keyProperty="id">
+        insert into crm_agent_tool
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="agentId != null and agentId != ''">agent_id,</if>
+            <if test="name != null and name != ''">name,</if>
+            <if test="description != null">description,</if>
+            <if test="category != null">category,</if>
+            <if test="llmModel != null">llm_model,</if>
+            <if test="inputExample != null">input_example,</if>
+            <if test="outputExample != null">output_example,</if>
+            <if test="promptTemplate != null and promptTemplate != ''">prompt_template,</if>
+            <if test="enabled != null">enabled,</if>
+            <if test="createdAt != null">created_at,</if>
+            <if test="updatedAt != null">updated_at,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="agentId != null and agentId != ''">#{agentId},</if>
+            <if test="name != null and name != ''">#{name},</if>
+            <if test="description != null">#{description},</if>
+            <if test="category != null">#{category},</if>
+            <if test="llmModel != null">#{llmModel},</if>
+            <if test="inputExample != null">#{inputExample},</if>
+            <if test="outputExample != null">#{outputExample},</if>
+            <if test="promptTemplate != null and promptTemplate != ''">#{promptTemplate},</if>
+            <if test="enabled != null">#{enabled},</if>
+            <if test="createdAt != null">#{createdAt},</if>
+            <if test="updatedAt != null">#{updatedAt},</if>
+         </trim>
+    </insert>
+
+    <update id="updateCrmAgentTool" parameterType="CrmAgentTool">
+        update crm_agent_tool
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="agentId != null and agentId != ''">agent_id = #{agentId},</if>
+            <if test="name != null and name != ''">name = #{name},</if>
+            <if test="description != null">description = #{description},</if>
+            <if test="category != null">category = #{category},</if>
+            <if test="llmModel != null">llm_model = #{llmModel},</if>
+            <if test="inputExample != null">input_example = #{inputExample},</if>
+            <if test="outputExample != null">output_example = #{outputExample},</if>
+            <if test="promptTemplate != null and promptTemplate != ''">prompt_template = #{promptTemplate},</if>
+            <if test="enabled != null">enabled = #{enabled},</if>
+            <if test="createdAt != null">created_at = #{createdAt},</if>
+            <if test="updatedAt != null">updated_at = #{updatedAt},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteCrmAgentToolById" parameterType="Long">
+        delete from crm_agent_tool where id = #{id}
+    </delete>
+
+    <delete id="deleteCrmAgentToolByIds" parameterType="String">
+        delete from crm_agent_tool where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

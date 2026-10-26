@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmOptyrelationMapper">
+    
+    <resultMap type="CrmOptyrelation" id="CrmOptyrelationResult">
+        <result property="relateId"    column="relate_id"    />
+        <result property="sourceId"    column="source_id"    />
+        <result property="sourceName"    column="source_name"    />
+        <result property="relateRole"    column="relate_role"    />
+        <result property="targetId"    column="target_id"    />
+        <result property="targetType"    column="target_type"    />
+        <result property="targetName"    column="target_name"    />
+        <result property="relationDesc"    column="relation_desc"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="customField"    column="custom_field"    />
+        <result property="status"    column="status"    />
+        <result property="priority"    column="priority"    />
+        <result property="owner"    column="owner"    />
+        <result property="userId"    column="user_id"    />
+        <result property="latestUpdate"    column="latest_update"    />
+        <result property="stage"    column="stage"    />
+        <result property="openCount"    column="open_count"    />
+        <result property="openStatus"    column="open_status"    />
+        <result property="feedback"    column="feedback"    />
+        <result property="validationCode"    column="validation_code"    />
+    </resultMap>
+
+    <sql id="selectCrmOptyrelationVo">
+        select relate_id, source_id, source_name, relate_role, target_id, target_type, target_name, relation_desc, create_by, create_time, update_by, update_time, custom_field, status, priority, owner, user_id, latest_update, stage, open_count, open_status, feedback, validation_code  from crm_optyrelation
+    </sql>
+
+    <select id="selectCrmOptyrelationList" parameterType="CrmOptyrelation" resultMap="CrmOptyrelationResult">
+        <include refid="selectCrmOptyrelationVo"/>
+        <where>  
+            <if test="sourceId != null  and sourceId != ''"> and source_id = #{sourceId}</if>
+            <if test="sourceName != null  and sourceName != ''"> and source_name like concat('%', #{sourceName}, '%')</if>
+            <if test="relateRole != null  and relateRole != ''"> and relate_role = #{relateRole}</if>
+            <if test="targetId != null  and targetId != ''"> and target_id = #{targetId}</if>
+            <if test="targetType != null  and targetType != ''"> and target_type = #{targetType}</if>
+            <if test="targetName != null  and targetName != ''"> and target_name like concat('%', #{targetName}, '%')</if>
+            <if test="relationDesc != null  and relationDesc != ''"> and relation_desc = #{relationDesc}</if>
+            <if test="status != null  and status != ''"> and status = #{status}</if>
+            <if test="priority != null "> and priority = #{priority}</if>
+            <if test="owner != null  and owner != ''"> and owner = #{owner}</if>
+            <if test="userId != null "> and user_id = #{userId}</if>
+            <if test="stage != null  and stage != ''"> and stage = #{stage}</if>
+            <if test="openCount != null "> and open_count = #{openCount}</if>
+            <if test="openStatus != null  and openStatus != ''"> and open_status = #{openStatus}</if>
+            <if test="feedback != null  and feedback != ''"> and feedback = #{feedback}</if>
+            <if test="validationCode != null  and validationCode != ''"> and validation_code = #{validationCode}</if>
+        </where>
+        order by priority desc
+    </select>
+    
+    <select id="selectCrmOptyrelationByRelateId" parameterType="String" resultMap="CrmOptyrelationResult">
+        <include refid="selectCrmOptyrelationVo"/>
+        where relate_id = #{relateId}
+    </select>
+        
+    <insert id="insertCrmOptyrelation" parameterType="CrmOptyrelation">
+        insert into crm_optyrelation
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="relateId != null">relate_id,</if>
+            <if test="sourceId != null and sourceId != ''">source_id,</if>
+            <if test="sourceName != null and sourceName != ''">source_name,</if>
+            <if test="relateRole != null">relate_role,</if>
+            <if test="targetId != null and targetId != ''">target_id,</if>
+            <if test="targetType != null">target_type,</if>
+            <if test="targetName != null">target_name,</if>
+            <if test="relationDesc != null">relation_desc,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="customField != null">custom_field,</if>
+            <if test="status != null">status,</if>
+            <if test="priority != null">priority,</if>
+            <if test="owner != null">owner,</if>
+            <if test="userId != null">user_id,</if>
+            <if test="latestUpdate != null">latest_update,</if>
+            <if test="stage != null">stage,</if>
+            <if test="openCount != null">open_count,</if>
+            <if test="openStatus != null">open_status,</if>
+            <if test="feedback != null">feedback,</if>
+            <if test="validationCode != null">validation_code,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="relateId != null">#{relateId},</if>
+            <if test="sourceId != null and sourceId != ''">#{sourceId},</if>
+            <if test="sourceName != null and sourceName != ''">#{sourceName},</if>
+            <if test="relateRole != null">#{relateRole},</if>
+            <if test="targetId != null and targetId != ''">#{targetId},</if>
+            <if test="targetType != null">#{targetType},</if>
+            <if test="targetName != null">#{targetName},</if>
+            <if test="relationDesc != null">#{relationDesc},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="customField != null">CAST(NULLIF(TRIM(#{customField}), '') AS jsonb),</if>
+            <if test="status != null">#{status},</if>
+            <if test="priority != null">#{priority},</if>
+            <if test="owner != null">#{owner},</if>
+            <if test="userId != null">#{userId},</if>
+            <if test="latestUpdate != null">#{latestUpdate},</if>
+            <if test="stage != null">#{stage},</if>
+            <if test="openCount != null">#{openCount},</if>
+            <if test="openStatus != null">#{openStatus},</if>
+            <if test="feedback != null">#{feedback},</if>
+            <if test="validationCode != null">#{validationCode},</if>
+         </trim>
+    </insert>
+
+    <update id="updateCrmOptyrelation" parameterType="CrmOptyrelation">
+        update crm_optyrelation
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="sourceId != null and sourceId != ''">source_id = #{sourceId},</if>
+            <if test="sourceName != null and sourceName != ''">source_name = #{sourceName},</if>
+            <if test="relateRole != null">relate_role = #{relateRole},</if>
+            <if test="targetId != null and targetId != ''">target_id = #{targetId},</if>
+            <if test="targetType != null">target_type = #{targetType},</if>
+            <if test="targetName != null">target_name = #{targetName},</if>
+            <if test="relationDesc != null">relation_desc = #{relationDesc},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="customField != null">custom_field = CAST(NULLIF(TRIM(#{customField}), '') AS jsonb),</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="priority != null">priority = #{priority},</if>
+            <if test="owner != null">owner = #{owner},</if>
+            <if test="userId != null">user_id = #{userId},</if>
+            <if test="latestUpdate != null">latest_update = #{latestUpdate},</if>
+            <if test="stage != null">stage = #{stage},</if>
+            <if test="openCount != null">open_count = #{openCount},</if>
+            <if test="openStatus != null">open_status = #{openStatus},</if>
+            <if test="feedback != null">feedback = #{feedback},</if>
+            <if test="validationCode != null">validation_code = #{validationCode},</if>
+        </trim>
+        where relate_id = #{relateId}
+    </update>
+
+    <delete id="deleteCrmOptyrelationByRelateId" parameterType="String">
+        delete from crm_optyrelation where relate_id = #{relateId}
+    </delete>
+
+    <delete id="deleteCrmOptyrelationByRelateIds" parameterType="String">
+        delete from crm_optyrelation where relate_id in 
+        <foreach item="relateId" collection="array" open="(" separator="," close=")">
+            #{relateId}
+        </foreach>
+    </delete>
+</mapper>

@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmSurveyOutreachLogMapper">
+
+    <insert id="insert" parameterType="com.ruoyi.crm.domain.CrmSurveyOutreachLog" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO crm_survey_outreach_log (
+            survey_id, channel, recipient_type, recipient_id, task_id, status, sent_at
+        ) VALUES (
+            #{surveyId}, #{channel}, #{recipientType}, #{recipientId}, #{taskId}, #{status},
+            COALESCE(#{sentAt}, CURRENT_TIMESTAMP)
+        )
+    </insert>
+
+    <insert id="upsert" parameterType="com.ruoyi.crm.domain.CrmSurveyOutreachLog" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO crm_survey_outreach_log (
+            survey_id, channel, recipient_type, recipient_id, task_id, status, sent_at
+        ) VALUES (
+            #{surveyId}, #{channel}, #{recipientType}, #{recipientId}, #{taskId}, #{status},
+            COALESCE(#{sentAt}, CURRENT_TIMESTAMP)
+        )
+        ON CONFLICT (survey_id, channel, recipient_id)
+        DO UPDATE SET
+            sent_at = EXCLUDED.sent_at,
+            status = EXCLUDED.status,
+            recipient_type = EXCLUDED.recipient_type,
+            task_id = COALESCE(EXCLUDED.task_id, crm_survey_outreach_log.task_id)
+    </insert>
+
+    <select id="selectBySurveyRecipientChannel" resultType="com.ruoyi.crm.domain.CrmSurveyOutreachLog">
+        SELECT id,
+               survey_id AS surveyId,
+               channel,
+               recipient_type AS recipientType,
+               recipient_id AS recipientId,
+               task_id AS taskId,
+               status,
+               sent_at AS sentAt
+        FROM crm_survey_outreach_log
+        WHERE survey_id = #{surveyId}
+          AND channel = #{channel}
+          AND recipient_id = #{recipientId}
+        LIMIT 1
+    </select>
+
+    <select id="selectTasksBySurveyId" resultType="com.ruoyi.crm.domain.vo.SurveyOutreachTaskVo">
+        SELECT id AS id,
+               survey_id AS surveyId,
+               channel AS channel,
+               recipient_type AS recipientType,
+               recipient_id AS recipientId,
+               status AS status,
+               sent_at AS sentAt
+        FROM crm_survey_outreach_log
+        WHERE survey_id = #{surveyId}
+        <if test="recipientId != null and recipientId != ''">
+          AND recipient_id = #{recipientId}
+        </if>
+        <if test="channel != null and channel != ''">
+          AND channel = #{channel}
+        </if>
+        ORDER BY sent_at DESC
+    </select>
+
+    <select id="countSentBySurveyAndChannel" resultType="long">
+        SELECT COUNT(*)
+        FROM crm_survey_outreach_log
+        WHERE survey_id = #{surveyId}
+          AND channel = #{channel}
+          AND status = 'sent'
+    </select>
+</mapper>

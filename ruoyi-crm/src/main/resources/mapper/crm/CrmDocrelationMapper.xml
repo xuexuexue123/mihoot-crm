@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmDocrelationMapper">
+    
+    <resultMap type="CrmDocrelation" id="CrmDocrelationResult">
+        <result property="relateId"    column="relate_id"    />
+        <result property="sourceId"    column="source_id"    />
+        <result property="sourceName"    column="source_name"    />
+        <result property="relateRole"    column="relate_role"    />
+        <result property="targetId"    column="target_id"    />
+        <result property="targetType"    column="target_type"    />
+        <result property="targetName"    column="target_name"    />
+        <result property="relationDesc"    column="relation_desc"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectCrmDocrelationVo">
+        select relate_id, source_id, source_name, relate_role, target_id, target_type, target_name, relation_desc, create_by, create_time, update_by, update_time from crm_docrelation
+    </sql>
+
+    <select id="selectCrmDocrelationList" parameterType="CrmDocrelation" resultMap="CrmDocrelationResult">
+        <include refid="selectCrmDocrelationVo"/>
+        <where>  
+            <if test="sourceId != null  and sourceId != ''"> and source_id = #{sourceId}</if>
+            <if test="sourceName != null  and sourceName != ''"> and source_name like concat('%', #{sourceName}, '%')</if>
+            <if test="relateRole != null  and relateRole != ''"> and relate_role = #{relateRole}</if>
+            <if test="targetId != null  and targetId != ''"> and target_id = #{targetId}</if>
+            <if test="targetType != null  and targetType != ''"> and target_type = #{targetType}</if>
+            <if test="targetName != null  and targetName != ''"> and target_name like concat('%', #{targetName}, '%')</if>
+            <if test="relationDesc != null  and relationDesc != ''"> and relation_desc = #{relationDesc}</if>
+        </where>
+    </select>
+    
+    <select id="selectCrmDocrelationByRelateId" parameterType="String" resultMap="CrmDocrelationResult">
+        <include refid="selectCrmDocrelationVo"/>
+        where relate_id = #{relateId}
+    </select>
+        
+    <insert id="insertCrmDocrelation" parameterType="CrmDocrelation">
+        insert into crm_docrelation
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="relateId != null">relate_id,</if>
+            <if test="sourceId != null and sourceId != ''">source_id,</if>
+            <if test="sourceName != null and sourceName != ''">source_name,</if>
+            <if test="relateRole != null">relate_role,</if>
+            <if test="targetId != null and targetId != ''">target_id,</if>
+            <if test="targetType != null">target_type,</if>
+            <if test="targetName != null">target_name,</if>
+            <if test="relationDesc != null">relation_desc,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="relateId != null">#{relateId},</if>
+            <if test="sourceId != null and sourceId != ''">#{sourceId},</if>
+            <if test="sourceName != null and sourceName != ''">#{sourceName},</if>
+            <if test="relateRole != null">#{relateRole},</if>
+            <if test="targetId != null and targetId != ''">#{targetId},</if>
+            <if test="targetType != null">#{targetType},</if>
+            <if test="targetName != null">#{targetName},</if>
+            <if test="relationDesc != null">#{relationDesc},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateCrmDocrelation" parameterType="CrmDocrelation">
+        update crm_docrelation
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="sourceId != null and sourceId != ''">source_id = #{sourceId},</if>
+            <if test="sourceName != null and sourceName != ''">source_name = #{sourceName},</if>
+            <if test="relateRole != null">relate_role = #{relateRole},</if>
+            <if test="targetId != null and targetId != ''">target_id = #{targetId},</if>
+            <if test="targetType != null">target_type = #{targetType},</if>
+            <if test="targetName != null">target_name = #{targetName},</if>
+            <if test="relationDesc != null">relation_desc = #{relationDesc},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where relate_id = #{relateId}
+    </update>
+
+    <delete id="deleteCrmDocrelationByRelateId" parameterType="String">
+        delete from crm_docrelation where relate_id = #{relateId}
+    </delete>
+
+    <delete id="deleteCrmDocrelationByRelateIds" parameterType="String">
+        delete from crm_docrelation where relate_id in 
+        <foreach item="relateId" collection="array" open="(" separator="," close=")">
+            #{relateId}
+        </foreach>
+    </delete>
+</mapper>

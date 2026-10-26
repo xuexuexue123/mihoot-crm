@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmCampaignContactsMapper">
+    
+    <resultMap type="CrmCampaignContacts" id="CrmCampaignContactsResult">
+        <result property="id"    column="id"    />
+        <result property="campaignId"    column="campaign_id"    />
+        <result property="contactId"    column="contact_id"    />
+        <result property="contactName"    column="contact_name"    />
+        <result property="email"    column="email"    />
+        <result property="status"    column="status"    />
+        <result property="metadata"    column="metadata"    />
+        <result property="open"    column="open"    />
+        <result property="openedAt"    column="opened_at"    />
+        <result property="clickedAt"    column="clicked_at"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="fullName"    column="full_name"    />
+        <result property="deliveryStatus"    column="delivery_status"    />
+        <result property="bounceReason"    column="bounce_reason"    />
+        <result property="sentAt"    column="sent_at"    />
+    </resultMap>
+
+    <sql id="selectCrmCampaignContactsVo">
+        select id, campaign_id, contact_id, contact_name, email, status, metadata, open, opened_at, clicked_at, create_by, create_time, update_by, update_time, full_name, delivery_status, bounce_reason, sent_at from crm_campaign_contacts
+    </sql>
+
+    <select id="selectCrmCampaignContactsList" parameterType="CrmCampaignContacts" resultMap="CrmCampaignContactsResult">
+        <include refid="selectCrmCampaignContactsVo"/>
+        <where>  
+            <if test="campaignId != null  and campaignId != ''"> and campaign_id = #{campaignId}</if>
+            <if test="contactId != null  and contactId != ''"> and contact_id = #{contactId}</if>
+            <if test="contactName != null  and contactName != ''"> and contact_name like concat('%', #{contactName}, '%')</if>
+            <if test="email != null  and email != ''"> and email = #{email}</if>
+            <if test="status != null  and status != ''"> and status = #{status}</if>
+            <if test="metadata != null  and metadata != ''"> and metadata = CAST(NULLIF(TRIM(#{metadata}), '') AS jsonb)</if>
+            <if test="open != null "> and open = #{open}</if>
+            <if test="openedAt != null "> and opened_at = #{openedAt}</if>
+            <if test="clickedAt != null "> and clicked_at = #{clickedAt}</if>
+            <if test="fullName != null  and fullName != ''"> and full_name like concat('%', #{fullName}, '%')</if>
+        </where>
+    </select>
+    
+    <select id="selectCrmCampaignContactsById" parameterType="String" resultMap="CrmCampaignContactsResult">
+        <include refid="selectCrmCampaignContactsVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertCrmCampaignContacts" parameterType="CrmCampaignContacts">
+        insert into crm_campaign_contacts
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">id,</if>
+            <if test="campaignId != null and campaignId != ''">campaign_id,</if>
+            <if test="contactId != null and contactId != ''">contact_id,</if>
+            <if test="contactName != null">contact_name,</if>
+            <if test="email != null and email != ''">email,</if>
+            <if test="status != null">status,</if>
+            <if test="metadata != null">metadata,</if>
+            <if test="open != null">open,</if>
+            <if test="openedAt != null">opened_at,</if>
+            <if test="clickedAt != null">clicked_at,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="fullName != null">full_name,</if>
+            <if test="deliveryStatus != null">delivery_status,</if>
+            <if test="bounceReason != null">bounce_reason,</if>
+            <if test="sentAt != null">sent_at,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">#{id},</if>
+            <if test="campaignId != null and campaignId != ''">#{campaignId},</if>
+            <if test="contactId != null and contactId != ''">#{contactId},</if>
+            <if test="contactName != null">#{contactName},</if>
+            <if test="email != null and email != ''">#{email},</if>
+            <if test="status != null">#{status},</if>
+            <if test="metadata != null">CAST(NULLIF(TRIM(#{metadata}), '') AS jsonb),</if>
+            <if test="open != null">#{open},</if>
+            <if test="openedAt != null">#{openedAt},</if>
+            <if test="clickedAt != null">#{clickedAt},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="fullName != null">#{fullName},</if>
+            <if test="deliveryStatus != null">#{deliveryStatus},</if>
+            <if test="bounceReason != null">#{bounceReason},</if>
+            <if test="sentAt != null">#{sentAt},</if>
+         </trim>
+    </insert>
+
+    <update id="updateCrmCampaignContacts" parameterType="CrmCampaignContacts">
+        update crm_campaign_contacts
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="campaignId != null and campaignId != ''">campaign_id = #{campaignId},</if>
+            <if test="contactId != null and contactId != ''">contact_id = #{contactId},</if>
+            <if test="contactName != null">contact_name = #{contactName},</if>
+            <if test="email != null and email != ''">email = #{email},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="metadata != null">metadata = CAST(NULLIF(TRIM(#{metadata}), '') AS jsonb),</if>
+            <if test="open != null">open = #{open},</if>
+            <if test="openedAt != null">opened_at = #{openedAt},</if>
+            <if test="clickedAt != null">clicked_at = #{clickedAt},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="fullName != null">full_name = #{fullName},</if>
+            <if test="deliveryStatus != null">delivery_status = #{deliveryStatus},</if>
+            <if test="bounceReason != null">bounce_reason = #{bounceReason},</if>
+            <if test="sentAt != null">sent_at = #{sentAt},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <select id="selectPendingByCampaignId" resultMap="CrmCampaignContactsResult">
+        <include refid="selectCrmCampaignContactsVo"/>
+        where campaign_id = #{campaignId}
+          and delivery_status = 'pending'
+          and email is not null
+          and trim(email) != ''
+        order by create_time asc
+        limit #{limit}
+    </select>
+
+    <insert id="batchInsert">
+        insert into crm_campaign_contacts
+        (id, campaign_id, contact_id, contact_name, email, status, delivery_status, create_by, create_time)
+        values
+        <foreach collection="list" item="item" separator=",">
+            (#{item.id}, #{item.campaignId}, #{item.contactId}, #{item.contactName}, #{item.email},
+             #{item.status}, #{item.deliveryStatus}, #{item.createBy}, #{item.createTime})
+        </foreach>
+    </insert>
+
+    <delete id="deletePendingByCampaignId">
+        delete from crm_campaign_contacts
+        where campaign_id = #{campaignId}
+          and delivery_status = 'pending'
+    </delete>
+
+    <select id="countValidEmailByCampaignId" resultType="int">
+        select count(*)
+        from crm_campaign_contacts
+        where campaign_id = #{campaignId}
+          and email is not null
+          and trim(email) != ''
+    </select>
+
+    <update id="updateDeliveryResult">
+        update crm_campaign_contacts
+        set delivery_status = #{deliveryStatus},
+            bounce_reason = #{bounceReason},
+            sent_at = #{sentAt},
+            update_time = CURRENT_TIMESTAMP
+        where id = #{id}
+    </update>
+
+    <update id="failAllPendingByCampaignId">
+        update crm_campaign_contacts
+        set delivery_status = #{deliveryStatus},
+            bounce_reason = #{bounceReason},
+            sent_at = #{sentAt},
+            update_time = CURRENT_TIMESTAMP
+        where campaign_id = #{campaignId}
+          and delivery_status = 'pending'
+    </update>
+
+    <delete id="deleteCrmCampaignContactsById" parameterType="String">
+        delete from crm_campaign_contacts where id = #{id}
+    </delete>
+
+    <delete id="deleteCrmCampaignContactsByIds" parameterType="String">
+        delete from crm_campaign_contacts where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

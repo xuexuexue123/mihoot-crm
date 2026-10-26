@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmFollowUpCadenceMapper">
+
+    <resultMap type="com.ruoyi.crm.domain.vo.FollowUpCadenceVo" id="FollowUpCadenceVoResult">
+        <result property="cadenceId" column="cadence_id"/>
+        <result property="name" column="name"/>
+        <result property="description" column="description"/>
+        <result property="enabled" column="enabled"/>
+        <result property="startTrigger" column="start_trigger"/>
+        <result property="stepsJson" column="steps_json"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <resultMap type="com.ruoyi.crm.domain.CrmFollowUpCadence" id="CrmFollowUpCadenceResult">
+        <result property="cadenceId" column="cadence_id"/>
+        <result property="tenantId" column="tenant_id"/>
+        <result property="name" column="name"/>
+        <result property="description" column="description"/>
+        <result property="enabled" column="enabled"/>
+        <result property="startTrigger" column="start_trigger"/>
+        <result property="stepsJson" column="steps_json"/>
+        <result property="delFlag" column="del_flag"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="remark" column="remark"/>
+    </resultMap>
+
+    <sql id="selectFollowUpCadenceVo">
+        select cadence_id, name, description, enabled, start_trigger, steps_json, update_time
+        from crm_follow_up_cadence
+    </sql>
+
+    <select id="selectList" resultMap="FollowUpCadenceVoResult">
+        <include refid="selectFollowUpCadenceVo"/>
+        where del_flag = '0' and tenant_id = #{tenantId}
+        order by update_time desc
+    </select>
+
+    <select id="selectById" resultMap="FollowUpCadenceVoResult">
+        <include refid="selectFollowUpCadenceVo"/>
+        where del_flag = '0'
+          and tenant_id = #{tenantId}
+          and cadence_id = #{cadenceId}
+        limit 1
+    </select>
+
+    <select id="selectEntityById" resultMap="CrmFollowUpCadenceResult">
+        select cadence_id, tenant_id, name, description, enabled, start_trigger,
+               steps_json, del_flag, create_by, create_time, update_by, update_time, remark
+        from crm_follow_up_cadence
+        where del_flag = '0'
+          and tenant_id = #{tenantId}
+          and cadence_id = #{cadenceId}
+        limit 1
+    </select>
+
+    <insert id="insertCrmFollowUpCadence" parameterType="com.ruoyi.crm.domain.CrmFollowUpCadence">
+        insert into crm_follow_up_cadence
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="cadenceId != null and cadenceId != ''">cadence_id,</if>
+            <if test="tenantId != null and tenantId != ''">tenant_id,</if>
+            <if test="name != null and name != ''">name,</if>
+            <if test="description != null">description,</if>
+            <if test="enabled != null and enabled != ''">enabled,</if>
+            <if test="startTrigger != null">start_trigger,</if>
+            <if test="stepsJson != null">steps_json,</if>
+            <if test="delFlag != null and delFlag != ''">del_flag,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="remark != null">remark,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="cadenceId != null and cadenceId != ''">#{cadenceId},</if>
+            <if test="tenantId != null and tenantId != ''">#{tenantId},</if>
+            <if test="name != null and name != ''">#{name},</if>
+            <if test="description != null">#{description},</if>
+            <if test="enabled != null and enabled != ''">#{enabled},</if>
+            <if test="startTrigger != null">#{startTrigger},</if>
+            <if test="stepsJson != null">#{stepsJson},</if>
+            <if test="delFlag != null and delFlag != ''">#{delFlag},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="remark != null">#{remark},</if>
+        </trim>
+    </insert>
+
+    <update id="updateCrmFollowUpCadence" parameterType="com.ruoyi.crm.domain.CrmFollowUpCadence">
+        update crm_follow_up_cadence
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="name != null and name != ''">name = #{name},</if>
+            description = #{description},
+            <if test="enabled != null and enabled != ''">enabled = #{enabled},</if>
+            start_trigger = #{startTrigger},
+            steps_json = #{stepsJson},
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            remark = #{remark},
+        </trim>
+        where cadence_id = #{cadenceId}
+          and tenant_id = #{tenantId}
+          and del_flag = '0'
+    </update>
+
+    <update id="logicalDeleteById">
+        update crm_follow_up_cadence
+        set del_flag = '1',
+            update_by = #{updateBy},
+            update_time = CURRENT_TIMESTAMP
+        where cadence_id = #{cadenceId}
+          and tenant_id = #{tenantId}
+          and del_flag = '0'
+    </update>
+</mapper>

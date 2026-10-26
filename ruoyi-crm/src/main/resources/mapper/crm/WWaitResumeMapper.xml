@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.WWaitResumeMapper">
+
+    <resultMap type="WWaitResume" id="WWaitResumeResult">
+        <result property="id"    column="id"    />
+        <result property="resumeKey"    column="resume_key"    />
+        <result property="workflowId"    column="workflow_id"    />
+        <result property="executionId"    column="execution_id"    />
+        <result property="nodeId"    column="node_id"    />
+        <result property="nodeName"    column="node_name"    />
+        <result property="mode"    column="mode"    />
+        <result property="httpMethod"    column="http_method"    />
+        <result property="authConfig"    column="auth_config"    />
+        <result property="responseConfig"    column="response_config"    />
+        <result property="formSchema"    column="form_schema"    />
+        <result property="expiresAt"    column="expires_at"    />
+        <result property="inngestEventId"    column="inngest_event_id"    />
+        <result property="createdAt"    column="created_at"    />
+        <result property="updatedAt"    column="updated_at"    />
+        <result property="resumedAt"    column="resumed_at"    />
+        <result property="payload"    column="payload"    />
+    </resultMap>
+
+    <sql id="selectWWaitResumeVo">
+        select id, resume_key, workflow_id, execution_id, node_id, node_name, mode, http_method,
+               auth_config::text as auth_config, response_config::text as response_config,
+               form_schema::text as form_schema, expires_at, inngest_event_id,
+               created_at, updated_at, resumed_at, payload::text as payload
+        from w_wait_resume
+    </sql>
+
+    <select id="selectWWaitResumeList" parameterType="WWaitResume" resultMap="WWaitResumeResult">
+        <include refid="selectWWaitResumeVo"/>
+        <where>
+            <if test="resumeKey != null and resumeKey != ''"> and resume_key = #{resumeKey}</if>
+            <if test="workflowId != null and workflowId != ''"> and workflow_id = #{workflowId}</if>
+            <if test="executionId != null and executionId != ''"> and execution_id = #{executionId}</if>
+            <if test="nodeId != null and nodeId != ''"> and node_id = #{nodeId}</if>
+            <if test="nodeName != null and nodeName != ''"> and node_name = #{nodeName}</if>
+            <if test="mode != null and mode != ''"> and mode = #{mode}</if>
+            <if test="httpMethod != null and httpMethod != ''"> and http_method = #{httpMethod}</if>
+            <if test="inngestEventId != null and inngestEventId != ''"> and inngest_event_id = #{inngestEventId}</if>
+            <if test="createdAt != null"> and created_at = #{createdAt}</if>
+            <if test="updatedAt != null"> and updated_at = #{updatedAt}</if>
+            <if test="resumedAt != null"> and resumed_at = #{resumedAt}</if>
+        </where>
+        order by created_at desc
+    </select>
+
+    <select id="selectWWaitResumeById" parameterType="String" resultMap="WWaitResumeResult">
+        <include refid="selectWWaitResumeVo"/>
+        where id = #{id}
+    </select>
+
+    <select id="selectWWaitResumeByResumeKey" parameterType="String" resultMap="WWaitResumeResult">
+        <include refid="selectWWaitResumeVo"/>
+        where resume_key = #{resumeKey}
+    </select>
+
+    <insert id="insertWWaitResume" parameterType="WWaitResume">
+        insert into w_wait_resume
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null and id != ''">id,</if>
+            <if test="resumeKey != null and resumeKey != ''">resume_key,</if>
+            <if test="workflowId != null and workflowId != ''">workflow_id,</if>
+            <if test="executionId != null and executionId != ''">execution_id,</if>
+            <if test="nodeId != null and nodeId != ''">node_id,</if>
+            <if test="nodeName != null and nodeName != ''">node_name,</if>
+            <if test="mode != null and mode != ''">mode,</if>
+            <if test="httpMethod != null and httpMethod != ''">http_method,</if>
+            <if test="authConfig != null and authConfig != ''">auth_config,</if>
+            <if test="responseConfig != null and responseConfig != ''">response_config,</if>
+            <if test="formSchema != null and formSchema != ''">form_schema,</if>
+            <if test="expiresAt != null">expires_at,</if>
+            <if test="inngestEventId != null and inngestEventId != ''">inngest_event_id,</if>
+            created_at,
+            updated_at,
+            <if test="resumedAt != null">resumed_at,</if>
+            <if test="payload != null and payload != ''">payload,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null and id != ''">#{id},</if>
+            <if test="resumeKey != null and resumeKey != ''">#{resumeKey},</if>
+            <if test="workflowId != null and workflowId != ''">#{workflowId},</if>
+            <if test="executionId != null and executionId != ''">#{executionId},</if>
+            <if test="nodeId != null and nodeId != ''">#{nodeId},</if>
+            <if test="nodeName != null and nodeName != ''">#{nodeName},</if>
+            <if test="mode != null and mode != ''">#{mode},</if>
+            <if test="httpMethod != null and httpMethod != ''">#{httpMethod},</if>
+            <if test="authConfig != null and authConfig != ''">CAST(NULLIF(TRIM(#{authConfig}), '') AS jsonb),</if>
+            <if test="responseConfig != null and responseConfig != ''">CAST(NULLIF(TRIM(#{responseConfig}), '') AS jsonb),</if>
+            <if test="formSchema != null and formSchema != ''">CAST(NULLIF(TRIM(#{formSchema}), '') AS jsonb),</if>
+            <if test="expiresAt != null">#{expiresAt},</if>
+            <if test="inngestEventId != null and inngestEventId != ''">#{inngestEventId},</if>
+            <choose>
+                <when test="createdAt != null">#{createdAt},</when>
+                <otherwise>now(),</otherwise>
+            </choose>
+            <choose>
+                <when test="updatedAt != null">#{updatedAt},</when>
+                <otherwise>now(),</otherwise>
+            </choose>
+            <if test="resumedAt != null">#{resumedAt},</if>
+            <if test="payload != null and payload != ''">CAST(NULLIF(TRIM(#{payload}), '') AS jsonb),</if>
+         </trim>
+    </insert>
+
+    <update id="updateWWaitResume" parameterType="WWaitResume">
+        update w_wait_resume
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="resumeKey != null and resumeKey != ''">resume_key = #{resumeKey},</if>
+            <if test="workflowId != null and workflowId != ''">workflow_id = #{workflowId},</if>
+            <if test="executionId != null and executionId != ''">execution_id = #{executionId},</if>
+            <if test="nodeId != null and nodeId != ''">node_id = #{nodeId},</if>
+            <if test="nodeName != null and nodeName != ''">node_name = #{nodeName},</if>
+            <if test="mode != null and mode != ''">mode = #{mode},</if>
+            <if test="httpMethod != null and httpMethod != ''">http_method = #{httpMethod},</if>
+            <if test="authConfig != null">auth_config = CAST(NULLIF(TRIM(#{authConfig}), '') AS jsonb),</if>
+            <if test="responseConfig != null">response_config = CAST(NULLIF(TRIM(#{responseConfig}), '') AS jsonb),</if>
+            <if test="formSchema != null">form_schema = CAST(NULLIF(TRIM(#{formSchema}), '') AS jsonb),</if>
+            <if test="expiresAt != null">expires_at = #{expiresAt},</if>
+            <if test="inngestEventId != null and inngestEventId != ''">inngest_event_id = #{inngestEventId},</if>
+            <if test="resumedAt != null">resumed_at = #{resumedAt},</if>
+            <if test="payload != null">payload = CAST(NULLIF(TRIM(#{payload}), '') AS jsonb),</if>
+            <choose>
+                <when test="updatedAt != null">updated_at = #{updatedAt},</when>
+                <otherwise>updated_at = now(),</otherwise>
+            </choose>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <update id="updateResumeByKey">
+        update w_wait_resume
+        set resumed_at = #{resumedAt},
+            payload = CAST(NULLIF(TRIM(#{payload}), '') AS jsonb),
+            updated_at = now()
+        where resume_key = #{resumeKey}
+          and resumed_at is null
+          and (expires_at is null or expires_at &gt; now())
+    </update>
+
+    <delete id="deleteWWaitResumeById" parameterType="String">
+        delete from w_wait_resume where id = #{id}
+    </delete>
+
+    <delete id="deleteWWaitResumeByIds" parameterType="String">
+        delete from w_wait_resume where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

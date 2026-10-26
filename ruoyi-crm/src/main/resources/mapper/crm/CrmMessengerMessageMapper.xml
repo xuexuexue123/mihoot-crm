@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmMessengerMessageMapper">
+
+    <resultMap id="CrmMessengerMessageResult" type="com.ruoyi.crm.domain.CrmMessengerMessage">
+        <id property="id" column="id"/>
+        <result property="tenantId" column="tenant_id"/>
+        <result property="conversationId" column="conversation_id"/>
+        <result property="psid" column="psid"/>
+        <result property="messageId" column="message_id"/>
+        <result property="messageType" column="message_type"/>
+        <result property="content" column="content"/>
+        <result property="direction" column="direction"/>
+        <result property="sendTime" column="send_time"/>
+        <result property="status" column="status"/>
+        <result property="mediaId" column="media_id"/>
+        <result property="mediaUrl" column="media_url"/>
+        <result property="mediaMimeType" column="media_mime_type"/>
+        <result property="filename" column="filename"/>
+        <result property="rawJson" column="raw_json"/>
+        <result property="source" column="source"/>
+        <result property="createTime" column="create_time"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.ruoyi.crm.domain.CrmMessengerMessage"
+            useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO crm_messenger_message (
+            tenant_id, conversation_id, psid, message_id, message_type,
+            content, direction, send_time, status,
+            media_id, media_url, media_mime_type, filename, raw_json, source,
+            create_time
+        ) VALUES (
+            #{tenantId}, #{conversationId}, #{psid}, #{messageId}, #{messageType},
+            #{content}, #{direction}, #{sendTime}, #{status},
+            #{mediaId}, #{mediaUrl}, #{mediaMimeType}, #{filename}, #{rawJson}, #{source},
+            #{createTime}
+        )
+    </insert>
+
+    <select id="selectByMessageId" resultMap="CrmMessengerMessageResult">
+        SELECT id, tenant_id, conversation_id, psid, message_id, message_type,
+               content, direction, send_time, status,
+               media_id, media_url, media_mime_type, filename, raw_json, source,
+               create_time
+        FROM crm_messenger_message
+        WHERE tenant_id = #{tenantId} AND message_id = #{messageId}
+        LIMIT 1
+    </select>
+
+    <select id="selectById" resultMap="CrmMessengerMessageResult">
+        SELECT id, tenant_id, conversation_id, psid, message_id, message_type,
+               content, direction, send_time, status,
+               media_id, media_url, media_mime_type, filename, raw_json, source,
+               create_time
+        FROM crm_messenger_message
+        WHERE tenant_id = #{tenantId} AND id = #{id}
+        LIMIT 1
+    </select>
+
+    <select id="selectByMediaUrl" resultMap="CrmMessengerMessageResult">
+        SELECT id, tenant_id, conversation_id, psid, message_id, message_type,
+               content, direction, send_time, status,
+               media_id, media_url, media_mime_type, filename, raw_json, source,
+               create_time
+        FROM crm_messenger_message
+        WHERE tenant_id = #{tenantId} AND media_url = #{mediaUrl}
+        ORDER BY id DESC
+        LIMIT 1
+    </select>
+
+    <update id="updateStatusByMessageId">
+        UPDATE crm_messenger_message
+        SET status = #{status}
+        WHERE tenant_id = #{tenantId} AND message_id = #{messageId}
+    </update>
+
+    <update id="updateStatusReadByPsidWatermark">
+        UPDATE crm_messenger_message
+        SET status = 'read'
+        WHERE tenant_id = #{tenantId}
+          AND psid = #{psid}
+          AND direction = 1
+          AND send_time IS NOT NULL
+          AND send_time &lt;= #{watermark}
+          AND (status IS NULL OR LOWER(status) &lt;&gt; 'read')
+    </update>
+
+    <select id="selectByConversationId" resultMap="CrmMessengerMessageResult">
+        SELECT id, tenant_id, conversation_id, psid, message_id, message_type,
+               content, direction, send_time, status,
+               media_id, media_url, media_mime_type, filename, raw_json, source,
+               create_time
+        FROM crm_messenger_message
+        WHERE conversation_id = #{conversationId}
+        <if test="beforeMsgId != null">
+            AND id &lt; #{beforeMsgId}
+        </if>
+        ORDER BY send_time DESC, id DESC
+        LIMIT #{pageSize}
+    </select>
+
+    <select id="countByDirection" resultType="long">
+        SELECT COUNT(1)
+        FROM crm_messenger_message
+        WHERE tenant_id = #{tenantId}
+        <if test="direction != null">
+            AND direction = #{direction}
+        </if>
+        <if test="startTime != null">
+            AND send_time &gt;= #{startTime}
+        </if>
+        <if test="endTime != null">
+            AND send_time &lt;= #{endTime}
+        </if>
+    </select>
+</mapper>

@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmWecomExternalContactMapper">
+
+    <resultMap id="Result" type="com.ruoyi.crm.domain.CrmWecomExternalContact">
+        <id property="id" column="id"/>
+        <result property="externalUserid" column="external_userid"/>
+        <result property="followUserid" column="follow_userid"/>
+        <result property="state" column="state"/>
+        <result property="crmLeadId" column="crm_lead_id"/>
+        <result property="crmContactId" column="crm_contact_id"/>
+        <result property="crmEventId" column="crm_event_id"/>
+        <result property="rawJson" column="raw_json"/>
+        <result property="remark" column="remark"/>
+        <result property="addWay" column="add_way"/>
+        <result property="tags" column="tags"/>
+        <result property="description" column="description"/>
+        <result property="operUserid" column="oper_userid"/>
+        <result property="followCreateTime" column="follow_create_time"/>
+        <result property="remarkMobiles" column="remark_mobiles"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <select id="selectByExternalUserid" resultMap="Result">
+        SELECT id, external_userid, follow_userid, state, crm_lead_id, crm_contact_id, crm_event_id, raw_json,
+               remark, add_way, tags, description, oper_userid, follow_create_time, remark_mobiles,
+               create_time, update_time
+        FROM crm_wecom_external_contact WHERE external_userid = #{externalUserid}
+        ORDER BY id
+    </select>
+
+    <select id="selectByExternalUserids" resultMap="Result">
+        SELECT id, external_userid, follow_userid, state, crm_lead_id, crm_contact_id, crm_event_id, raw_json,
+               remark, add_way, tags, description, oper_userid, follow_create_time, remark_mobiles,
+               create_time, update_time
+        FROM crm_wecom_external_contact
+        WHERE external_userid IN
+        <foreach item="id" collection="externalUserids" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+        ORDER BY id
+    </select>
+
+    <select id="selectByExternalAndFollow" resultMap="Result">
+        SELECT id, external_userid, follow_userid, state, crm_lead_id, crm_contact_id, crm_event_id, raw_json,
+               remark, add_way, tags, description, oper_userid, follow_create_time, remark_mobiles,
+               create_time, update_time
+        FROM crm_wecom_external_contact
+        WHERE external_userid = #{externalUserid} AND follow_userid = #{followUserid}
+    </select>
+
+    <select id="selectById" resultMap="Result">
+        SELECT id, external_userid, follow_userid, state, crm_lead_id, crm_contact_id, crm_event_id, raw_json,
+               remark, add_way, tags, description, oper_userid, follow_create_time, remark_mobiles,
+               create_time, update_time
+        FROM crm_wecom_external_contact WHERE id = #{id}
+    </select>
+
+    <select id="selectList" resultMap="Result">
+        SELECT id, external_userid, follow_userid, state, crm_lead_id, crm_contact_id, crm_event_id, raw_json,
+               remark, add_way, tags, description, oper_userid, follow_create_time, remark_mobiles,
+               create_time, update_time
+        FROM crm_wecom_external_contact
+        <where>
+            <if test="externalUserid != null and externalUserid != ''">AND external_userid LIKE concat('%', #{externalUserid}, '%')</if>
+            <if test="followUserid != null and followUserid != ''">AND follow_userid LIKE concat('%', #{followUserid}, '%')</if>
+            <if test="crmLeadId != null and crmLeadId != ''">AND crm_lead_id = #{crmLeadId}</if>
+            <if test="crmContactId != null and crmContactId != ''">AND crm_contact_id = #{crmContactId}</if>
+            <if test="crmEventId != null and crmEventId != ''">AND crm_event_id = #{crmEventId}</if>
+        </where>
+        ORDER BY id DESC
+    </select>
+
+    <insert id="insert" parameterType="com.ruoyi.crm.domain.CrmWecomExternalContact" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO crm_wecom_external_contact (
+            external_userid, follow_userid, state, crm_lead_id, crm_contact_id, crm_event_id, raw_json,
+            remark, add_way, tags, description, oper_userid, follow_create_time, remark_mobiles,
+            create_time, update_time
+        ) VALUES (
+            #{externalUserid}, #{followUserid}, #{state}, #{crmLeadId}, #{crmContactId}, #{crmEventId}, #{rawJson},
+            #{remark}, #{addWay}, #{tags}, #{description}, #{operUserid}, #{followCreateTime}, #{remarkMobiles},
+            #{createTime}, #{updateTime}
+        )
+    </insert>
+
+    <insert id="upsertKfInfo" parameterType="com.ruoyi.crm.domain.CrmWecomExternalContact" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO crm_wecom_external_contact (
+            external_userid, follow_userid, raw_json, crm_contact_id,
+            remark, add_way, tags, description, oper_userid, follow_create_time, remark_mobiles,
+            create_time, update_time
+        ) VALUES (
+            #{externalUserid}, #{followUserid}, #{rawJson}, #{crmContactId},
+            #{remark}, #{addWay}, #{tags}, #{description}, #{operUserid},
+            #{followCreateTime}, #{remarkMobiles},
+            NOW(), NOW()
+        )
+        ON CONFLICT (external_userid, follow_userid)
+        DO UPDATE SET
+            raw_json      = EXCLUDED.raw_json,
+            crm_contact_id = COALESCE(EXCLUDED.crm_contact_id, crm_wecom_external_contact.crm_contact_id),
+            remark        = EXCLUDED.remark,
+            add_way       = EXCLUDED.add_way,
+            tags          = EXCLUDED.tags,
+            description   = EXCLUDED.description,
+            oper_userid   = EXCLUDED.oper_userid,
+            follow_create_time = EXCLUDED.follow_create_time,
+            remark_mobiles = EXCLUDED.remark_mobiles,
+            update_time   = NOW()
+    </insert>
+
+    <update id="update" parameterType="com.ruoyi.crm.domain.CrmWecomExternalContact">
+        UPDATE crm_wecom_external_contact
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="followUserid != null">follow_userid = #{followUserid},</if>
+            <if test="state != null">state = #{state},</if>
+            <if test="crmLeadId != null">crm_lead_id = #{crmLeadId},</if>
+            <if test="crmContactId != null">crm_contact_id = #{crmContactId},</if>
+            <if test="crmEventId != null">crm_event_id = #{crmEventId},</if>
+            <if test="rawJson != null">raw_json = #{rawJson},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="addWay != null">add_way = #{addWay},</if>
+            <if test="tags != null">tags = #{tags},</if>
+            <if test="description != null">description = #{description},</if>
+            <if test="operUserid != null">oper_userid = #{operUserid},</if>
+            <if test="followCreateTime != null">follow_create_time = #{followCreateTime},</if>
+            <if test="remarkMobiles != null">remark_mobiles = #{remarkMobiles},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        WHERE id = #{id}
+    </update>
+</mapper>

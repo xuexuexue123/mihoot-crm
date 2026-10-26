@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.WExecutionMapper">
+    
+    <resultMap type="WExecution" id="WExecutionResult">
+        <result property="id"    column="id"    />
+        <result property="workflowId"    column="workflow_id"    />
+        <result property="status"    column="status"    />
+        <result property="error"    column="error"    />
+        <result property="errorStack"    column="error_stack"    />
+        <result property="startedAt"    column="started_at"    />
+        <result property="completedAt"    column="completed_at"    />
+        <result property="inngestEventId"    column="inngest_event_id"    />
+        <result property="output"    column="output"    />
+    </resultMap>
+
+    <sql id="selectWExecutionVo">
+        select id, workflow_id, status, error, error_stack, started_at, completed_at, inngest_event_id, output::text as output from w_execution
+    </sql>
+
+    <select id="selectWExecutionList" parameterType="WExecution" resultMap="WExecutionResult">
+        <include refid="selectWExecutionVo"/>
+        <where>  
+            <if test="workflowId != null  and workflowId != ''"> and workflow_id = #{workflowId}</if>
+            <if test="status != null  and status != ''"> and status = #{status}</if>
+            <if test="error != null  and error != ''"> and error = #{error}</if>
+            <if test="startedAt != null "> and started_at = #{startedAt}</if>
+            <if test="completedAt != null "> and completed_at = #{completedAt}</if>
+            <if test="inngestEventId != null  and inngestEventId != ''"> and inngest_event_id = #{inngestEventId}</if>
+            <if test="output != null  and output != ''"> and output::text = #{output}</if>
+        </where>
+        order by started_at desc
+    </select>
+    
+    <select id="selectWExecutionById" parameterType="String" resultMap="WExecutionResult">
+        <include refid="selectWExecutionVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertWExecution" parameterType="WExecution">
+        insert into w_execution
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null and id != ''">id,</if>
+            <if test="workflowId != null and workflowId != ''">workflow_id,</if>
+            <if test="status != null and status != ''">status,</if>
+            <if test="error != null">error,</if>
+            <if test="errorStack != null">error_stack,</if>
+            started_at,
+            <if test="completedAt != null">completed_at,</if>
+            <if test="inngestEventId != null and inngestEventId != ''">inngest_event_id,</if>
+            <if test="output != null and output != ''">output,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null and id != ''">#{id},</if>
+            <if test="workflowId != null and workflowId != ''">#{workflowId},</if>
+            <if test="status != null and status != ''">#{status}::"ExecutionStatus",</if>
+            <if test="error != null">#{error},</if>
+            <if test="errorStack != null">#{errorStack},</if>
+            <choose>
+                <when test="startedAt != null">#{startedAt},</when>
+                <otherwise>now(),</otherwise>
+            </choose>
+            <if test="completedAt != null">#{completedAt},</if>
+            <if test="inngestEventId != null and inngestEventId != ''">#{inngestEventId},</if>
+            <if test="output != null and output != ''">#{output}::jsonb,</if>
+         </trim>
+    </insert>
+
+    <update id="updateWExecution" parameterType="WExecution">
+        update w_execution
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="workflowId != null and workflowId != ''">workflow_id = #{workflowId},</if>
+            <if test="status != null and status != ''">status = #{status}::"ExecutionStatus",</if>
+            <if test="error != null">error = #{error},</if>
+            <if test="errorStack != null">error_stack = #{errorStack},</if>
+            <if test="startedAt != null">started_at = #{startedAt},</if>
+            <if test="completedAt != null">completed_at = #{completedAt},</if>
+            <if test="inngestEventId != null and inngestEventId != ''">inngest_event_id = #{inngestEventId},</if>
+            <if test="output != null and output != ''">output = #{output}::jsonb,</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteWExecutionById" parameterType="String">
+        delete from w_execution where id = #{id}
+    </delete>
+
+    <delete id="deleteWExecutionByIds" parameterType="String">
+        delete from w_execution where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

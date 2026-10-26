@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmSfExpressConfigMapper">
+
+    <resultMap id="CrmSfExpressConfigResult" type="com.ruoyi.crm.domain.CrmSfExpressConfig">
+        <id property="id" column="id"/>
+        <result property="customerCode" column="customer_code"/>
+        <result property="checkwordEnc" column="checkword_enc"/>
+        <result property="monthlyCard" column="monthly_card"/>
+        <result property="sandbox" column="sandbox"/>
+        <result property="connected" column="connected"/>
+        <result property="lastError" column="last_error"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <select id="selectFirst" resultMap="CrmSfExpressConfigResult">
+        SELECT id, customer_code, checkword_enc, monthly_card, sandbox, connected, last_error,
+               create_by, create_time, update_by, update_time
+        FROM crm_sf_express_config ORDER BY id ASC LIMIT 1
+    </select>
+
+    <insert id="insert" parameterType="com.ruoyi.crm.domain.CrmSfExpressConfig" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO crm_sf_express_config (
+            customer_code, checkword_enc, monthly_card, sandbox, connected, last_error,
+            create_by, create_time, update_by, update_time
+        ) VALUES (
+            #{customerCode}, #{checkwordEnc}, #{monthlyCard},
+            #{sandbox,jdbcType=BOOLEAN},
+            CASE WHEN #{connected,jdbcType=BOOLEAN} THEN 1 ELSE 0 END, #{lastError},
+            #{createBy}, #{createTime}, #{updateBy}, #{updateTime}
+        )
+    </insert>
+
+    <update id="update" parameterType="com.ruoyi.crm.domain.CrmSfExpressConfig">
+        UPDATE crm_sf_express_config
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="customerCode != null">customer_code = #{customerCode},</if>
+            <if test="checkwordEnc != null">checkword_enc = #{checkwordEnc},</if>
+            <if test="monthlyCard != null">monthly_card = #{monthlyCard},</if>
+            <if test="sandbox != null">sandbox = #{sandbox,jdbcType=BOOLEAN},</if>
+            <if test="connected != null">connected = CASE WHEN #{connected,jdbcType=BOOLEAN} THEN 1 ELSE 0 END,</if>
+            <if test="lastError != null">last_error = #{lastError},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        WHERE id = #{id}
+    </update>
+</mapper>

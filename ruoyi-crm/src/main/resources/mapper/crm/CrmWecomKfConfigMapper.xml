@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmWecomKfConfigMapper">
+
+    <resultMap id="CrmWecomKfConfigResult" type="com.ruoyi.crm.domain.CrmWecomKfConfig">
+        <id property="id" column="id"/>
+        <result property="corpId" column="corp_id"/>
+        <result property="webhookUrl" column="webhook_url"/>
+        <result property="openKfids" column="open_kfids"/>
+        <result property="enabled" column="enabled"/>
+        <result property="workflowId" column="workflow_id"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+    </resultMap>
+
+    <select id="selectFirst" resultMap="CrmWecomKfConfigResult">
+        SELECT id, corp_id, webhook_url, open_kfids, enabled, workflow_id, created_at, updated_at
+        FROM crm_wecom_kf_config ORDER BY id ASC LIMIT 1
+    </select>
+
+    <select id="selectByCorpId" resultMap="CrmWecomKfConfigResult">
+        SELECT id, corp_id, webhook_url, open_kfids, enabled, workflow_id, created_at, updated_at
+        FROM crm_wecom_kf_config WHERE corp_id = #{corpId} LIMIT 1
+    </select>
+
+    <insert id="insert" parameterType="com.ruoyi.crm.domain.CrmWecomKfConfig" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO crm_wecom_kf_config (
+            corp_id, webhook_url, open_kfids, enabled, workflow_id, created_at, updated_at
+        ) VALUES (
+            #{corpId}, #{webhookUrl}, #{openKfids}, #{enabled}, #{workflowId}, #{createdAt}, #{updatedAt}
+        )
+    </insert>
+
+    <update id="update" parameterType="com.ruoyi.crm.domain.CrmWecomKfConfig">
+        UPDATE crm_wecom_kf_config
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="webhookUrl != null">webhook_url = #{webhookUrl},</if>
+            <if test="openKfids != null">open_kfids = #{openKfids},</if>
+            <if test="enabled != null">enabled = #{enabled},</if>
+            <if test="workflowId != null">workflow_id = #{workflowId},</if>
+            <if test="updatedAt != null">updated_at = #{updatedAt},</if>
+        </trim>
+        WHERE id = #{id}
+    </update>
+</mapper>

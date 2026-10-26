@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmOnepageMapper">
+    
+    <resultMap type="CrmOnepage" id="CrmOnepageResult">
+        <result property="pageId"    column="page_id"    />
+        <result property="pageType"    column="page_type"    />
+        <result property="relateId"    column="relate_id"    />
+        <result property="relateName"    column="relate_name"    />
+        <result property="pageContent"    column="page_content"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectCrmOnepageVo">
+        select page_id, page_type, relate_id, relate_name, page_content, create_by, create_time, update_by, update_time from crm_onepage
+    </sql>
+
+    <select id="selectCrmOnepageList" parameterType="CrmOnepage" resultMap="CrmOnepageResult">
+        <include refid="selectCrmOnepageVo"/>
+        <where>  
+            <if test="pageType != null  and pageType != ''"> and page_type = #{pageType}</if>
+            <if test="relateId != null  and relateId != ''"> and relate_id = #{relateId}</if>
+            <if test="relateName != null  and relateName != ''"> and relate_name like concat('%', #{relateName}, '%')</if>
+            <if test="pageContent != null  and pageContent != ''"> and page_content = #{pageContent}</if>
+        </where>
+    </select>
+    
+    <select id="selectCrmOnepageByPageId" parameterType="String" resultMap="CrmOnepageResult">
+        <include refid="selectCrmOnepageVo"/>
+        where page_id = #{pageId}
+    </select>
+
+
+    <select id="selectCrmOnepageByRelateId" parameterType="String" resultMap="CrmOnepageResult">
+        <include refid="selectCrmOnepageVo"/>
+        where relate_id = #{relateId}
+    </select>
+
+    <insert id="insertCrmOnepage" parameterType="CrmOnepage">
+        insert into crm_onepage
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="pageId != null">page_id,</if>
+            <if test="pageType != null">page_type,</if>
+            <if test="relateId != null">relate_id,</if>
+            <if test="relateName != null">relate_name,</if>
+            <if test="pageContent != null">page_content,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="pageId != null">#{pageId},</if>
+            <if test="pageType != null">#{pageType},</if>
+            <if test="relateId != null">#{relateId},</if>
+            <if test="relateName != null">#{relateName},</if>
+            <if test="pageContent != null">#{pageContent},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateCrmOnepage" parameterType="CrmOnepage">
+        update crm_onepage
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="pageType != null">page_type = #{pageType},</if>
+            <if test="relateId != null">relate_id = #{relateId},</if>
+            <if test="relateName != null">relate_name = #{relateName},</if>
+            <if test="pageContent != null">page_content = #{pageContent},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where page_id = #{pageId}
+    </update>
+
+    <delete id="deleteCrmOnepageByPageId" parameterType="String">
+        delete from crm_onepage where page_id = #{pageId}
+    </delete>
+
+    <delete id="deleteCrmOnepageByPageIds" parameterType="String">
+        delete from crm_onepage where page_id in 
+        <foreach item="pageId" collection="array" open="(" separator="," close=")">
+            #{pageId}
+        </foreach>
+    </delete>
+</mapper>

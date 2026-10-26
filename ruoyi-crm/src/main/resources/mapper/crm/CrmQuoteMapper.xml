@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmQuoteMapper">
+    
+    <resultMap type="CrmQuote" id="CrmQuoteResult">
+        <result property="quoteId"    column="quote_id"    />
+        <result property="quoteCode"    column="quote_code"    />
+        <result property="optyId"    column="opty_id"    />
+        <result property="optyName"    column="opty_name"    />
+        <result property="quoteName"    column="quote_name"    />
+        <result property="quoteType"    column="quote_type"    />
+        <result property="amount"    column="amount"    />
+        <result property="discount"    column="discount"    />
+        <result property="taxRatio"    column="tax_ratio"    />
+        <result property="taxAmount"    column="tax_amount"    />
+        <result property="discountAmount"    column="discount_amount"    />
+        <result property="totalAmount"    column="total_amount"    />
+        <result property="accountId"    column="account_id"    />
+        <result property="accountName"    column="account_name"    />
+        <result property="contactId"    column="contact_id"    />
+        <result property="contactName"    column="contact_name"    />
+        <result property="contactPhone"    column="contact_phone"    />
+        <result property="ownerId"    column="owner_id"    />
+        <result property="ownerName"    column="owner_name"    />
+        <result property="paymentTerms"    column="payment_terms"    />
+        <result property="quoteDate"    column="quote_date"    />
+        <result property="expiredDate"    column="expired_date"    />
+        <result property="effectiveTime"    column="effective_time"    />
+        <result property="endTime"    column="end_time"    />
+        <result property="approvalStatus"    column="approval_status"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <resultMap id="CrmQuoteCrmQuoteoptionResult" type="CrmQuote" extends="CrmQuoteResult">
+        <collection property="crmQuoteoptionList" notNullColumn="sub_option_id" javaType="java.util.List" resultMap="CrmQuoteoptionResult" />
+    </resultMap>
+
+    <resultMap type="CrmQuoteoption" id="CrmQuoteoptionResult">
+        <result property="optionId"    column="sub_option_id"    />
+        <result property="quoteId"    column="sub_quote_id"    />
+        <result property="quoteCode"    column="sub_quote_code"    />
+        <result property="quoteName"    column="sub_quote_name"    />
+        <result property="quoteType"    column="sub_quote_type"    />
+        <result property="totalAmount"    column="sub_total_amount"    />
+        <result property="productId"    column="sub_product_id"    />
+        <result property="productName"    column="sub_product_name"    />
+        <result property="productDesc"    column="sub_product_desc"    />
+        <result property="unitPrice"    column="sub_unit_price"    />
+        <result property="quantity"    column="sub_quantity"    />
+        <result property="discount"    column="sub_discount"    />
+        <result property="ownerId"    column="sub_owner_id"    />
+        <result property="ownerName"    column="sub_owner_name"    />
+        <result property="createBy"    column="sub_create_by"    />
+        <result property="createTime"    column="sub_create_time"    />
+        <result property="updateBy"    column="sub_update_by"    />
+        <result property="updateTime"    column="sub_update_time"    />
+    </resultMap>
+
+    <sql id="selectCrmQuoteVo">
+        select quote_id, quote_code, opty_id, opty_name, quote_name, quote_type, amount, discount, tax_ratio, tax_amount, discount_amount, total_amount, account_id, account_name, contact_id, contact_name, contact_phone, owner_id, owner_name, payment_terms, quote_date, expired_date, effective_time, end_time, approval_status, create_by, create_time, update_by, update_time from crm_quote
+    </sql>
+
+    <select id="selectCrmQuoteList" parameterType="CrmQuote" resultMap="CrmQuoteResult">
+        <include refid="selectCrmQuoteVo"/>
+        <where>  
+            <if test="quoteCode != null  and quoteCode != ''"> and quote_code = #{quoteCode}</if>
+            <if test="optyId != null  and optyId != ''"> and opty_id = #{optyId}</if>
+            <if test="optyName != null  and optyName != ''"> and opty_name like concat('%', #{optyName}, '%')</if>
+            <if test="quoteName != null  and quoteName != ''"> and quote_name like concat('%', #{quoteName}, '%')</if>
+            <if test="quoteType != null  and quoteType != ''"> and quote_type = #{quoteType}</if>
+            <if test="amount != null "> and amount = #{amount}</if>
+            <if test="discount != null "> and discount = #{discount}</if>
+            <if test="taxRatio != null "> and tax_ratio = #{taxRatio}</if>
+            <if test="taxAmount != null "> and tax_amount = #{taxAmount}</if>
+            <if test="discountAmount != null "> and discount_amount = #{discountAmount}</if>
+            <if test="totalAmount != null "> and total_amount = #{totalAmount}</if>
+            <if test="accountId != null  and accountId != ''"> and account_id = #{accountId}</if>
+            <if test="accountName != null  and accountName != ''"> and account_name like concat('%', #{accountName}, '%')</if>
+            <if test="contactId != null  and contactId != ''"> and contact_id = #{contactId}</if>
+            <if test="contactName != null  and contactName != ''"> and contact_name like concat('%', #{contactName}, '%')</if>
+            <if test="contactPhone != null  and contactPhone != ''"> and contact_phone = #{contactPhone}</if>
+            <if test="ownerId != null  and ownerId != ''"> and owner_id = #{ownerId}</if>
+            <if test="ownerName != null  and ownerName != ''"> and owner_name like concat('%', #{ownerName}, '%')</if>
+            <if test="paymentTerms != null "> and payment_terms = #{paymentTerms}</if>
+            <if test="quoteDate != null "> and quote_date = #{quoteDate}</if>
+            <if test="expiredDate != null "> and expired_date = #{expiredDate}</if>
+            <if test="effectiveTime != null "> and effective_time = #{effectiveTime}</if>
+            <if test="endTime != null "> and end_time = #{endTime}</if>
+            <if test="approvalStatus != null  and approvalStatus != ''"> and approval_status = #{approvalStatus}</if>
+        </where>
+        order by create_time desc
+    </select>
+    
+    <select id="selectCrmQuoteByQuoteId" parameterType="String" resultMap="CrmQuoteCrmQuoteoptionResult">
+        select a.quote_id, a.quote_code, a.opty_id, a.opty_name, a.quote_name, a.quote_type, a.amount, a.discount, a.tax_ratio, a.tax_amount, a.discount_amount, a.total_amount, a.account_id, a.account_name, a.contact_id, a.contact_name, a.contact_phone, a.owner_id, a.owner_name, a.payment_terms, a.quote_date, a.expired_date, a.effective_time, a.end_time, a.approval_status, a.create_by, a.create_time, a.update_by, a.update_time,
+ b.option_id as sub_option_id, b.quote_id as sub_quote_id, b.quote_code as sub_quote_code, b.quote_name as sub_quote_name, b.quote_type as sub_quote_type, b.total_amount as sub_total_amount, b.product_id as sub_product_id, b.product_name as sub_product_name, b.product_desc as sub_product_desc, b.unit_price as sub_unit_price, b.quantity as sub_quantity, b.discount as sub_discount, b.owner_id as sub_owner_id, b.owner_name as sub_owner_name, b.create_by as sub_create_by, b.create_time as sub_create_time, b.update_by as sub_update_by, b.update_time as sub_update_time
+        from crm_quote a
+        left join crm_quoteoption b on b.quote_id = a.quote_id
+        where a.quote_id = #{quoteId}
+    </select>
+        
+    <insert id="insertCrmQuote" parameterType="CrmQuote">
+        insert into crm_quote
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="quoteId != null">quote_id,</if>
+            <if test="quoteCode != null and quoteCode != ''">quote_code,</if>
+            <if test="optyId != null and optyId != ''">opty_id,</if>
+            <if test="optyName != null and optyName != ''">opty_name,</if>
+            <if test="quoteName != null">quote_name,</if>
+            <if test="quoteType != null">quote_type,</if>
+            <if test="amount != null">amount,</if>
+            <if test="discount != null">discount,</if>
+            <if test="taxRatio != null">tax_ratio,</if>
+            <if test="taxAmount != null">tax_amount,</if>
+            <if test="discountAmount != null">discount_amount,</if>
+            <if test="totalAmount != null">total_amount,</if>
+            <if test="accountId != null">account_id,</if>
+            <if test="accountName != null">account_name,</if>
+            <if test="contactId != null">contact_id,</if>
+            <if test="contactName != null">contact_name,</if>
+            <if test="contactPhone != null">contact_phone,</if>
+            <if test="ownerId != null">owner_id,</if>
+            <if test="ownerName != null">owner_name,</if>
+            <if test="paymentTerms != null">payment_terms,</if>
+            <if test="quoteDate != null">quote_date,</if>
+            <if test="expiredDate != null">expired_date,</if>
+            <if test="effectiveTime != null">effective_time,</if>
+            <if test="endTime != null">end_time,</if>
+            <if test="approvalStatus != null">approval_status,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="quoteId != null">#{quoteId},</if>
+            <if test="quoteCode != null and quoteCode != ''">#{quoteCode},</if>
+            <if test="optyId != null and optyId != ''">#{optyId},</if>
+            <if test="optyName != null and optyName != ''">#{optyName},</if>
+            <if test="quoteName != null">#{quoteName},</if>
+            <if test="quoteType != null">#{quoteType},</if>
+            <if test="amount != null">#{amount},</if>
+            <if test="discount != null">#{discount},</if>
+            <if test="taxRatio != null">#{taxRatio},</if>
+            <if test="taxAmount != null">#{taxAmount},</if>
+            <if test="discountAmount != null">#{discountAmount},</if>
+            <if test="totalAmount != null">#{totalAmount},</if>
+            <if test="accountId != null">#{accountId},</if>
+            <if test="accountName != null">#{accountName},</if>
+            <if test="contactId != null">#{contactId},</if>
+            <if test="contactName != null">#{contactName},</if>
+            <if test="contactPhone != null">#{contactPhone},</if>
+            <if test="ownerId != null">#{ownerId},</if>
+            <if test="ownerName != null">#{ownerName},</if>
+            <if test="paymentTerms != null">#{paymentTerms},</if>
+            <if test="quoteDate != null">#{quoteDate},</if>
+            <if test="expiredDate != null">#{expiredDate},</if>
+            <if test="effectiveTime != null">#{effectiveTime},</if>
+            <if test="endTime != null">#{endTime},</if>
+            <if test="approvalStatus != null">#{approvalStatus},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateCrmQuote" parameterType="CrmQuote">
+        update crm_quote
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="quoteCode != null and quoteCode != ''">quote_code = #{quoteCode},</if>
+            <if test="optyId != null and optyId != ''">opty_id = #{optyId},</if>
+            <if test="optyName != null and optyName != ''">opty_name = #{optyName},</if>
+            <if test="quoteName != null">quote_name = #{quoteName},</if>
+            <if test="quoteType != null">quote_type = #{quoteType},</if>
+            <if test="amount != null">amount = #{amount},</if>
+            <if test="discount != null">discount = #{discount},</if>
+            <if test="taxRatio != null">tax_ratio = #{taxRatio},</if>
+            <if test="taxAmount != null">tax_amount = #{taxAmount},</if>
+            <if test="discountAmount != null">discount_amount = #{discountAmount},</if>
+            <if test="totalAmount != null">total_amount = #{totalAmount},</if>
+            <if test="accountId != null">account_id = #{accountId},</if>
+            <if test="accountName != null">account_name = #{accountName},</if>
+            <if test="contactId != null">contact_id = #{contactId},</if>
+            <if test="contactName != null">contact_name = #{contactName},</if>
+            <if test="contactPhone != null">contact_phone = #{contactPhone},</if>
+            <if test="ownerId != null">owner_id = #{ownerId},</if>
+            <if test="ownerName != null">owner_name = #{ownerName},</if>
+            <if test="paymentTerms != null">payment_terms = #{paymentTerms},</if>
+            <if test="quoteDate != null">quote_date = #{quoteDate},</if>
+            <if test="expiredDate != null">expired_date = #{expiredDate},</if>
+            <if test="effectiveTime != null">effective_time = #{effectiveTime},</if>
+            <if test="endTime != null">end_time = #{endTime},</if>
+            <if test="approvalStatus != null">approval_status = #{approvalStatus},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where quote_id = #{quoteId}
+    </update>
+
+    <delete id="deleteCrmQuoteByQuoteId" parameterType="String">
+        delete from crm_quote where quote_id = #{quoteId}
+    </delete>
+
+    <delete id="deleteCrmQuoteByQuoteIds" parameterType="String">
+        delete from crm_quote where quote_id in 
+        <foreach item="quoteId" collection="array" open="(" separator="," close=")">
+            #{quoteId}
+        </foreach>
+    </delete>
+    
+    <delete id="deleteCrmQuoteoptionByQuoteIds" parameterType="String">
+        delete from crm_quoteoption where quote_id in 
+        <foreach item="quoteId" collection="array" open="(" separator="," close=")">
+            #{quoteId}
+        </foreach>
+    </delete>
+
+    <delete id="deleteCrmQuoteoptionByQuoteId" parameterType="String">
+        delete from crm_quoteoption where quote_id = #{quoteId}
+    </delete>
+
+    <insert id="batchCrmQuoteoption">
+        insert into crm_quoteoption( option_id, quote_id, quote_code, quote_name, quote_type, total_amount, product_id, product_name, product_desc, unit_price, quantity, discount, owner_id, owner_name, create_by, create_time, update_by, update_time) values
+		<foreach item="item" index="index" collection="list" separator=",">
+            ( #{item.optionId}, #{item.quoteId}, #{item.quoteCode}, #{item.quoteName}, #{item.quoteType}, #{item.totalAmount}, #{item.productId}, #{item.productName}, #{item.productDesc}, #{item.unitPrice}, #{item.quantity}, #{item.discount}, #{item.ownerId}, #{item.ownerName}, #{item.createBy}, #{item.createTime}, #{item.updateBy}, #{item.updateTime})
+        </foreach>
+    </insert>
+</mapper>

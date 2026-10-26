@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.wechatmp.mapper.CrmWechatMpFanMapper">
+
+    <resultMap id="FanResult" type="com.ruoyi.crm.wechatmp.domain.CrmWechatMpFan">
+        <id property="id" column="id"/>
+        <result property="appId" column="app_id"/>
+        <result property="openId" column="open_id"/>
+        <result property="unionId" column="union_id"/>
+        <result property="nickname" column="nickname"/>
+        <result property="avatarUrl" column="avatar_url"/>
+        <result property="subscribe" column="subscribe"/>
+        <result property="subscribeTime" column="subscribe_time"/>
+        <result property="unsubscribeTime" column="unsubscribe_time"/>
+        <result property="sex" column="sex"/>
+        <result property="country" column="country"/>
+        <result property="province" column="province"/>
+        <result property="city" column="city"/>
+        <result property="remark" column="remark"/>
+        <result property="tagIds" column="tag_ids"/>
+        <result property="subscribeScene" column="subscribe_scene"/>
+        <result property="contactId" column="contact_id"/>
+        <result property="lastSyncAt" column="last_sync_at"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="contactName" column="contact_name"/>
+        <result property="lastActivityAt" column="last_activity_at"/>
+    </resultMap>
+
+    <select id="selectFanList" resultMap="FanResult">
+        SELECT f.*, c.name AS contact_name,
+               (SELECT MAX(a.create_time) FROM crm_activity a
+                WHERE a.channel = 'wechat_mp'
+                  AND a.payload::jsonb ->> 'open_id' = f.open_id) AS last_activity_at
+        FROM crm_wechat_mp_fan f
+        LEFT JOIN crm_contact c ON c.contact_id = f.contact_id
+        <where>
+            <if test="appId != null and appId != ''">AND f.app_id = #{appId}</if>
+            <if test="subscribe != null">AND f.subscribe = #{subscribe}</if>
+            <if test="contactId != null and contactId != ''">AND f.contact_id = #{contactId}</if>
+            <if test="nickname != null and nickname != ''">
+                AND (f.nickname ILIKE CONCAT('%', #{nickname}, '%') OR f.open_id ILIKE CONCAT('%', #{nickname}, '%'))
+            </if>
+        </where>
+        ORDER BY f.update_time DESC
+    </select>
+
+    <select id="selectByOpenId" resultMap="FanResult">
+        SELECT * FROM crm_wechat_mp_fan WHERE app_id = #{appId} AND open_id = #{openId} LIMIT 1
+    </select>
+
+    <select id="selectSubscribedByOpenId" resultMap="FanResult">
+        SELECT * FROM crm_wechat_mp_fan
+        WHERE open_id = #{openId} AND subscribe = true
+        ORDER BY update_time DESC
+    </select>
+
+    <select id="selectByUnionId" resultMap="FanResult">
+        SELECT * FROM crm_wechat_mp_fan
+        WHERE union_id = #{unionId} AND union_id IS NOT NULL
+        ORDER BY update_time DESC
+        LIMIT 10
+    </select>
+
+    <insert id="upsert">
+        INSERT INTO crm_wechat_mp_fan (
+            app_id, open_id, union_id, nickname, avatar_url, subscribe, subscribe_time,
+            unsubscribe_time, sex, country, province, city, remark, tag_ids, subscribe_scene,
+            contact_id, last_sync_at, update_time
+        ) VALUES (
+            #{appId}, #{openId}, #{unionId}, #{nickname}, #{avatarUrl}, #{subscribe}, #{subscribeTime},
+            #{unsubscribeTime}, #{sex}, #{country}, #{province}, #{city}, #{remark}, #{tagIds}::jsonb,
+            #{subscribeScene}, #{contactId}, #{lastSyncAt}, now()
+        )
+        ON CONFLICT (app_id, open_id) DO UPDATE SET
+            union_id = EXCLUDED.union_id,
+            nickname = EXCLUDED.nickname,
+            avatar_url = EXCLUDED.avatar_url,
+            subscribe = EXCLUDED.subscribe,
+            subscribe_time = COALESCE(EXCLUDED.subscribe_time, crm_wechat_mp_fan.subscribe_time),
+            unsubscribe_time = EXCLUDED.unsubscribe_time,
+            sex = EXCLUDED.sex,
+            country = EXCLUDED.country,
+            province = EXCLUDED.province,
+            city = EXCLUDED.city,
+            remark = EXCLUDED.remark,
+            tag_ids = EXCLUDED.tag_ids,
+            subscribe_scene = COALESCE(EXCLUDED.subscribe_scene, crm_wechat_mp_fan.subscribe_scene),
+            contact_id = COALESCE(EXCLUDED.contact_id, crm_wechat_mp_fan.contact_id),
+            last_sync_at = EXCLUDED.last_sync_at,
+            update_time = now()
+    </insert>
+</mapper>

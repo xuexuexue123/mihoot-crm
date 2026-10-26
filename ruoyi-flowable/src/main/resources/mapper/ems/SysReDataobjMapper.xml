@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.ems.mapper.SysReDataobjMapper">
+
+    <resultMap type="SysReDataobj" id="SysReDataobjResult">
+        <result property="dataobjId"    column="dataobj_id"    />
+        <result property="dataobjSort"    column="dataobj_sort"    />
+        <result property="dataobjLabel"    column="dataobj_label"    />
+        <result property="dataobjName"    column="dataobj_name"    />
+        <result property="tableName"    column="table_name"    />
+        <result property="schemaName"    column="schema_name"    />
+        <result property="databaseName"    column="database_name"    />
+        <result property="caseApplicationId"    column="case_application_id"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+    <resultMap type="SysReFieldPOJO" id="sysReFieldPOJOResult">
+        <result property="fields"    column="fields"    />
+        <result property="values"    column="values"    />
+        <result property="tableName"    column="table_name"    />
+    </resultMap>
+    <resultMap id="SysReDataobjSysReDatafieldResult" type="SysReDataobj" extends="SysReDataobjResult">
+        <collection property="sysReDatafieldList" notNullColumn="sub_field_id" javaType="java.util.List" resultMap="SysReDatafieldResult" />
+    </resultMap>
+
+    <resultMap type="SysReDatafield" id="SysReDatafieldResult">
+        <result property="fieldId"    column="sub_field_id"    />
+        <result property="fieldSort"    column="sub_field_sort"    />
+        <result property="fieldLabel"    column="sub_field_label"    />
+        <result property="fieldName"    column="sub_field_name"    />
+        <result property="fieldType"    column="sub_field_type"    />
+        <result property="dataobjId"    column="sub_dataobj_id"    />
+        <result property="createBy"    column="sub_create_by"    />
+        <result property="createTime"    column="sub_create_time"    />
+        <result property="updateBy"    column="sub_update_by"    />
+        <result property="updateTime"    column="sub_update_time"    />
+        <result property="isShow"    column="sub_is_show"    />
+        <result property="fieldCategory"    column="sub_field_category"    />
+    </resultMap>
+
+    <sql id="selectSysReDataobjVo">
+        select dataobj_id, dataobj_sort, dataobj_label, dataobj_name, table_name, schema_name, database_name, case_application_id, create_by, create_time, update_by, update_time from sys_re_dataobj
+    </sql>
+
+    <select id="selectSysReDataobjList" parameterType="SysReDataobj" resultMap="SysReDataobjResult">
+        <include refid="selectSysReDataobjVo"/>
+        <where>
+            <if test="dataobjLabel != null  and dataobjLabel != ''"> and dataobj_label = #{dataobjLabel}</if>
+            <if test="dataobjName != null  and dataobjName != ''"> and dataobj_name like concat('%', #{dataobjName}, '%')</if>
+            <if test="caseApplicationId != null  and caseApplicationId != ''"> and case_application_id = #{caseApplicationId}</if>
+        </where>
+    </select>
+
+    <select id="selectSysReDataobjByActivityTarget" parameterType="String" resultMap="SysReDataobjResult">
+        SELECT a.dataobj_id, a.dataobj_sort, a.dataobj_label, a.dataobj_name, a.table_name, a.schema_name, a.database_name, a.case_application_id, a.create_by, a.create_time, a.update_by, a.update_time
+        FROM sys_re_dataobj a, sys_re_activity b
+        WHERE a.dataobj_id = b.target
+          and b.py_id=#{pyId}
+    </select>
+
+    <select id="selectSysReDataobjByDataobjId" parameterType="String" resultMap="SysReDataobjSysReDatafieldResult">
+        select a.dataobj_id, a.dataobj_sort, a.dataobj_label, a.dataobj_name, a.table_name, a.schema_name, a.database_name, a.case_application_id, a.create_by, a.create_time, a.update_by, a.update_time,
+               b.field_id as sub_field_id, b.field_sort as sub_field_sort, b.field_label as sub_field_label, b.field_name as sub_field_name, b.field_type as sub_field_type, b.dataobj_id as sub_dataobj_id, b.create_by as sub_create_by, b.create_time as sub_create_time, b.update_by as sub_update_by, b.update_time as sub_update_time, b.is_show as sub_is_show, b.field_category as sub_field_category
+        from sys_re_dataobj a
+                 left join sys_re_datafield b on b.dataobj_id = a.dataobj_id
+        where a.dataobj_id = #{dataobjId}
+        order by b.field_name
+    </select>
+
+    <select id="selectSysReDataobjByDataobjName" parameterType="String" resultMap="SysReDataobjSysReDatafieldResult">
+        select a.dataobj_id, a.dataobj_sort, a.dataobj_label, a.dataobj_name, a.table_name, a.schema_name, a.database_name, a.case_application_id, a.create_by, a.create_time, a.update_by, a.update_time,
+               b.field_id as sub_field_id, b.field_sort as sub_field_sort, b.field_label as sub_field_label, b.field_name as sub_field_name, b.field_type as sub_field_type, b.dataobj_id as sub_dataobj_id, b.create_by as sub_create_by, b.create_time as sub_create_time, b.update_by as sub_update_by, b.update_time as sub_update_time, b.is_show as sub_is_show, b.field_category as sub_field_category
+        from sys_re_dataobj a
+                 left join sys_re_datafield b on b.dataobj_id = a.dataobj_id
+        where a.dataobj_id = (SELECT dataobj_id FROM sys_re_dataobj where dataobj_name= #{dataobjName})
+    </select>
+
+    <insert id="insertSysReDataobj" parameterType="SysReDataobj">
+        insert into sys_re_dataobj
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="dataobjId != null">dataobj_id,</if>
+            <if test="dataobjSort != null">dataobj_sort,</if>
+            <if test="dataobjLabel != null">dataobj_label,</if>
+            <if test="dataobjName != null">dataobj_name,</if>
+            <if test="tableName != null">table_name,</if>
+            <if test="schemaName != null">schema_name,</if>
+            <if test="databaseName != null">database_name,</if>
+            <if test="caseApplicationId != null">case_application_id,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="dataobjId != null">#{dataobjId},</if>
+            <if test="dataobjSort != null">#{dataobjSort},</if>
+            <if test="dataobjLabel != null">#{dataobjLabel},</if>
+            <if test="dataobjName != null">#{dataobjName},</if>
+            <if test="tableName != null">#{tableName},</if>
+            <if test="schemaName != null">#{schemaName},</if>
+            <if test="databaseName != null">#{databaseName},</if>
+            <if test="caseApplicationId != null">#{caseApplicationId},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+        </trim>
+    </insert>
+
+    <update id="updateSysReDataobj" parameterType="SysReDataobj">
+        update sys_re_dataobj
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="dataobjSort != null">dataobj_sort = #{dataobjSort},</if>
+            <if test="dataobjLabel != null">dataobj_label = #{dataobjLabel},</if>
+            <if test="dataobjName != null">dataobj_name = #{dataobjName},</if>
+            <if test="tableName != null">table_name = #{tableName},</if>
+            <if test="schemaName != null">schema_name = #{schemaName},</if>
+            <if test="databaseName != null">database_name = #{databaseName},</if>
+            <if test="caseApplicationId != null">case_application_id = #{caseApplicationId},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where dataobj_id = #{dataobjId}
+    </update>
+
+
+    <delete id="deleteSysReDataobjByDataobjId" parameterType="String">
+        delete from sys_re_dataobj where dataobj_id = #{dataobjId}
+    </delete>
+
+    <delete id="deleteSysReDataobjByDataobjIds" parameterType="String">
+        delete from sys_re_dataobj where dataobj_id in
+        <foreach item="dataobjId" collection="array" open="(" separator="," close=")">
+            #{dataobjId}
+        </foreach>
+    </delete>
+
+    <delete id="deleteSysReDatafieldByDataobjIds" parameterType="String">
+        delete from sys_re_datafield where dataobj_id in
+        <foreach item="dataobjId" collection="array" open="(" separator="," close=")">
+            #{dataobjId}
+        </foreach>
+    </delete>
+
+    <delete id="deleteSysReDatafieldByDataobjId" parameterType="String">
+        delete from sys_re_datafield where dataobj_id = #{dataobjId}
+    </delete>
+
+    <insert id="batchSysReDatafield">
+        insert into sys_re_datafield( field_id, field_sort, field_label, field_name, field_type, dataobj_id, create_by, create_time, update_by, update_time, is_show, field_category)  values
+        <foreach item="item" index="index" collection="list" separator=",">
+            ( #{item.fieldId}, #{item.fieldSort}, #{item.fieldLabel}, #{item.fieldName}, #{item.fieldType}, #{item.dataobjId}, #{item.createBy}, #{item.createTime}, #{item.updateBy}, #{item.updateTime}, #{item.isShow}, #{item.fieldCategory})
+        </foreach>
+    </insert>
+
+
+
+    <update id="creatTemplateTable" parameterType="map">
+        CREATE TABLE IF NOT EXISTS ${name}
+        (
+        id BIGSERIAL PRIMARY KEY,
+        <foreach collection="mymap" index="key"  item="value" separator=",">
+            ${key} ${value}
+        </foreach>
+        )
+    </update>
+
+    <select id="selectTemplateTableData" resultType="HashMap" parameterType="java.lang.String" statementType="STATEMENT">
+        select id,
+               ${columns}
+        from ${tableName}
+    </select>
+
+
+    <insert id="insertTemplateTableData" parameterType="java.lang.String" statementType="STATEMENT">
+        insert into ${tableName}
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            ${fields}
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            ${values}
+        </trim>
+    </insert>
+
+    <delete id="deleteTemplateTableById" parameterType="String" statementType="STATEMENT">
+        delete from ${tableName} where id = ${id}
+    </delete>
+
+    <select id="isTargetTableExistInDB" resultType="string">
+        SELECT c.relname AS table_name
+        FROM pg_class c
+        JOIN pg_namespace n ON n.oid = c.relnamespace
+        WHERE c.relkind IN ('r','p')
+          AND n.nspname = current_schema()
+          AND c.relname = lower(#{tableName})
+    </select>
+
+    <select id="getRecordCount" resultType="int">
+        select count(1) from ${tableName}
+    </select>
+
+    <update id="truncateTable" statementType="STATEMENT">
+        truncate table ${tableName}
+    </update>
+
+    <update id="deleteTable">
+        drop table ${tableName};
+    </update>
+
+    <update id="alterTableName">
+        alter table ${originalTableName} rename to ${newTableName}
+    </update>
+
+    <update id="createNewTableAndInsertData">
+        create table ${newTableName} as select * from ${originalTableName}
+    </update>
+
+    <select id="getCurDataBaseName" resultType="string">
+        select current_database()
+    </select>
+
+</mapper>

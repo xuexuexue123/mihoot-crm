@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmContextSummaryMapper">
+
+    <select id="countAccessibleOrg" parameterType="com.ruoyi.crm.domain.ContextSummaryScope" resultType="java.lang.Long">
+        select COUNT(*)::bigint
+        from crm_org o
+        left join sys_user u on u.user_id = o.user_id
+        left join sys_dept d on u.dept_id = d.dept_id
+        where o.org_id = #{entityId}
+        ${params.dataScope}
+    </select>
+
+    <select id="countAccessibleAccount" parameterType="com.ruoyi.crm.domain.ContextSummaryScope" resultType="java.lang.Long">
+        select COUNT(*)::bigint
+        from crm_account a
+        left join sys_user u on u.user_id = a.user_id
+        left join sys_dept d on u.dept_id = d.dept_id
+        where a.account_id = #{entityId}
+        ${params.dataScope}
+    </select>
+
+    <select id="countAccessibleContact" parameterType="com.ruoyi.crm.domain.ContextSummaryScope" resultType="java.lang.Long">
+        select COUNT(*)::bigint
+        from crm_contact c
+        left join sys_user u on u.user_id = c.user_id
+        left join sys_dept d on u.dept_id = d.dept_id
+        where c.contact_id = #{entityId}
+        ${params.dataScope}
+    </select>
+
+    <select id="countAccessibleOpty" parameterType="com.ruoyi.crm.domain.ContextSummaryScope" resultType="java.lang.Long">
+        select COUNT(*)::bigint
+        from crm_opty o
+        left join sys_user u on u.user_id = o.user_id
+        left join sys_dept d on u.dept_id = d.dept_id
+        where o.opty_id = #{entityId}
+        ${params.dataScope}
+    </select>
+
+    <select id="countAccessibleLead" parameterType="com.ruoyi.crm.domain.ContextSummaryScope" resultType="java.lang.Long">
+        select COUNT(*)::bigint
+        from crm_lead l
+        left join sys_user u on u.user_id = l.user_id
+        left join sys_dept d on u.dept_id = d.dept_id
+        where l.lead_id = #{entityId}
+        ${params.dataScope}
+    </select>
+
+    <select id="countOptyByOrgId" parameterType="com.ruoyi.crm.domain.ContextSummaryScope" resultType="java.lang.Long">
+        select COUNT(*)::bigint from crm_opty where org_id = #{orgId}
+    </select>
+
+    <select id="countOpenTaskByOrgId" parameterType="com.ruoyi.crm.domain.ContextSummaryScope" resultType="java.lang.Long">
+        select COUNT(*)::bigint from crm_task t
+        where t.related_toid = #{orgId}
+          and (t.status_detail is null or t.status_detail != 'Completed')
+    </select>
+
+    <select id="countContactByOrgId" parameterType="com.ruoyi.crm.domain.ContextSummaryScope" resultType="java.lang.Long">
+        select COUNT(*)::bigint from crm_contact where org_id = #{orgId}
+    </select>
+
+    <select id="countContractByOrgId" parameterType="com.ruoyi.crm.domain.ContextSummaryScope" resultType="java.lang.Long">
+        select COUNT(*)::bigint from crm_contract c
+        inner join crm_account a on a.account_id = c.account_id
+        where a.org_id = #{orgId}
+    </select>
+
+    <select id="countOptyByAccountId" parameterType="com.ruoyi.crm.domain.ContextSummaryScope" resultType="java.lang.Long">
+        select COUNT(*)::bigint from crm_opty where account_id = #{accountId}
+    </select>
+
+    <select id="countOpenTaskByAccountId" parameterType="com.ruoyi.crm.domain.ContextSummaryScope" resultType="java.lang.Long">
+        select COUNT(*)::bigint from crm_task t
+        where t.related_toid = #{accountId}
+          and (t.status_detail is null or t.status_detail != 'Completed')
+    </select>
+
+    <select id="countContactByAccountId" parameterType="com.ruoyi.crm.domain.ContextSummaryScope" resultType="java.lang.Long">
+        select COUNT(*)::bigint from crm_contact where account_id = #{accountId}
+    </select>
+
+    <select id="countContractByAccountId" parameterType="com.ruoyi.crm.domain.ContextSummaryScope" resultType="java.lang.Long">
+        select COUNT(*)::bigint from crm_contract where account_id = #{accountId}
+    </select>
+
+    <select id="countOptyByContactId" parameterType="com.ruoyi.crm.domain.ContextSummaryScope" resultType="java.lang.Long">
+        select COUNT(*)::bigint from crm_opty where contact_id = #{contactId}
+    </select>
+
+    <select id="countOpenTaskByContactId" parameterType="com.ruoyi.crm.domain.ContextSummaryScope" resultType="java.lang.Long">
+        select COUNT(*)::bigint from crm_task t
+        where t.related_toid = #{contactId}
+          and (t.status_detail is null or t.status_detail != 'Completed')
+    </select>
+
+    <select id="countOpenTaskByOptyId" parameterType="com.ruoyi.crm.domain.ContextSummaryScope" resultType="java.lang.Long">
+        select COUNT(*)::bigint from crm_task t
+        where t.related_toid = #{optyId}
+          and (t.status_detail is null or t.status_detail != 'Completed')
+    </select>
+
+    <select id="countOptyByLeadId" parameterType="com.ruoyi.crm.domain.ContextSummaryScope" resultType="java.lang.Long">
+        select COUNT(*)::bigint from crm_opty where lead_id = #{leadId}
+    </select>
+
+    <select id="selectRecentPulse" parameterType="com.ruoyi.crm.domain.ContextSummaryScope" resultType="java.util.HashMap">
+        select p.pulse_type as pulse_type,
+               p.message_data as message_data,
+               p.create_time as create_time
+        from crm_pulse p
+        where p.relate_id = #{entityId}
+        <if test="pulseRelateType != null and pulseRelateType != ''"> and p.relate_type = #{pulseRelateType}</if>
+        order by p.create_time desc
+        limit #{pulseLimit}
+    </select>
+</mapper>

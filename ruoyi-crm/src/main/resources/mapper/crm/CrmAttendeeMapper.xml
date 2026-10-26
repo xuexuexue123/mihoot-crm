@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmAttendeeMapper">
+    
+    <resultMap type="CrmAttendee" id="CrmAttendeeResult">
+        <result property="attendeeId"    column="attendee_id"    />
+        <result property="appointmentId"    column="appointment_id"    />
+        <result property="attendeeName"    column="attendee_name"    />
+        <result property="attendeeType"    column="attendee_type"    />
+        <result property="attendeeRefid"    column="attendee_refid"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="orgId"    column="org_id"    />
+        <result property="fullName"    column="full_name"    />
+    </resultMap>
+
+    <sql id="selectCrmAttendeeVo">
+        select attendee_id, appointment_id, attendee_name, attendee_type, attendee_refid, create_by, create_time, update_by, update_time, org_id, full_name from crm_attendee
+    </sql>
+
+    <select id="selectCrmAttendeeList" parameterType="CrmAttendee" resultMap="CrmAttendeeResult">
+        <include refid="selectCrmAttendeeVo"/>
+        <where>  
+            <if test="appointmentId != null  and appointmentId != ''"> and appointment_id = #{appointmentId}</if>
+            <if test="attendeeName != null  and attendeeName != ''"> and attendee_name like concat('%', #{attendeeName}, '%')</if>
+            <if test="attendeeType != null  and attendeeType != ''"> and attendee_type = #{attendeeType}</if>
+            <if test="attendeeRefid != null  and attendeeRefid != ''"> and attendee_refid = #{attendeeRefid}</if>
+            <if test="orgId != null  and orgId != ''"> and org_id = #{orgId}</if>
+            <if test="fullName != null  and fullName != ''"> and full_name like concat('%', #{fullName}, '%')</if>
+        </where>
+    </select>
+    
+    <select id="selectCrmAttendeeByAttendeeId" parameterType="String" resultMap="CrmAttendeeResult">
+        <include refid="selectCrmAttendeeVo"/>
+        where attendee_id = #{attendeeId}
+    </select>
+        
+    <insert id="insertCrmAttendee" parameterType="CrmAttendee">
+        insert into crm_attendee
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="attendeeId != null">attendee_id,</if>
+            <if test="appointmentId != null">appointment_id,</if>
+            <if test="attendeeName != null">attendee_name,</if>
+            <if test="attendeeType != null">attendee_type,</if>
+            <if test="attendeeRefid != null">attendee_refid,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="orgId != null">org_id,</if>
+            <if test="fullName != null">full_name,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="attendeeId != null">#{attendeeId},</if>
+            <if test="appointmentId != null">#{appointmentId},</if>
+            <if test="attendeeName != null">#{attendeeName},</if>
+            <if test="attendeeType != null">#{attendeeType},</if>
+            <if test="attendeeRefid != null">#{attendeeRefid},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="orgId != null">#{orgId},</if>
+            <if test="fullName != null">#{fullName},</if>
+         </trim>
+    </insert>
+
+    <update id="updateCrmAttendee" parameterType="CrmAttendee">
+        update crm_attendee
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="appointmentId != null">appointment_id = #{appointmentId},</if>
+            <if test="attendeeName != null">attendee_name = #{attendeeName},</if>
+            <if test="attendeeType != null">attendee_type = #{attendeeType},</if>
+            <if test="attendeeRefid != null">attendee_refid = #{attendeeRefid},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="orgId != null">org_id = #{orgId},</if>
+            <if test="fullName != null">full_name = #{fullName},</if>
+        </trim>
+        where attendee_id = #{attendeeId}
+    </update>
+
+    <delete id="deleteCrmAttendeeByAttendeeId" parameterType="String">
+        delete from crm_attendee where attendee_id = #{attendeeId}
+    </delete>
+
+    <delete id="deleteCrmAttendeeByAttendeeIds" parameterType="String">
+        delete from crm_attendee where attendee_id in 
+        <foreach item="attendeeId" collection="array" open="(" separator="," close=")">
+            #{attendeeId}
+        </foreach>
+    </delete>
+</mapper>

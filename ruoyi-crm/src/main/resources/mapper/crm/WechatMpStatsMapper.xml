@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.wechatmp.mapper.WechatMpStatsMapper">
+
+    <sql id="appFilter">
+        <if test="appId != null and appId != ''">
+            AND (context::jsonb ->> 'app_id' = #{appId} OR context IS NULL)
+        </if>
+    </sql>
+
+    <select id="countEvents" resultType="int">
+        SELECT COUNT(*) FROM crm_activity
+        WHERE channel = 'wechat_mp'
+          AND event_type = #{eventType}
+        <if test="beginTime != null">AND create_time &gt;= #{beginTime}</if>
+        <if test="endTime != null">AND create_time &lt;= #{endTime}</if>
+        <include refid="appFilter"/>
+    </select>
+
+    <select id="selectTopMenuKeys" resultType="java.util.HashMap">
+        SELECT COALESCE(payload::jsonb ->> 'event_key', 'unknown') AS menuKey,
+               COUNT(*) AS count
+        FROM crm_activity
+        WHERE channel = 'wechat_mp'
+          AND event_type = 'channel.wechat_mp.menu.click'
+        <if test="beginTime != null">AND create_time &gt;= #{beginTime}</if>
+        <if test="endTime != null">AND create_time &lt;= #{endTime}</if>
+        <include refid="appFilter"/>
+        GROUP BY menuKey
+        ORDER BY count DESC
+        LIMIT #{limit}
+    </select>
+</mapper>

@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmForecastMapper">
+    
+    <resultMap type="CrmForecast" id="CrmForecastResult">
+        <result property="forecastId"    column="forecast_id"    />
+        <result property="periodType"    column="period_type"    />
+        <result property="forecastName"    column="forecast_name"    />
+        <result property="forecastYear"    column="forecast_year"    />
+        <result property="forecastMonth"    column="forecast_month"    />
+        <result property="ownerId"    column="owner_id"    />
+        <result property="owner"    column="owner"    />
+        <result property="closedOnly"    column="closed_only"    />
+        <result property="commit"    column="commit"    />
+        <result property="closeCommit"    column="close_commit"    />
+        <result property="bestCase"    column="best_case"    />
+        <result property="openPipeline"    column="open_pipeline"    />
+        <result property="subtotal"    column="subtotal"    />
+        <result property="quota"    column="quota"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectCrmForecastVo">
+        select forecast_id, period_type, forecast_name, forecast_year, forecast_month, owner_id, owner, closed_only, commit, close_commit, best_case, open_pipeline, subtotal, quota, create_by, create_time, update_by, update_time from crm_forecast
+    </sql>
+
+    <select id="selectCrmForecastList" parameterType="CrmForecast" resultMap="CrmForecastResult">
+        <include refid="selectCrmForecastVo"/>
+        <where>  
+            <if test="periodType != null  and periodType != ''"> and period_type = #{periodType}</if>
+            <if test="forecastName != null  and forecastName != ''"> and forecast_name like concat('%', #{forecastName}, '%')</if>
+            <if test="forecastYear != null "> and forecast_year = #{forecastYear}</if>
+            <if test="forecastMonth != null "> and forecast_month = #{forecastMonth}</if>
+            <if test="ownerId != null  and ownerId != ''"> and owner_id = #{ownerId}</if>
+            <if test="owner != null  and owner != ''"> and owner = #{owner}</if>
+            <if test="closedOnly != null "> and closed_only = #{closedOnly}</if>
+            <if test="commit != null "> and commit = #{commit}</if>
+            <if test="closeCommit != null "> and close_commit = #{closeCommit}</if>
+            <if test="bestCase != null "> and best_case = #{bestCase}</if>
+            <if test="openPipeline != null "> and open_pipeline = #{openPipeline}</if>
+            <if test="subtotal != null "> and subtotal = #{subtotal}</if>
+            <if test="quota != null "> and quota = #{quota}</if>
+        </where>
+    </select>
+    
+    <select id="selectCrmForecastByForecastId" parameterType="String" resultMap="CrmForecastResult">
+        <include refid="selectCrmForecastVo"/>
+        where forecast_id = #{forecastId}
+    </select>
+        
+    <insert id="insertCrmForecast" parameterType="CrmForecast">
+        insert into crm_forecast
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="forecastId != null">forecast_id,</if>
+            <if test="periodType != null and periodType != ''">period_type,</if>
+            <if test="forecastName != null and forecastName != ''">forecast_name,</if>
+            <if test="forecastYear != null">forecast_year,</if>
+            <if test="forecastMonth != null">forecast_month,</if>
+            <if test="ownerId != null">owner_id,</if>
+            <if test="owner != null">owner,</if>
+            <if test="closedOnly != null">closed_only,</if>
+            <if test="commit != null">commit,</if>
+            <if test="closeCommit != null">close_commit,</if>
+            <if test="bestCase != null">best_case,</if>
+            <if test="openPipeline != null">open_pipeline,</if>
+            <if test="subtotal != null">subtotal,</if>
+            <if test="quota != null">quota,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="forecastId != null">#{forecastId},</if>
+            <if test="periodType != null and periodType != ''">#{periodType},</if>
+            <if test="forecastName != null and forecastName != ''">#{forecastName},</if>
+            <if test="forecastYear != null">#{forecastYear},</if>
+            <if test="forecastMonth != null">#{forecastMonth},</if>
+            <if test="ownerId != null">#{ownerId},</if>
+            <if test="owner != null">#{owner},</if>
+            <if test="closedOnly != null">#{closedOnly},</if>
+            <if test="commit != null">#{commit},</if>
+            <if test="closeCommit != null">#{closeCommit},</if>
+            <if test="bestCase != null">#{bestCase},</if>
+            <if test="openPipeline != null">#{openPipeline},</if>
+            <if test="subtotal != null">#{subtotal},</if>
+            <if test="quota != null">#{quota},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateCrmForecast" parameterType="CrmForecast">
+        update crm_forecast
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="periodType != null and periodType != ''">period_type = #{periodType},</if>
+            <if test="forecastName != null and forecastName != ''">forecast_name = #{forecastName},</if>
+            <if test="forecastYear != null">forecast_year = #{forecastYear},</if>
+            <if test="forecastMonth != null">forecast_month = #{forecastMonth},</if>
+            <if test="ownerId != null">owner_id = #{ownerId},</if>
+            <if test="owner != null">owner = #{owner},</if>
+            <if test="closedOnly != null">closed_only = #{closedOnly},</if>
+            <if test="commit != null">commit = #{commit},</if>
+            <if test="closeCommit != null">close_commit = #{closeCommit},</if>
+            <if test="bestCase != null">best_case = #{bestCase},</if>
+            <if test="openPipeline != null">open_pipeline = #{openPipeline},</if>
+            <if test="subtotal != null">subtotal = #{subtotal},</if>
+            <if test="quota != null">quota = #{quota},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where forecast_id = #{forecastId}
+    </update>
+
+    <delete id="deleteCrmForecastByForecastId" parameterType="String">
+        delete from crm_forecast where forecast_id = #{forecastId}
+    </delete>
+
+    <delete id="deleteCrmForecastByForecastIds" parameterType="String">
+        delete from crm_forecast where forecast_id in 
+        <foreach item="forecastId" collection="array" open="(" separator="," close=")">
+            #{forecastId}
+        </foreach>
+    </delete>
+</mapper>

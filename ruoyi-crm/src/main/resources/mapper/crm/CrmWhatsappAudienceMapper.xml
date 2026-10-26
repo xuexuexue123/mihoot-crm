@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmWhatsappAudienceMapper">
+
+    <select id="selectContactsByAnyTagIds" resultType="java.util.HashMap">
+        SELECT c.contact_id AS "contactId"
+        FROM crm_contact c
+        WHERE crm_tag_ids(c.tag::text) &amp;&amp; ARRAY[
+            <foreach collection="tagIds" item="t" separator=",">
+                #{t}
+            </foreach>
+        ]::text[]
+    </select>
+
+    <!-- 营销受众严格身份：仅 whatsapp_wa_id，不查 phone 类身份 -->
+    <select id="selectWhatsappIdentitiesByContactIds"
+            resultType="com.ruoyi.crm.domain.CrmCustomerIdentity">
+        SELECT identity_id AS identityId,
+               contact_id AS contactId,
+               identity_type AS identityType,
+               identity_value AS identityValue,
+               source, is_primary AS isPrimary, is_verified AS isVerified,
+               create_time AS createTime, update_time AS updateTime
+        FROM crm_customer_identity
+        WHERE contact_id IN
+        <foreach collection="contactIds" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+          AND identity_type = 'whatsapp_wa_id'
+        ORDER BY contact_id, identity_id
+    </select>
+</mapper>

@@ -1,0 +1,359 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmIndustrialParkMapper">
+
+    <resultMap type="CrmIndustrialPark" id="CrmIndustrialParkResult">
+        <result property="id" column="id"/>
+        <result property="nameCn" column="name_cn"/>
+        <result property="nameNative" column="name_native"/>
+        <result property="region" column="region"/>
+        <result property="province" column="province"/>
+        <result property="address" column="address"/>
+        <result property="coordinates" column="coordinates"/>
+        <result property="lat" column="lat"/>
+        <result property="lng" column="lng"/>
+        <result property="establishedDate" column="established_date"/>
+        <result property="developer" column="developer"/>
+        <result property="website" column="website"/>
+        <result property="totalAreaHa" column="total_area_ha"/>
+        <result property="developedAreaHa" column="developed_area_ha"/>
+        <result property="occupancyRate" column="occupancy_rate"/>
+        <result property="dominantIndustries" column="dominant_industries"
+                typeHandler="com.ruoyi.crm.handler.JsonbStringListTypeHandler"/>
+        <result property="encouragedIndustries" column="encouraged_industries"
+                typeHandler="com.ruoyi.crm.handler.JsonbStringListTypeHandler"/>
+        <result property="parkLevel" column="park_level"/>
+        <result property="anchorTenants" column="anchor_tenants"
+                typeHandler="com.ruoyi.crm.handler.JsonbStringListTypeHandler"/>
+        <result property="landRentUsdPerSqm" column="land_rent_usd_per_sqm"/>
+        <result property="leaseTermYears" column="lease_term_years"/>
+        <result property="leaseExpiryYear" column="lease_expiry_year"/>
+        <result property="operationExpiryDate" column="operation_expiry_date"/>
+        <result property="standardFactoryRentUsdPerSqmMonth" column="standard_factory_rent_usd_per_sqm_month"/>
+        <result property="managementFeeUsdPerSqmYear" column="management_fee_usd_per_sqm_year"/>
+        <result property="electricityRateUsdPerKwh" column="electricity_rate_usd_per_kwh"/>
+        <result property="waterRateUsdPerCum" column="water_rate_usd_per_cum"/>
+        <result property="blueCollarWageUsd" column="blue_collar_wage_usd"/>
+        <result property="whiteCollarWageUsd" column="white_collar_wage_usd"/>
+        <result property="citIncentive" column="cit_incentive"/>
+        <result property="importTariffIncentive" column="import_tariff_incentive"/>
+        <result property="isSez" column="is_sez"/>
+        <result property="specialIncentives" column="special_incentives"/>
+        <result property="competitiveAdvantages" column="competitive_advantages"/>
+        <result property="distanceToSeaPortKm" column="distance_to_sea_port_km"/>
+        <result property="seaPortName" column="sea_port_name"/>
+        <result property="distanceToAirportKm" column="distance_to_airport_km"/>
+        <result property="airportName" column="airport_name"/>
+        <result property="distanceToChinaBorderKm" column="distance_to_china_border_km"/>
+        <result property="borderPortName" column="border_port_name"/>
+        <result property="nearestHighwayName" column="nearest_highway_name"/>
+        <result property="distanceToHighwayKm" column="distance_to_highway_km"/>
+        <result property="nearestRailwayName" column="nearest_railway_name"/>
+        <result property="distanceToRailwayKm" column="distance_to_railway_km"/>
+        <result property="mainRoadSpec" column="main_road_spec"/>
+        <result property="internalRoadSpec" column="internal_road_spec"/>
+        <result property="powerReliability" column="power_reliability"/>
+        <result property="powerSupplyDetail" column="power_supply_detail"/>
+        <result property="hasNationalGrid" column="has_national_grid"/>
+        <result property="hasStandbyPower" column="has_standby_power"/>
+        <result property="waterSupplySource" column="water_supply_source"/>
+        <result property="waterSupplyCapacity" column="water_supply_capacity"/>
+        <result property="sewageTreatmentCapacity" column="sewage_treatment_capacity"/>
+        <result property="hasEmployeeDormitory" column="has_employee_dormitory"/>
+        <result property="surroundingAmenities" column="surrounding_amenities"/>
+        <result property="laborSupply" column="labor_supply"/>
+        <result property="recruitmentSources" column="recruitment_sources"/>
+        <result property="hasVocationalSchool" column="has_vocational_school"/>
+        <result property="masterPlanUrl" column="master_plan_url"/>
+        <result property="brochureUrl" column="brochure_url"/>
+        <result property="photos" column="photos"
+                typeHandler="com.ruoyi.crm.handler.JsonbStringListTypeHandler"/>
+        <result property="dataSource" column="data_source"/>
+        <result property="lastUpdated" column="last_updated"/>
+        <result property="verificationStatus" column="verification_status"/>
+        <result property="consultantContact" column="consultant_contact"/>
+        <result property="contactPageUrl" column="contact_page_url"/>
+        <result property="officialPhone" column="official_phone"/>
+        <result property="officialEmail" column="official_email"/>
+        <result property="operatingHours" column="operating_hours"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="delFlag" column="del_flag"/>
+    </resultMap>
+
+    <sql id="selectCrmIndustrialParkVo">
+        select id, name_cn, name_native, region, province, address, coordinates, lat, lng,
+               established_date, developer, website,
+               total_area_ha, developed_area_ha, occupancy_rate,
+               dominant_industries::text as dominant_industries,
+               encouraged_industries::text as encouraged_industries,
+               park_level,
+               anchor_tenants::text as anchor_tenants,
+               land_rent_usd_per_sqm, lease_term_years, lease_expiry_year, operation_expiry_date,
+               standard_factory_rent_usd_per_sqm_month, management_fee_usd_per_sqm_year,
+               electricity_rate_usd_per_kwh, water_rate_usd_per_cum,
+               blue_collar_wage_usd, white_collar_wage_usd,
+               cit_incentive, import_tariff_incentive, is_sez, special_incentives,
+               competitive_advantages,
+               distance_to_sea_port_km, sea_port_name, distance_to_airport_km, airport_name,
+               distance_to_china_border_km, border_port_name,
+               nearest_highway_name, distance_to_highway_km,
+               nearest_railway_name, distance_to_railway_km,
+               main_road_spec, internal_road_spec,
+               power_reliability, power_supply_detail,
+               has_national_grid, has_standby_power,
+               water_supply_source, water_supply_capacity,
+               sewage_treatment_capacity, has_employee_dormitory, surrounding_amenities,
+               labor_supply, recruitment_sources, has_vocational_school,
+               master_plan_url, brochure_url,
+               photos::text as photos,
+               data_source,
+               to_char(last_updated, 'YYYY-MM-DD') as last_updated,
+               verification_status, consultant_contact, contact_page_url,
+               official_phone, official_email, operating_hours,
+               create_by, create_time, update_by, update_time, del_flag
+        from crm_industrial_park
+    </sql>
+
+    <select id="selectCrmIndustrialParkById" parameterType="String" resultMap="CrmIndustrialParkResult">
+        <include refid="selectCrmIndustrialParkVo"/>
+        where id = #{id}
+          and del_flag = '0'
+    </select>
+
+    <select id="selectCrmIndustrialParkList" parameterType="CrmIndustrialPark" resultMap="CrmIndustrialParkResult">
+        <include refid="selectCrmIndustrialParkVo"/>
+        <where>
+            del_flag = '0'
+            <if test="searchQuery != null and searchQuery != ''">
+                and (
+                    name_cn ILIKE CONCAT('%', #{searchQuery}, '%')
+                    or name_native ILIKE CONCAT('%', #{searchQuery}, '%')
+                    or province ILIKE CONCAT('%', #{searchQuery}, '%')
+                    or developer ILIKE CONCAT('%', #{searchQuery}, '%')
+                )
+            </if>
+            <if test="region != null and region != '' and region != 'ALL'">
+                and region = #{region}
+            </if>
+            <if test="province != null and province != '' and province != 'ALL'">
+                and province = #{province}
+            </if>
+            <if test="parkLevel != null and parkLevel != '' and parkLevel != 'ALL'">
+                and park_level = #{parkLevel}
+            </if>
+            <if test="verificationStatus != null and verificationStatus != '' and verificationStatus != 'ALL'">
+                and verification_status = #{verificationStatus}
+            </if>
+            <if test="dominantIndustry != null and dominantIndustry != '' and dominantIndustry != 'ALL'">
+                and dominant_industries @&gt; jsonb_build_array(#{dominantIndustry})
+            </if>
+            <if test="maxLandRent != null">
+                and land_rent_usd_per_sqm &lt;= #{maxLandRent}
+            </if>
+            <if test="minOccupancy != null">
+                and occupancy_rate &gt;= #{minOccupancy}
+            </if>
+            <if test="maxDistancePort != null">
+                and distance_to_sea_port_km &lt;= #{maxDistancePort}
+            </if>
+            <if test="isSezOnly != null and isSezOnly == true">
+                and is_sez = true
+            </if>
+        </where>
+        order by update_time desc nulls last, name_cn asc
+    </select>
+
+    <insert id="insertCrmIndustrialPark" parameterType="CrmIndustrialPark">
+        insert into crm_industrial_park (
+            id, name_cn, name_native, region, province, address, coordinates, lat, lng,
+            established_date, developer, website,
+            total_area_ha, developed_area_ha, occupancy_rate,
+            dominant_industries, encouraged_industries, park_level, anchor_tenants,
+            land_rent_usd_per_sqm, lease_term_years, lease_expiry_year, operation_expiry_date,
+            standard_factory_rent_usd_per_sqm_month, management_fee_usd_per_sqm_year,
+            electricity_rate_usd_per_kwh, water_rate_usd_per_cum,
+            blue_collar_wage_usd, white_collar_wage_usd,
+            cit_incentive, import_tariff_incentive, is_sez, special_incentives,
+            competitive_advantages,
+            distance_to_sea_port_km, sea_port_name, distance_to_airport_km, airport_name,
+            distance_to_china_border_km, border_port_name,
+            nearest_highway_name, distance_to_highway_km,
+            nearest_railway_name, distance_to_railway_km,
+            main_road_spec, internal_road_spec,
+            power_reliability, power_supply_detail,
+            has_national_grid, has_standby_power,
+            water_supply_source, water_supply_capacity,
+            sewage_treatment_capacity, has_employee_dormitory, surrounding_amenities,
+            labor_supply, recruitment_sources, has_vocational_school,
+            master_plan_url, brochure_url, photos, data_source,
+            last_updated, verification_status, consultant_contact, contact_page_url,
+            official_phone, official_email, operating_hours,
+            create_by, create_time, update_by, update_time, del_flag
+        ) values (
+            #{id},
+            #{nameCn},
+            COALESCE(#{nameNative}, ''),
+            #{region},
+            COALESCE(#{province}, ''),
+            COALESCE(#{address}, ''),
+            COALESCE(#{coordinates}, ''),
+            COALESCE(#{lat}, 0),
+            COALESCE(#{lng}, 0),
+            COALESCE(#{establishedDate}, ''),
+            COALESCE(#{developer}, ''),
+            COALESCE(#{website}, ''),
+            COALESCE(#{totalAreaHa}, 0),
+            COALESCE(#{developedAreaHa}, 0),
+            COALESCE(#{occupancyRate}, 0),
+            CAST(#{dominantIndustries, typeHandler=com.ruoyi.crm.handler.JsonbStringListTypeHandler} AS jsonb),
+            CAST(#{encouragedIndustries, typeHandler=com.ruoyi.crm.handler.JsonbStringListTypeHandler} AS jsonb),
+            COALESCE(#{parkLevel}, ''),
+            CAST(#{anchorTenants, typeHandler=com.ruoyi.crm.handler.JsonbStringListTypeHandler} AS jsonb),
+            COALESCE(#{landRentUsdPerSqm}, 0),
+            COALESCE(#{leaseTermYears}, 0),
+            COALESCE(#{leaseExpiryYear}, 0),
+            COALESCE(#{operationExpiryDate}, ''),
+            COALESCE(#{standardFactoryRentUsdPerSqmMonth}, 0),
+            COALESCE(#{managementFeeUsdPerSqmYear}, 0),
+            COALESCE(#{electricityRateUsdPerKwh}, ''),
+            COALESCE(#{waterRateUsdPerCum}, 0),
+            COALESCE(#{blueCollarWageUsd}, 0),
+            COALESCE(#{whiteCollarWageUsd}, 0),
+            COALESCE(#{citIncentive}, ''),
+            COALESCE(#{importTariffIncentive}, ''),
+            COALESCE(#{isSez}, false),
+            COALESCE(#{specialIncentives}, ''),
+            COALESCE(#{competitiveAdvantages}, ''),
+            COALESCE(#{distanceToSeaPortKm}, 0),
+            COALESCE(#{seaPortName}, ''),
+            COALESCE(#{distanceToAirportKm}, 0),
+            COALESCE(#{airportName}, ''),
+            COALESCE(#{distanceToChinaBorderKm}, 0),
+            COALESCE(#{borderPortName}, ''),
+            COALESCE(#{nearestHighwayName}, ''),
+            COALESCE(#{distanceToHighwayKm}, 0),
+            COALESCE(#{nearestRailwayName}, ''),
+            COALESCE(#{distanceToRailwayKm}, 0),
+            COALESCE(#{mainRoadSpec}, ''),
+            COALESCE(#{internalRoadSpec}, ''),
+            COALESCE(#{powerReliability}, ''),
+            COALESCE(#{powerSupplyDetail}, ''),
+            COALESCE(#{hasNationalGrid}, false),
+            COALESCE(#{hasStandbyPower}, false),
+            COALESCE(#{waterSupplySource}, ''),
+            COALESCE(#{waterSupplyCapacity}, ''),
+            COALESCE(#{sewageTreatmentCapacity}, ''),
+            COALESCE(#{hasEmployeeDormitory}, false),
+            COALESCE(#{surroundingAmenities}, ''),
+            COALESCE(#{laborSupply}, ''),
+            COALESCE(#{recruitmentSources}, ''),
+            COALESCE(#{hasVocationalSchool}, false),
+            #{masterPlanUrl},
+            #{brochureUrl},
+            CAST(#{photos, typeHandler=com.ruoyi.crm.handler.JsonbStringListTypeHandler} AS jsonb),
+            COALESCE(#{dataSource}, ''),
+            CAST(NULLIF(TRIM(#{lastUpdated}), '') AS date),
+            COALESCE(NULLIF(TRIM(#{verificationStatus}), ''), '未核实'),
+            COALESCE(#{consultantContact}, ''),
+            #{contactPageUrl},
+            #{officialPhone},
+            #{officialEmail},
+            #{operatingHours},
+            #{createBy},
+            #{createTime},
+            #{updateBy},
+            #{updateTime},
+            COALESCE(#{delFlag}, '0')
+        )
+    </insert>
+
+    <update id="updateCrmIndustrialPark" parameterType="CrmIndustrialPark">
+        update crm_industrial_park
+        set name_cn = #{nameCn},
+            name_native = COALESCE(#{nameNative}, ''),
+            region = #{region},
+            province = COALESCE(#{province}, ''),
+            address = COALESCE(#{address}, ''),
+            coordinates = COALESCE(#{coordinates}, ''),
+            lat = COALESCE(#{lat}, 0),
+            lng = COALESCE(#{lng}, 0),
+            established_date = COALESCE(#{establishedDate}, ''),
+            developer = COALESCE(#{developer}, ''),
+            website = COALESCE(#{website}, ''),
+            total_area_ha = COALESCE(#{totalAreaHa}, 0),
+            developed_area_ha = COALESCE(#{developedAreaHa}, 0),
+            occupancy_rate = COALESCE(#{occupancyRate}, 0),
+            dominant_industries = CAST(#{dominantIndustries, typeHandler=com.ruoyi.crm.handler.JsonbStringListTypeHandler} AS jsonb),
+            encouraged_industries = CAST(#{encouragedIndustries, typeHandler=com.ruoyi.crm.handler.JsonbStringListTypeHandler} AS jsonb),
+            park_level = COALESCE(#{parkLevel}, ''),
+            anchor_tenants = CAST(#{anchorTenants, typeHandler=com.ruoyi.crm.handler.JsonbStringListTypeHandler} AS jsonb),
+            land_rent_usd_per_sqm = COALESCE(#{landRentUsdPerSqm}, 0),
+            lease_term_years = COALESCE(#{leaseTermYears}, 0),
+            lease_expiry_year = COALESCE(#{leaseExpiryYear}, 0),
+            operation_expiry_date = COALESCE(#{operationExpiryDate}, ''),
+            standard_factory_rent_usd_per_sqm_month = COALESCE(#{standardFactoryRentUsdPerSqmMonth}, 0),
+            management_fee_usd_per_sqm_year = COALESCE(#{managementFeeUsdPerSqmYear}, 0),
+            electricity_rate_usd_per_kwh = COALESCE(#{electricityRateUsdPerKwh}, ''),
+            water_rate_usd_per_cum = COALESCE(#{waterRateUsdPerCum}, 0),
+            blue_collar_wage_usd = COALESCE(#{blueCollarWageUsd}, 0),
+            white_collar_wage_usd = COALESCE(#{whiteCollarWageUsd}, 0),
+            cit_incentive = COALESCE(#{citIncentive}, ''),
+            import_tariff_incentive = COALESCE(#{importTariffIncentive}, ''),
+            is_sez = COALESCE(#{isSez}, false),
+            special_incentives = COALESCE(#{specialIncentives}, ''),
+            competitive_advantages = COALESCE(#{competitiveAdvantages}, ''),
+            distance_to_sea_port_km = COALESCE(#{distanceToSeaPortKm}, 0),
+            sea_port_name = COALESCE(#{seaPortName}, ''),
+            distance_to_airport_km = COALESCE(#{distanceToAirportKm}, 0),
+            airport_name = COALESCE(#{airportName}, ''),
+            distance_to_china_border_km = COALESCE(#{distanceToChinaBorderKm}, 0),
+            border_port_name = COALESCE(#{borderPortName}, ''),
+            nearest_highway_name = COALESCE(#{nearestHighwayName}, ''),
+            distance_to_highway_km = COALESCE(#{distanceToHighwayKm}, 0),
+            nearest_railway_name = COALESCE(#{nearestRailwayName}, ''),
+            distance_to_railway_km = COALESCE(#{distanceToRailwayKm}, 0),
+            main_road_spec = COALESCE(#{mainRoadSpec}, ''),
+            internal_road_spec = COALESCE(#{internalRoadSpec}, ''),
+            power_reliability = COALESCE(#{powerReliability}, ''),
+            power_supply_detail = COALESCE(#{powerSupplyDetail}, ''),
+            has_national_grid = COALESCE(#{hasNationalGrid}, false),
+            has_standby_power = COALESCE(#{hasStandbyPower}, false),
+            water_supply_source = COALESCE(#{waterSupplySource}, ''),
+            water_supply_capacity = COALESCE(#{waterSupplyCapacity}, ''),
+            sewage_treatment_capacity = COALESCE(#{sewageTreatmentCapacity}, ''),
+            has_employee_dormitory = COALESCE(#{hasEmployeeDormitory}, false),
+            surrounding_amenities = COALESCE(#{surroundingAmenities}, ''),
+            labor_supply = COALESCE(#{laborSupply}, ''),
+            recruitment_sources = COALESCE(#{recruitmentSources}, ''),
+            has_vocational_school = COALESCE(#{hasVocationalSchool}, false),
+            master_plan_url = #{masterPlanUrl},
+            brochure_url = #{brochureUrl},
+            photos = CAST(#{photos, typeHandler=com.ruoyi.crm.handler.JsonbStringListTypeHandler} AS jsonb),
+            data_source = COALESCE(#{dataSource}, ''),
+            last_updated = CAST(NULLIF(TRIM(#{lastUpdated}), '') AS date),
+            verification_status = COALESCE(NULLIF(TRIM(#{verificationStatus}), ''), '未核实'),
+            consultant_contact = COALESCE(#{consultantContact}, ''),
+            contact_page_url = #{contactPageUrl},
+            official_phone = #{officialPhone},
+            official_email = #{officialEmail},
+            operating_hours = #{operatingHours},
+            update_by = #{updateBy},
+            update_time = #{updateTime}
+        where id = #{id}
+          and del_flag = '0'
+    </update>
+
+    <update id="logicalDeleteById">
+        update crm_industrial_park
+        set del_flag = '1',
+            update_by = #{updateBy},
+            update_time = CURRENT_TIMESTAMP
+        where id = #{id}
+          and del_flag = '0'
+    </update>
+</mapper>

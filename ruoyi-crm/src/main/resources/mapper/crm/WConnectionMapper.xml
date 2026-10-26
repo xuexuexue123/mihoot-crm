@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.WConnectionMapper">
+    
+    <resultMap type="WConnection" id="WConnectionResult">
+        <result property="id"    column="id"    />
+        <result property="workflowId"    column="workflow_id"    />
+        <result property="fromNodeId"    column="from_node_id"    />
+        <result property="toNodeId"    column="to_node_id"    />
+        <result property="fromOutput"    column="from_output"    />
+        <result property="toInput"    column="to_input"    />
+        <result property="type"    column="type"    />
+        <result property="label"    column="label"    />
+        <result property="data"    column="data"    />
+        <result property="createdAt"    column="created_at"    />
+        <result property="updatedAt"    column="updated_at"    />
+    </resultMap>
+
+    <sql id="selectWConnectionVo">
+        select id, workflow_id, from_node_id, to_node_id, from_output, to_input, type, label, data::text as data, created_at, updated_at from w_connection
+    </sql>
+
+    <select id="selectWConnectionList" parameterType="WConnection" resultMap="WConnectionResult">
+        <include refid="selectWConnectionVo"/>
+        <where>  
+            <if test="workflowId != null  and workflowId != ''"> and workflow_id = #{workflowId}</if>
+            <if test="fromNodeId != null  and fromNodeId != ''"> and from_node_id = #{fromNodeId}</if>
+            <if test="toNodeId != null  and toNodeId != ''"> and to_node_id = #{toNodeId}</if>
+            <if test="fromOutput != null  and fromOutput != ''"> and from_output = #{fromOutput}</if>
+            <if test="toInput != null  and toInput != ''"> and to_input = #{toInput}</if>
+            <if test="type != null  and type != ''"> and type = #{type}::"EdgeType"</if>
+            <if test="label != null  and label != ''"> and label = #{label}</if>
+            <if test="data != null  and data != ''"> and data::text = #{data}</if>
+            <if test="createdAt != null "> and created_at = #{createdAt}</if>
+            <if test="updatedAt != null "> and updated_at = #{updatedAt}</if>
+        </where>
+    </select>
+    
+    <select id="selectWConnectionListByWorkflowIds" resultMap="WConnectionResult">
+        <include refid="selectWConnectionVo"/>
+        where workflow_id in
+        <foreach collection="workflowIds" item="workflowId" open="(" separator="," close=")">
+            #{workflowId}
+        </foreach>
+    </select>
+
+    <select id="selectWConnectionById" parameterType="String" resultMap="WConnectionResult">
+        <include refid="selectWConnectionVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertWConnection" parameterType="WConnection">
+        insert into w_connection
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null and id != ''">id,</if>
+            <if test="workflowId != null and workflowId != ''">workflow_id,</if>
+            <if test="fromNodeId != null and fromNodeId != ''">from_node_id,</if>
+            <if test="toNodeId != null and toNodeId != ''">to_node_id,</if>
+            <if test="fromOutput != null and fromOutput != ''">from_output,</if>
+            <if test="toInput != null and toInput != ''">to_input,</if>
+            <if test="type != null and type != ''">type,</if>
+            <if test="label != null">label,</if>
+            <if test="data != null and data != ''">data,</if>
+            created_at,
+            updated_at,
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null and id != ''">#{id},</if>
+            <if test="workflowId != null and workflowId != ''">#{workflowId},</if>
+            <if test="fromNodeId != null and fromNodeId != ''">#{fromNodeId},</if>
+            <if test="toNodeId != null and toNodeId != ''">#{toNodeId},</if>
+            <if test="fromOutput != null and fromOutput != ''">#{fromOutput},</if>
+            <if test="toInput != null and toInput != ''">#{toInput},</if>
+            <if test="type != null and type != ''">#{type}::"EdgeType",</if>
+            <if test="label != null">#{label},</if>
+            <if test="data != null and data != ''">#{data}::jsonb,</if>
+            <choose>
+                <when test="createdAt != null">#{createdAt},</when>
+                <otherwise>now(),</otherwise>
+            </choose>
+            <choose>
+                <when test="updatedAt != null">#{updatedAt},</when>
+                <otherwise>now(),</otherwise>
+            </choose>
+         </trim>
+    </insert>
+
+    <update id="updateWConnection" parameterType="WConnection">
+        update w_connection
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="workflowId != null and workflowId != ''">workflow_id = #{workflowId},</if>
+            <if test="fromNodeId != null and fromNodeId != ''">from_node_id = #{fromNodeId},</if>
+            <if test="toNodeId != null and toNodeId != ''">to_node_id = #{toNodeId},</if>
+            <if test="fromOutput != null and fromOutput != ''">from_output = #{fromOutput},</if>
+            <if test="toInput != null and toInput != ''">to_input = #{toInput},</if>
+            <if test="type != null and type != ''">type = #{type}::"EdgeType",</if>
+            <if test="label != null">label = #{label},</if>
+            <if test="data != null and data != ''">data = #{data}::jsonb,</if>
+            <choose>
+                <when test="updatedAt != null">updated_at = #{updatedAt},</when>
+                <otherwise>updated_at = now(),</otherwise>
+            </choose>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteWConnectionById" parameterType="String">
+        delete from w_connection where id = #{id}
+    </delete>
+
+    <delete id="deleteWConnectionByIds" parameterType="String">
+        delete from w_connection where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <delete id="deleteWConnectionByWorkflowId" parameterType="String">
+        delete from w_connection where workflow_id = #{workflowId}
+    </delete>
+</mapper>

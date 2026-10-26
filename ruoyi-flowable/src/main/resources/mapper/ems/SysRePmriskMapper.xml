@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.ems.mapper.SysRePmriskMapper">
+    
+    <resultMap type="SysRePmrisk" id="SysRePmriskResult">
+        <result property="riskId"    column="risk_id"    />
+        <result property="projectId"    column="project_id"    />
+        <result property="riskTitle"    column="risk_title"    />
+        <result property="riskRatio"    column="risk_ratio"    />
+        <result property="impactLevel"    column="impact_level"    />
+        <result property="riskLevel"    column="risk_level"    />
+        <result property="riskPlan"    column="risk_plan"    />
+        <result property="owner"    column="owner"    />
+        <result property="status"    column="status"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="projectName"    column="project_name"    />
+    </resultMap>
+
+    <sql id="selectSysRePmriskVo">
+        select risk_id, project_id, risk_title, risk_ratio, impact_level, risk_level, risk_plan, owner, status, create_by, create_time, update_by, update_time, project_name from sys_re_pmrisk
+    </sql>
+
+    <select id="selectSysRePmriskList" parameterType="SysRePmrisk" resultMap="SysRePmriskResult">
+        <include refid="selectSysRePmriskVo"/>
+        <where>  
+            <if test="projectId != null  and projectId != ''"> and project_id = #{projectId}</if>
+            <if test="riskTitle != null  and riskTitle != ''"> and risk_title = #{riskTitle}</if>
+            <if test="riskRatio != null  and riskRatio != ''"> and risk_ratio = #{riskRatio}</if>
+            <if test="impactLevel != null  and impactLevel != ''"> and impact_level = #{impactLevel}</if>
+            <if test="riskLevel != null  and riskLevel != ''"> and risk_level = #{riskLevel}</if>
+            <if test="riskPlan != null  and riskPlan != ''"> and risk_plan = #{riskPlan}</if>
+            <if test="owner != null  and owner != ''"> and owner = #{owner}</if>
+            <if test="status != null "> and status = #{status}</if>
+            <if test="projectName != null  and projectName != ''"> and project_name like concat('%', #{projectName}, '%')</if>
+        </where>
+    </select>
+    
+    <select id="selectSysRePmriskByRiskId" parameterType="String" resultMap="SysRePmriskResult">
+        <include refid="selectSysRePmriskVo"/>
+        where risk_id = #{riskId}
+    </select>
+        
+    <insert id="insertSysRePmrisk" parameterType="SysRePmrisk">
+        insert into sys_re_pmrisk
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="riskId != null">risk_id,</if>
+            <if test="projectId != null">project_id,</if>
+            <if test="riskTitle != null">risk_title,</if>
+            <if test="riskRatio != null">risk_ratio,</if>
+            <if test="impactLevel != null">impact_level,</if>
+            <if test="riskLevel != null">risk_level,</if>
+            <if test="riskPlan != null">risk_plan,</if>
+            <if test="owner != null">owner,</if>
+            <if test="status != null">status,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="projectName != null">project_name,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="riskId != null">#{riskId},</if>
+            <if test="projectId != null">#{projectId},</if>
+            <if test="riskTitle != null">#{riskTitle},</if>
+            <if test="riskRatio != null">#{riskRatio},</if>
+            <if test="impactLevel != null">#{impactLevel},</if>
+            <if test="riskLevel != null">#{riskLevel},</if>
+            <if test="riskPlan != null">#{riskPlan},</if>
+            <if test="owner != null">#{owner},</if>
+            <if test="status != null">#{status},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="projectName != null">#{projectName},</if>
+         </trim>
+    </insert>
+
+    <update id="updateSysRePmrisk" parameterType="SysRePmrisk">
+        update sys_re_pmrisk
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="projectId != null">project_id = #{projectId},</if>
+            <if test="riskTitle != null">risk_title = #{riskTitle},</if>
+            <if test="riskRatio != null">risk_ratio = #{riskRatio},</if>
+            <if test="impactLevel != null">impact_level = #{impactLevel},</if>
+            <if test="riskLevel != null">risk_level = #{riskLevel},</if>
+            <if test="riskPlan != null">risk_plan = #{riskPlan},</if>
+            <if test="owner != null">owner = #{owner},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="projectName != null">project_name = #{projectName},</if>
+        </trim>
+        where risk_id = #{riskId}
+    </update>
+
+    <delete id="deleteSysRePmriskByRiskId" parameterType="String">
+        delete from sys_re_pmrisk where risk_id = #{riskId}
+    </delete>
+
+    <delete id="deleteSysRePmriskByRiskIds" parameterType="String">
+        delete from sys_re_pmrisk where risk_id in 
+        <foreach item="riskId" collection="array" open="(" separator="," close=")">
+            #{riskId}
+        </foreach>
+    </delete>
+</mapper>

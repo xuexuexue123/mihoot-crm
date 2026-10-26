@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmWhatsappTemplateMapper">
+
+    <resultMap id="CrmWhatsappTemplateResult" type="com.ruoyi.crm.domain.CrmWhatsappTemplate">
+        <id property="id" column="id"/>
+        <result property="tenantId" column="tenant_id"/>
+        <result property="templateName" column="template_name"/>
+        <result property="language" column="language"/>
+        <result property="category" column="category"/>
+        <result property="status" column="status"/>
+        <result property="rejectionReason" column="rejection_reason"/>
+        <result property="components" column="components"/>
+        <result property="previewUrl" column="preview_url"/>
+        <result property="lastSyncTime" column="last_sync_time"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <select id="selectPage" resultMap="CrmWhatsappTemplateResult">
+        SELECT id, tenant_id, template_name, language, category, status,
+               rejection_reason, components, preview_url, last_sync_time,
+               create_time, update_time
+        FROM crm_whatsapp_template
+        WHERE tenant_id = #{tenantId}
+        <if test="status != null and status != ''">
+            AND LOWER(status) = LOWER(#{status})
+        </if>
+        <if test="category != null and category != ''">
+            AND category = #{category}
+        </if>
+        <if test="language != null and language != ''">
+            AND language = #{language}
+        </if>
+        <if test="keyword != null and keyword != ''">
+            AND template_name ILIKE '%' || #{keyword} || '%'
+        </if>
+        ORDER BY update_time DESC NULLS LAST
+    </select>
+
+    <select id="selectByTemplate" resultMap="CrmWhatsappTemplateResult">
+        SELECT id, tenant_id, template_name, language, category, status,
+               rejection_reason, components, preview_url, last_sync_time,
+               create_time, update_time
+        FROM crm_whatsapp_template
+        WHERE tenant_id = #{tenantId}
+          AND template_name = #{templateName}
+          AND language = #{language}
+        LIMIT 1
+    </select>
+
+    <insert id="insertOrUpdate" parameterType="com.ruoyi.crm.domain.CrmWhatsappTemplate"
+            useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO crm_whatsapp_template (
+            tenant_id, template_name, language, category, status,
+            rejection_reason, components, preview_url, last_sync_time,
+            create_time, update_time
+        ) VALUES (
+            #{tenantId}, #{templateName}, #{language}, #{category}, #{status},
+            #{rejectionReason}, #{components}::jsonb, #{previewUrl}, #{lastSyncTime},
+            #{createTime}, #{updateTime}
+        )
+        ON CONFLICT (tenant_id, template_name, language) DO UPDATE SET
+            category = EXCLUDED.category,
+            status = EXCLUDED.status,
+            rejection_reason = EXCLUDED.rejection_reason,
+            components = EXCLUDED.components,
+            preview_url = EXCLUDED.preview_url,
+            last_sync_time = EXCLUDED.last_sync_time,
+            update_time = EXCLUDED.update_time
+    </insert>
+
+    <update id="updateLastSyncTime">
+        UPDATE crm_whatsapp_template
+        SET last_sync_time = #{lastSyncTime}, update_time = now()
+        WHERE id = #{id}
+    </update>
+
+    <update id="updateStatusByNameLanguage">
+        UPDATE crm_whatsapp_template
+        SET status = #{status},
+            rejection_reason = COALESCE(#{rejectionReason}, rejection_reason),
+            update_time = now()
+        WHERE tenant_id = #{tenantId}
+          AND template_name = #{templateName}
+          AND (#{language} IS NULL OR language = #{language})
+    </update>
+</mapper>

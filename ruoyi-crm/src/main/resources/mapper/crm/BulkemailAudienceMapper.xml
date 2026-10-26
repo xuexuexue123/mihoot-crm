@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.BulkemailAudienceMapper">
+
+    <sql id="audienceConditions">
+        <if test="query.hasWorkEmail != null and query.hasWorkEmail">
+            and c.work_email is not null
+            and trim(c.work_email) != ''
+        </if>
+        <if test="query.keyword != null and query.keyword != ''">
+            and (
+                c.name ilike concat('%', #{query.keyword}, '%')
+                or c.full_name ilike concat('%', #{query.keyword}, '%')
+                or c.work_email ilike concat('%', #{query.keyword}, '%')
+            )
+        </if>
+        <if test="query.lastVisitBeforeDays != null">
+            and c.last_visit_at is not null
+            and c.last_visit_at &lt;= (CURRENT_TIMESTAMP - (#{query.lastVisitBeforeDays} || ' days')::interval)
+        </if>
+        <if test="query.tags != null and query.tags.size() &gt; 0">
+            <foreach collection="query.tags" item="tag">
+                and c.tag::text ilike concat('%', #{tag}, '%')
+            </foreach>
+        </if>
+        <if test="query.eventFilterActive">
+            <choose>
+                <when test="query.eventContactIds != null and query.eventContactIds.size() &gt; 0">
+                    and c.contact_id in
+                    <foreach collection="query.eventContactIds" item="cid" open="(" separator="," close=")">
+                        #{cid}
+                    </foreach>
+                </when>
+                <otherwise>
+                    and 1 = 0
+                </otherwise>
+            </choose>
+        </if>
+    </sql>
+
+    <select id="countFiltered" resultType="long">
+        select count(*)
+        from crm_contact c
+        <where>
+            <include refid="audienceConditions"/>
+        </where>
+    </select>
+
+    <select id="countValidEmailFiltered" resultType="long">
+        select count(*)
+        from crm_contact c
+        <where>
+            <include refid="audienceConditions"/>
+            and c.work_email ~* '^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$'
+        </where>
+    </select>
+
+    <select id="selectFiltered" resultType="com.ruoyi.crm.domain.dto.BulkemailAudiencePreviewRow">
+        select c.contact_id as contactId,
+               c.name as name,
+               c.full_name as fullName,
+               c.work_email as workEmail,
+               c.tag::text as tagJson
+        from crm_contact c
+        <where>
+            <include refid="audienceConditions"/>
+        </where>
+        order by c.name asc nulls last, c.contact_id asc
+        limit #{limit} offset #{offset}
+    </select>
+</mapper>

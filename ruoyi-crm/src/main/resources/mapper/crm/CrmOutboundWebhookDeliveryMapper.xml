@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmOutboundWebhookDeliveryMapper">
+
+    <resultMap type="com.ruoyi.crm.domain.CrmOutboundWebhookDelivery" id="DeliveryResult">
+        <result property="deliveryId" column="delivery_id"/>
+        <result property="tenantId" column="tenant_id"/>
+        <result property="webhookId" column="webhook_id"/>
+        <result property="eventId" column="event_id"/>
+        <result property="eventType" column="event_type"/>
+        <result property="source" column="source"/>
+        <result property="status" column="status"/>
+        <result property="attempt" column="attempt"/>
+        <result property="httpStatus" column="http_status"/>
+        <result property="errorMessage" column="error_message"/>
+        <result property="requestId" column="request_id"/>
+        <result property="nextRetryAt" column="next_retry_at"/>
+        <result property="payloadJson" column="payload_json"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <resultMap type="com.ruoyi.crm.domain.vo.OutboundWebhookDeliveryVo" id="DeliveryVoResult">
+        <result property="deliveryId" column="delivery_id"/>
+        <result property="webhookId" column="webhook_id"/>
+        <result property="eventId" column="event_id"/>
+        <result property="eventType" column="event_type"/>
+        <result property="source" column="source"/>
+        <result property="status" column="status"/>
+        <result property="attempt" column="attempt"/>
+        <result property="httpStatus" column="http_status"/>
+        <result property="errorMessage" column="error_message"/>
+        <result property="requestId" column="request_id"/>
+        <result property="nextRetryAt" column="next_retry_at"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <select id="selectById" resultMap="DeliveryResult">
+        select * from crm_outbound_webhook_delivery where delivery_id = #{deliveryId}
+    </select>
+
+    <select id="selectList" resultMap="DeliveryVoResult">
+        select delivery_id, webhook_id, event_id, event_type, source, status, attempt,
+               http_status, error_message, request_id, next_retry_at, create_time, update_time
+        from crm_outbound_webhook_delivery
+        where tenant_id = #{tenantId}
+          and webhook_id = #{webhookId}
+        <if test="status != null and status != ''">
+            and status = #{status}
+        </if>
+        order by create_time desc
+    </select>
+
+    <insert id="insertIgnoreDuplicate" parameterType="com.ruoyi.crm.domain.CrmOutboundWebhookDelivery">
+        insert into crm_outbound_webhook_delivery (
+            delivery_id, tenant_id, webhook_id, event_id, event_type, source, status, attempt,
+            http_status, error_message, request_id, next_retry_at, payload_json, create_time, update_time
+        ) values (
+            #{deliveryId}, #{tenantId}, #{webhookId}, #{eventId}, #{eventType}, #{source}, #{status}, #{attempt},
+            #{httpStatus}, #{errorMessage}, #{requestId}, #{nextRetryAt}, #{payloadJson}, #{createTime}, #{updateTime}
+        )
+        on conflict (tenant_id, webhook_id, event_id) do nothing
+    </insert>
+
+    <select id="selectDue" resultMap="DeliveryResult">
+        select * from crm_outbound_webhook_delivery
+        where tenant_id = #{tenantId}
+          and status in ('pending', 'retrying')
+          and (next_retry_at is null or next_retry_at &lt;= #{now})
+        order by coalesce(next_retry_at, create_time) asc
+        limit #{limit}
+        for update skip locked
+    </select>
+
+    <update id="markAttemptResult" parameterType="com.ruoyi.crm.domain.CrmOutboundWebhookDelivery">
+        update crm_outbound_webhook_delivery
+        set status = #{status},
+            attempt = #{attempt},
+            http_status = #{httpStatus},
+            error_message = #{errorMessage},
+            request_id = #{requestId},
+            next_retry_at = #{nextRetryAt},
+            update_time = #{updateTime}
+        where delivery_id = #{deliveryId}
+    </update>
+</mapper>

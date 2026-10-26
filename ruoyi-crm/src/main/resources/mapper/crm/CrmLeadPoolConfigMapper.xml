@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmLeadPoolConfigMapper">
+
+    <resultMap id="CrmLeadPoolConfigResult" type="com.ruoyi.crm.domain.CrmLeadPoolConfig">
+        <id property="configId" column="config_id"/>
+        <result property="claimDailyLimit" column="claim_daily_limit"/>
+        <result property="protectDays" column="protect_days"/>
+        <result property="recycleEnabled" column="recycle_enabled"/>
+        <result property="defaultPoolOrgScope" column="default_pool_org_scope"/>
+        <result property="qualifyTemplateId" column="qualify_template_id"/>
+        <result property="idleToPoolHours" column="idle_to_pool_hours"/>
+        <result property="maxHoldCount" column="max_hold_count"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <select id="selectFirst" resultMap="CrmLeadPoolConfigResult">
+        SELECT config_id, claim_daily_limit, protect_days, recycle_enabled,
+               default_pool_org_scope, qualify_template_id, idle_to_pool_hours, max_hold_count,
+               create_time, update_time
+        FROM crm_lead_pool_config
+        ORDER BY create_time ASC
+        LIMIT 1
+    </select>
+
+    <insert id="insertCrmLeadPoolConfig" parameterType="com.ruoyi.crm.domain.CrmLeadPoolConfig">
+        INSERT INTO crm_lead_pool_config (
+            config_id, claim_daily_limit, protect_days, recycle_enabled,
+            default_pool_org_scope, qualify_template_id, idle_to_pool_hours, max_hold_count,
+            create_time, update_time
+        ) VALUES (
+            #{configId}, #{claimDailyLimit}, #{protectDays}, #{recycleEnabled},
+            #{defaultPoolOrgScope}, #{qualifyTemplateId}, #{idleToPoolHours}, #{maxHoldCount},
+            #{createTime}, #{updateTime}
+        )
+    </insert>
+
+    <update id="updateCrmLeadPoolConfig" parameterType="com.ruoyi.crm.domain.CrmLeadPoolConfig">
+        UPDATE crm_lead_pool_config
+        SET claim_daily_limit = #{claimDailyLimit},
+            protect_days = #{protectDays},
+            recycle_enabled = #{recycleEnabled},
+            default_pool_org_scope = #{defaultPoolOrgScope},
+            qualify_template_id = #{qualifyTemplateId},
+            idle_to_pool_hours = #{idleToPoolHours},
+            max_hold_count = #{maxHoldCount},
+            update_time = #{updateTime}
+        WHERE config_id = #{configId}
+    </update>
+
+    <select id="countClaimsTodayByUserId" resultType="int">
+        SELECT COUNT(*)
+        FROM crm_activity a
+        WHERE a.event_type = 'lead.assigned'
+          AND a.payload::jsonb ->> 'trigger' = 'claim'
+          AND a.payload::jsonb ->> 'assigned_toid' = cast(#{userId} as text)
+          AND a.started_date &gt;= date_trunc('day', CURRENT_TIMESTAMP)
+    </select>
+</mapper>

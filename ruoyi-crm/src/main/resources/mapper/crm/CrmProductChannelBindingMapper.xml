@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmProductChannelBindingMapper">
+
+    <resultMap id="BindingResult" type="com.ruoyi.crm.domain.CrmProductChannelBinding">
+        <result property="bindingId" column="binding_id"/>
+        <result property="productId" column="product_id"/>
+        <result property="channelType" column="channel_type"/>
+        <result property="externalId" column="external_id"/>
+        <result property="syncStatus" column="sync_status"/>
+        <result property="lastSyncHash" column="last_sync_hash"/>
+        <result property="lastSyncTime" column="last_sync_time"/>
+        <result property="lastSyncBy" column="last_sync_by"/>
+        <result property="lastError" column="last_error"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="delFlag" column="del_flag"/>
+    </resultMap>
+
+    <sql id="selectVo">
+        select binding_id, product_id, channel_type, external_id, sync_status, last_sync_hash,
+               last_sync_time, last_sync_by, last_error, create_by, create_time, update_by, update_time, del_flag
+        from crm_product_channel_binding
+    </sql>
+
+    <select id="selectByProductAndChannel" resultMap="BindingResult">
+        <include refid="selectVo"/>
+        where product_id = #{productId}
+          and channel_type = #{channelType}
+          and del_flag = '0'
+        limit 1
+    </select>
+
+    <select id="selectByExternalId" resultMap="BindingResult">
+        <include refid="selectVo"/>
+        where channel_type = #{channelType}
+          and external_id = #{externalId}
+          and del_flag = '0'
+        limit 1
+    </select>
+
+    <insert id="insert" parameterType="com.ruoyi.crm.domain.CrmProductChannelBinding">
+        insert into crm_product_channel_binding (
+            binding_id, product_id, channel_type, external_id, sync_status, last_sync_hash,
+            last_sync_time, last_sync_by, last_error, create_by, create_time, update_by, update_time, del_flag
+        ) values (
+            #{bindingId}, #{productId}, #{channelType}, #{externalId}, #{syncStatus}, #{lastSyncHash},
+            #{lastSyncTime}, #{lastSyncBy}, #{lastError}, #{createBy}, #{createTime}, #{updateBy}, #{updateTime}, #{delFlag}
+        )
+    </insert>
+
+    <update id="update" parameterType="com.ruoyi.crm.domain.CrmProductChannelBinding">
+        update crm_product_channel_binding
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="externalId != null">external_id = #{externalId},</if>
+            <if test="syncStatus != null">sync_status = #{syncStatus},</if>
+            <if test="lastSyncHash != null">last_sync_hash = #{lastSyncHash},</if>
+            <if test="lastSyncTime != null">last_sync_time = #{lastSyncTime},</if>
+            <if test="lastSyncBy != null">last_sync_by = #{lastSyncBy},</if>
+            <if test="lastError != null">last_error = #{lastError},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="delFlag != null">del_flag = #{delFlag},</if>
+        </trim>
+        where binding_id = #{bindingId}
+    </update>
+
+    <update id="markDirtyByProductId">
+        update crm_product_channel_binding
+        set sync_status = 'dirty',
+            update_by = #{updateBy},
+            update_time = CURRENT_TIMESTAMP
+        where product_id = #{productId}
+          and del_flag = '0'
+          and sync_status &lt;&gt; 'failed'
+    </update>
+
+    <update id="logicalDelete">
+        update crm_product_channel_binding
+        set del_flag = '1', update_by = #{updateBy}, update_time = CURRENT_TIMESTAMP
+        where binding_id = #{bindingId} and del_flag = '0'
+    </update>
+
+    <update id="logicalDeleteByExternalId">
+        update crm_product_channel_binding
+        set del_flag = '1', update_by = #{updateBy}, update_time = CURRENT_TIMESTAMP
+        where channel_type = #{channelType}
+          and external_id = #{externalId}
+          and del_flag = '0'
+    </update>
+</mapper>

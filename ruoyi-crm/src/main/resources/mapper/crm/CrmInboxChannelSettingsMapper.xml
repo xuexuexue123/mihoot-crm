@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmInboxChannelSettingsMapper">
+
+    <resultMap type="com.ruoyi.crm.domain.CrmInboxChannelSettings" id="CrmInboxChannelSettingsResult">
+        <result property="tenantId"          column="tenant_id"           />
+        <result property="whatsappEnabled"   column="whatsapp_enabled"    />
+        <result property="messengerEnabled"  column="messenger_enabled"   />
+        <result property="wechatMpEnabled"   column="wechat_mp_enabled"   />
+        <result property="webchatEnabled"    column="webchat_enabled"     />
+        <result property="wecomKfEnabled"    column="wecom_kf_enabled"    />
+        <result property="updatedBy"         column="updated_by"          />
+        <result property="updatedAt"         column="updated_at"          />
+    </resultMap>
+
+    <select id="selectByTenantId" parameterType="String" resultMap="CrmInboxChannelSettingsResult">
+        select tenant_id, whatsapp_enabled, messenger_enabled, wechat_mp_enabled, webchat_enabled,
+               wecom_kf_enabled, updated_by, updated_at
+        from crm_inbox_channel_settings
+        where tenant_id = #{tenantId}
+    </select>
+
+    <insert id="upsert" parameterType="com.ruoyi.crm.domain.CrmInboxChannelSettings">
+        INSERT INTO crm_inbox_channel_settings (
+            tenant_id, whatsapp_enabled, messenger_enabled, wechat_mp_enabled, webchat_enabled,
+            wecom_kf_enabled, updated_by, updated_at
+        ) VALUES (
+            #{tenantId},
+            CASE WHEN #{whatsappEnabled} THEN 1 ELSE 0 END,
+            CASE WHEN #{messengerEnabled} THEN 1 ELSE 0 END,
+            CASE WHEN #{wechatMpEnabled} THEN 1 ELSE 0 END,
+            CASE WHEN #{webchatEnabled} THEN 1 ELSE 0 END,
+            CASE WHEN #{wecomKfEnabled} THEN 1 ELSE 0 END,
+            #{updatedBy},
+            #{updatedAt}
+        )
+        ON CONFLICT (tenant_id) DO UPDATE SET
+            whatsapp_enabled = EXCLUDED.whatsapp_enabled,
+            messenger_enabled = EXCLUDED.messenger_enabled,
+            wechat_mp_enabled = EXCLUDED.wechat_mp_enabled,
+            webchat_enabled = EXCLUDED.webchat_enabled,
+            wecom_kf_enabled = EXCLUDED.wecom_kf_enabled,
+            updated_by = EXCLUDED.updated_by,
+            updated_at = EXCLUDED.updated_at
+    </insert>
+
+</mapper>

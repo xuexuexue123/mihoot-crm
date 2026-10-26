@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmCollectMapper">
+
+    <resultMap type="CrmCollect" id="CrmCollectResult">
+        <result property="collectId"    column="collect_id"    />
+        <result property="relateType"    column="relate_type"    />
+        <result property="relateId"    column="relate_id"    />
+        <result property="relateName"    column="relate_name"    />
+        <result property="collectStatus"    column="collect_status"    />
+        <result property="period"    column="period"    />
+        <result property="category"    column="category"    />
+        <result property="validationCode"    column="validation_code"    />
+        <result property="content"    column="content"    />
+        <result property="expiredDate"    column="expired_date"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectCrmCollectVo">
+        select collect_id, relate_type, relate_id, relate_name, collect_status, period, category, validation_code, content, expired_date, create_by, create_time, update_by, update_time from crm_collect
+    </sql>
+
+    <select id="selectCrmCollectList" parameterType="CrmCollect" resultMap="CrmCollectResult">
+        <include refid="selectCrmCollectVo"/>
+        <where>
+            <if test="relateType != null  and relateType != ''"> and relate_type = #{relateType}</if>
+            <if test="relateId != null  and relateId != ''"> and relate_id = #{relateId}</if>
+            <if test="relateName != null  and relateName != ''"> and relate_name like concat('%', #{relateName}, '%')</if>
+            <if test="collectStatus != null  and collectStatus != ''"> and collect_status = #{collectStatus}</if>
+            <if test="period != null  and period != ''"> and period = #{period}</if>
+            <if test="category != null  and category != ''"> and category = #{category}</if>
+            <if test="validationCode != null  and validationCode != ''"> and validation_code = #{validationCode}</if>
+            <if test="content != null  and content != ''"> and content = #{content}</if>
+            <if test="expiredDate != null "> and expired_date = #{expiredDate}</if>
+        </where>
+        order by create_time
+    </select>
+
+    <select id="selectCrmCollectByCollectId" parameterType="String" resultMap="CrmCollectResult">
+        <include refid="selectCrmCollectVo"/>
+        where collect_id = #{collectId}
+    </select>
+
+    <insert id="insertCrmCollect" parameterType="CrmCollect">
+        insert into crm_collect
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="collectId != null">collect_id,</if>
+            <if test="relateType != null and relateType != ''">relate_type,</if>
+            <if test="relateId != null">relate_id,</if>
+            <if test="relateName != null">relate_name,</if>
+            <if test="collectStatus != null">collect_status,</if>
+            <if test="period != null">period,</if>
+            <if test="category != null">category,</if>
+            <if test="validationCode != null">validation_code,</if>
+            <if test="content != null">content,</if>
+            <if test="expiredDate != null">expired_date,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="collectId != null">#{collectId},</if>
+            <if test="relateType != null and relateType != ''">#{relateType},</if>
+            <if test="relateId != null">#{relateId},</if>
+            <if test="relateName != null">#{relateName},</if>
+            <if test="collectStatus != null">#{collectStatus},</if>
+            <if test="period != null">#{period},</if>
+            <if test="category != null">#{category},</if>
+            <if test="validationCode != null">#{validationCode},</if>
+            <if test="content != null">#{content},</if>
+            <if test="expiredDate != null">#{expiredDate},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+        </trim>
+    </insert>
+
+    <update id="updateCrmCollect" parameterType="CrmCollect">
+        update crm_collect
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="relateType != null and relateType != ''">relate_type = #{relateType},</if>
+            <if test="relateId != null">relate_id = #{relateId},</if>
+            <if test="relateName != null">relate_name = #{relateName},</if>
+            <if test="collectStatus != null">collect_status = #{collectStatus},</if>
+            <if test="period != null">period = #{period},</if>
+            <if test="category != null">category = #{category},</if>
+            <if test="validationCode != null">validation_code = #{validationCode},</if>
+            <if test="content != null">content = #{content},</if>
+            <if test="expiredDate != null">expired_date = #{expiredDate},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where collect_id = #{collectId}
+    </update>
+    <update id="updateCrmCollectByValidationCode" parameterType="CrmCollect">
+        update crm_collect
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="relateType != null and relateType != ''">relate_type = #{relateType},</if>
+            <if test="relateId != null">relate_id = #{relateId},</if>
+            <if test="relateName != null">relate_name = #{relateName},</if>
+            <if test="collectStatus != null">collect_status = #{collectStatus},</if>
+            <if test="period != null">period = #{period},</if>
+            <if test="category != null">category = #{category},</if>
+            <if test="content != null">content = #{content},</if>
+            <if test="expiredDate != null">expired_date = #{expiredDate},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where validation_code = #{validationCode}
+    </update>
+
+    <delete id="deleteCrmCollectByCollectId" parameterType="String">
+        delete from crm_collect where collect_id = #{collectId}
+    </delete>
+
+    <delete id="deleteCrmCollectByCollectIds" parameterType="String">
+        delete from crm_collect where collect_id in
+        <foreach item="collectId" collection="array" open="(" separator="," close=")">
+            #{collectId}
+        </foreach>
+    </delete>
+</mapper>

@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmOwnerhistoryMapper">
+    
+    <resultMap type="CrmOwnerhistory" id="CrmOwnerhistoryResult">
+        <result property="ohId"    column="oh_id"    />
+        <result property="ohCategory"    column="oh_category"    />
+        <result property="targetId"    column="target_id"    />
+        <result property="owner"    column="owner"    />
+        <result property="changeReason"    column="change_reason"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectCrmOwnerhistoryVo">
+        select oh_id, oh_category, target_id, owner, change_reason, create_by, create_time, update_by, update_time from crm_ownerhistory
+    </sql>
+
+    <select id="selectCrmOwnerhistoryList" parameterType="CrmOwnerhistory" resultMap="CrmOwnerhistoryResult">
+        <include refid="selectCrmOwnerhistoryVo"/>
+        <where>  
+            <if test="ohCategory != null  and ohCategory != ''"> and oh_category = #{ohCategory}</if>
+            <if test="targetId != null  and targetId != ''"> and target_id = #{targetId}</if>
+            <if test="owner != null  and owner != ''"> and owner = #{owner}</if>
+            <if test="changeReason != null  and changeReason != ''"> and change_reason = #{changeReason}</if>
+        </where>
+        order by create_time desc
+    </select>
+
+    <select id="selectCrmOwnerhistoryListByTarget" parameterType="CrmOwnerhistory" resultMap="CrmOwnerhistoryResult">
+        <include refid="selectCrmOwnerhistoryVo"/>
+        where target_id = #{targetId}
+        order by create_time desc
+    </select>
+
+    
+    <select id="selectCrmOwnerhistoryByOhId" parameterType="String" resultMap="CrmOwnerhistoryResult">
+        <include refid="selectCrmOwnerhistoryVo"/>
+        where oh_id = #{ohId}
+    </select>
+        
+    <insert id="insertCrmOwnerhistory" parameterType="CrmOwnerhistory">
+        insert into crm_ownerhistory
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="ohId != null">oh_id,</if>
+            <if test="ohCategory != null and ohCategory != ''">oh_category,</if>
+            <if test="targetId != null and targetId != ''">target_id,</if>
+            <if test="owner != null and owner != ''">owner,</if>
+            <if test="changeReason != null">change_reason,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="ohId != null">#{ohId},</if>
+            <if test="ohCategory != null and ohCategory != ''">#{ohCategory},</if>
+            <if test="targetId != null and targetId != ''">#{targetId},</if>
+            <if test="owner != null and owner != ''">#{owner},</if>
+            <if test="changeReason != null">#{changeReason},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateCrmOwnerhistory" parameterType="CrmOwnerhistory">
+        update crm_ownerhistory
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="ohCategory != null and ohCategory != ''">oh_category = #{ohCategory},</if>
+            <if test="targetId != null and targetId != ''">target_id = #{targetId},</if>
+            <if test="owner != null and owner != ''">owner = #{owner},</if>
+            <if test="changeReason != null">change_reason = #{changeReason},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where oh_id = #{ohId}
+    </update>
+
+    <delete id="deleteCrmOwnerhistoryByOhId" parameterType="String">
+        delete from crm_ownerhistory where oh_id = #{ohId}
+    </delete>
+
+    <delete id="deleteCrmOwnerhistoryByOhIds" parameterType="String">
+        delete from crm_ownerhistory where oh_id in 
+        <foreach item="ohId" collection="array" open="(" separator="," close=")">
+            #{ohId}
+        </foreach>
+    </delete>
+</mapper>

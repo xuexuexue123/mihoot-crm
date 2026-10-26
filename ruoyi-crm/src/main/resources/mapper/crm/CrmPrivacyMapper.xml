@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmPrivacyMapper">
+    
+    <resultMap type="CrmPrivacy" id="CrmPrivacyResult">
+        <result property="privacyId"    column="privacy_id"    />
+        <result property="privacyType"    column="privacy_type"    />
+        <result property="relateId"    column="relate_id"    />
+        <result property="relateName"    column="relate_name"    />
+        <result property="privacyData"    column="privacy_data"    />
+        <result property="owner"    column="owner"    />
+        <result property="ownerId"    column="owner_id"    />
+        <result property="sharing"    column="sharing"    />
+        <result property="isPublic"    column="is_public"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectCrmPrivacyVo">
+        select privacy_id, privacy_type, relate_id, relate_name, privacy_data, owner, owner_id, sharing, is_public, create_by, create_time, update_by, update_time from crm_privacy
+    </sql>
+
+    <select id="selectCrmPrivacyList" parameterType="CrmPrivacy" resultMap="CrmPrivacyResult">
+        <include refid="selectCrmPrivacyVo"/>
+        <where>  
+            <if test="privacyType != null  and privacyType != ''"> and privacy_type = #{privacyType}</if>
+            <if test="relateId != null  and relateId != ''"> and relate_id = #{relateId}</if>
+            <if test="relateName != null  and relateName != ''"> and relate_name like concat('%', #{relateName}, '%')</if>
+            <if test="privacyData != null  and privacyData != ''"> and privacy_data = CAST(NULLIF(TRIM(#{privacyData}), '') AS jsonb)</if>
+            <if test="owner != null  and owner != ''"> and owner = #{owner}</if>
+            <if test="ownerId != null  and ownerId != ''"> and owner_id = #{ownerId}</if>
+            <if test="sharing != null  and sharing != ''"> and sharing = CAST(NULLIF(TRIM(#{sharing}), '') AS jsonb)</if>
+            <if test="isPublic != null  and isPublic != ''"> and is_public = #{isPublic}</if>
+        </where>
+    </select>
+    
+    <select id="selectCrmPrivacyByPrivacyId" parameterType="String" resultMap="CrmPrivacyResult">
+        <include refid="selectCrmPrivacyVo"/>
+        where privacy_id = #{privacyId}
+    </select>
+        
+    <insert id="insertCrmPrivacy" parameterType="CrmPrivacy">
+        insert into crm_privacy
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="privacyId != null">privacy_id,</if>
+            <if test="privacyType != null and privacyType != ''">privacy_type,</if>
+            <if test="relateId != null and relateId != ''">relate_id,</if>
+            <if test="relateName != null">relate_name,</if>
+            <if test="privacyData != null">privacy_data,</if>
+            <if test="owner != null">owner,</if>
+            <if test="ownerId != null">owner_id,</if>
+            <if test="sharing != null">sharing,</if>
+            <if test="isPublic != null">is_public,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="privacyId != null">#{privacyId},</if>
+            <if test="privacyType != null and privacyType != ''">#{privacyType},</if>
+            <if test="relateId != null and relateId != ''">#{relateId},</if>
+            <if test="relateName != null">#{relateName},</if>
+            <if test="privacyData != null">CAST(NULLIF(TRIM(#{privacyData}), '') AS jsonb),</if>
+            <if test="owner != null">#{owner},</if>
+            <if test="ownerId != null">#{ownerId},</if>
+            <if test="sharing != null">CAST(NULLIF(TRIM(#{sharing}), '') AS jsonb),</if>
+            <if test="isPublic != null">#{isPublic},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateCrmPrivacy" parameterType="CrmPrivacy">
+        update crm_privacy
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="privacyType != null and privacyType != ''">privacy_type = #{privacyType},</if>
+            <if test="relateId != null and relateId != ''">relate_id = #{relateId},</if>
+            <if test="relateName != null">relate_name = #{relateName},</if>
+            <if test="privacyData != null">privacy_data = CAST(NULLIF(TRIM(#{privacyData}), '') AS jsonb),</if>
+            <if test="owner != null">owner = #{owner},</if>
+            <if test="ownerId != null">owner_id = #{ownerId},</if>
+            <if test="sharing != null">sharing = CAST(NULLIF(TRIM(#{sharing}), '') AS jsonb),</if>
+            <if test="isPublic != null">is_public = #{isPublic},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where privacy_id = #{privacyId}
+    </update>
+
+    <delete id="deleteCrmPrivacyByPrivacyId" parameterType="String">
+        delete from crm_privacy where privacy_id = #{privacyId}
+    </delete>
+
+    <delete id="deleteCrmPrivacyByPrivacyIds" parameterType="String">
+        delete from crm_privacy where privacy_id in 
+        <foreach item="privacyId" collection="array" open="(" separator="," close=")">
+            #{privacyId}
+        </foreach>
+    </delete>
+</mapper>

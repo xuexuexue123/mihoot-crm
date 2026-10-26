@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.wechatmp.mapper.CrmWechatMpQrcodeMapper">
+
+    <resultMap id="QrcodeResult" type="com.ruoyi.crm.wechatmp.domain.CrmWechatMpQrcode">
+        <id property="id" column="id"/>
+        <result property="appId" column="app_id"/>
+        <result property="name" column="name"/>
+        <result property="sceneStr" column="scene_str"/>
+        <result property="qrType" column="qr_type"/>
+        <result property="expireSeconds" column="expire_seconds"/>
+        <result property="ticket" column="ticket"/>
+        <result property="qrUrl" column="qr_url"/>
+        <result property="crmEventId" column="crm_event_id"/>
+        <result property="campaignId" column="campaign_id"/>
+        <result property="statsJson" column="stats_json"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <select id="selectById" resultMap="QrcodeResult">
+        SELECT * FROM crm_wechat_mp_qrcode WHERE id = #{id}
+    </select>
+
+    <select id="selectByScene" resultMap="QrcodeResult">
+        SELECT * FROM crm_wechat_mp_qrcode WHERE app_id = #{appId} AND scene_str = #{sceneStr} LIMIT 1
+    </select>
+
+    <select id="selectList" resultMap="QrcodeResult">
+        SELECT * FROM crm_wechat_mp_qrcode
+        <where>
+            <if test="appId != null and appId != ''">AND app_id = #{appId}</if>
+            <if test="name != null and name != ''">AND name ILIKE CONCAT('%', #{name}, '%')</if>
+            <if test="crmEventId != null and crmEventId != ''">AND crm_event_id = #{crmEventId}</if>
+        </where>
+        ORDER BY create_time DESC
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO crm_wechat_mp_qrcode (
+            app_id, name, scene_str, qr_type, expire_seconds, ticket, qr_url,
+            crm_event_id, campaign_id, stats_json, create_by, create_time, update_time
+        ) VALUES (
+            #{appId}, #{name}, #{sceneStr}, #{qrType}, #{expireSeconds}, #{ticket}, #{qrUrl},
+            #{crmEventId}, #{campaignId}, COALESCE(#{statsJson}::jsonb, '{}'), #{createBy}, #{createTime}, #{updateTime}
+        )
+    </insert>
+
+    <update id="update">
+        UPDATE crm_wechat_mp_qrcode
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="name != null">name = #{name},</if>
+            <if test="crmEventId != null">crm_event_id = #{crmEventId},</if>
+            <if test="campaignId != null">campaign_id = #{campaignId},</if>
+            <if test="statsJson != null">stats_json = #{statsJson}::jsonb,</if>
+            update_time = #{updateTime},
+        </trim>
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM crm_wechat_mp_qrcode WHERE id = #{id}
+    </delete>
+
+    <select id="selectFirstAppIdByEventId" resultType="java.lang.String">
+        SELECT app_id FROM crm_wechat_mp_qrcode
+        WHERE crm_event_id = #{crmEventId}
+        ORDER BY create_time ASC
+        LIMIT 1
+    </select>
+
+    <select id="selectDistinctAppIdsByEventId" resultType="java.lang.String">
+        SELECT DISTINCT app_id FROM crm_wechat_mp_qrcode
+        WHERE crm_event_id = #{crmEventId}
+    </select>
+</mapper>

@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmPulseMapper">
+    
+    <resultMap type="CrmPulse" id="CrmPulseResult">
+        <result property="pulseId"    column="pulse_id"    />
+        <result property="parentId"    column="parent_id"    />
+        <result property="orderId"    column="order_id"    />
+        <result property="pulseType"    column="pulse_type"    />
+        <result property="relateType"    column="relate_type"    />
+        <result property="relateId"    column="relate_id"    />
+        <result property="relateName"    column="relate_name"    />
+        <result property="messageData"    column="message_data"    />
+        <result property="creatorId"    column="creator_id"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="avatar"    column="avatar"    />
+        <result property="userId"    column="user_id"    />
+        <result property="deptId"    column="dept_id"    />
+    </resultMap>
+
+    <sql id="selectCrmPulseVo">
+        select o.pulse_id, o.parent_id, o.order_id, o.pulse_type, o.relate_type, o.relate_id, o.relate_name, o.message_data, o.creator_id, o.create_by, o.create_time, o.update_by, o.update_time, o.avatar, o.user_id, o.dept_id
+        from crm_pulse o
+        left join sys_user u on u.user_id = o.user_id
+        left join sys_dept d on u.dept_id = d.dept_id
+    </sql>
+
+    <select id="selectCrmPulseList" parameterType="CrmPulse" resultMap="CrmPulseResult">
+        <include refid="selectCrmPulseVo"/>
+        where 1=1
+        <if test="parentId != null  and parentId != ''"> and o.parent_id = #{parentId}</if>
+        <if test="pulseType != null  and pulseType != ''"> and pulse_type = #{pulseType}</if>
+        <if test="relateType != null  and relateType != ''"> and relate_type = #{relateType}</if>
+        <if test="relateId != null  and relateId != ''"> and relate_id = #{relateId}</if>
+        <if test="relateName != null  and relateName != ''"> and relate_name like concat('%', #{relateName}, '%')</if>
+        <if test="messageData != null  and messageData != ''"> and message_data = #{messageData}</if>
+        <if test="creatorId != null  and creatorId != ''"> and creator_id = #{creatorId}</if>
+        <if test="avatar != null  and avatar != ''"> and avatar = #{avatar}</if>
+        <if test="userId != null "> and user_id = #{userId}</if>
+        <if test="deptId != null "> and dept_id = #{deptId}</if>
+        <!-- 数据范围过滤 -->
+        ${params.dataScope}
+        order by create_time desc
+    </select>
+
+    <select id="selectCrmPulseListWeekly" parameterType="CrmPulse" resultMap="CrmPulseResult">
+        <include refid="selectCrmPulseVo"/>
+        where 1=1
+        and to_char(o.create_time::date, 'IYYYIW') = to_char(CURRENT_DATE, 'IYYYIW')
+        <if test="parentId != null  and parentId != ''"> and o.parent_id = #{parentId}</if>
+        <if test="pulseType != null  and pulseType != ''"> and pulse_type = #{pulseType}</if>
+        <if test="relateType != null  and relateType != ''"> and relate_type = #{relateType}</if>
+        <if test="relateId != null  and relateId != ''"> and relate_id = #{relateId}</if>
+        <if test="relateName != null  and relateName != ''"> and relate_name like concat('%', #{relateName}, '%')</if>
+        <if test="messageData != null  and messageData != ''"> and message_data = #{messageData}</if>
+        <if test="creatorId != null  and creatorId != ''"> and creator_id = #{creatorId}</if>
+        <if test="avatar != null  and avatar != ''"> and avatar = #{avatar}</if>
+        <if test="userId != null "> and user_id = #{userId}</if>
+        <if test="deptId != null "> and dept_id = #{deptId}</if>
+        <!-- 数据范围过滤 -->
+        ${params.dataScope}
+        order by create_time desc
+    </select>
+
+    <select id="selectCrmPulseByPulseId" parameterType="String" resultMap="CrmPulseResult">
+        <include refid="selectCrmPulseVo"/>
+        where pulse_id = #{pulseId}
+    </select>
+
+    <select id="selectCrmPulseByPulseIds" parameterType="String" resultMap="CrmPulseResult">
+        <include refid="selectCrmPulseVo"/>
+        where o.parent_id &lt;&gt; '1' and relate_id in
+        <foreach item="pulseId" collection="array" open="(" separator="," close=")">
+            #{pulseId}
+        </foreach>
+        order by create_time desc
+    </select>
+
+    <select id="selectNoteByPulseIds" parameterType="String" resultMap="CrmPulseResult">
+        <include refid="selectCrmPulseVo"/>
+        where o.parent_id = '1' and relate_id in
+        <foreach item="pulseId" collection="array" open="(" separator="," close=")">
+            #{pulseId}
+        </foreach>
+        order by create_time desc
+    </select>
+
+    <insert id="insertCrmPulse" parameterType="CrmPulse">
+        insert into crm_pulse
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="pulseId != null">pulse_id,</if>
+            <if test="parentId != null and parentId != ''">parent_id,</if>
+            <if test="orderId != null">order_id,</if>
+            <if test="pulseType != null">pulse_type,</if>
+            <if test="relateType != null">relate_type,</if>
+            <if test="relateId != null">relate_id,</if>
+            <if test="relateName != null">relate_name,</if>
+            <if test="messageData != null">message_data,</if>
+            <if test="creatorId != null">creator_id,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="avatar != null">avatar,</if>
+            <if test="userId != null">user_id,</if>
+            <if test="deptId != null">dept_id,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="pulseId != null">#{pulseId},</if>
+            <if test="parentId != null and parentId != ''">#{parentId},</if>
+            <if test="orderId != null">#{orderId},</if>
+            <if test="pulseType != null">#{pulseType},</if>
+            <if test="relateType != null">#{relateType},</if>
+            <if test="relateId != null">#{relateId},</if>
+            <if test="relateName != null">#{relateName},</if>
+            <if test="messageData != null">#{messageData},</if>
+            <if test="creatorId != null">#{creatorId},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="avatar != null">#{avatar},</if>
+            <if test="userId != null">#{userId},</if>
+            <if test="deptId != null">#{deptId},</if>
+         </trim>
+    </insert>
+
+    <update id="updateCrmPulse" parameterType="CrmPulse">
+        update crm_pulse
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="parentId != null and parentId != ''">parent_id = #{parentId},</if>
+            <if test="orderId != null">order_id = #{orderId},</if>
+            <if test="pulseType != null">pulse_type = #{pulseType},</if>
+            <if test="relateType != null">relate_type = #{relateType},</if>
+            <if test="relateId != null">relate_id = #{relateId},</if>
+            <if test="relateName != null">relate_name = #{relateName},</if>
+            <if test="messageData != null">message_data = #{messageData},</if>
+            <if test="creatorId != null">creator_id = #{creatorId},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="avatar != null">avatar = #{avatar},</if>
+            <if test="userId != null">user_id = #{userId},</if>
+            <if test="deptId != null">dept_id = #{deptId},</if>
+        </trim>
+        where pulse_id = #{pulseId}
+    </update>
+
+    <delete id="deleteCrmPulseByPulseId" parameterType="String">
+        delete from crm_pulse where pulse_id = #{pulseId}
+    </delete>
+
+    <delete id="deleteCrmPulseByPulseIds" parameterType="String">
+        delete from crm_pulse where pulse_id in 
+        <foreach item="pulseId" collection="array" open="(" separator="," close=")">
+            #{pulseId}
+        </foreach>
+    </delete>
+</mapper>

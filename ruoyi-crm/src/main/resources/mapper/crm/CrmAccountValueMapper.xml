@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmAccountValueMapper">
+
+    <resultMap type="com.ruoyi.crm.domain.CrmAccountValue" id="CrmAccountValueResult">
+        <result property="valueId" column="value_id"/>
+        <result property="accountId" column="account_id"/>
+        <result property="accountName" column="account_name"/>
+        <result property="currency" column="currency"/>
+        <result property="memberCount" column="member_count"/>
+        <result property="bookedTotal" column="booked_total"/>
+        <result property="inflightTotal" column="inflight_total"/>
+        <result property="refundTotal" column="refund_total"/>
+        <result property="netClv" column="net_clv"/>
+        <result property="paidTotal" column="paid_total"/>
+        <result property="pendingReceivable" column="pending_receivable"/>
+        <result property="pltv12m" column="pltv_12m"/>
+        <result property="acquisitionCost" column="acquisition_cost"/>
+        <result property="roi" column="roi"/>
+        <result property="tier" column="tier"/>
+        <result property="byTreatment" column="by_treatment"/>
+        <result property="lastVisitAt" column="last_visit_at"/>
+        <result property="daysSinceLastVisit" column="days_since_last_visit"/>
+        <result property="calculatedAt" column="calculated_at"/>
+        <result property="delFlag" column="del_flag"/>
+    </resultMap>
+
+    <sql id="selectVo">
+        select account_id,
+               (select a.name from crm_account a where a.account_id = crm_account_value.account_id) as account_name,
+               currency, member_count, booked_total, inflight_total, refund_total,
+               net_clv, paid_total, pending_receivable, pltv_12m, acquisition_cost,
+               case when acquisition_cost &gt; 0 then (net_clv - acquisition_cost) / acquisition_cost else null end as roi,
+               tier, by_treatment::text as by_treatment, last_visit_at, days_since_last_visit, calculated_at, del_flag
+        from crm_account_value
+    </sql>
+
+    <select id="selectByAccountId" resultMap="CrmAccountValueResult">
+        <include refid="selectVo"/>
+        where account_id = #{accountId} and del_flag = 0
+    </select>
+
+    <select id="selectCrmAccountValueList" parameterType="com.ruoyi.crm.domain.CrmAccountValue" resultMap="CrmAccountValueResult">
+        <include refid="selectVo"/>
+        where del_flag = 0
+        <if test="tier != null and tier != ''"> and tier = #{tier}</if>
+        <if test="minNetClv != null"> and net_clv &gt;= #{minNetClv}</if>
+        <if test="maxNetClv != null"> and net_clv &lt;= #{maxNetClv}</if>
+        <if test="owner != null and owner != ''">
+            and exists (select 1 from crm_account a where a.account_id = crm_account_value.account_id and a.owner = #{owner})
+        </if>
+        <if test="orgId != null and orgId != ''">
+            and exists (select 1 from crm_account a where a.account_id = crm_account_value.account_id and a.org_id = #{orgId})
+        </if>
+        <choose>
+            <when test="sortBy == 'pltv12m'"> order by pltv_12m</when>
+            <when test="sortBy == 'lastVisit'"> order by last_visit_at</when>
+            <otherwise> order by net_clv</otherwise>
+        </choose>
+        <choose>
+            <when test="sortOrder == 'asc'"> asc</when>
+            <otherwise> desc</otherwise>
+        </choose>
+    </select>
+
+    <select id="selectAllAccountIds" resultType="String">
+        select distinct account_id from crm_contact where account_id is not null and account_id != ''
+        union
+        select account_id from crm_account where account_id is not null
+    </select>
+
+    <select id="selectAccountIdsByContactIds" resultType="String">
+        select distinct account_id from crm_contact where contact_id in
+        <foreach item="id" collection="contactIds" open="(" separator="," close=")">#{id}</foreach>
+        and account_id is not null and account_id != ''
+    </select>
+
+    <insert id="upsertCrmAccountValue" parameterType="com.ruoyi.crm.domain.CrmAccountValue">
+        INSERT INTO crm_account_value (
+            account_id, tenant_id, currency, member_count, booked_total, inflight_total, refund_total,
+            net_clv, paid_total, pending_receivable, pltv_12m, acquisition_cost, tier, by_treatment,
+            last_visit_at, days_since_last_visit, calculated_at, del_flag
+        ) VALUES (
+            #{accountId}, #{tenantId}, #{currency}, #{memberCount}, #{bookedTotal}, #{inflightTotal},
+            #{refundTotal}, #{netClv}, #{paidTotal}, #{pendingReceivable}, #{pltv12m}, #{acquisitionCost}, #{tier},
+            #{byTreatment}::jsonb, #{lastVisitAt}, #{daysSinceLastVisit}, #{calculatedAt}, 0
+        )
+        ON CONFLICT (account_id) DO UPDATE SET
+            tenant_id = EXCLUDED.tenant_id,
+            currency = EXCLUDED.currency,
+            member_count = EXCLUDED.member_count,
+            booked_total = EXCLUDED.booked_total,
+            inflight_total = EXCLUDED.inflight_total,
+            refund_total = EXCLUDED.refund_total,
+            net_clv = EXCLUDED.net_clv,
+            paid_total = EXCLUDED.paid_total,
+            pending_receivable = EXCLUDED.pending_receivable,
+            pltv_12m = EXCLUDED.pltv_12m,
+            acquisition_cost = EXCLUDED.acquisition_cost,
+            tier = EXCLUDED.tier,
+            by_treatment = EXCLUDED.by_treatment,
+            last_visit_at = EXCLUDED.last_visit_at,
+            days_since_last_visit = EXCLUDED.days_since_last_visit,
+            calculated_at = EXCLUDED.calculated_at
+    </insert>
+</mapper>

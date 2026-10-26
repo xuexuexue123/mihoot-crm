@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.EventNurtureStepExecutionMapper">
+
+    <resultMap type="com.ruoyi.crm.domain.CrmEventNurtureStepExecution" id="EventNurtureStepExecutionResult">
+        <result property="id" column="id"/>
+        <result property="tenantId" column="tenant_id"/>
+        <result property="enrollmentId" column="enrollment_id"/>
+        <result property="sequenceId" column="sequence_id"/>
+        <result property="stepId" column="step_id"/>
+        <result property="stepOrder" column="step_order"/>
+        <result property="actionType" column="action_type"/>
+        <result property="status" column="status"/>
+        <result property="skipReason" column="skip_reason"/>
+        <result property="externalRef" column="external_ref"/>
+        <result property="errorMsg" column="error_msg"/>
+        <result property="createTime" column="create_time"/>
+    </resultMap>
+
+    <select id="selectByEnrollmentAndStep" resultMap="EventNurtureStepExecutionResult">
+        SELECT * FROM crm_event_nurture_step_execution
+        WHERE enrollment_id = #{enrollmentId} AND step_id = #{stepId}
+        LIMIT 1
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
+        INSERT INTO crm_event_nurture_step_execution (
+            tenant_id, enrollment_id, sequence_id, step_id, step_order,
+            action_type, status, skip_reason, external_ref, error_msg, create_time
+        ) VALUES (
+            #{tenantId}, #{enrollmentId}, #{sequenceId}, #{stepId}, #{stepOrder},
+            #{actionType}, #{status}, #{skipReason}, #{externalRef}, #{errorMsg}, COALESCE(#{createTime}, NOW())
+        )
+    </insert>
+
+    <select id="countRecentSentByOpenIdAndPreset" resultType="int">
+        SELECT COUNT(*)
+        FROM crm_event_nurture_step_execution e
+        JOIN crm_event_nurture_enrollment en ON en.id = e.enrollment_id
+        WHERE en.wechat_mp_openid = #{openId}
+          AND e.action_type = 'mp_template'
+          AND e.status = 'sent'
+          AND e.create_time &gt;= #{since}
+          AND e.external_ref LIKE CONCAT('preset:', #{presetId}, '%')
+    </select>
+
+</mapper>

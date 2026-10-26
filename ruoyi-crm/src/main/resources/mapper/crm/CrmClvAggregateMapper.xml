@@ -1,0 +1,259 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmClvAggregateMapper">
+
+    <sql id="closedWonStageFilter">
+        <choose>
+            <when test="closedWonStages != null and closedWonStages.size() > 0">
+                o.stage in
+                <foreach item="s" collection="closedWonStages" open="(" separator="," close=")">#{s}</foreach>
+            </when>
+            <otherwise>1=0</otherwise>
+        </choose>
+    </sql>
+
+    <select id="selectBookedTotalByContactId" resultType="java.math.BigDecimal">
+        SELECT COALESCE(SUM(COALESCE(c.sign_amount, c.total_amount, c.amount, 0)), 0)
+        FROM crm_contract c WHERE c.contact_id = #{contactId}
+    </select>
+
+    <select id="selectInflightTotalByContactId" resultType="java.math.BigDecimal">
+        SELECT COALESCE(SUM(o.amount), 0) FROM crm_opty o
+        WHERE o.contact_id = #{contactId}
+          AND (<include refid="closedWonStageFilter"/>)
+          AND NOT EXISTS (SELECT 1 FROM crm_contract c WHERE c.opty_id = o.opty_id AND c.opty_id IS NOT NULL AND c.opty_id != '')
+    </select>
+
+    <select id="selectRefundTotalByContactId" resultType="java.math.BigDecimal">
+        SELECT COALESCE(SUM(p.refund_amount), 0) FROM crm_paymentterm p
+        INNER JOIN crm_contract c ON c.contract_id = p.contract_id
+        WHERE c.contact_id = #{contactId}
+    </select>
+
+    <select id="selectPaidTotalByContactId" resultType="java.math.BigDecimal">
+        SELECT COALESCE(SUM(p.paid_amount), 0) FROM crm_paymentterm p
+        INNER JOIN crm_contract c ON c.contract_id = p.contract_id
+        WHERE c.contact_id = #{contactId}
+    </select>
+
+    <select id="selectBookedTotalLast12mByContactId" resultType="java.math.BigDecimal">
+        SELECT COALESCE(SUM(COALESCE(c.sign_amount, c.total_amount, c.amount, 0)), 0)
+        FROM crm_contract c
+        WHERE c.contact_id = #{contactId}
+          AND c.sign_time IS NOT NULL
+          AND c.sign_time >= (CURRENT_TIMESTAMP - INTERVAL '365 days')
+    </select>
+
+    <select id="selectVisitCount12mByContactId" resultType="java.lang.Integer">
+        SELECT COUNT(DISTINCT DATE(c.sign_time))::integer FROM crm_contract c
+        WHERE c.contact_id = #{contactId}
+          AND c.sign_time IS NOT NULL
+          AND c.sign_time >= (CURRENT_TIMESTAMP - INTERVAL '365 days')
+    </select>
+
+    <select id="selectFirstVisitAtByContactId" resultType="java.util.Date">
+        SELECT MIN(c.sign_time) FROM crm_contract c
+        WHERE c.contact_id = #{contactId} AND c.sign_time IS NOT NULL
+    </select>
+
+    <select id="selectLastVisitAtByContactId" resultType="java.util.Date">
+        SELECT MAX(c.sign_time) FROM crm_contract c
+        WHERE c.contact_id = #{contactId} AND c.sign_time IS NOT NULL
+    </select>
+
+    <select id="selectTotalVisitCountByContactId" resultType="java.lang.Integer">
+        SELECT COUNT(DISTINCT DATE(c.sign_time))::integer FROM crm_contract c
+        WHERE c.contact_id = #{contactId} AND c.sign_time IS NOT NULL
+    </select>
+
+    <select id="selectTreatmentAmountsByContactId" resultType="java.util.HashMap">
+        SELECT COALESCE(o.treatment_item_code, 'restorative') AS treatment_code,
+               COALESCE(SUM(o.amount), 0) AS amount
+        FROM crm_opty o
+        WHERE o.contact_id = #{contactId}
+          AND (<include refid="closedWonStageFilter"/>)
+        GROUP BY COALESCE(o.treatment_item_code, 'restorative')
+    </select>
+
+    <select id="selectBookedTotalByAccountIdDistinct" resultType="java.math.BigDecimal">
+        SELECT COALESCE(SUM(sub.sign_amount), 0) FROM (
+            SELECT DISTINCT c.contract_id, COALESCE(c.sign_amount, c.total_amount, c.amount, 0) AS sign_amount
+            FROM crm_contract c WHERE c.account_id = #{accountId}
+        ) sub
+    </select>
+
+    <select id="selectInflightTotalByAccountIdDistinct" resultType="java.math.BigDecimal">
+        SELECT COALESCE(SUM(sub.amount), 0) FROM (
+            SELECT DISTINCT o.opty_id, o.amount
+            FROM crm_opty o
+            WHERE o.account_id = #{accountId}
+              AND (<include refid="closedWonStageFilter"/>)
+              AND NOT EXISTS (SELECT 1 FROM crm_contract c WHERE c.opty_id = o.opty_id AND c.opty_id IS NOT NULL AND c.opty_id != '')
+        ) sub
+    </select>
+
+    <select id="selectRefundTotalByAccountId" resultType="java.math.BigDecimal">
+        SELECT COALESCE(SUM(p.refund_amount), 0) FROM crm_paymentterm p
+        INNER JOIN crm_contract c ON c.contract_id = p.contract_id
+        WHERE c.account_id = #{accountId}
+    </select>
+
+    <select id="selectPaidTotalByAccountId" resultType="java.math.BigDecimal">
+        SELECT COALESCE(SUM(p.paid_amount), 0) FROM crm_paymentterm p
+        INNER JOIN crm_contract c ON c.contract_id = p.contract_id
+        WHERE c.account_id = #{accountId}
+    </select>
+
+    <select id="selectPendingReceivableByAccountId" resultType="java.math.BigDecimal">
+        SELECT COALESCE(SUM(c.pending_receivable), 0) FROM crm_contract c WHERE c.account_id = #{accountId}
+    </select>
+
+    <select id="selectMemberCountByAccountId" resultType="java.lang.Integer">
+        SELECT COUNT(*)::integer FROM crm_contact WHERE account_id = #{accountId}
+    </select>
+
+    <select id="selectCacAllocationForEvent" resultType="java.util.HashMap">
+        SELECT e.event_id AS campaign_id, COALESCE(e.paid, 0) AS spend,
+               COUNT(DISTINCT l.contact_id)::integer AS converts
+        FROM crm_event e
+        LEFT JOIN crm_conversion_history ch ON ch.target_id = e.event_id AND ch.conversion_type = 'Marketing Event'
+        LEFT JOIN crm_lead l ON l.lead_id = ch.lead_id AND l.contact_id IS NOT NULL AND l.contact_id != ''
+        WHERE e.event_id = #{eventId}
+        GROUP BY e.event_id, e.paid
+    </select>
+
+    <select id="selectCacAllocationForBulkemail" resultType="java.util.HashMap">
+        SELECT b.bulk_id AS campaign_id, COALESCE(b.spend_amount, 0) AS spend,
+               COUNT(DISTINCT l.contact_id)::integer AS converts
+        FROM crm_bulkemail b
+        LEFT JOIN crm_conversion_history ch ON ch.target_id = b.bulk_id AND ch.conversion_type = 'Email Marketing'
+        LEFT JOIN crm_lead l ON l.lead_id = ch.lead_id AND l.contact_id IS NOT NULL AND l.contact_id != ''
+        WHERE b.bulk_id = #{bulkId}
+        GROUP BY b.bulk_id, b.spend_amount
+    </select>
+
+    <select id="selectAllEventCacCampaigns" resultType="java.util.HashMap">
+        SELECT e.event_id AS campaign_id, COALESCE(e.paid, 0) AS spend
+        FROM crm_event e WHERE COALESCE(e.paid, 0) > 0
+    </select>
+
+    <select id="selectAllBulkemailCacCampaigns" resultType="java.util.HashMap">
+        SELECT b.bulk_id AS campaign_id, COALESCE(b.spend_amount, 0) AS spend
+        FROM crm_bulkemail b WHERE COALESCE(b.spend_amount, 0) > 0
+    </select>
+
+    <resultMap type="com.ruoyi.crm.domain.vo.CampaignRoiVo" id="CampaignRoiResult">
+        <result property="campaignType" column="campaign_type"/>
+        <result property="campaignId" column="campaign_id"/>
+        <result property="campaignName" column="campaign_name"/>
+        <result property="spend" column="spend"/>
+        <result property="convertedContacts" column="converted_contacts"/>
+        <result property="convertedClvTotal" column="converted_clv_total"/>
+        <result property="cacPerContact" column="cac_per_contact"/>
+        <result property="roi" column="roi"/>
+        <result property="firstActivityAt" column="first_activity_at"/>
+        <result property="lastActivityAt" column="last_activity_at"/>
+    </resultMap>
+
+    <sql id="eventAttributedContacts">
+        SELECT DISTINCT contact_id, event_id FROM (
+            SELECT ch.target_id AS contact_id, l.sid AS event_id
+            FROM crm_conversion_history ch
+            INNER JOIN crm_lead l ON l.lead_id = ch.lead_id
+            WHERE ch.conversion_type = 'Contact'
+              AND ch.target_id IS NOT NULL AND ch.target_id != ''
+              AND l.sid IS NOT NULL AND l.sid != ''
+            UNION
+            SELECT ec.crm_contact_id, ec.crm_event_id
+            FROM crm_wecom_external_contact ec
+            WHERE ec.crm_contact_id IS NOT NULL AND ec.crm_contact_id != ''
+              AND ec.crm_event_id IS NOT NULL AND ec.crm_event_id != ''
+            UNION
+            SELECT DISTINCT f.contact_id, COALESCE(a.context->>'crm_event_id', q.crm_event_id) AS event_id
+            FROM crm_wechat_mp_fan f
+            INNER JOIN crm_activity a ON (
+                a.context->>'openid' = f.open_id OR a.context->>'open_id' = f.open_id
+            )
+            LEFT JOIN crm_wechat_mp_qrcode q ON q.crm_event_id IS NOT NULL
+                AND (a.context->>'scene_str' = q.scene_str OR a.payload->>'event_key' = 'qrscene_' || q.scene_str)
+            WHERE f.contact_id IS NOT NULL AND f.contact_id != ''
+              AND (a.context->>'crm_event_id' IS NOT NULL OR q.crm_event_id IS NOT NULL)
+        ) attributed
+        WHERE contact_id IS NOT NULL AND contact_id != ''
+          AND event_id IS NOT NULL AND event_id != ''
+    </sql>
+
+    <select id="selectCampaignRoiList" resultMap="CampaignRoiResult">
+        SELECT * FROM (
+            SELECT 'event' AS campaign_type, e.event_id AS campaign_id, e.subject AS campaign_name,
+                   COALESCE(e.paid, 0) AS spend,
+                   COUNT(DISTINCT ac.contact_id)::integer AS converted_contacts,
+                   COALESCE(SUM(pv.net_clv), 0) AS converted_clv_total,
+                   CASE WHEN COUNT(DISTINCT ac.contact_id) > 0
+                        THEN COALESCE(e.paid, 0) / COUNT(DISTINCT ac.contact_id) ELSE COALESCE(e.paid, 0) END AS cac_per_contact,
+                   CASE WHEN COALESCE(e.paid, 0) > 0
+                        THEN (COALESCE(SUM(pv.net_clv), 0) - COALESCE(e.paid, 0)) / COALESCE(e.paid, 0) ELSE NULL END AS roi,
+                   MIN(e.create_time) AS first_activity_at, MAX(e.create_time) AS last_activity_at
+            FROM crm_event e
+            LEFT JOIN (
+                <include refid="eventAttributedContacts"/>
+            ) ac ON ac.event_id = e.event_id
+            LEFT JOIN crm_patient_value pv ON pv.contact_id = ac.contact_id AND pv.del_flag = '0'
+            WHERE COALESCE(e.paid, 0) >= 0
+            <if test="dateFrom != null"> AND e.create_time &gt;= #{dateFrom}</if>
+            <if test="dateTo != null"> AND e.create_time &lt;= #{dateTo}</if>
+            <if test="campaignId != null and campaignId != ''"> AND e.event_id = #{campaignId}</if>
+            GROUP BY e.event_id, e.subject, e.paid
+            UNION ALL
+            SELECT 'bulkemail', b.bulk_id, b.subject,
+                   COALESCE(b.spend_amount, 0),
+                   COUNT(DISTINCT l.contact_id)::integer,
+                   COALESCE(SUM(pv.net_clv), 0),
+                   CASE WHEN COUNT(DISTINCT l.contact_id) > 0
+                        THEN COALESCE(b.spend_amount, 0) / COUNT(DISTINCT l.contact_id) ELSE COALESCE(b.spend_amount, 0) END,
+                   CASE WHEN COALESCE(b.spend_amount, 0) > 0
+                        THEN (COALESCE(SUM(pv.net_clv), 0) - COALESCE(b.spend_amount, 0)) / COALESCE(b.spend_amount, 0) ELSE NULL END,
+                   MIN(ch.create_time), MAX(ch.create_time)
+            FROM crm_bulkemail b
+            LEFT JOIN crm_conversion_history ch ON ch.target_id = b.bulk_id AND ch.conversion_type = 'Email Marketing'
+            LEFT JOIN crm_lead l ON l.lead_id = ch.lead_id AND l.contact_id IS NOT NULL AND l.contact_id != ''
+            LEFT JOIN crm_patient_value pv ON pv.contact_id = l.contact_id AND pv.del_flag = '0'
+            WHERE COALESCE(b.spend_amount, 0) >= 0
+            <if test="dateFrom != null"> AND b.create_time &gt;= #{dateFrom}</if>
+            <if test="dateTo != null"> AND b.create_time &lt;= #{dateTo}</if>
+            GROUP BY b.bulk_id, b.subject, b.spend_amount
+        ) campaigns
+        WHERE 1=1
+        <if test="campaignType != null and campaignType != '' and campaignType != 'all'">
+            AND campaign_type = #{campaignType}
+        </if>
+        <if test="campaignId != null and campaignId != ''">
+            AND campaign_id = #{campaignId}
+        </if>
+        ORDER BY spend DESC
+    </select>
+
+    <select id="selectContactIdsForCampaign" resultType="java.util.HashMap">
+        SELECT DISTINCT l.contact_id AS contact_id
+        FROM crm_conversion_history ch
+        INNER JOIN crm_lead l ON l.lead_id = ch.lead_id
+        WHERE ch.target_id = #{campaignId}
+          AND ch.conversion_type = #{conversionType}
+          AND l.contact_id IS NOT NULL AND l.contact_id != ''
+    </select>
+
+    <update id="resetAllContactAcquisitionCost">
+        UPDATE crm_contact SET acquisition_cost = 0, update_time = CURRENT_TIMESTAMP
+    </update>
+
+    <update id="updateContactAcquisitionCost">
+        UPDATE crm_contact SET acquisition_cost = #{acquisitionCost}, update_time = CURRENT_TIMESTAMP
+        WHERE contact_id = #{contactId}
+    </update>
+
+    <update id="updateContactVisitStats">
+        UPDATE crm_contact SET first_visit_at = #{firstVisitAt}, last_visit_at = #{lastVisitAt},
+               visit_count = #{visitCount}, update_time = CURRENT_TIMESTAMP
+        WHERE contact_id = #{contactId}
+    </update>
+</mapper>

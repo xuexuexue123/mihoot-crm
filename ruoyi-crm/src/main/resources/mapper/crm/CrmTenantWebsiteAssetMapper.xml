@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmTenantWebsiteAssetMapper">
+
+    <resultMap id="CrmTenantWebsiteAssetResult" type="com.ruoyi.crm.domain.CrmTenantWebsiteAsset">
+        <id property="id" column="id"/>
+        <result property="fileTitle" column="file_title"/>
+        <result property="fileName" column="file_name"/>
+        <result property="originalName" column="original_name"/>
+        <result property="fileType" column="file_type"/>
+        <result property="fileSize" column="file_size"/>
+        <result property="mediaType" column="media_type"/>
+        <result property="mimeType" column="mime_type"/>
+        <result property="width" column="width"/>
+        <result property="height" column="height"/>
+        <result property="durationMs" column="duration_ms"/>
+        <result property="status" column="status"/>
+        <result property="publicPath" column="public_path"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <sql id="selectAssetColumns">
+        id, file_title, file_name, original_name, file_type, file_size, media_type, mime_type,
+        width, height, duration_ms, status, public_path, create_by, create_time, update_time
+    </sql>
+
+    <insert id="insert" parameterType="com.ruoyi.crm.domain.CrmTenantWebsiteAsset">
+        INSERT INTO crm_tenant_website_asset (
+            id, file_title, file_name, original_name, file_type, file_size, media_type, mime_type,
+            width, height, duration_ms, status, public_path, create_by, create_time, update_time
+        ) VALUES (
+            #{id}::uuid,
+            #{fileTitle},
+            #{fileName},
+            #{originalName},
+            #{fileType},
+            #{fileSize},
+            #{mediaType},
+            #{mimeType},
+            #{width},
+            #{height},
+            #{durationMs},
+            #{status},
+            #{publicPath},
+            #{createBy},
+            #{createTime},
+            #{updateTime}
+        )
+    </insert>
+
+    <select id="selectById" parameterType="String" resultMap="CrmTenantWebsiteAssetResult">
+        SELECT <include refid="selectAssetColumns"/>
+        FROM crm_tenant_website_asset
+        WHERE id = #{id}::uuid
+    </select>
+
+    <select id="selectActiveById" parameterType="String" resultMap="CrmTenantWebsiteAssetResult">
+        SELECT <include refid="selectAssetColumns"/>
+        FROM crm_tenant_website_asset
+        WHERE id = #{id}::uuid
+          AND status = 'active'
+    </select>
+
+    <select id="selectList" parameterType="com.ruoyi.crm.domain.dto.WebsiteAssetQuery"
+            resultMap="CrmTenantWebsiteAssetResult">
+        SELECT <include refid="selectAssetColumns"/>
+        FROM crm_tenant_website_asset
+        <where>
+            <if test="includeDeleted == null or includeDeleted == false">
+                AND status = 'active'
+            </if>
+            <if test="mediaType != null and mediaType != ''">
+                AND media_type = #{mediaType}
+            </if>
+            <if test="fileTitle != null and fileTitle != ''">
+                AND file_title ILIKE CONCAT('%', #{fileTitle}, '%')
+            </if>
+        </where>
+        ORDER BY create_time DESC
+    </select>
+
+    <update id="softDeleteById" parameterType="String">
+        UPDATE crm_tenant_website_asset
+        SET status = 'deleted',
+            update_time = now()
+        WHERE id = #{id}::uuid
+          AND status = 'active'
+    </update>
+
+    <select id="countSchemaReferences" parameterType="String" resultType="int">
+        SELECT COUNT(1)
+        FROM crm_tenant_website_page
+        WHERE draft_schema::text LIKE CONCAT('%', '/_assets/', #{assetId}, '%')
+           OR published_schema::text LIKE CONCAT('%', '/_assets/', #{assetId}, '%')
+    </select>
+</mapper>

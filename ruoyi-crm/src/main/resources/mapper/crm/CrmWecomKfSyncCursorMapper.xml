@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmWecomKfSyncCursorMapper">
+
+    <resultMap id="CursorResult" type="com.ruoyi.crm.domain.CrmWecomKfSyncCursor">
+        <id property="id" column="id"/>
+        <result property="corpId" column="corp_id"/>
+        <result property="openKfid" column="open_kfid"/>
+        <result property="cursor" column="cursor"/>
+        <result property="enabledAt" column="enabled_at"/>
+        <result property="updatedAt" column="updated_at"/>
+    </resultMap>
+
+    <select id="selectByCorpOpenKfid" resultMap="CursorResult">
+        SELECT id, corp_id, open_kfid, cursor, enabled_at, updated_at
+        FROM crm_wecom_kf_sync_cursor
+        WHERE corp_id = #{corpId} AND open_kfid = #{openKfid}
+        LIMIT 1
+    </select>
+
+    <insert id="upsertEnsure" parameterType="com.ruoyi.crm.domain.CrmWecomKfSyncCursor"
+            useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO crm_wecom_kf_sync_cursor (corp_id, open_kfid, cursor, enabled_at, updated_at)
+        VALUES (#{corpId}, COALESCE(#{openKfid}, ''), #{cursor}, COALESCE(#{enabledAt}, now()), now())
+        ON CONFLICT (corp_id, open_kfid) DO NOTHING
+    </insert>
+
+    <update id="updateCursor">
+        UPDATE crm_wecom_kf_sync_cursor
+        SET cursor = #{cursor}, updated_at = now()
+        WHERE corp_id = #{corpId} AND open_kfid = #{openKfid}
+    </update>
+</mapper>

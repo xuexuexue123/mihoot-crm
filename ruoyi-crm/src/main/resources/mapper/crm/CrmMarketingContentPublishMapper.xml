@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmMarketingContentPublishMapper">
+
+    <resultMap id="CrmMarketingContentPublishResult" type="com.ruoyi.crm.domain.CrmMarketingContentPublish">
+        <id property="id" column="id"/>
+        <result property="contentId" column="content_id"/>
+        <result property="channel" column="channel"/>
+        <result property="appId" column="app_id"/>
+        <result property="mediaId" column="media_id"/>
+        <result property="publishId" column="publish_id"/>
+        <result property="articleId" column="article_id"/>
+        <result property="articleUrl" column="article_url"/>
+        <result property="thumbMediaId" column="thumb_media_id"/>
+        <result property="status" column="status"/>
+        <result property="errorMsg" column="error_msg"/>
+        <result property="publishedAt" column="published_at"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <sql id="selectPublishColumns">
+        id, content_id, channel, app_id, media_id, publish_id, article_id, article_url,
+        thumb_media_id, status, error_msg, published_at, create_time, update_time
+    </sql>
+
+    <select id="selectByContentId" resultMap="CrmMarketingContentPublishResult">
+        SELECT <include refid="selectPublishColumns"/>
+        FROM crm_marketing_content_publish
+        WHERE content_id = #{contentId}::uuid
+        ORDER BY update_time DESC NULLS LAST
+    </select>
+
+    <select id="selectByContentChannelApp" resultMap="CrmMarketingContentPublishResult">
+        SELECT <include refid="selectPublishColumns"/>
+        FROM crm_marketing_content_publish
+        WHERE content_id = #{contentId}::uuid
+          AND channel = #{channel}
+          AND app_id = #{appId}
+        LIMIT 1
+    </select>
+
+    <insert id="insert" parameterType="com.ruoyi.crm.domain.CrmMarketingContentPublish">
+        INSERT INTO crm_marketing_content_publish (
+            id, content_id, channel, app_id, media_id, publish_id, article_id, article_url,
+            thumb_media_id, status, error_msg, published_at, create_time, update_time
+        ) VALUES (
+            #{id}::uuid,
+            #{contentId}::uuid,
+            COALESCE(#{channel}, 'wechat_mp'),
+            #{appId},
+            #{mediaId},
+            #{publishId},
+            #{articleId},
+            #{articleUrl},
+            #{thumbMediaId},
+            COALESCE(#{status}, 'synced'),
+            #{errorMsg},
+            #{publishedAt},
+            COALESCE(#{createTime}, now()),
+            COALESCE(#{updateTime}, now())
+        )
+    </insert>
+
+    <update id="update" parameterType="com.ruoyi.crm.domain.CrmMarketingContentPublish">
+        UPDATE crm_marketing_content_publish
+        SET
+            media_id = #{mediaId},
+            publish_id = #{publishId},
+            article_id = #{articleId},
+            article_url = #{articleUrl},
+            thumb_media_id = #{thumbMediaId},
+            status = #{status},
+            error_msg = #{errorMsg},
+            published_at = #{publishedAt},
+            update_time = COALESCE(#{updateTime}, now())
+        WHERE id = #{id}::uuid
+    </update>
+
+</mapper>

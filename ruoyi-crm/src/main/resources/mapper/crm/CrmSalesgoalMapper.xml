@@ -1,0 +1,258 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmSalesgoalMapper">
+    
+    <resultMap type="CrmSalesgoal" id="CrmSalesgoalResult">
+        <result property="goalId"    column="goal_id"    />
+        <result property="goalName"    column="goal_name"    />
+        <result property="goalType"    column="goal_type"    />
+        <result property="kpiCode"    column="kpi_code"    />
+        <result property="periodId"    column="period_id"    />
+        <result property="periodName"    column="period_name"    />
+        <result property="periodType"    column="period_type"    />
+        <result property="monthId"    column="month_id"    />
+        <result property="monthName"    column="month_name"    />
+        <result property="quarterId"    column="quarter_id"    />
+        <result property="quarterName"    column="quarter_name"    />
+        <result property="fiscalId"    column="fiscal_id"    />
+        <result property="fiscalName"    column="fiscal_name"    />
+        <result property="isActive"    column="is_active"    />
+        <result property="goalValue"    column="goal_value"    />
+        <result property="owner"    column="owner"    />
+        <result property="ownerId"    column="owner_id"    />
+        <result property="comment"    column="comment"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="userId"    column="user_id"    />
+        <result property="deptId"    column="dept_id"    />
+    </resultMap>
+
+    <sql id="selectCrmSalesgoalVo">
+        select s.goal_id, s.goal_name, s.goal_type, s.kpi_code, s.period_id, s.period_name, s.period_type, s.month_id, s.month_name, s.quarter_id, s.quarter_name, s.fiscal_id, s.fiscal_name, s.is_active, s.goal_value, s.owner, s.owner_id, s.comment, s.create_by, s.create_time, s.update_by, s.update_time, s.user_id, s.dept_id
+        from crm_salesgoal s
+    </sql>
+
+    <sql id="selectMyCrmSalesgoalVo">
+        select goal_id, goal_name, goal_type, kpi_code, period_id, period_name, period_type, month_id, month_name, quarter_id, quarter_name, fiscal_id, fiscal_name, is_active, goal_value, owner, owner_id, comment, create_by, create_time, update_by, update_time, user_id, dept_id from crm_salesgoal
+    </sql>
+
+    <select id="selectCrmSalesgoalList" parameterType="CrmSalesgoal" resultMap="CrmSalesgoalResult">
+        <include refid="selectCrmSalesgoalVo"/>
+        where 1=1
+            <if test="goalName != null  and goalName != ''"> and goal_name like concat('%', #{goalName}, '%')</if>
+            <if test="goalType != null  and goalType != ''"> and goal_type = #{goalType}</if>
+            <if test="kpiCode != null  and kpiCode != ''"> and kpi_code = #{kpiCode}</if>
+            <if test="periodId != null  and periodId != ''"> and period_id = #{periodId}</if>
+            <if test="periodName != null  and periodName != ''"> and period_name like concat('%', #{periodName}, '%')</if>
+            <choose>
+                <when test="periodType != null and periodType != ''">
+                    and period_type = #{periodType}
+                </when>
+                <when test="kpiCode != null and kpiCode != ''">
+                    and period_type = 'Monthly'
+                </when>
+            </choose>
+            <if test="monthId != null  and monthId != ''"> and month_id = #{monthId}</if>
+            <if test="monthName != null  and monthName != ''"> and month_name like concat('%', #{monthName}, '%')</if>
+            <if test="quarterId != null  and quarterId != ''"> and quarter_id = #{quarterId}</if>
+            <if test="quarterName != null  and quarterName != ''"> and quarter_name like concat('%', #{quarterName}, '%')</if>
+            <if test="fiscalId != null  and fiscalId != ''"> and fiscal_id = #{fiscalId}</if>
+            <if test="fiscalName != null  and fiscalName != ''"> and fiscal_name like concat('%', #{fiscalName}, '%')</if>
+            <if test="isActive != null "> and is_active = #{isActive}</if>
+            <if test="goalValue != null "> and goal_value = #{goalValue}</if>
+            <if test="owner != null  and owner != ''"> and owner = #{owner}</if>
+            <if test="ownerId != null  and ownerId != ''"> and owner_id = #{ownerId}</if>
+            <if test="comment != null  and comment != ''"> and comment = #{comment}</if>
+            <if test="userId != null "> and user_id = #{userId}</if>
+            <if test="deptId != null "> and dept_id = #{deptId}</if>
+        order by is_active, period_name
+    </select>
+
+    <select id="selectMyCrmSalesgoal" parameterType="CrmSalesgoal" resultMap="CrmSalesgoalResult">
+        <include refid="selectMyCrmSalesgoalVo"/>
+        where 1=1
+        <if test="goalName != null  and goalName != ''"> and goal_name like concat('%', #{goalName}, '%')</if>
+        <if test="goalType != null  and goalType != ''"> and goal_type = #{goalType}</if>
+        <if test="kpiCode != null  and kpiCode != ''"> and kpi_code = #{kpiCode}</if>
+        <if test="periodId != null  and periodId != ''"> and period_id = #{periodId}</if>
+        <if test="periodName != null  and periodName != ''"> and period_name like concat('%', #{periodName}, '%')</if>
+        <choose>
+            <when test="periodType != null and periodType != ''">
+                and period_type = #{periodType}
+            </when>
+            <when test="kpiCode != null and kpiCode != ''">
+                and period_type = 'Monthly'
+            </when>
+        </choose>
+        <if test="monthId != null  and monthId != ''"> and month_id = #{monthId}</if>
+        <if test="monthName != null  and monthName != ''"> and month_name like concat('%', #{monthName}, '%')</if>
+        <if test="quarterId != null  and quarterId != ''"> and quarter_id = #{quarterId}</if>
+        <if test="quarterName != null  and quarterName != ''"> and quarter_name like concat('%', #{quarterName}, '%')</if>
+        <if test="fiscalId != null  and fiscalId != ''"> and fiscal_id = #{fiscalId}</if>
+        <if test="fiscalName != null  and fiscalName != ''"> and fiscal_name like concat('%', #{fiscalName}, '%')</if>
+        <if test="isActive != null "> and is_active = #{isActive}</if>
+        <if test="goalValue != null "> and goal_value = #{goalValue}</if>
+        <if test="owner != null  and owner != ''"> and owner = #{owner}</if>
+        <if test="ownerId != null  and ownerId != ''"> and owner_id = #{ownerId}</if>
+        <if test="comment != null  and comment != ''"> and comment = #{comment}</if>
+        order by is_active, period_name
+    </select>
+    
+    <select id="selectCrmSalesgoalByGoalId" parameterType="String" resultMap="CrmSalesgoalResult">
+        <include refid="selectCrmSalesgoalVo"/>
+        where goal_id = #{goalId}
+    </select>
+
+    <select id="countByOwnerPeriodKpi" resultType="int">
+        select count(1) from crm_salesgoal
+        where owner_id = #{ownerId}
+          and period_id = #{periodId}
+          and kpi_code = #{kpiCode}
+          <if test="excludeGoalId != null and excludeGoalId != ''">
+              and goal_id &lt;&gt; #{excludeGoalId}
+          </if>
+    </select>
+
+    <select id="selectExistingOwnerIds" resultType="java.lang.String">
+        select owner_id from crm_salesgoal
+        where period_id = #{periodId}
+          and kpi_code = #{kpiCode}
+          and owner_id in
+          <foreach collection="ownerIds" item="oid" open="(" separator="," close=")">
+              #{oid}
+          </foreach>
+    </select>
+        
+    <insert id="insertCrmSalesgoal" parameterType="CrmSalesgoal">
+        insert into crm_salesgoal
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="goalId != null">goal_id,</if>
+            <if test="goalName != null">goal_name,</if>
+            <if test="goalType != null and goalType != ''">goal_type,</if>
+            <if test="kpiCode != null and kpiCode != ''">kpi_code,</if>
+            <if test="periodId != null and periodId != ''">period_id,</if>
+            <if test="periodName != null">period_name,</if>
+            <if test="periodType != null">period_type,</if>
+            <if test="monthId != null">month_id,</if>
+            <if test="monthName != null">month_name,</if>
+            <if test="quarterId != null">quarter_id,</if>
+            <if test="quarterName != null">quarter_name,</if>
+            <if test="fiscalId != null">fiscal_id,</if>
+            <if test="fiscalName != null">fiscal_name,</if>
+            <if test="isActive != null">is_active,</if>
+            <if test="goalValue != null">goal_value,</if>
+            <if test="owner != null">owner,</if>
+            <if test="ownerId != null">owner_id,</if>
+            <if test="comment != null">comment,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="userId != null">user_id,</if>
+            <if test="deptId != null">dept_id,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="goalId != null">#{goalId},</if>
+            <if test="goalName != null">#{goalName},</if>
+            <if test="goalType != null and goalType != ''">#{goalType},</if>
+            <if test="kpiCode != null and kpiCode != ''">#{kpiCode},</if>
+            <if test="periodId != null and periodId != ''">#{periodId},</if>
+            <if test="periodName != null">#{periodName},</if>
+            <if test="periodType != null">#{periodType},</if>
+            <if test="monthId != null">#{monthId},</if>
+            <if test="monthName != null">#{monthName},</if>
+            <if test="quarterId != null">#{quarterId},</if>
+            <if test="quarterName != null">#{quarterName},</if>
+            <if test="fiscalId != null">#{fiscalId},</if>
+            <if test="fiscalName != null">#{fiscalName},</if>
+            <if test="isActive != null">#{isActive},</if>
+            <if test="goalValue != null">#{goalValue},</if>
+            <if test="owner != null">#{owner},</if>
+            <if test="ownerId != null">#{ownerId},</if>
+            <if test="comment != null">#{comment},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="userId != null">#{userId},</if>
+            <if test="deptId != null">#{deptId},</if>
+         </trim>
+    </insert>
+
+    <insert id="batchInsertCrmSalesgoal">
+        insert into crm_salesgoal (
+            goal_id, goal_name, goal_type, kpi_code, period_id, period_name, period_type,
+            month_id, month_name, quarter_id, quarter_name, fiscal_id, fiscal_name,
+            is_active, goal_value, owner, owner_id, create_by, create_time, user_id, dept_id
+        ) values
+        <foreach collection="list" item="item" separator=",">
+            (
+                #{item.goalId}, #{item.goalName}, #{item.goalType}, #{item.kpiCode},
+                #{item.periodId}, #{item.periodName}, #{item.periodType},
+                #{item.monthId}, #{item.monthName}, #{item.quarterId}, #{item.quarterName},
+                #{item.fiscalId}, #{item.fiscalName},
+                #{item.isActive}, #{item.goalValue}, #{item.owner}, #{item.ownerId},
+                #{item.createBy}, #{item.createTime}, #{item.userId}, #{item.deptId}
+            )
+        </foreach>
+    </insert>
+
+    <update id="updateCrmSalesgoal" parameterType="CrmSalesgoal">
+        update crm_salesgoal
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="goalName != null">goal_name = #{goalName},</if>
+            <if test="goalType != null and goalType != ''">goal_type = #{goalType},</if>
+            <if test="kpiCode != null and kpiCode != ''">kpi_code = #{kpiCode},</if>
+            <if test="periodId != null and periodId != ''">period_id = #{periodId},</if>
+            <if test="periodName != null">period_name = #{periodName},</if>
+            <if test="periodType != null">period_type = #{periodType},</if>
+            <if test="monthId != null">month_id = #{monthId},</if>
+            <if test="monthName != null">month_name = #{monthName},</if>
+            <if test="quarterId != null">quarter_id = #{quarterId},</if>
+            <if test="quarterName != null">quarter_name = #{quarterName},</if>
+            <if test="fiscalId != null">fiscal_id = #{fiscalId},</if>
+            <if test="fiscalName != null">fiscal_name = #{fiscalName},</if>
+            <if test="isActive != null">is_active = #{isActive},</if>
+            <if test="goalValue != null">goal_value = #{goalValue},</if>
+            <if test="owner != null">owner = #{owner},</if>
+            <if test="ownerId != null">owner_id = #{ownerId},</if>
+            <if test="comment != null">comment = #{comment},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="userId != null">user_id = #{userId},</if>
+            <if test="deptId != null">dept_id = #{deptId},</if>
+        </trim>
+        where goal_id = #{goalId}
+    </update>
+
+    <update id="updateAssessBatch">
+        update crm_salesgoal
+        set is_active = #{isActive},
+            update_by = #{updateBy},
+            update_time = #{updateTime}
+        where period_id = #{periodId}
+          and kpi_code = #{kpiCode}
+    </update>
+
+    <update id="resetCrmSalesgoal" parameterType="CrmSalesgoal">
+        update crm_salesgoal
+        set is_active = 0
+    </update>
+
+    <delete id="deleteCrmSalesgoalByGoalId" parameterType="String">
+        delete from crm_salesgoal where goal_id = #{goalId}
+    </delete>
+
+    <delete id="deleteCrmSalesgoalByGoalIds" parameterType="String">
+        delete from crm_salesgoal where goal_id in 
+        <foreach item="goalId" collection="array" open="(" separator="," close=")">
+            #{goalId}
+        </foreach>
+    </delete>
+</mapper>

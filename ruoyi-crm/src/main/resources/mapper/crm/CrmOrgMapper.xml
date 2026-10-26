@@ -1,0 +1,436 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmOrgMapper">
+    
+    <resultMap type="CrmOrg" id="CrmOrgResult">
+        <result property="orgId"    column="org_id"    />
+        <result property="fullName"    column="full_name"    />
+        <result property="category"    column="category"    />
+        <result property="uuid"    column="uuid"    />
+        <result property="registerCapital"    column="register_capital"    />
+        <result property="representative"    column="representative"    />
+        <result property="startupDate"    column="startup_date"    />
+        <result property="approvedDate"    column="approved_date"    />
+        <result property="operStartDate"    column="oper_start_date"    />
+        <result property="registerBureau"    column="register_bureau"    />
+        <result property="registerStatus"    column="register_status"    />
+        <result property="registerAddress"    column="register_address"    />
+        <result property="shortName"    column="short_name"    />
+        <result property="parentOrg"    column="parent_org"    />
+        <result property="website"    column="website"    />
+        <result property="avatar"    column="avatar"    />
+        <result property="tickerSymbol"    column="ticker_symbol"    />
+        <result property="phoneNumber"    column="phone_number"    />
+        <result property="industry"    column="industry"    />
+        <result property="territory"    column="territory"    />
+        <result property="owner"    column="owner"    />
+        <result property="employeeCount"    column="employee_count"    />
+        <result property="activeAccountCount"    column="active_account_count"    />
+        <result property="activeOptyCount"    column="active_opty_count"    />
+        <result property="activeOptyAmount"    column="active_opty_amount"    />
+        <result property="revenue"    column="revenue"    />
+        <result property="registerComments"    column="register_comments"    />
+        <result property="isTarget"    column="is_target"    />
+        <result property="isCustomer"    column="is_customer"    />
+        <result property="status"    column="status"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="customField"    column="custom_field"    />
+        <result property="userId"    column="user_id"    />
+        <result property="deptId"    column="dept_id"    />
+        <result property="resources"    column="resources"    />
+        <result property="requirement"    column="requirement"    />
+        <result property="tag"    column="tag"    />
+        <result property="englishName"    column="english_name"    />
+        <result property="stakeholders"    column="stakeholders"    />
+        <result property="changes"    column="changes"    />
+        <result property="rrDescription"    column="rr_description"    />
+        <result property="funders"    column="funders"    />
+        <result property="fundersTitle"    column="funders_title"    />
+        <result property="numberOfFundingRounds"    column="number_of_funding_rounds"    />
+        <result property="lastFundingType"    column="last_funding_type"    />
+        <result property="lastFundingDate"    column="last_funding_date"    />
+        <result property="lastFundingAmount"    column="last_funding_amount"    />
+        <result property="totalFundingAmount"    column="total_funding_amount"    />
+        <result property="fundingCurrency"    column="funding_currency"    />
+        <result property="shortDescription"    column="short_description"    />
+        <result property="lastFundingCurrency"    column="last_funding_currency"    />
+        <result property="topFiveInvestors"    column="top_five_investors"    />
+        <result property="numberOfLeadInvestors"    column="number_of_lead_investors"    />
+        <result property="numberOfInvestors"    column="number_of_investors"    />
+        <result property="numberOfAcquisitions"    column="number_of_acquisitions"    />
+        <result property="acquisitionStatus"    column="acquisition_status"    />
+        <result property="ipoStatus"    column="ipo_status"    />
+        <result property="ipoDate"    column="ipo_date"    />
+        <result property="lpProcess"    column="lp_process"    />
+        <result property="stage"    column="stage"    />
+        <result property="latestValue"    column="latest_value"    />
+    </resultMap>
+
+    <sql id="selectCrmOrgVo">
+        select o.org_id, o.full_name, o.category, o.register_capital, o.uuid, o.representative, o.startup_date, o.approved_date, o.oper_start_date, o.register_bureau, o.register_status, o.register_address, o.short_name, o.parent_org, o.website, o.avatar, o.ticker_symbol, o.phone_number, o.industry, o.territory, o.owner, o.employee_count, o.active_account_count, o.active_opty_count, o.active_opty_amount, o.revenue, o.register_comments, o.is_target, o.is_customer, o.status, o.create_by, o.create_time, o.update_by, o.update_time, o.custom_field, o.user_id, o.dept_id, o.resources, o.requirement, o.tag, o.english_name, o.stakeholders, o.changes, o.rr_description, o.funders, o.funders_title, o.number_of_funding_rounds, o.last_funding_type, o.last_funding_date, o.last_funding_amount, o.total_funding_amount, o.funding_currency, o.short_description, o.last_funding_currency, o.top_five_investors, o.number_of_lead_investors, o.number_of_investors, o.number_of_acquisitions, o.acquisition_status, o.ipo_status, o.ipo_date, o.lp_process, o.stage, o.latest_value
+        from crm_org o
+         left join sys_user u on u.user_id = o.user_id
+         left join sys_dept d on u.dept_id = d.dept_id
+    </sql>
+
+    <select id="selectCrmOrgList" parameterType="CrmOrg" resultMap="CrmOrgResult">
+        <include refid="selectCrmOrgVo"/>
+        where 1=1
+            <if test="uuid != null  and uuid != ''"> and uuid = #{uuid}</if>
+            <if test="category != null  and category != ''"> and category = #{category}</if>
+            <if test="registerCapital != null "> and register_capital = #{registerCapital}</if>
+            <if test="fullName != null  and fullName != ''"> and full_name like concat('%', #{fullName}, '%')</if>
+            <if test="representative != null  and representative != ''"> and representative = #{representative}</if>
+            <if test="startupDate != null "> and startup_date = #{startupDate}</if>
+            <if test="approvedDate != null "> and approved_date = #{approvedDate}</if>
+            <if test="operStartDate != null "> and oper_start_date = #{operStartDate}</if>
+            <if test="registerBureau != null  and registerBureau != ''"> and register_bureau = #{registerBureau}</if>
+            <if test="registerStatus != null  and registerStatus != ''"> and register_status = #{registerStatus}</if>
+            <if test="registerAddress != null  and registerAddress != ''"> and register_address = #{registerAddress}</if>
+            <if test="shortName != null  and shortName != ''"> and short_name like concat('%', #{shortName}, '%')</if>
+            <if test="parentOrg != null  and parentOrg != ''"> and parent_org = #{parentOrg}</if>
+            <if test="website != null  and website != ''"> and website = #{website}</if>
+            <if test="avatar != null  and avatar != ''"> and avatar = #{avatar}</if>
+            <if test="tickerSymbol != null  and tickerSymbol != ''"> and ticker_symbol = #{tickerSymbol}</if>
+            <if test="phoneNumber != null  and phoneNumber != ''"> and phone_number = #{phoneNumber}</if>
+            <if test="industry != null  and industry != ''"> and industry = #{industry}</if>
+            <if test="territory != null  and territory != ''"> and territory = #{territory}</if>
+            <if test="owner != null  and owner != ''"> and owner = #{owner}</if>
+            <if test="employeeCount != null "> and employee_count = #{employeeCount}</if>
+            <if test="activeAccountCount != null "> and active_account_count = #{activeAccountCount}</if>
+            <if test="activeOptyCount != null "> and active_opty_count = #{activeOptyCount}</if>
+            <if test="activeOptyAmount != null "> and active_opty_amount = #{activeOptyAmount}</if>
+            <if test="revenue != null "> and revenue = #{revenue}</if>
+            <if test="registerComments != null  and registerComments != ''"> and register_comments = #{registerComments}</if>
+            <if test="isTarget != null  and isTarget != ''"> and is_target = #{isTarget}</if>
+            <if test="isCustomer != null  and isCustomer != ''"> and is_customer = #{isCustomer}</if>
+            <if test="status != null  and status != ''"> and status = #{status}</if>
+            <if test="customField != null  and customField != ''"> and custom_field = CAST(NULLIF(TRIM(#{customField}), '') AS jsonb)</if>
+            <if test="userId != null "> and user_id = #{userId}</if>
+            <if test="deptId != null "> and dept_id = #{deptId}</if>
+
+            <if test="resources != null  and resources != ''"> and resources::text like concat('%', #{resources}, '%')</if>
+            <if test="requirement != null  and requirement != ''"> and requirement::text like concat('%', #{requirement}, '%')</if>
+
+            <if test="tag != null  and tag != ''"> and tag = CAST(NULLIF(TRIM(#{tag}), '') AS jsonb)</if>
+            <if test="englishName != null  and englishName != ''"> and english_name like concat('%', #{englishName}, '%')</if>
+            <if test="stakeholders != null  and stakeholders != ''"> and stakeholders = #{stakeholders}</if>
+            <if test="changes != null  and changes != ''"> and changes = #{changes}</if>
+            <if test="rrDescription != null  and rrDescription != ''"> and rr_description = CAST(NULLIF(TRIM(#{rrDescription}), '') AS jsonb)</if>
+            <if test="funders != null  and funders != ''"> and funders = #{funders}</if>
+            <if test="fundersTitle != null  and fundersTitle != ''"> and funders_title = #{fundersTitle}</if>
+            <if test="numberOfFundingRounds != null "> and number_of_funding_rounds = #{numberOfFundingRounds}</if>
+            <if test="lastFundingType != null  and lastFundingType != ''"> and last_funding_type = #{lastFundingType}</if>
+            <if test="lastFundingDate != null "> and last_funding_date = #{lastFundingDate}</if>
+            <if test="lastFundingAmount != null "> and last_funding_amount = #{lastFundingAmount}</if>
+            <if test="totalFundingAmount != null "> and total_funding_amount = #{totalFundingAmount}</if>
+            <if test="fundingCurrency != null  and fundingCurrency != ''"> and funding_currency = #{fundingCurrency}</if>
+            <if test="shortDescription != null  and shortDescription != ''"> and short_description = #{shortDescription}</if>
+            <if test="lastFundingCurrency != null  and lastFundingCurrency != ''"> and last_funding_currency = #{lastFundingCurrency}</if>
+            <if test="topFiveInvestors != null  and topFiveInvestors != ''"> and top_five_investors = #{topFiveInvestors}</if>
+            <if test="numberOfLeadInvestors != null "> and number_of_lead_investors = #{numberOfLeadInvestors}</if>
+            <if test="numberOfInvestors != null "> and number_of_investors = #{numberOfInvestors}</if>
+            <if test="numberOfAcquisitions != null "> and number_of_acquisitions = #{numberOfAcquisitions}</if>
+            <if test="acquisitionStatus != null  and acquisitionStatus != ''"> and acquisition_status = #{acquisitionStatus}</if>
+            <if test="ipoStatus != null  and ipoStatus != ''"> and ipo_status = #{ipoStatus}</if>
+            <if test="ipoDate != null "> and ipo_date = #{ipoDate}</if>
+            <if test="lpProcess != null  and lpProcess != ''"> and lp_process = #{lpProcess}</if>
+            <if test="stage != null  and stage != ''"> and stage = #{stage}</if>
+        <!-- 数据范围过滤 -->
+        ${params.dataScope}
+        order by create_time desc
+    </select>
+
+    <select id="selectCrmOrgListWeekly" parameterType="CrmOrg" resultMap="CrmOrgResult">
+        <include refid="selectCrmOrgVo"/>
+        where 1=1
+        and to_char(o.create_time::date, 'IYYYIW') = to_char(CURRENT_DATE, 'IYYYIW')
+        <if test="uuid != null  and uuid != ''"> and uuid = #{uuid}</if>
+        <if test="category != null  and category != ''"> and category = #{category}</if>
+        <if test="registerCapital != null "> and register_capital = #{registerCapital}</if>
+        <if test="fullName != null  and fullName != ''"> and full_name like concat('%', #{fullName}, '%')</if>
+        <if test="representative != null  and representative != ''"> and representative = #{representative}</if>
+        <if test="startupDate != null "> and startup_date = #{startupDate}</if>
+        <if test="approvedDate != null "> and approved_date = #{approvedDate}</if>
+        <if test="operStartDate != null "> and oper_start_date = #{operStartDate}</if>
+        <if test="registerBureau != null  and registerBureau != ''"> and register_bureau = #{registerBureau}</if>
+        <if test="registerStatus != null  and registerStatus != ''"> and register_status = #{registerStatus}</if>
+        <if test="registerAddress != null  and registerAddress != ''"> and register_address = #{registerAddress}</if>
+        <if test="shortName != null  and shortName != ''"> and short_name like concat('%', #{shortName}, '%')</if>
+        <if test="parentOrg != null  and parentOrg != ''"> and parent_org = #{parentOrg}</if>
+        <if test="website != null  and website != ''"> and website = #{website}</if>
+        <if test="avatar != null  and avatar != ''"> and avatar = #{avatar}</if>
+        <if test="tickerSymbol != null  and tickerSymbol != ''"> and ticker_symbol = #{tickerSymbol}</if>
+        <if test="phoneNumber != null  and phoneNumber != ''"> and phone_number = #{phoneNumber}</if>
+        <if test="industry != null  and industry != ''"> and industry = #{industry}</if>
+        <if test="territory != null  and territory != ''"> and territory = #{territory}</if>
+        <if test="owner != null  and owner != ''"> and owner = #{owner}</if>
+        <if test="employeeCount != null "> and employee_count = #{employeeCount}</if>
+        <if test="activeAccountCount != null "> and active_account_count = #{activeAccountCount}</if>
+        <if test="activeOptyCount != null "> and active_opty_count = #{activeOptyCount}</if>
+        <if test="activeOptyAmount != null "> and active_opty_amount = #{activeOptyAmount}</if>
+        <if test="revenue != null "> and revenue = #{revenue}</if>
+        <if test="registerComments != null  and registerComments != ''"> and register_comments = #{registerComments}</if>
+        <if test="isTarget != null  and isTarget != ''"> and is_target = #{isTarget}</if>
+        <if test="isCustomer != null  and isCustomer != ''"> and is_customer = #{isCustomer}</if>
+        <if test="status != null  and status != ''"> and status = #{status}</if>
+        <if test="customField != null  and customField != ''"> and custom_field = CAST(NULLIF(TRIM(#{customField}), '') AS jsonb)</if>
+        <if test="userId != null "> and user_id = #{userId}</if>
+        <if test="deptId != null "> and dept_id = #{deptId}</if>
+        <if test="resources != null  and resources != ''"> and resources = CAST(NULLIF(TRIM(#{resources}), '') AS jsonb)</if>
+        <if test="requirement != null  and requirement != ''"> and requirement::text like concat('%', #{requirement}, '%')</if>
+        <if test="tag != null  and tag != ''"> and tag = CAST(NULLIF(TRIM(#{tag}), '') AS jsonb)</if>
+        <if test="englishName != null  and englishName != ''"> and english_name like concat('%', #{englishName}, '%')</if>
+        <if test="stakeholders != null  and stakeholders != ''"> and stakeholders = #{stakeholders}</if>
+        <if test="changes != null  and changes != ''"> and changes = #{changes}</if>
+        <if test="rrDescription != null  and rrDescription != ''"> and rr_description = CAST(NULLIF(TRIM(#{rrDescription}), '') AS jsonb)</if>
+        <if test="funders != null  and funders != ''"> and funders = #{funders}</if>
+        <if test="fundersTitle != null  and fundersTitle != ''"> and funders_title = #{fundersTitle}</if>
+        <if test="numberOfFundingRounds != null "> and number_of_funding_rounds = #{numberOfFundingRounds}</if>
+        <if test="lastFundingType != null  and lastFundingType != ''"> and last_funding_type = #{lastFundingType}</if>
+        <if test="lastFundingDate != null "> and last_funding_date = #{lastFundingDate}</if>
+        <if test="lastFundingAmount != null "> and last_funding_amount = #{lastFundingAmount}</if>
+        <if test="totalFundingAmount != null "> and total_funding_amount = #{totalFundingAmount}</if>
+        <if test="fundingCurrency != null  and fundingCurrency != ''"> and funding_currency = #{fundingCurrency}</if>
+        <if test="shortDescription != null  and shortDescription != ''"> and short_description = #{shortDescription}</if>
+        <if test="lastFundingCurrency != null  and lastFundingCurrency != ''"> and last_funding_currency = #{lastFundingCurrency}</if>
+        <if test="topFiveInvestors != null  and topFiveInvestors != ''"> and top_five_investors = #{topFiveInvestors}</if>
+        <if test="numberOfLeadInvestors != null "> and number_of_lead_investors = #{numberOfLeadInvestors}</if>
+        <if test="numberOfInvestors != null "> and number_of_investors = #{numberOfInvestors}</if>
+        <if test="numberOfAcquisitions != null "> and number_of_acquisitions = #{numberOfAcquisitions}</if>
+        <if test="acquisitionStatus != null  and acquisitionStatus != ''"> and acquisition_status = #{acquisitionStatus}</if>
+        <if test="ipoStatus != null  and ipoStatus != ''"> and ipo_status = #{ipoStatus}</if>
+        <if test="ipoDate != null "> and ipo_date = #{ipoDate}</if>
+        <if test="lpProcess != null  and lpProcess != ''"> and lp_process = #{lpProcess}</if>
+        <if test="stage != null  and stage != ''"> and stage = #{stage}</if>
+
+        <!-- 数据范围过滤 -->
+        ${params.dataScope}
+    </select>
+    <select id="selectCrmOrgByOrgId" parameterType="String" resultMap="CrmOrgResult">
+        <include refid="selectCrmOrgVo"/>
+        where org_id = #{orgId}
+    </select>
+        
+    <insert id="insertCrmOrg" parameterType="CrmOrg">
+        insert into crm_org
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="orgId != null">org_id,</if>
+            <if test="uuid != null">uuid,</if>
+            <if test="category != null">category,</if>
+            <if test="registerCapital != null">register_capital,</if>
+            <if test="fullName != null">full_name,</if>
+            <if test="representative != null">representative,</if>
+            <if test="startupDate != null">startup_date,</if>
+            <if test="approvedDate != null">approved_date,</if>
+            <if test="operStartDate != null">oper_start_date,</if>
+            <if test="registerBureau != null">register_bureau,</if>
+            <if test="registerStatus != null">register_status,</if>
+            <if test="registerAddress != null">register_address,</if>
+            <if test="shortName != null">short_name,</if>
+            <if test="parentOrg != null">parent_org,</if>
+            <if test="website != null">website,</if>
+            <if test="avatar != null">avatar,</if>
+            <if test="tickerSymbol != null">ticker_symbol,</if>
+            <if test="phoneNumber != null">phone_number,</if>
+            <if test="industry != null">industry,</if>
+            <if test="territory != null">territory,</if>
+            <if test="owner != null">owner,</if>
+            <if test="employeeCount != null">employee_count,</if>
+            <if test="activeAccountCount != null">active_account_count,</if>
+            <if test="activeOptyCount != null">active_opty_count,</if>
+            <if test="activeOptyAmount != null">active_opty_amount,</if>
+            <if test="revenue != null">revenue,</if>
+            <if test="registerComments != null">register_comments,</if>
+            <if test="isTarget != null">is_target,</if>
+            <if test="isCustomer != null">is_customer,</if>
+            <if test="status != null">status,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="customField != null">custom_field,</if>
+            <if test="userId != null">user_id,</if>
+            <if test="deptId != null">dept_id,</if>
+            <if test="resources != null">resources,</if>
+            <if test="requirement != null">requirement,</if>
+            <if test="tag != null">tag,</if>
+            <if test="englishName != null">english_name,</if>
+            <if test="stakeholders != null">stakeholders,</if>
+            <if test="changes != null">changes,</if>
+            <if test="rrDescription != null">rr_description,</if>
+            <if test="funders != null">funders,</if>
+            <if test="fundersTitle != null">funders_title,</if>
+            <if test="numberOfFundingRounds != null">number_of_funding_rounds,</if>
+            <if test="lastFundingType != null">last_funding_type,</if>
+            <if test="lastFundingDate != null">last_funding_date,</if>
+            <if test="lastFundingAmount != null">last_funding_amount,</if>
+            <if test="totalFundingAmount != null">total_funding_amount,</if>
+            <if test="fundingCurrency != null">funding_currency,</if>
+            <if test="shortDescription != null">short_description,</if>
+            <if test="lastFundingCurrency != null">last_funding_currency,</if>
+            <if test="topFiveInvestors != null">top_five_investors,</if>
+            <if test="numberOfLeadInvestors != null">number_of_lead_investors,</if>
+            <if test="numberOfInvestors != null">number_of_investors,</if>
+            <if test="numberOfAcquisitions != null">number_of_acquisitions,</if>
+            <if test="acquisitionStatus != null">acquisition_status,</if>
+            <if test="ipoStatus != null">ipo_status,</if>
+            <if test="ipoDate != null">ipo_date,</if>
+            <if test="lpProcess != null">lp_process,</if>
+            <if test="stage != null">stage,</if>
+            <if test="latestValue != null">latest_value,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="orgId != null">#{orgId},</if>
+            <if test="uuid != null">#{uuid},</if>
+            <if test="category != null">#{category},</if>
+            <if test="registerCapital != null">#{registerCapital},</if>
+            <if test="fullName != null">#{fullName},</if>
+            <if test="representative != null">#{representative},</if>
+            <if test="startupDate != null">#{startupDate},</if>
+            <if test="approvedDate != null">#{approvedDate},</if>
+            <if test="operStartDate != null">#{operStartDate},</if>
+            <if test="registerBureau != null">#{registerBureau},</if>
+            <if test="registerStatus != null">#{registerStatus},</if>
+            <if test="registerAddress != null">#{registerAddress},</if>
+            <if test="shortName != null">#{shortName},</if>
+            <if test="parentOrg != null">#{parentOrg},</if>
+            <if test="website != null">#{website},</if>
+            <if test="avatar != null">#{avatar},</if>
+            <if test="tickerSymbol != null">#{tickerSymbol},</if>
+            <if test="phoneNumber != null">#{phoneNumber},</if>
+            <if test="industry != null">#{industry},</if>
+            <if test="territory != null">#{territory},</if>
+            <if test="owner != null">#{owner},</if>
+            <if test="employeeCount != null">#{employeeCount},</if>
+            <if test="activeAccountCount != null">#{activeAccountCount},</if>
+            <if test="activeOptyCount != null">#{activeOptyCount},</if>
+            <if test="activeOptyAmount != null">#{activeOptyAmount},</if>
+            <if test="revenue != null">#{revenue},</if>
+            <if test="registerComments != null">#{registerComments},</if>
+            <if test="isTarget != null">#{isTarget},</if>
+            <if test="isCustomer != null">#{isCustomer},</if>
+            <if test="status != null">#{status},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="customField != null">CAST(NULLIF(TRIM(#{customField}), '') AS jsonb),</if>
+            <if test="userId != null">#{userId},</if>
+            <if test="deptId != null">#{deptId},</if>
+            <if test="resources != null">CAST(NULLIF(TRIM(#{resources}), '') AS jsonb),</if>
+            <if test="requirement != null">CAST(NULLIF(TRIM(#{requirement}), '') AS jsonb),</if>
+            <if test="tag != null">CAST(NULLIF(TRIM(#{tag}), '') AS jsonb),</if>
+            <if test="englishName != null">#{englishName},</if>
+            <if test="stakeholders != null">#{stakeholders},</if>
+            <if test="changes != null">#{changes},</if>
+            <if test="rrDescription != null">CAST(NULLIF(TRIM(#{rrDescription}), '') AS jsonb),</if>
+            <if test="funders != null">#{funders},</if>
+            <if test="fundersTitle != null">#{fundersTitle},</if>
+            <if test="numberOfFundingRounds != null">#{numberOfFundingRounds},</if>
+            <if test="lastFundingType != null">#{lastFundingType},</if>
+            <if test="lastFundingDate != null">#{lastFundingDate},</if>
+            <if test="lastFundingAmount != null">#{lastFundingAmount},</if>
+            <if test="totalFundingAmount != null">#{totalFundingAmount},</if>
+            <if test="fundingCurrency != null">#{fundingCurrency},</if>
+            <if test="shortDescription != null">#{shortDescription},</if>
+            <if test="lastFundingCurrency != null">#{lastFundingCurrency},</if>
+            <if test="topFiveInvestors != null">#{topFiveInvestors},</if>
+            <if test="numberOfLeadInvestors != null">#{numberOfLeadInvestors},</if>
+            <if test="numberOfInvestors != null">#{numberOfInvestors},</if>
+            <if test="numberOfAcquisitions != null">#{numberOfAcquisitions},</if>
+            <if test="acquisitionStatus != null">#{acquisitionStatus},</if>
+            <if test="ipoStatus != null">#{ipoStatus},</if>
+            <if test="ipoDate != null">#{ipoDate},</if>
+            <if test="lpProcess != null">#{lpProcess},</if>
+            <if test="stage != null">#{stage},</if>
+            <if test="latestValue != null">#{latestValue},</if>
+         </trim>
+    </insert>
+
+    <update id="updateCrmOrg" parameterType="CrmOrg">
+        update crm_org
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="uuid != null">uuid = #{uuid},</if>
+            <if test="category != null">category = #{category},</if>
+            <if test="registerCapital != null">register_capital = #{registerCapital},</if>
+            <if test="fullName != null">full_name = #{fullName},</if>
+            <if test="representative != null">representative = #{representative},</if>
+            <if test="startupDate != null">startup_date = #{startupDate},</if>
+            <if test="approvedDate != null">approved_date = #{approvedDate},</if>
+            <if test="operStartDate != null">oper_start_date = #{operStartDate},</if>
+            <if test="registerBureau != null">register_bureau = #{registerBureau},</if>
+            <if test="registerStatus != null">register_status = #{registerStatus},</if>
+            <if test="registerAddress != null">register_address = #{registerAddress},</if>
+            <if test="shortName != null">short_name = #{shortName},</if>
+            <if test="parentOrg != null">parent_org = #{parentOrg},</if>
+            <if test="website != null">website = #{website},</if>
+            <if test="avatar != null">avatar = #{avatar},</if>
+            <if test="tickerSymbol != null">ticker_symbol = #{tickerSymbol},</if>
+            <if test="phoneNumber != null">phone_number = #{phoneNumber},</if>
+            <if test="industry != null">industry = #{industry},</if>
+            <if test="territory != null">territory = #{territory},</if>
+            <if test="owner != null">owner = #{owner},</if>
+            <if test="employeeCount != null">employee_count = #{employeeCount},</if>
+            <if test="activeAccountCount != null">active_account_count = #{activeAccountCount},</if>
+            <if test="activeOptyCount != null">active_opty_count = #{activeOptyCount},</if>
+            <if test="activeOptyAmount != null">active_opty_amount = #{activeOptyAmount},</if>
+            <if test="revenue != null">revenue = #{revenue},</if>
+            <if test="registerComments != null">register_comments = #{registerComments},</if>
+            <if test="isTarget != null">is_target = #{isTarget},</if>
+            <if test="isCustomer != null">is_customer = #{isCustomer},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="customField != null">custom_field = CAST(NULLIF(TRIM(#{customField}), '') AS jsonb),</if>
+            <if test="userId != null">user_id = #{userId},</if>
+            <if test="deptId != null">dept_id = #{deptId},</if>
+            <if test="resources != null">resources = CAST(NULLIF(TRIM(#{resources}), '') AS jsonb),</if>
+            <if test="requirement != null">requirement = CAST(NULLIF(TRIM(#{requirement}), '') AS jsonb),</if>
+            <if test="tag != null">tag = CAST(NULLIF(TRIM(#{tag}), '') AS jsonb),</if>
+            <if test="englishName != null">english_name = #{englishName},</if>
+            <if test="stakeholders != null">stakeholders = #{stakeholders},</if>
+            <if test="changes != null">changes = #{changes},</if>
+            <if test="rrDescription != null">rr_description = CAST(NULLIF(TRIM(#{rrDescription}), '') AS jsonb),</if>
+            <if test="funders != null">funders = #{funders},</if>
+            <if test="fundersTitle != null">funders_title = #{fundersTitle},</if>
+            <if test="numberOfFundingRounds != null">number_of_funding_rounds = #{numberOfFundingRounds},</if>
+            <if test="lastFundingType != null">last_funding_type = #{lastFundingType},</if>
+            <if test="lastFundingDate != null">last_funding_date = #{lastFundingDate},</if>
+            <if test="lastFundingAmount != null">last_funding_amount = #{lastFundingAmount},</if>
+            <if test="totalFundingAmount != null">total_funding_amount = #{totalFundingAmount},</if>
+            <if test="fundingCurrency != null">funding_currency = #{fundingCurrency},</if>
+            <if test="shortDescription != null">short_description = #{shortDescription},</if>
+            <if test="lastFundingCurrency != null">last_funding_currency = #{lastFundingCurrency},</if>
+            <if test="topFiveInvestors != null">top_five_investors = #{topFiveInvestors},</if>
+            <if test="numberOfLeadInvestors != null">number_of_lead_investors = #{numberOfLeadInvestors},</if>
+            <if test="numberOfInvestors != null">number_of_investors = #{numberOfInvestors},</if>
+            <if test="numberOfAcquisitions != null">number_of_acquisitions = #{numberOfAcquisitions},</if>
+            <if test="acquisitionStatus != null">acquisition_status = #{acquisitionStatus},</if>
+            <if test="ipoStatus != null">ipo_status = #{ipoStatus},</if>
+            <if test="ipoDate != null">ipo_date = #{ipoDate},</if>
+            <if test="lpProcess != null">lp_process = #{lpProcess},</if>
+            <if test="stage != null">stage = #{stage},</if>
+            <if test="latestValue != null">latest_value = #{latestValue},</if>
+        </trim>
+        where org_id = #{orgId}
+    </update>
+
+    <delete id="deleteCrmOrgByOrgId" parameterType="String">
+        delete from crm_org where org_id = #{orgId}
+    </delete>
+
+    <delete id="deleteCrmOrgByOrgIds" parameterType="String">
+        delete from crm_org where org_id in 
+        <foreach item="orgId" collection="array" open="(" separator="," close=")">
+            #{orgId}
+        </foreach>
+    </delete>
+</mapper>

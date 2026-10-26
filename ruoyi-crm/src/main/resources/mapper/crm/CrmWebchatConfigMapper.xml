@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmWebchatConfigMapper">
+
+    <resultMap id="CrmWebchatConfigResult" type="com.ruoyi.crm.domain.CrmWebchatConfig">
+        <id property="id" column="id"/>
+        <result property="tenantId" column="tenant_id"/>
+        <result property="websiteToken" column="website_token"/>
+        <result property="enabled" column="enabled"/>
+        <result property="displayName" column="display_name"/>
+        <result property="logoUrl" column="logo_url"/>
+        <result property="welcomeMessage" column="welcome_message"/>
+        <result property="themeColor" column="theme_color"/>
+        <result property="position" column="position"/>
+        <result property="allowedDomains" column="allowed_domains"/>
+        <result property="aiEnabled" column="ai_enabled"/>
+        <result property="offlineMessage" column="offline_message"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <sql id="selectColumns">
+        id, tenant_id, website_token, enabled, display_name, logo_url, welcome_message,
+        theme_color, position, allowed_domains, ai_enabled, offline_message,
+        create_by, create_time, update_by, update_time
+    </sql>
+
+    <select id="selectByTenantId" resultMap="CrmWebchatConfigResult">
+        SELECT <include refid="selectColumns"/>
+        FROM crm_webchat_config
+        WHERE tenant_id = #{tenantId}
+        LIMIT 1
+    </select>
+
+    <select id="selectByWebsiteToken" resultMap="CrmWebchatConfigResult">
+        SELECT <include refid="selectColumns"/>
+        FROM crm_webchat_config
+        WHERE website_token = #{websiteToken}
+        LIMIT 1
+    </select>
+
+    <insert id="insertOrUpdate" parameterType="com.ruoyi.crm.domain.CrmWebchatConfig"
+            useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO crm_webchat_config (
+            tenant_id, website_token, enabled, display_name, logo_url, welcome_message,
+            theme_color, position, allowed_domains, ai_enabled, offline_message,
+            create_by, create_time, update_by, update_time
+        ) VALUES (
+            #{tenantId}, #{websiteToken}, COALESCE(#{enabled}, 1), #{displayName}, #{logoUrl}, #{welcomeMessage},
+            #{themeColor}, COALESCE(#{position}, 'bottom-right'), COALESCE(#{allowedDomains}, '[]'),
+            COALESCE(#{aiEnabled}, 0), #{offlineMessage},
+            #{createBy}, #{createTime}, #{updateBy}, #{updateTime}
+        )
+        ON CONFLICT (tenant_id) DO UPDATE SET
+            enabled = EXCLUDED.enabled,
+            display_name = EXCLUDED.display_name,
+            logo_url = EXCLUDED.logo_url,
+            welcome_message = EXCLUDED.welcome_message,
+            theme_color = EXCLUDED.theme_color,
+            position = EXCLUDED.position,
+            allowed_domains = EXCLUDED.allowed_domains,
+            ai_enabled = EXCLUDED.ai_enabled,
+            offline_message = EXCLUDED.offline_message,
+            update_by = EXCLUDED.update_by,
+            update_time = EXCLUDED.update_time
+    </insert>
+
+    <update id="updateWebsiteToken">
+        UPDATE crm_webchat_config
+        SET website_token = #{websiteToken},
+            update_by = #{updateBy},
+            update_time = now()
+        WHERE tenant_id = #{tenantId}
+    </update>
+</mapper>

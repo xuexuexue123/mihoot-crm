@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.ems.mapper.SysAudittrailMapper">
+    
+    <resultMap type="SysAudittrail" id="SysAudittrailResult">
+        <result property="id"    column="id"    />
+        <result property="pyCaseId"    column="py_case_id"    />
+        <result property="type"    column="type"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="userId"    column="user_id"    />
+        <result property="taskId"    column="task_id"    />
+        <result property="procInstId"    column="proc_inst_id"    />
+        <result property="action"    column="action"    />
+        <result property="message"    column="message"    />
+    </resultMap>
+
+    <sql id="selectSysAudittrailVo">
+        select id, py_case_id, type, create_time, user_id, task_id, proc_inst_id, action, message from sys_hi_audittrail
+    </sql>
+
+    <select id="selectSysAudittrailList" parameterType="SysAudittrail" resultMap="SysAudittrailResult">
+        <include refid="selectSysAudittrailVo"/>
+        <where>  
+            <if test="pyCaseId != null  and pyCaseId != ''"> and py_case_id = CONCAT('', #{pyCaseId})</if>
+            <if test="type != null  and type != ''"> and type = #{type}</if>
+            <if test="userId != null  and userId != ''"> and user_id = #{userId}</if>
+            <if test="taskId != null  and taskId != ''"> and task_id = #{taskId}</if>
+            <if test="procInstId != null  and procInstId != ''"> and proc_inst_id = #{procInstId}</if>
+            <if test="action != null  and action != ''"> and action = #{action}</if>
+            <if test="message != null  and message != ''"> and message = #{message}</if>
+        </where>
+    </select>
+    
+    <select id="selectSysAudittrailById" parameterType="String" resultMap="SysAudittrailResult">
+        <include refid="selectSysAudittrailVo"/>
+        where id = #{id}
+    </select>
+
+    <select id="selectSysAudittrailByCaseId" parameterType="String" resultMap="SysAudittrailResult">
+        SELECT a.id, a.py_case_id, a.type, a.create_time, b.nick_name as user_id, a.task_id, a.proc_inst_id, a.action, a.message
+        FROM sys_hi_audittrail a
+                 left join sys_user b
+                           on CONCAT('', a.user_id) = CONCAT('', b.user_id)
+        WHERE a.py_case_id = CONCAT('', #{pyCaseId})
+        order by a.create_time asc
+    </select>
+
+    <select id="selectSysAudittrailByCaseStatus" parameterType="String" resultMap="SysAudittrailResult">
+        <include refid="selectSysAudittrailVo"/>
+        where action = 'CASE_COMPLETED' and py_case_id = CONCAT('', #{pyCaseId})
+    </select>
+        
+    <insert id="insertSysAudittrail" parameterType="SysAudittrail">
+        insert into sys_hi_audittrail
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">id,</if>
+            <if test="pyCaseId != null">py_case_id,</if>
+            <if test="type != null">type,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="userId != null">user_id,</if>
+            <if test="taskId != null">task_id,</if>
+            <if test="procInstId != null">proc_inst_id,</if>
+            <if test="action != null">action,</if>
+            <if test="message != null">message,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">#{id},</if>
+            <if test="pyCaseId != null">#{pyCaseId},</if>
+            <if test="type != null">#{type},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="userId != null">#{userId},</if>
+            <if test="taskId != null">#{taskId},</if>
+            <if test="procInstId != null">#{procInstId},</if>
+            <if test="action != null">#{action},</if>
+            <if test="message != null">#{message},</if>
+         </trim>
+    </insert>
+
+    <update id="updateSysAudittrail" parameterType="SysAudittrail">
+        update sys_hi_audittrail
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="pyCaseId != null">py_case_id = #{pyCaseId},</if>
+            <if test="type != null">type = #{type},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="userId != null">user_id = #{userId},</if>
+            <if test="taskId != null">task_id = #{taskId},</if>
+            <if test="procInstId != null">proc_inst_id = #{procInstId},</if>
+            <if test="action != null">action = #{action},</if>
+            <if test="message != null">message = #{message},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteSysAudittrailById" parameterType="String">
+        delete from sys_hi_audittrail where id = #{id}
+    </delete>
+
+    <delete id="deleteSysAudittrailByIds" parameterType="String">
+        delete from sys_hi_audittrail where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <select id="getCaseIdByExecutionId" parameterType="String" resultType="String">
+        SELECT * FROM ACT_RU_EXECUTION
+        where id_ = (SELECT PARENT_ID_ FROM fuegoems.ACT_RU_EXECUTION where id_=#{executionId})
+    </select>
+
+</mapper>

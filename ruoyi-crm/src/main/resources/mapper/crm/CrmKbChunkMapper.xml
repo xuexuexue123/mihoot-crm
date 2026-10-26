@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmKbChunkMapper">
+
+    <delete id="deleteByDocumentId">
+        delete from crm_kb_chunk where document_id = #{documentId}
+    </delete>
+
+    <select id="countByDocumentId" resultType="int">
+        select count(*) from crm_kb_chunk where document_id = #{documentId}
+    </select>
+
+    <insert id="insertBatch">
+        insert into crm_kb_chunk (chunk_id, document_id, chunk_index, chunk_text, token_estimate, metadata, embedding, create_time)
+        values
+        <foreach item="item" collection="list" separator=",">
+            (#{item.chunkId}, #{item.documentId}, #{item.chunkIndex}, #{item.chunkText}, #{item.tokenEstimate},
+             CAST(COALESCE(NULLIF(TRIM(#{item.metadata,jdbcType=VARCHAR}), ''), '{}') AS jsonb),
+             CAST(#{item.embedding} AS vector),
+             CURRENT_TIMESTAMP)
+        </foreach>
+    </insert>
+
+    <select id="retrieve" resultType="com.ruoyi.crm.domain.vo.KbRetrieveHitVo">
+        select c.chunk_id AS "chunkId",
+               c.document_id AS "documentId",
+               d.title AS "title",
+               d.category AS "category",
+               d.source_type AS "sourceType",
+               d.source_id AS "sourceId",
+               c.chunk_text AS "chunkText",
+               1 - (c.embedding &lt;=&gt; CAST(#{queryVector} AS vector)) AS "score"
+        from crm_kb_chunk c
+        join crm_kb_document d on d.document_id = c.document_id
+        where d.status = 'published'
+          and d.del_flag = '0'
+          and d.index_status = 'indexed'
+          <if test="categories != null and categories.size() > 0">
+            and d.category in
+            <foreach item="cat" collection="categories" open="(" separator="," close=")">
+                #{cat}
+            </foreach>
+          </if>
+          and 1 - (c.embedding &lt;=&gt; CAST(#{queryVector} AS vector)) &gt;= #{minScore}
+        order by c.embedding &lt;=&gt; CAST(#{queryVector} AS vector)
+        limit #{topK}
+    </select>
+</mapper>

@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmSurveyresultMapper">
+    
+    <resultMap type="CrmSurveyresult" id="CrmSurveyresultResult">
+        <result property="resultId"    column="result_id"    />
+        <result property="templateId"    column="template_id"    />
+        <result property="templateName"    column="template_name"    />
+        <result property="relateId"    column="relate_id"    />
+        <result property="relateType"    column="relate_type"    />
+        <result property="relateName"    column="relate_name"    />
+        <result property="surveyName"    column="survey_name"    />
+        <result property="surveyAttachment"    column="survey_attachment"    />
+        <result property="surveyResult"    column="survey_result"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectCrmSurveyresultVo">
+        select result_id, template_id, template_name, relate_id, relate_type, relate_name, survey_name, survey_attachment, survey_result, create_by, create_time, update_by, update_time from crm_surveyresult
+    </sql>
+
+    <select id="selectCrmSurveyresultList" parameterType="CrmSurveyresult" resultMap="CrmSurveyresultResult">
+        <include refid="selectCrmSurveyresultVo"/>
+        <where>  
+            <if test="templateId != null  and templateId != ''"> and template_id = #{templateId}</if>
+            <if test="templateName != null  and templateName != ''"> and template_name like concat('%', #{templateName}, '%')</if>
+            <if test="relateId != null  and relateId != ''"> and relate_id = #{relateId}</if>
+            <if test="relateType != null  and relateType != ''"> and relate_type = #{relateType}</if>
+            <if test="relateName != null  and relateName != ''"> and relate_name like concat('%', #{relateName}, '%')</if>
+            <if test="surveyName != null  and surveyName != ''"> and survey_name like concat('%', #{surveyName}, '%')</if>
+            <if test="surveyAttachment != null  and surveyAttachment != ''"> and survey_attachment = #{surveyAttachment}</if>
+            <if test="surveyResult != null  and surveyResult != ''"> and survey_result = CAST(NULLIF(TRIM(#{surveyResult}), '') AS jsonb)</if>
+        </where>
+    </select>
+    
+    <select id="selectCrmSurveyresultByResultId" parameterType="String" resultMap="CrmSurveyresultResult">
+        <include refid="selectCrmSurveyresultVo"/>
+        where result_id = #{resultId}
+    </select>
+        
+    <insert id="insertCrmSurveyresult" parameterType="CrmSurveyresult">
+        insert into crm_surveyresult
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="resultId != null">result_id,</if>
+            <if test="templateId != null">template_id,</if>
+            <if test="templateName != null">template_name,</if>
+            <if test="relateId != null">relate_id,</if>
+            <if test="relateType != null">relate_type,</if>
+            <if test="relateName != null">relate_name,</if>
+            <if test="surveyName != null">survey_name,</if>
+            <if test="surveyAttachment != null">survey_attachment,</if>
+            <if test="surveyResult != null">survey_result,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="resultId != null">#{resultId},</if>
+            <if test="templateId != null">#{templateId},</if>
+            <if test="templateName != null">#{templateName},</if>
+            <if test="relateId != null">#{relateId},</if>
+            <if test="relateType != null">#{relateType},</if>
+            <if test="relateName != null">#{relateName},</if>
+            <if test="surveyName != null">#{surveyName},</if>
+            <if test="surveyAttachment != null">#{surveyAttachment},</if>
+            <if test="surveyResult != null">CAST(NULLIF(TRIM(#{surveyResult}), '') AS jsonb),</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateCrmSurveyresult" parameterType="CrmSurveyresult">
+        update crm_surveyresult
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="templateId != null">template_id = #{templateId},</if>
+            <if test="templateName != null">template_name = #{templateName},</if>
+            <if test="relateId != null">relate_id = #{relateId},</if>
+            <if test="relateType != null">relate_type = #{relateType},</if>
+            <if test="relateName != null">relate_name = #{relateName},</if>
+            <if test="surveyName != null">survey_name = #{surveyName},</if>
+            <if test="surveyAttachment != null">survey_attachment = #{surveyAttachment},</if>
+            <if test="surveyResult != null">survey_result = CAST(NULLIF(TRIM(#{surveyResult}), '') AS jsonb),</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where result_id = #{resultId}
+    </update>
+
+    <delete id="deleteCrmSurveyresultByResultId" parameterType="String">
+        delete from crm_surveyresult where result_id = #{resultId}
+    </delete>
+
+    <delete id="deleteCrmSurveyresultByResultIds" parameterType="String">
+        delete from crm_surveyresult where result_id in 
+        <foreach item="resultId" collection="array" open="(" separator="," close=")">
+            #{resultId}
+        </foreach>
+    </delete>
+</mapper>

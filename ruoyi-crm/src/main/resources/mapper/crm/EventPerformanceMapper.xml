@@ -1,0 +1,362 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.EventPerformanceMapper">
+
+    <sql id="mpAttributedContactSubquery">
+        SELECT DISTINCT f.contact_id
+        FROM crm_wechat_mp_fan f
+        INNER JOIN crm_activity a ON (
+            a.context->>'openid' = f.open_id
+            OR a.context->>'open_id' = f.open_id
+            OR a.payload->>'open_id' = f.open_id
+            OR a.payload->>'openId' = f.open_id
+        )
+        WHERE f.contact_id IS NOT NULL AND f.contact_id != ''
+          AND a.channel = 'wechat_mp'
+          AND (
+              a.context->>'crm_event_id' = #{eventId}
+              OR EXISTS (
+                  SELECT 1 FROM crm_wechat_mp_qrcode q
+                  WHERE q.crm_event_id = #{eventId}
+                    AND (
+                        a.context->>'qr_code_id' = q.id::text
+                        OR a.context->>'scene_str' = q.scene_str
+                        OR a.payload->>'event_key' = 'qrscene_' || q.scene_str
+                        OR a.payload->>'scene_str' = q.scene_str
+                    )
+              )
+          )
+    </sql>
+
+    <select id="selectAttributedContactIds" resultType="java.lang.String">
+        SELECT DISTINCT contact_id FROM (
+            SELECT ch.target_id AS contact_id
+            FROM crm_conversion_history ch
+            INNER JOIN crm_lead l ON l.lead_id = ch.lead_id
+            WHERE l.sid = #{eventId}
+              AND ch.conversion_type = 'Contact'
+              AND ch.target_id IS NOT NULL
+              AND ch.target_id != ''
+            UNION
+            SELECT ec.crm_contact_id AS contact_id
+            FROM crm_wecom_external_contact ec
+            WHERE ec.crm_event_id = #{eventId}
+              AND ec.crm_contact_id IS NOT NULL
+              AND ec.crm_contact_id != ''
+            UNION
+            <include refid="mpAttributedContactSubquery"/>
+        ) attributed
+        WHERE contact_id IS NOT NULL AND contact_id != ''
+    </select>
+
+    <select id="selectMpAttributedContactIds" resultType="java.lang.String">
+        <include refid="mpAttributedContactSubquery"/>
+    </select>
+
+    <select id="selectH5AttributedContactIds" resultType="java.lang.String">
+        SELECT DISTINCT ch.target_id
+        FROM crm_conversion_history ch
+        INNER JOIN crm_lead l ON l.lead_id = ch.lead_id
+        WHERE l.sid = #{eventId}
+          AND ch.conversion_type = 'Contact'
+          AND ch.target_id IS NOT NULL
+          AND ch.target_id != ''
+    </select>
+
+    <resultMap id="WecomChannelContactRowResult" type="com.ruoyi.crm.service.support.WecomChannelContactRow">
+        <result property="externalUserid" column="external_userid"/>
+        <result property="state" column="state"/>
+        <result property="crmContactId" column="crm_contact_id"/>
+        <result property="crmLeadId" column="crm_lead_id"/>
+        <result property="leadStatus" column="lead_status"/>
+    </resultMap>
+
+    <select id="selectWecomContactsByEvent" resultMap="WecomChannelContactRowResult">
+        SELECT DISTINCT ON (w.external_userid)
+               w.external_userid, w.state, w.crm_contact_id, w.crm_lead_id, ld.status AS lead_status
+        FROM crm_wecom_external_contact w
+        LEFT JOIN crm_lead ld ON ld.lead_id = w.crm_lead_id
+        WHERE w.crm_event_id = #{eventId}
+        ORDER BY w.external_userid, w.create_time ASC
+    </select>
+
+    <resultMap id="EventTrendDailyRowResult" type="com.ruoyi.crm.service.support.EventTrendDailyRow">
+        <result property="bucketDate" column="bucket_date"/>
+        <result property="count" column="cnt"/>
+    </resultMap>
+
+    <select id="selectTrendTouchDaily" resultMap="EventTrendDailyRowResult">
+        SELECT bucket_date::text AS bucket_date, SUM(cnt)::integer AS cnt FROM (
+            SELECT DATE(l.create_time) AS bucket_date, COUNT(*)::integer AS cnt
+            FROM crm_lead l
+            WHERE l.sid = #{eventId}
+              AND l.create_time &gt;= #{dateFrom} AND l.create_time &lt;= #{dateTo}
+            GROUP BY DATE(l.create_time)
+            UNION ALL
+            SELECT DATE(w.create_time), COUNT(*)::integer
+            FROM crm_wecom_external_contact w
+            WHERE w.crm_event_id = #{eventId}
+              AND w.create_time &gt;= #{dateFrom} AND w.create_time &lt;= #{dateTo}
+            GROUP BY DATE(w.create_time)
+            UNION ALL
+            SELECT DATE(a.started_date), COUNT(*)::integer
+            FROM crm_activity a
+            WHERE a.channel = 'wechat_mp'
+              AND a.event_type IN ('channel.wechat_mp.follow', 'channel.wechat_mp.scan')
+              AND a.started_date &gt;= #{dateFrom} AND a.started_date &lt;= #{dateTo}
+              AND (
+                  a.context->>'crm_event_id' = #{eventId}
+                  OR EXISTS (
+                      SELECT 1 FROM crm_wechat_mp_qrcode q
+                      WHERE q.crm_event_id = #{eventId}
+                        AND (
+                            a.context->>'scene_str' = q.scene_str
+                            OR a.payload->>'event_key' = 'qrscene_' || q.scene_str
+                        )
+                  )
+              )
+            GROUP BY DATE(a.started_date)
+        ) sub GROUP BY bucket_date ORDER BY bucket_date
+    </select>
+
+    <select id="selectTrendH5RegistrationDaily" resultMap="EventTrendDailyRowResult">
+        SELECT DATE(l.create_time)::text AS bucket_date, COUNT(*)::integer AS cnt
+        FROM crm_lead l
+        WHERE l.sid = #{eventId}
+          AND l.create_time &gt;= #{dateFrom} AND l.create_time &lt;= #{dateTo}
+        GROUP BY DATE(l.create_time)
+        ORDER BY bucket_date
+    </select>
+
+    <select id="selectTrendLeadReleasedDaily" resultMap="EventTrendDailyRowResult">
+        SELECT bucket_date::text AS bucket_date, SUM(cnt)::integer AS cnt FROM (
+            SELECT DATE(ch.create_time) AS bucket_date, COUNT(DISTINCT ch.lead_id)::integer AS cnt
+            FROM crm_conversion_history ch
+            WHERE ch.target_id = #{eventId}
+              AND ch.conversion_type = 'Marketing Event'
+              AND ch.create_time &gt;= #{dateFrom} AND ch.create_time &lt;= #{dateTo}
+            GROUP BY DATE(ch.create_time)
+            UNION ALL
+            SELECT DATE(COALESCE(l.update_time, l.create_time)), COUNT(*)::integer
+            FROM crm_lead l
+            WHERE l.sid = #{eventId}
+              AND LOWER(TRIM(l.status)) != 'initial'
+              AND COALESCE(l.update_time, l.create_time) &gt;= #{dateFrom}
+              AND COALESCE(l.update_time, l.create_time) &lt;= #{dateTo}
+              AND NOT EXISTS (
+                  SELECT 1 FROM crm_conversion_history ch2
+                  WHERE ch2.lead_id = l.lead_id
+                    AND ch2.target_id = #{eventId}
+                    AND ch2.conversion_type = 'Marketing Event'
+              )
+            GROUP BY DATE(COALESCE(l.update_time, l.create_time))
+        ) sub GROUP BY bucket_date ORDER BY bucket_date
+    </select>
+
+    <select id="selectTrendContactConvertedDaily" resultMap="EventTrendDailyRowResult">
+        SELECT bucket_date::text AS bucket_date, SUM(cnt)::integer AS cnt FROM (
+            SELECT DATE(ch.create_time) AS bucket_date, COUNT(DISTINCT ch.target_id)::integer AS cnt
+            FROM crm_conversion_history ch
+            INNER JOIN crm_lead l ON l.lead_id = ch.lead_id
+            WHERE l.sid = #{eventId}
+              AND ch.conversion_type = 'Contact'
+              AND ch.target_id IS NOT NULL AND ch.target_id != ''
+              AND ch.create_time &gt;= #{dateFrom} AND ch.create_time &lt;= #{dateTo}
+            GROUP BY DATE(ch.create_time)
+            UNION ALL
+            SELECT DATE(COALESCE(w.update_time, w.create_time)), COUNT(DISTINCT w.crm_contact_id)::integer
+            FROM crm_wecom_external_contact w
+            WHERE w.crm_event_id = #{eventId}
+              AND w.crm_contact_id IS NOT NULL AND w.crm_contact_id != ''
+              AND COALESCE(w.update_time, w.create_time) &gt;= #{dateFrom}
+              AND COALESCE(w.update_time, w.create_time) &lt;= #{dateTo}
+            GROUP BY DATE(COALESCE(w.update_time, w.create_time))
+            UNION ALL
+            SELECT DATE(MIN(a.started_date)), COUNT(DISTINCT f.contact_id)::integer
+            FROM crm_wechat_mp_fan f
+            INNER JOIN crm_activity a ON (
+                a.context->>'openid' = f.open_id OR a.context->>'open_id' = f.open_id
+            )
+            WHERE f.contact_id IS NOT NULL AND f.contact_id != ''
+              AND a.started_date &gt;= #{dateFrom} AND a.started_date &lt;= #{dateTo}
+              AND (
+                  a.context->>'crm_event_id' = #{eventId}
+                  OR EXISTS (
+                      SELECT 1 FROM crm_wechat_mp_qrcode q
+                      WHERE q.crm_event_id = #{eventId}
+                        AND a.context->>'scene_str' = q.scene_str
+                  )
+              )
+            GROUP BY f.contact_id, DATE(a.started_date)
+        ) sub GROUP BY bucket_date ORDER BY bucket_date
+    </select>
+
+    <select id="selectWindowBookedClv" resultType="java.math.BigDecimal">
+        SELECT COALESCE(SUM(COALESCE(c.sign_amount, c.total_amount, c.amount, 0)), 0)
+        FROM crm_contract c
+        WHERE c.contact_id = #{contactId}
+          AND c.sign_time IS NOT NULL
+          AND c.sign_time &gt;= #{windowStart}
+          AND c.sign_time &lt;= #{windowEnd}
+    </select>
+
+    <sql id="closedWonStageFilter">
+        <choose>
+            <when test="closedWonStages != null and closedWonStages.size() > 0">
+                o.stage in
+                <foreach item="s" collection="closedWonStages" open="(" separator="," close=")">#{s}</foreach>
+            </when>
+            <otherwise>1=0</otherwise>
+        </choose>
+    </sql>
+
+    <select id="selectWindowInflightClv" resultType="java.math.BigDecimal">
+        SELECT COALESCE(SUM(o.amount), 0) FROM crm_opty o
+        WHERE o.contact_id = #{contactId}
+          AND o.create_time &gt;= #{windowStart}
+          AND o.create_time &lt;= #{windowEnd}
+          AND (<include refid="closedWonStageFilter"/>)
+          AND NOT EXISTS (
+              SELECT 1 FROM crm_contract c
+              WHERE c.opty_id = o.opty_id AND c.opty_id IS NOT NULL AND c.opty_id != ''
+          )
+    </select>
+
+    <select id="selectWindowRefundClv" resultType="java.math.BigDecimal">
+        SELECT COALESCE(SUM(p.refund_amount), 0) FROM crm_paymentterm p
+        INNER JOIN crm_contract c ON c.contract_id = p.contract_id
+        WHERE c.contact_id = #{contactId}
+          AND p.refunded_at IS NOT NULL
+          AND p.refunded_at &gt;= #{windowStart}
+          AND p.refunded_at &lt;= #{windowEnd}
+    </select>
+
+    <select id="selectContactConversionTime" resultType="java.util.Date">
+        SELECT MIN(ts) FROM (
+            SELECT ch.create_time AS ts
+            FROM crm_conversion_history ch
+            INNER JOIN crm_lead l ON l.lead_id = ch.lead_id
+            WHERE l.sid = #{eventId} AND ch.conversion_type = 'Contact' AND ch.target_id = #{contactId}
+            UNION ALL
+            SELECT COALESCE(w.update_time, w.create_time)
+            FROM crm_wecom_external_contact w
+            WHERE w.crm_event_id = #{eventId} AND w.crm_contact_id = #{contactId}
+        ) t
+    </select>
+
+    <resultMap type="com.ruoyi.crm.domain.CrmEvent" id="CrmEventResult">
+        <result property="eventId" column="event_id"/>
+        <result property="subject" column="subject"/>
+        <result property="stage" column="stage"/>
+        <result property="budget" column="budget"/>
+        <result property="paid" column="paid"/>
+        <result property="startTime" column="start_time"/>
+        <result property="endTime" column="end_time"/>
+        <result property="createTime" column="create_time"/>
+    </resultMap>
+
+    <sql id="performanceListWhere">
+        <where>
+            <if test="stage != null and stage != ''"> AND stage = #{stage}</if>
+            <if test="dateFrom != null and dateFrom != ''"> AND create_time &gt;= #{dateFrom}::timestamp</if>
+            <if test="dateTo != null and dateTo != ''"> AND create_time &lt;= #{dateTo}::timestamp</if>
+        </where>
+    </sql>
+
+    <select id="selectEventsForPerformanceList" resultMap="CrmEventResult">
+        SELECT event_id, subject, stage, budget, paid, start_time, end_time, create_time
+        FROM crm_event
+        <include refid="performanceListWhere"/>
+        ORDER BY
+        <choose>
+            <when test="sortBy == 'startTime'">start_time</when>
+            <when test="sortBy == 'paid'">paid</when>
+            <when test="sortBy == 'subject'">subject</when>
+            <otherwise>create_time</otherwise>
+        </choose>
+        <choose>
+            <when test="sortOrder == 'asc'"> ASC</when>
+            <otherwise> DESC</otherwise>
+        </choose>
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="countEventsForPerformanceList" resultType="long">
+        SELECT COUNT(*) FROM crm_event
+        <include refid="performanceListWhere"/>
+    </select>
+
+    <resultMap type="com.ruoyi.crm.domain.CrmEventPerformanceSnapshot" id="SnapshotResult">
+        <result property="tenantId" column="tenant_id"/>
+        <result property="eventId" column="event_id"/>
+        <result property="subject" column="subject"/>
+        <result property="stage" column="stage"/>
+        <result property="touchCount" column="touch_count"/>
+        <result property="leadReleasedCount" column="lead_released_count"/>
+        <result property="contactConvertedCount" column="contact_converted_count"/>
+        <result property="netClvTotal" column="net_clv_total"/>
+        <result property="paid" column="paid"/>
+        <result property="roi" column="roi"/>
+        <result property="startTime" column="start_time"/>
+        <result property="endTime" column="end_time"/>
+        <result property="calculatedAt" column="calculated_at"/>
+    </resultMap>
+
+    <select id="selectSnapshotsForList" resultMap="SnapshotResult">
+        SELECT s.tenant_id, s.event_id, s.touch_count, s.lead_released_count, s.contact_converted_count,
+               s.net_clv_total, s.paid, s.roi, s.calculated_at,
+               e.subject, e.stage, e.start_time, e.end_time
+        FROM crm_event_performance_snapshot s
+        INNER JOIN crm_event e ON e.event_id = s.event_id
+        <where>
+            <if test="stage != null and stage != ''"> AND e.stage = #{stage}</if>
+            <if test="dateFrom != null and dateFrom != ''"> AND e.create_time &gt;= #{dateFrom}::timestamp</if>
+            <if test="dateTo != null and dateTo != ''"> AND e.create_time &lt;= #{dateTo}::timestamp</if>
+        </where>
+        ORDER BY
+        <choose>
+            <when test="sortBy == 'startTime'">e.start_time</when>
+            <when test="sortBy == 'paid'">s.paid</when>
+            <when test="sortBy == 'subject'">e.subject</when>
+            <otherwise>e.create_time</otherwise>
+        </choose>
+        <choose>
+            <when test="sortOrder == 'asc'"> ASC</when>
+            <otherwise> DESC</otherwise>
+        </choose>
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="countSnapshotsForList" resultType="long">
+        SELECT COUNT(*) FROM crm_event_performance_snapshot s
+        INNER JOIN crm_event e ON e.event_id = s.event_id
+        <where>
+            <if test="stage != null and stage != ''"> AND e.stage = #{stage}</if>
+            <if test="dateFrom != null and dateFrom != ''"> AND e.create_time &gt;= #{dateFrom}::timestamp</if>
+            <if test="dateTo != null and dateTo != ''"> AND e.create_time &lt;= #{dateTo}::timestamp</if>
+        </where>
+    </select>
+
+    <insert id="upsertPerformanceSnapshot">
+        INSERT INTO crm_event_performance_snapshot (
+            tenant_id, event_id, touch_count, lead_released_count, contact_converted_count,
+            net_clv_total, paid, roi, calculated_at
+        ) VALUES (
+            #{tenantId}, #{eventId}, #{touchCount}, #{leadReleasedCount}, #{contactConvertedCount},
+            #{netClvTotal}, #{paid}, #{roi}, #{calculatedAt}
+        )
+        ON CONFLICT (tenant_id, event_id) DO UPDATE SET
+            touch_count = EXCLUDED.touch_count,
+            lead_released_count = EXCLUDED.lead_released_count,
+            contact_converted_count = EXCLUDED.contact_converted_count,
+            net_clv_total = EXCLUDED.net_clv_total,
+            paid = EXCLUDED.paid,
+            roi = EXCLUDED.roi,
+            calculated_at = EXCLUDED.calculated_at
+    </insert>
+
+    <select id="selectAllEventIds" resultType="java.lang.String">
+        SELECT event_id FROM crm_event
+    </select>
+
+</mapper>

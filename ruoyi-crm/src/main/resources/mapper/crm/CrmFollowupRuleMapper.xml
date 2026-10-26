@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmFollowupRuleMapper">
+
+    <resultMap type="com.ruoyi.crm.domain.vo.FollowupRuleVo" id="FollowupRuleVoResult">
+        <result property="ruleId" column="rule_id"/>
+        <result property="name" column="name"/>
+        <result property="description" column="description"/>
+        <result property="enabled" column="enabled"/>
+        <result property="isSystem" column="is_system"/>
+        <result property="priority" column="priority"/>
+        <result property="triggerType" column="trigger_type"/>
+        <result property="triggerConfig" column="trigger_config"/>
+        <result property="delayMode" column="delay_mode"/>
+        <result property="delayValue" column="delay_value"/>
+        <result property="delayUnit" column="delay_unit"/>
+        <result property="delayField" column="delay_field"/>
+        <result property="taskTemplate" column="task_template"/>
+        <result property="dedupeConfig" column="dedupe_config"/>
+        <result property="workflowId" column="workflow_id"/>
+        <result property="catalogKey" column="catalog_key"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <resultMap type="com.ruoyi.crm.domain.CrmFollowupRule" id="CrmFollowupRuleResult">
+        <result property="ruleId" column="rule_id"/>
+        <result property="tenantId" column="tenant_id"/>
+        <result property="name" column="name"/>
+        <result property="description" column="description"/>
+        <result property="enabled" column="enabled"/>
+        <result property="isSystem" column="is_system"/>
+        <result property="priority" column="priority"/>
+        <result property="triggerType" column="trigger_type"/>
+        <result property="triggerConfig" column="trigger_config"/>
+        <result property="delayMode" column="delay_mode"/>
+        <result property="delayValue" column="delay_value"/>
+        <result property="delayUnit" column="delay_unit"/>
+        <result property="delayField" column="delay_field"/>
+        <result property="taskTemplate" column="task_template"/>
+        <result property="dedupeConfig" column="dedupe_config"/>
+        <result property="workflowId" column="workflow_id"/>
+        <result property="catalogKey" column="catalog_key"/>
+        <result property="delFlag" column="del_flag"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <sql id="selectVoColumns">
+        select rule_id, name, description, enabled, is_system, priority, trigger_type,
+               trigger_config, delay_mode, delay_value, delay_unit, delay_field,
+               task_template, dedupe_config, workflow_id, catalog_key, create_time, update_time
+        from crm_followup_rule
+    </sql>
+
+    <select id="selectList" resultMap="FollowupRuleVoResult">
+        <include refid="selectVoColumns"/>
+        where del_flag = '0' and tenant_id = #{tenantId}
+        <if test="triggerType != null and triggerType != ''">
+            and trigger_type = #{triggerType}
+        </if>
+        <if test="enabled != null and enabled != ''">
+            and enabled = #{enabled}
+        </if>
+        order by priority asc, update_time desc
+    </select>
+
+    <select id="selectById" resultMap="FollowupRuleVoResult">
+        <include refid="selectVoColumns"/>
+        where del_flag = '0'
+          and tenant_id = #{tenantId}
+          and rule_id = #{ruleId}
+        limit 1
+    </select>
+
+    <select id="selectEntityById" resultMap="CrmFollowupRuleResult">
+        select rule_id, tenant_id, name, description, enabled, is_system, priority, trigger_type,
+               trigger_config, delay_mode, delay_value, delay_unit, delay_field,
+               task_template, dedupe_config, workflow_id, catalog_key, del_flag,
+               create_by, create_time, update_by, update_time
+        from crm_followup_rule
+        where del_flag = '0'
+          and tenant_id = #{tenantId}
+          and rule_id = #{ruleId}
+        limit 1
+    </select>
+
+    <select id="selectEnabledByTrigger" resultMap="CrmFollowupRuleResult">
+        select rule_id, tenant_id, name, description, enabled, is_system, priority, trigger_type,
+               trigger_config, delay_mode, delay_value, delay_unit, delay_field,
+               task_template, dedupe_config, workflow_id, catalog_key, del_flag,
+               create_by, create_time, update_by, update_time
+        from crm_followup_rule
+        where del_flag = '0'
+          and tenant_id = #{tenantId}
+          and enabled = '1'
+          and trigger_type = #{triggerType}
+        order by priority asc
+    </select>
+
+    <select id="selectEnabledCatalogKeys" resultType="java.lang.String">
+        select distinct catalog_key
+        from crm_followup_rule
+        where del_flag = '0'
+          and tenant_id = #{tenantId}
+          and enabled = '1'
+          and catalog_key is not null
+          and catalog_key &lt;&gt; ''
+    </select>
+
+    <insert id="insertCrmFollowupRule" parameterType="com.ruoyi.crm.domain.CrmFollowupRule">
+        insert into crm_followup_rule
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="ruleId != null and ruleId != ''">rule_id,</if>
+            <if test="tenantId != null and tenantId != ''">tenant_id,</if>
+            <if test="name != null and name != ''">name,</if>
+            <if test="description != null">description,</if>
+            <if test="enabled != null and enabled != ''">enabled,</if>
+            <if test="isSystem != null and isSystem != ''">is_system,</if>
+            <if test="priority != null">priority,</if>
+            <if test="triggerType != null and triggerType != ''">trigger_type,</if>
+            <if test="triggerConfig != null">trigger_config,</if>
+            <if test="delayMode != null and delayMode != ''">delay_mode,</if>
+            <if test="delayValue != null">delay_value,</if>
+            <if test="delayUnit != null">delay_unit,</if>
+            <if test="delayField != null">delay_field,</if>
+            <if test="taskTemplate != null">task_template,</if>
+            <if test="dedupeConfig != null">dedupe_config,</if>
+            <if test="workflowId != null">workflow_id,</if>
+            <if test="catalogKey != null">catalog_key,</if>
+            <if test="delFlag != null and delFlag != ''">del_flag,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="ruleId != null and ruleId != ''">#{ruleId},</if>
+            <if test="tenantId != null and tenantId != ''">#{tenantId},</if>
+            <if test="name != null and name != ''">#{name},</if>
+            <if test="description != null">#{description},</if>
+            <if test="enabled != null and enabled != ''">#{enabled},</if>
+            <if test="isSystem != null and isSystem != ''">#{isSystem},</if>
+            <if test="priority != null">#{priority},</if>
+            <if test="triggerType != null and triggerType != ''">#{triggerType},</if>
+            <if test="triggerConfig != null">#{triggerConfig},</if>
+            <if test="delayMode != null and delayMode != ''">#{delayMode},</if>
+            <if test="delayValue != null">#{delayValue},</if>
+            <if test="delayUnit != null">#{delayUnit},</if>
+            <if test="delayField != null">#{delayField},</if>
+            <if test="taskTemplate != null">#{taskTemplate},</if>
+            <if test="dedupeConfig != null">#{dedupeConfig},</if>
+            <if test="workflowId != null">#{workflowId},</if>
+            <if test="catalogKey != null">#{catalogKey},</if>
+            <if test="delFlag != null and delFlag != ''">#{delFlag},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+        </trim>
+    </insert>
+
+    <update id="updateCrmFollowupRule" parameterType="com.ruoyi.crm.domain.CrmFollowupRule">
+        update crm_followup_rule
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="name != null and name != ''">name = #{name},</if>
+            description = #{description},
+            <if test="enabled != null and enabled != ''">enabled = #{enabled},</if>
+            <if test="priority != null">priority = #{priority},</if>
+            <if test="triggerType != null and triggerType != ''">trigger_type = #{triggerType},</if>
+            trigger_config = #{triggerConfig},
+            <if test="delayMode != null and delayMode != ''">delay_mode = #{delayMode},</if>
+            delay_value = #{delayValue},
+            delay_unit = #{delayUnit},
+            delay_field = #{delayField},
+            <if test="taskTemplate != null and taskTemplate != ''">task_template = #{taskTemplate},</if>
+            dedupe_config = #{dedupeConfig},
+            workflow_id = #{workflowId},
+            catalog_key = #{catalogKey},
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where rule_id = #{ruleId}
+          and tenant_id = #{tenantId}
+          and del_flag = '0'
+    </update>
+
+    <update id="logicalDeleteById">
+        update crm_followup_rule
+        set del_flag = '1',
+            update_by = #{updateBy},
+            update_time = CURRENT_TIMESTAMP
+        where rule_id = #{ruleId}
+          and tenant_id = #{tenantId}
+          and del_flag = '0'
+          and is_system = '0'
+    </update>
+</mapper>

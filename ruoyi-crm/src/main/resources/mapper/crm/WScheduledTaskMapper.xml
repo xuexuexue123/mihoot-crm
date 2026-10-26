@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.WScheduledTaskMapper">
+
+    <resultMap type="WScheduledTask" id="WScheduledTaskResult">
+        <result property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="workflowId" column="workflow_id"/>
+        <result property="workflowName" column="workflow_name"/>
+        <result property="scheduleType" column="schedule_type"/>
+        <result property="runTime" column="run_time"/>
+        <result property="daysOfWeek" column="days_of_week"/>
+        <result property="enabled" column="enabled"/>
+        <result property="lastFiredSlot" column="last_fired_slot"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="remark" column="remark"/>
+    </resultMap>
+
+    <sql id="selectWScheduledTaskVo">
+        select id, name, workflow_id, workflow_name, schedule_type, run_time, days_of_week,
+               enabled, last_fired_slot, create_by, create_time, update_by, update_time, remark
+        from w_scheduled_task
+    </sql>
+
+    <select id="selectWScheduledTaskList" parameterType="WScheduledTask" resultMap="WScheduledTaskResult">
+        <include refid="selectWScheduledTaskVo"/>
+        <where>
+            <if test="name != null and name != ''"> and name like concat('%', #{name}, '%')</if>
+            <if test="enabled != null and enabled != ''"> and enabled = #{enabled}</if>
+            <if test="workflowId != null and workflowId != ''"> and workflow_id = #{workflowId}</if>
+            <if test="scheduleType != null and scheduleType != ''"> and schedule_type = #{scheduleType}</if>
+        </where>
+        order by create_time desc nulls last, id
+    </select>
+
+    <select id="selectWScheduledTaskById" parameterType="String" resultMap="WScheduledTaskResult">
+        <include refid="selectWScheduledTaskVo"/>
+        where id = #{id}
+    </select>
+
+    <select id="selectDueCandidates" resultMap="WScheduledTaskResult">
+        <include refid="selectWScheduledTaskVo"/>
+        where enabled = '1'
+          and run_time = #{runTime}
+          and (
+            schedule_type = 'daily'
+            or (
+              schedule_type = 'weekly'
+              and (',' || COALESCE(days_of_week, '') || ',') like '%,' || #{dayOfWeek} || ',%'
+            )
+          )
+          and (last_fired_slot is null or last_fired_slot &lt;&gt; #{slot})
+    </select>
+
+    <insert id="insertWScheduledTask" parameterType="WScheduledTask">
+        insert into w_scheduled_task
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null and id != ''">id,</if>
+            <if test="name != null and name != ''">name,</if>
+            <if test="workflowId != null and workflowId != ''">workflow_id,</if>
+            <if test="workflowName != null">workflow_name,</if>
+            <if test="scheduleType != null and scheduleType != ''">schedule_type,</if>
+            <if test="runTime != null and runTime != ''">run_time,</if>
+            <if test="daysOfWeek != null">days_of_week,</if>
+            <if test="enabled != null and enabled != ''">enabled,</if>
+            <if test="lastFiredSlot != null">last_fired_slot,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="remark != null">remark,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null and id != ''">#{id},</if>
+            <if test="name != null and name != ''">#{name},</if>
+            <if test="workflowId != null and workflowId != ''">#{workflowId},</if>
+            <if test="workflowName != null">#{workflowName},</if>
+            <if test="scheduleType != null and scheduleType != ''">#{scheduleType},</if>
+            <if test="runTime != null and runTime != ''">#{runTime},</if>
+            <if test="daysOfWeek != null">#{daysOfWeek},</if>
+            <if test="enabled != null and enabled != ''">#{enabled},</if>
+            <if test="lastFiredSlot != null">#{lastFiredSlot},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="remark != null">#{remark},</if>
+        </trim>
+    </insert>
+
+    <update id="updateWScheduledTask" parameterType="WScheduledTask">
+        update w_scheduled_task
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="name != null and name != ''">name = #{name},</if>
+            <if test="workflowId != null and workflowId != ''">workflow_id = #{workflowId},</if>
+            <if test="workflowName != null">workflow_name = #{workflowName},</if>
+            <if test="scheduleType != null and scheduleType != ''">schedule_type = #{scheduleType},</if>
+            <if test="runTime != null and runTime != ''">run_time = #{runTime},</if>
+            <if test="daysOfWeek != null">days_of_week = #{daysOfWeek},</if>
+            <if test="enabled != null and enabled != ''">enabled = #{enabled},</if>
+            <if test="lastFiredSlot != null">last_fired_slot = #{lastFiredSlot},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="remark != null">remark = #{remark},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <update id="claimSlot">
+        update w_scheduled_task
+        set last_fired_slot = #{slot},
+            update_time = now()
+        where id = #{id}
+          and (last_fired_slot is null or last_fired_slot &lt;&gt; #{slot})
+    </update>
+
+    <delete id="deleteWScheduledTaskById" parameterType="String">
+        delete from w_scheduled_task where id = #{id}
+    </delete>
+
+    <delete id="deleteWScheduledTaskByIds" parameterType="String">
+        delete from w_scheduled_task where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

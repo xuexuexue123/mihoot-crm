@@ -1,0 +1,18 @@
+{
+  "name": "mega-ems-bot-server",
+  "version": "1.0.0",
+  "description": "WeCom AI Bot WebSocket connector for MegaEMS CRM",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx src/index.ts",
+    "start": "node --loader tsx src/index.ts"
+  },
+  "dependencies": {
+    "@wecom/aibot-node-sdk": "^1.0.0"
+  },
+  "devDependencies": {
+    "tsx": "^4.0.0",
+    "typescript": "^5.0.0"
+  }
+}

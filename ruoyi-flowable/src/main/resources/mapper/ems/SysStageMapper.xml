@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.ems.mapper.SysStageMapper">
+    
+    <resultMap type="SysStage" id="SysStageResult">
+        <result property="stageId"    column="stage_id"    />
+        <result property="stageSort"    column="stage_sort"    />
+        <result property="stageLabel"    column="stage_label"    />
+        <result property="stageName"    column="stage_name"    />
+        <result property="stageType"    column="stage_type"    />
+        <result property="caseTypeId"    column="case_type_id"    />
+        <result property="skipStage"    column="skip_stage"    />
+        <result property="skipCondition"    column="skip_condition"    />
+        <result property="actionAfterAllCompleted"    column="action_after_all_completed"    />
+        <result property="stageStatusWork"    column="stage_status_work"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <resultMap id="SysStageSysProcessResult" type="SysStage" extends="SysStageResult">
+        <collection property="sysProcessList" notNullColumn="sub_process_id" javaType="java.util.List" resultMap="SysProcessResult" />
+    </resultMap>
+
+    <resultMap type="SysProcess" id="SysProcessResult">
+        <result property="processId"    column="sub_process_id"    />
+        <result property="processSort"    column="sub_process_sort"    />
+        <result property="processLabel"    column="sub_process_label"    />
+        <result property="processName"    column="sub_process_name"    />
+        <result property="processType"    column="sub_process_type"    />
+        <result property="caseTypeId"    column="sub_case_type_id"    />
+        <result property="stageId"    column="sub_stage_id"    />
+        <result property="skipProcess"    column="sub_skip_process"    />
+        <result property="skipCondition"    column="sub_skip_condition"    />
+        <result property="deploymentName"    column="sub_deployment_name"    />
+        <result property="deploymentKey"    column="sub_deployment_key"    />
+        <result property="deploymentId"    column="sub_deployment_id"    />
+        <result property="procDefId"    column="sub_proc_def_id"    />
+        <result property="formKey"    column="sub_form_key"    />
+        <result property="createBy"    column="sub_create_by"    />
+        <result property="createTime"    column="sub_create_time"    />
+        <result property="updateBy"    column="sub_update_by"    />
+        <result property="updateTime"    column="sub_update_time"    />
+    </resultMap>
+
+    <sql id="selectSysStageVo">
+        select stage_id, stage_sort, stage_label, stage_name, stage_type, case_type_id, skip_stage, skip_condition, action_after_all_completed, stage_status_work, create_by, create_time, update_by, update_time from sys_re_stage
+    </sql>
+
+    <select id="selectSysStageList" parameterType="SysStage" resultMap="SysStageResult">
+        <include refid="selectSysStageVo"/>
+        <where>  
+            <if test="stageSort != null "> and stage_sort = #{stageSort}</if>
+            <if test="stageLabel != null  and stageLabel != ''"> and stage_label = #{stageLabel}</if>
+            <if test="stageName != null  and stageName != ''"> and stage_name like concat('%', #{stageName}, '%')</if>
+            <if test="stageType != null  and stageType != ''"> and stage_type = #{stageType}</if>
+            <if test="caseTypeId != null  and caseTypeId != ''"> and case_type_id = #{caseTypeId}</if>
+            <if test="skipStage != null  and skipStage != ''"> and skip_stage = #{skipStage}</if>
+            <if test="skipCondition != null  and skipCondition != ''"> and skip_condition = #{skipCondition}</if>
+            <if test="actionAfterAllCompleted != null  and actionAfterAllCompleted != ''"> and action_after_all_completed = #{actionAfterAllCompleted}</if>
+            <if test="stageStatusWork != null  and stageStatusWork != ''"> and stage_status_work = #{stageStatusWork}</if>
+        </where>
+    </select>
+
+
+    
+    <select id="selectSysStageByStageId" parameterType="Long" resultMap="SysStageSysProcessResult">
+        select a.stage_id, a.stage_sort, a.stage_label, a.stage_name, a.stage_type, a.case_type_id, a.skip_stage, a.skip_condition, a.action_after_all_completed, a.stage_status_work, a.create_by, a.create_time, a.update_by, a.update_time,
+ b.process_id as sub_process_id, b.process_sort as sub_process_sort, b.process_label as sub_process_label, b.process_name as sub_process_name, b.process_type as sub_process_type, b.case_type_id as sub_case_type_id, b.stage_id as sub_stage_id, b.skip_process as sub_skip_process, b.skip_condition as sub_skip_condition, b.deployment_name as sub_deployment_name, b.deployment_key as sub_deployment_key, b.deployment_id as sub_deployment_id, b.proc_def_id as sub_proc_def_id, b.form_key as sub_form_key, b.create_by as sub_create_by, b.create_time as sub_create_time, b.update_by as sub_update_by, b.update_time as sub_update_time
+        from sys_re_stage a
+        left join sys_re_process b on b.stage_id = a.stage_id
+        where a.stage_id = #{stageId}
+    </select>
+        
+    <insert id="insertSysStage" parameterType="SysStage" useGeneratedKeys="true" keyProperty="stageId">
+        insert into sys_re_stage
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="stageSort != null">stage_sort,</if>
+            <if test="stageLabel != null">stage_label,</if>
+            <if test="stageName != null">stage_name,</if>
+            <if test="stageType != null">stage_type,</if>
+            <if test="caseTypeId != null">case_type_id,</if>
+            <if test="skipStage != null">skip_stage,</if>
+            <if test="skipCondition != null">skip_condition,</if>
+            <if test="actionAfterAllCompleted != null">action_after_all_completed,</if>
+            <if test="stageStatusWork != null">stage_status_work,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="stageSort != null">#{stageSort},</if>
+            <if test="stageLabel != null">#{stageLabel},</if>
+            <if test="stageName != null">#{stageName},</if>
+            <if test="stageType != null">#{stageType},</if>
+            <if test="caseTypeId != null">#{caseTypeId},</if>
+            <if test="skipStage != null">#{skipStage},</if>
+            <if test="skipCondition != null">#{skipCondition},</if>
+            <if test="actionAfterAllCompleted != null">#{actionAfterAllCompleted},</if>
+            <if test="stageStatusWork != null">#{stageStatusWork},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateSysStage" parameterType="SysStage">
+        update sys_re_stage
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="stageSort != null">stage_sort = #{stageSort},</if>
+            <if test="stageLabel != null">stage_label = #{stageLabel},</if>
+            <if test="stageName != null">stage_name = #{stageName},</if>
+            <if test="stageType != null">stage_type = #{stageType},</if>
+            <if test="caseTypeId != null">case_type_id = #{caseTypeId},</if>
+            <if test="skipStage != null">skip_stage = #{skipStage},</if>
+            <if test="skipCondition != null">skip_condition = #{skipCondition},</if>
+            <if test="actionAfterAllCompleted != null">action_after_all_completed = #{actionAfterAllCompleted},</if>
+            <if test="stageStatusWork != null">stage_status_work = #{stageStatusWork},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where stage_id = #{stageId}
+    </update>
+
+    <delete id="deleteSysStageByStageId" parameterType="Long">
+        delete from sys_re_stage where stage_id = #{stageId}
+    </delete>
+
+    <delete id="deleteSysStageByStageIds" parameterType="String">
+        delete from sys_re_stage where stage_id in 
+        <foreach item="stageId" collection="array" open="(" separator="," close=")">
+            #{stageId}
+        </foreach>
+    </delete>
+    
+    <delete id="deleteSysProcessByStageIds" parameterType="String">
+        delete from sys_re_process where stage_id in 
+        <foreach item="stageId" collection="array" open="(" separator="," close=")">
+            #{stageId}
+        </foreach>
+    </delete>
+
+    <delete id="deleteSysProcessByStageId" parameterType="Long">
+        delete from sys_re_process where stage_id = #{stageId}
+    </delete>
+
+    <insert id="batchSysProcess">
+        insert into sys_re_process( process_id, process_sort, process_label, process_name, process_type, case_type_id, stage_id, skip_process, skip_condition, deployment_name, deployment_key, deployment_id, proc_def_id, form_key, create_by, create_time, update_by, update_time) values
+		<foreach item="item" index="index" collection="list" separator=",">
+            ( #{item.processId}, #{item.processSort}, #{item.processLabel}, #{item.processName}, #{item.processType}, #{item.caseTypeId}, #{item.stageId}, #{item.skipProcess}, #{item.skipCondition}, #{item.deploymentName}, #{item.deploymentKey}, #{item.deploymentId}, #{item.procDefId}, #{item.formKey}, #{item.createBy}, #{item.createTime}, #{item.updateBy}, #{item.updateTime})
+        </foreach>
+    </insert>
+</mapper>

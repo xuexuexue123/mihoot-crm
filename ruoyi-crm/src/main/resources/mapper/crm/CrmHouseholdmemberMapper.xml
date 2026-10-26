@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmHouseholdmemberMapper">
+    
+    <resultMap type="CrmHouseholdmember" id="CrmHouseholdmemberResult">
+        <result property="memberId"    column="member_id"    />
+        <result property="householdId"    column="household_id"    />
+        <result property="householdName"    column="household_name"    />
+        <result property="contactId"    column="contact_id"    />
+        <result property="name"    column="name"    />
+        <result property="role"    column="role"    />
+        <result property="owner"    column="owner"    />
+        <result property="headOfHousehold"    column="head_of_household"    />
+        <result property="workPhone"    column="work_phone"    />
+        <result property="startDate"    column="start_date"    />
+        <result property="endDate"    column="end_date"    />
+        <result property="description"    column="description"    />
+        <result property="isActive"    column="is_active"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectCrmHouseholdmemberVo">
+        select member_id, household_id, household_name, contact_id, name, role, owner, head_of_household, work_phone, start_date, end_date, description, is_active, create_by, create_time, update_by, update_time from crm_householdmember
+    </sql>
+
+    <select id="selectCrmHouseholdmemberList" parameterType="CrmHouseholdmember" resultMap="CrmHouseholdmemberResult">
+        <include refid="selectCrmHouseholdmemberVo"/>
+        <where>  
+            <if test="householdId != null  and householdId != ''"> and household_id = #{householdId}</if>
+            <if test="householdName != null  and householdName != ''"> and household_name like concat('%', #{householdName}, '%')</if>
+            <if test="contactId != null  and contactId != ''"> and contact_id = #{contactId}</if>
+            <if test="name != null  and name != ''"> and name like concat('%', #{name}, '%')</if>
+            <if test="role != null  and role != ''"> and role = #{role}</if>
+            <if test="owner != null  and owner != ''"> and owner = #{owner}</if>
+            <if test="headOfHousehold != null  and headOfHousehold != ''"> and head_of_household = #{headOfHousehold}</if>
+            <if test="workPhone != null  and workPhone != ''"> and work_phone = #{workPhone}</if>
+            <if test="startDate != null "> and start_date = #{startDate}</if>
+            <if test="endDate != null "> and end_date = #{endDate}</if>
+            <if test="description != null  and description != ''"> and description = #{description}</if>
+            <if test="isActive != null  and isActive != ''"> and is_active = #{isActive}</if>
+        </where>
+    </select>
+    
+    <select id="selectCrmHouseholdmemberByMemberId" parameterType="String" resultMap="CrmHouseholdmemberResult">
+        <include refid="selectCrmHouseholdmemberVo"/>
+        where member_id = #{memberId}
+    </select>
+        
+    <insert id="insertCrmHouseholdmember" parameterType="CrmHouseholdmember">
+        insert into crm_householdmember
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="memberId != null">member_id,</if>
+            <if test="householdId != null and householdId != ''">household_id,</if>
+            <if test="householdName != null">household_name,</if>
+            <if test="contactId != null and contactId != ''">contact_id,</if>
+            <if test="name != null">name,</if>
+            <if test="role != null">role,</if>
+            <if test="owner != null">owner,</if>
+            <if test="headOfHousehold != null">head_of_household,</if>
+            <if test="workPhone != null">work_phone,</if>
+            <if test="startDate != null">start_date,</if>
+            <if test="endDate != null">end_date,</if>
+            <if test="description != null">description,</if>
+            <if test="isActive != null">is_active,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="memberId != null">#{memberId},</if>
+            <if test="householdId != null and householdId != ''">#{householdId},</if>
+            <if test="householdName != null">#{householdName},</if>
+            <if test="contactId != null and contactId != ''">#{contactId},</if>
+            <if test="name != null">#{name},</if>
+            <if test="role != null">#{role},</if>
+            <if test="owner != null">#{owner},</if>
+            <if test="headOfHousehold != null">#{headOfHousehold},</if>
+            <if test="workPhone != null">#{workPhone},</if>
+            <if test="startDate != null">#{startDate},</if>
+            <if test="endDate != null">#{endDate},</if>
+            <if test="description != null">#{description},</if>
+            <if test="isActive != null">#{isActive},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateCrmHouseholdmember" parameterType="CrmHouseholdmember">
+        update crm_householdmember
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="householdId != null and householdId != ''">household_id = #{householdId},</if>
+            <if test="householdName != null">household_name = #{householdName},</if>
+            <if test="contactId != null and contactId != ''">contact_id = #{contactId},</if>
+            <if test="name != null">name = #{name},</if>
+            <if test="role != null">role = #{role},</if>
+            <if test="owner != null">owner = #{owner},</if>
+            <if test="headOfHousehold != null">head_of_household = #{headOfHousehold},</if>
+            <if test="workPhone != null">work_phone = #{workPhone},</if>
+            <if test="startDate != null">start_date = #{startDate},</if>
+            <if test="endDate != null">end_date = #{endDate},</if>
+            <if test="description != null">description = #{description},</if>
+            <if test="isActive != null">is_active = #{isActive},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where member_id = #{memberId}
+    </update>
+
+    <delete id="deleteCrmHouseholdmemberByMemberId" parameterType="String">
+        delete from crm_householdmember where member_id = #{memberId}
+    </delete>
+
+    <delete id="deleteCrmHouseholdmemberByMemberIds" parameterType="String">
+        delete from crm_householdmember where member_id in 
+        <foreach item="memberId" collection="array" open="(" separator="," close=")">
+            #{memberId}
+        </foreach>
+    </delete>
+</mapper>

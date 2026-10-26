@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmProfessionalServiceMapper">
+
+    <resultMap type="CrmProfessionalService" id="CrmProfessionalServiceResult">
+        <result property="id" column="id"/>
+        <result property="nameCn" column="name_cn"/>
+        <result property="nameVn" column="name_vn"/>
+        <result property="nameEn" column="name_en"/>
+        <result property="category" column="category"/>
+        <result property="background" column="background"/>
+        <result property="province" column="province"/>
+        <result property="address" column="address"/>
+        <result property="coreServices" column="core_services"
+                typeHandler="com.ruoyi.crm.handler.JsonbStringListTypeHandler"/>
+        <result property="targetClients" column="target_clients"/>
+        <result property="keyCapabilities" column="key_capabilities"/>
+        <result property="contactPhone" column="contact_phone"/>
+        <result property="email" column="email"/>
+        <result property="website" column="website"/>
+        <result property="notes" column="notes"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="delFlag" column="del_flag"/>
+    </resultMap>
+
+    <sql id="selectCrmProfessionalServiceVo">
+        select id, name_cn, name_vn, name_en, category, background, province, address,
+               core_services::text as core_services,
+               target_clients, key_capabilities, contact_phone, email, website, notes, created_at,
+               create_by, create_time, update_by, update_time, del_flag
+        from crm_professional_service
+    </sql>
+
+    <select id="selectCrmProfessionalServiceById" parameterType="String" resultMap="CrmProfessionalServiceResult">
+        <include refid="selectCrmProfessionalServiceVo"/>
+        where id = #{id}
+          and del_flag = '0'
+    </select>
+
+    <select id="selectCrmProfessionalServiceList" parameterType="CrmProfessionalService" resultMap="CrmProfessionalServiceResult">
+        <include refid="selectCrmProfessionalServiceVo"/>
+        <where>
+            del_flag = '0'
+            <if test="searchQuery != null and searchQuery != ''">
+                and (
+                    name_cn ILIKE CONCAT('%', #{searchQuery}, '%')
+                    or name_vn ILIKE CONCAT('%', #{searchQuery}, '%')
+                    or name_en ILIKE CONCAT('%', #{searchQuery}, '%')
+                    or key_capabilities ILIKE CONCAT('%', #{searchQuery}, '%')
+                    or target_clients ILIKE CONCAT('%', #{searchQuery}, '%')
+                )
+            </if>
+            <if test="category != null and category != '' and category != 'ALL'">
+                and category = #{category}
+            </if>
+            <if test="background != null and background != '' and background != 'ALL'">
+                and background = #{background}
+            </if>
+            <if test="province != null and province != '' and province != 'ALL'">
+                and province = #{province}
+            </if>
+        </where>
+        order by update_time desc nulls last, name_cn asc
+    </select>
+
+    <insert id="insertCrmProfessionalService" parameterType="CrmProfessionalService">
+        insert into crm_professional_service (
+            id, name_cn, name_vn, name_en, category, background, province, address,
+            core_services, target_clients, key_capabilities, contact_phone, email,
+            website, notes, created_at,
+            create_by, create_time, update_by, update_time, del_flag
+        ) values (
+            #{id},
+            #{nameCn},
+            #{nameVn},
+            #{nameEn},
+            #{category},
+            #{background},
+            #{province},
+            #{address},
+            CAST(#{coreServices, typeHandler=com.ruoyi.crm.handler.JsonbStringListTypeHandler} AS jsonb),
+            #{targetClients},
+            COALESCE(#{keyCapabilities}, ''),
+            #{contactPhone},
+            #{email},
+            #{website},
+            #{notes},
+            #{createdAt},
+            #{createBy},
+            #{createTime},
+            #{updateBy},
+            #{updateTime},
+            COALESCE(#{delFlag}, '0')
+        )
+    </insert>
+
+    <update id="updateCrmProfessionalService" parameterType="CrmProfessionalService">
+        update crm_professional_service
+        set name_cn = #{nameCn},
+            name_vn = #{nameVn},
+            name_en = #{nameEn},
+            category = #{category},
+            background = #{background},
+            province = #{province},
+            address = #{address},
+            core_services = CAST(#{coreServices, typeHandler=com.ruoyi.crm.handler.JsonbStringListTypeHandler} AS jsonb),
+            target_clients = #{targetClients},
+            key_capabilities = COALESCE(#{keyCapabilities}, ''),
+            contact_phone = #{contactPhone},
+            email = #{email},
+            website = #{website},
+            notes = #{notes},
+            created_at = #{createdAt},
+            update_by = #{updateBy},
+            update_time = #{updateTime}
+        where id = #{id}
+          and del_flag = '0'
+    </update>
+
+    <update id="logicalDeleteById">
+        update crm_professional_service
+        set del_flag = '1',
+            update_by = #{updateBy},
+            update_time = CURRENT_TIMESTAMP
+        where id = #{id}
+          and del_flag = '0'
+    </update>
+</mapper>

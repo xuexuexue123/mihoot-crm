@@ -1,0 +1,358 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmProductMapper">
+
+    <resultMap type="CrmProduct" id="CrmProductResult">
+        <result property="productId"    column="product_id"    />
+        <result property="productName"    column="product_name"    />
+        <result property="productPinyin"    column="product_pinyin"    />
+        <result property="productLabel"    column="product_label"    />
+        <result property="productCode"    column="product_code"    />
+        <result property="productLocalCode"    column="product_local_code"    />
+        <result property="avatar"    column="avatar"    />
+        <result property="category"    column="category"    />
+        <result property="categoryId"    column="category_id"    />
+        <result property="status"    column="status"    />
+        <result property="unit"    column="unit"    />
+        <result property="spec"    column="spec"    />
+        <result property="model"    column="model"    />
+        <result property="brand"    column="brand"    />
+        <result property="barcode"    column="barcode"    />
+        <result property="producer"    column="producer"    />
+        <result property="purchaseCategory"    column="purchase_category"    />
+        <result property="approvedCode"    column="approved_code"    />
+        <result property="provider"    column="provider"    />
+        <result property="minCount"    column="min_count"    />
+        <result property="outboundPrice"    column="outbound_price"    />
+        <result property="isOwn"    column="is_own"    />
+        <result property="isOwnPrice"    column="is_own_price"    />
+        <result property="description"    column="description"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="invId"    column="inv_id"    />
+        <result property="invName"    column="inv_name"    />
+        <result property="wecomProductId"    column="wecom_product_id"    />
+        <result property="searchKeywords"    column="search_keywords"    />
+        <result property="shortDescription"    column="short_description"    />
+        <result property="sellingPoints"    column="selling_points"    />
+        <result property="detailMd"    column="detail_md"    />
+        <result property="coverImage"    column="cover_image"    />
+        <result property="publishedTime"    column="published_time"    />
+        <result property="disabledTime"    column="disabled_time"    />
+        <result property="industryAttributes"    column="industry_attributes"    />
+        <result property="delFlag"    column="del_flag"    />
+        <result property="version"    column="version"    />
+        <result property="categoryName"    column="category_name"    />
+        <result property="wecomSyncStatus"    column="wecom_sync_status"    />
+        <result property="wecomExternalId"    column="wecom_external_id"    />
+    </resultMap>
+
+    <sql id="selectCrmProductVo">
+        select p.product_id, p.product_name, p.product_pinyin, p.product_label, p.product_code, p.product_local_code,
+               p.avatar, p.category, p.category_id, p.status, p.unit, p.spec, p.model, p.brand, p.barcode, p.producer,
+               p.purchase_category, p.approved_code, p.provider, p.min_count, p.outbound_price, p.is_own, p.is_own_price,
+               p.description, p.create_by, p.create_time, p.update_by, p.update_time, p.inv_id, p.inv_name, p.wecom_product_id,
+               p.search_keywords, p.short_description, p.selling_points, p.detail_md, p.cover_image,
+               p.published_time, p.disabled_time, p.industry_attributes::text as industry_attributes,
+               p.del_flag, p.version,
+               c.category_name,
+               COALESCE(b.sync_status, CASE WHEN p.wecom_product_id IS NOT NULL AND TRIM(p.wecom_product_id) &lt;&gt; '' THEN 'synced' ELSE NULL END) as wecom_sync_status,
+               COALESCE(b.external_id, p.wecom_product_id) as wecom_external_id
+        from crm_product p
+        left join crm_product_category c on c.category_id = p.category_id and c.del_flag = '0'
+        left join crm_product_channel_binding b
+          on b.product_id = p.product_id and b.channel_type = 'wecom_album' and b.del_flag = '0'
+    </sql>
+
+    <select id="selectCrmProductList" parameterType="CrmProduct" resultMap="CrmProductResult">
+        <include refid="selectCrmProductVo"/>
+        <where>
+            and COALESCE(p.del_flag, '0') = '0'
+            <if test="keyword != null and keyword != ''">
+                and (
+                    p.product_name like concat('%', #{keyword}, '%')
+                    or p.product_code like concat('%', #{keyword}, '%')
+                    or p.product_pinyin like concat('%', #{keyword}, '%')
+                    or p.brand like concat('%', #{keyword}, '%')
+                    or p.search_keywords like concat('%', #{keyword}, '%')
+                )
+            </if>
+            <if test="productName != null  and productName != ''"> and p.product_name like concat('%', #{productName}, '%')</if>
+            <if test="productPinyin != null  and productPinyin != ''"> and p.product_pinyin like concat('%', #{productPinyin}, '%')</if>
+            <if test="productLabel != null  and productLabel != ''"> and p.product_label like concat('%', #{productLabel}, '%')</if>
+            <if test="productCode != null  and productCode != ''"> and p.product_code like concat('%', #{productCode}, '%')</if>
+            <if test="productLocalCode != null  and productLocalCode != ''"> and p.product_local_code = #{productLocalCode}</if>
+            <if test="category != null  and category != ''"> and p.category = #{category}</if>
+            <if test="categoryId != null  and categoryId != ''"> and p.category_id = #{categoryId}</if>
+            <if test="status != null  and status != ''"> and p.status = #{status}</if>
+            <if test="unit != null  and unit != ''"> and p.unit = #{unit}</if>
+            <if test="spec != null  and spec != ''"> and p.spec like concat('%', #{spec}, '%')</if>
+            <if test="model != null  and model != ''"> and p.model like concat('%', #{model}, '%')</if>
+            <if test="brand != null  and brand != ''"> and p.brand like concat('%', #{brand}, '%')</if>
+            <if test="barcode != null  and barcode != ''"> and p.barcode = #{barcode}</if>
+            <if test="producer != null  and producer != ''"> and p.producer like concat('%', #{producer}, '%')</if>
+            <if test="invId != null  and invId != ''"> and p.inv_id = #{invId}</if>
+            <if test="invName != null  and invName != ''"> and p.inv_name like concat('%', #{invName}, '%')</if>
+            <if test="updatedFrom != null"> and p.update_time &gt;= #{updatedFrom}</if>
+            <if test="updatedTo != null"> and p.update_time &lt;= #{updatedTo}</if>
+        </where>
+        order by p.update_time desc nulls last, p.create_time desc nulls last
+    </select>
+
+    <select id="selectSellableProductList" parameterType="CrmProduct" resultMap="CrmProductResult">
+        <include refid="selectCrmProductVo"/>
+        <where>
+            and COALESCE(p.del_flag, '0') = '0'
+            and p.status = 'active'
+            <if test="keyword != null and keyword != ''">
+                and (
+                    p.product_name like concat('%', #{keyword}, '%')
+                    or p.product_code like concat('%', #{keyword}, '%')
+                    or p.product_pinyin like concat('%', #{keyword}, '%')
+                    or p.brand like concat('%', #{keyword}, '%')
+                    or p.search_keywords like concat('%', #{keyword}, '%')
+                )
+            </if>
+            <if test="categoryId != null  and categoryId != ''"> and p.category_id = #{categoryId}</if>
+            <if test="brand != null  and brand != ''"> and p.brand like concat('%', #{brand}, '%')</if>
+        </where>
+        order by p.product_name asc
+    </select>
+
+    <select id="selectCrmProductByProductId" parameterType="String" resultMap="CrmProductResult">
+        <include refid="selectCrmProductVo"/>
+        where p.product_id = #{productId}
+          and COALESCE(p.del_flag, '0') = '0'
+    </select>
+
+    <select id="selectCrmProductByProductIdIncludeDeleted" parameterType="String" resultMap="CrmProductResult">
+        <include refid="selectCrmProductVo"/>
+        where p.product_id = #{productId}
+    </select>
+
+    <select id="countByProductCode" resultType="int">
+        select count(1) from crm_product
+        where lower(product_code) = lower(#{productCode})
+          and COALESCE(del_flag, '0') = '0'
+          <if test="excludeProductId != null and excludeProductId != ''">
+            and product_id &lt;&gt; #{excludeProductId}
+          </if>
+    </select>
+
+    <select id="countQuoteOptionsByProductId" resultType="long">
+        select count(1) from crm_quoteoption where product_id = #{productId}
+    </select>
+
+    <insert id="insertCrmProduct" parameterType="CrmProduct">
+        insert into crm_product
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="productId != null">product_id,</if>
+            <if test="productName != null">product_name,</if>
+            <if test="productPinyin != null">product_pinyin,</if>
+            <if test="productLabel != null">product_label,</if>
+            <if test="productCode != null">product_code,</if>
+            <if test="productLocalCode != null">product_local_code,</if>
+            <if test="avatar != null">avatar,</if>
+            <if test="category != null">category,</if>
+            <if test="categoryId != null">category_id,</if>
+            <if test="status != null">status,</if>
+            <if test="unit != null">unit,</if>
+            <if test="spec != null">spec,</if>
+            <if test="model != null">model,</if>
+            <if test="brand != null">brand,</if>
+            <if test="barcode != null">barcode,</if>
+            <if test="producer != null">producer,</if>
+            <if test="purchaseCategory != null">purchase_category,</if>
+            <if test="approvedCode != null">approved_code,</if>
+            <if test="provider != null">provider,</if>
+            <if test="minCount != null">min_count,</if>
+            <if test="outboundPrice != null">outbound_price,</if>
+            <if test="isOwn != null">is_own,</if>
+            <if test="isOwnPrice != null">is_own_price,</if>
+            <if test="description != null">description,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="invId != null">inv_id,</if>
+            <if test="invName != null">inv_name,</if>
+            <if test="wecomProductId != null">wecom_product_id,</if>
+            <if test="searchKeywords != null">search_keywords,</if>
+            <if test="shortDescription != null">short_description,</if>
+            <if test="sellingPoints != null">selling_points,</if>
+            <if test="detailMd != null">detail_md,</if>
+            <if test="coverImage != null">cover_image,</if>
+            <if test="publishedTime != null">published_time,</if>
+            <if test="disabledTime != null">disabled_time,</if>
+            <if test="industryAttributes != null">industry_attributes,</if>
+            <if test="delFlag != null">del_flag,</if>
+            <if test="version != null">version,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="productId != null">#{productId},</if>
+            <if test="productName != null">#{productName},</if>
+            <if test="productPinyin != null">#{productPinyin},</if>
+            <if test="productLabel != null">#{productLabel},</if>
+            <if test="productCode != null">#{productCode},</if>
+            <if test="productLocalCode != null">#{productLocalCode},</if>
+            <if test="avatar != null">#{avatar},</if>
+            <if test="category != null">#{category},</if>
+            <if test="categoryId != null">#{categoryId},</if>
+            <if test="status != null">#{status},</if>
+            <if test="unit != null">#{unit},</if>
+            <if test="spec != null">#{spec},</if>
+            <if test="model != null">#{model},</if>
+            <if test="brand != null">#{brand},</if>
+            <if test="barcode != null">#{barcode},</if>
+            <if test="producer != null">#{producer},</if>
+            <if test="purchaseCategory != null">#{purchaseCategory},</if>
+            <if test="approvedCode != null">#{approvedCode},</if>
+            <if test="provider != null">#{provider},</if>
+            <if test="minCount != null">#{minCount},</if>
+            <if test="outboundPrice != null">#{outboundPrice},</if>
+            <if test="isOwn != null">#{isOwn},</if>
+            <if test="isOwnPrice != null">#{isOwnPrice},</if>
+            <if test="description != null">#{description},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="invId != null">#{invId},</if>
+            <if test="invName != null">#{invName},</if>
+            <if test="wecomProductId != null">#{wecomProductId},</if>
+            <if test="searchKeywords != null">#{searchKeywords},</if>
+            <if test="shortDescription != null">#{shortDescription},</if>
+            <if test="sellingPoints != null">#{sellingPoints},</if>
+            <if test="detailMd != null">#{detailMd},</if>
+            <if test="coverImage != null">#{coverImage},</if>
+            <if test="publishedTime != null">#{publishedTime},</if>
+            <if test="disabledTime != null">#{disabledTime},</if>
+            <if test="industryAttributes != null">CAST(COALESCE(NULLIF(TRIM(#{industryAttributes,jdbcType=VARCHAR}), ''), '{}') AS jsonb),</if>
+            <if test="delFlag != null">#{delFlag},</if>
+            <if test="version != null">#{version},</if>
+         </trim>
+    </insert>
+
+    <update id="updateCrmProduct" parameterType="CrmProduct">
+        update crm_product
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="productName != null">product_name = #{productName},</if>
+            <if test="productPinyin != null">product_pinyin = #{productPinyin},</if>
+            <if test="productLabel != null">product_label = #{productLabel},</if>
+            <if test="productCode != null">product_code = #{productCode},</if>
+            <if test="productLocalCode != null">product_local_code = #{productLocalCode},</if>
+            <if test="avatar != null">avatar = #{avatar},</if>
+            <if test="category != null">category = #{category},</if>
+            <if test="categoryId != null">category_id = #{categoryId},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="unit != null">unit = #{unit},</if>
+            <if test="spec != null">spec = #{spec},</if>
+            <if test="model != null">model = #{model},</if>
+            <if test="brand != null">brand = #{brand},</if>
+            <if test="barcode != null">barcode = #{barcode},</if>
+            <if test="producer != null">producer = #{producer},</if>
+            <if test="purchaseCategory != null">purchase_category = #{purchaseCategory},</if>
+            <if test="approvedCode != null">approved_code = #{approvedCode},</if>
+            <if test="provider != null">provider = #{provider},</if>
+            <if test="minCount != null">min_count = #{minCount},</if>
+            <if test="outboundPrice != null">outbound_price = #{outboundPrice},</if>
+            <if test="isOwn != null">is_own = #{isOwn},</if>
+            <if test="isOwnPrice != null">is_own_price = #{isOwnPrice},</if>
+            <if test="description != null">description = #{description},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="invId != null">inv_id = #{invId},</if>
+            <if test="invName != null">inv_name = #{invName},</if>
+            <if test="wecomProductId != null">wecom_product_id = #{wecomProductId},</if>
+            <if test="searchKeywords != null">search_keywords = #{searchKeywords},</if>
+            <if test="shortDescription != null">short_description = #{shortDescription},</if>
+            <if test="sellingPoints != null">selling_points = #{sellingPoints},</if>
+            <if test="detailMd != null">detail_md = #{detailMd},</if>
+            <if test="coverImage != null">cover_image = #{coverImage},</if>
+            <if test="publishedTime != null">published_time = #{publishedTime},</if>
+            <if test="disabledTime != null">disabled_time = #{disabledTime},</if>
+            <if test="industryAttributes != null">industry_attributes = CAST(COALESCE(NULLIF(TRIM(#{industryAttributes,jdbcType=VARCHAR}), ''), '{}') AS jsonb),</if>
+            <if test="delFlag != null">del_flag = #{delFlag},</if>
+            version = COALESCE(version, 1) + 1,
+        </trim>
+        where product_id = #{productId}
+          and COALESCE(del_flag, '0') = '0'
+          <if test="version != null">
+            and version = #{version}
+          </if>
+    </update>
+
+    <update id="logicalDeleteByProductId">
+        update crm_product
+        set del_flag = '1',
+            status = 'archived',
+            update_by = #{updateBy},
+            update_time = CURRENT_TIMESTAMP,
+            version = COALESCE(version, 1) + 1
+        where product_id = #{productId}
+          and COALESCE(del_flag, '0') = '0'
+    </update>
+
+    <update id="logicalDeleteByProductIds">
+        update crm_product
+        set del_flag = '1',
+            status = 'archived',
+            update_by = #{updateBy},
+            update_time = CURRENT_TIMESTAMP,
+            version = COALESCE(version, 1) + 1
+        where COALESCE(del_flag, '0') = '0'
+          and product_id in
+        <foreach item="productId" collection="productIds" open="(" separator="," close=")">
+            #{productId}
+        </foreach>
+    </update>
+
+    <!-- 兼容旧物理删除入口：改为逻辑删除 -->
+    <delete id="deleteCrmProductByProductId" parameterType="String">
+        update crm_product
+        set del_flag = '1', status = 'archived', update_time = CURRENT_TIMESTAMP, version = COALESCE(version, 1) + 1
+        where product_id = #{productId}
+    </delete>
+
+    <delete id="deleteCrmProductByProductIds" parameterType="String">
+        update crm_product
+        set del_flag = '1', status = 'archived', update_time = CURRENT_TIMESTAMP, version = COALESCE(version, 1) + 1
+        where product_id in
+        <foreach item="productId" collection="array" open="(" separator="," close=")">
+            #{productId}
+        </foreach>
+    </delete>
+
+    <update id="updateWecomProductId">
+        update crm_product set wecom_product_id = #{wecomProductId} where product_id = #{productId}
+    </update>
+
+    <select id="selectCrmProductByWecomProductId" parameterType="String" resultMap="CrmProductResult">
+        <include refid="selectCrmProductVo"/>
+        where p.wecom_product_id = #{wecomProductId}
+          and COALESCE(p.del_flag, '0') = '0'
+    </select>
+
+    <update id="clearWecomProductIdByWecomProductId">
+        update crm_product set wecom_product_id = null where wecom_product_id = #{wecomProductId}
+    </update>
+
+    <select id="selectSyncedToWecom" resultMap="CrmProductResult">
+        <include refid="selectCrmProductVo"/>
+        where COALESCE(p.del_flag, '0') = '0'
+          and (
+            (p.wecom_product_id is not null and TRIM(p.wecom_product_id) &lt;&gt; '')
+            or b.external_id is not null
+          )
+    </select>
+
+    <select id="countByCategoryId" resultType="int">
+        select count(1) from crm_product
+        where category_id = #{categoryId}
+          and COALESCE(del_flag, '0') = '0'
+    </select>
+</mapper>

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.tenant.mapper.SysWebchatTokenTenantMapper">
+
+    <resultMap type="com.ruoyi.tenant.domain.SysWebchatTokenTenant" id="SysWebchatTokenTenantResult">
+        <result property="websiteToken" column="website_token"/>
+        <result property="tenant" column="tenant"/>
+    </resultMap>
+
+    <select id="selectByWebsiteToken" resultMap="SysWebchatTokenTenantResult">
+        SELECT website_token, tenant FROM sys_webchat_token_tenant WHERE website_token = #{websiteToken}
+    </select>
+
+    <select id="selectByTenant" resultMap="SysWebchatTokenTenantResult">
+        SELECT website_token, tenant FROM sys_webchat_token_tenant WHERE tenant = #{tenant} LIMIT 1
+    </select>
+
+    <select id="selectAll" resultMap="SysWebchatTokenTenantResult">
+        SELECT website_token, tenant FROM sys_webchat_token_tenant
+    </select>
+
+    <delete id="deleteByTenant">
+        DELETE FROM sys_webchat_token_tenant WHERE tenant = #{tenant}
+    </delete>
+
+    <insert id="insert" parameterType="com.ruoyi.tenant.domain.SysWebchatTokenTenant">
+        INSERT INTO sys_webchat_token_tenant (website_token, tenant) VALUES (#{websiteToken}, #{tenant})
+    </insert>
+</mapper>

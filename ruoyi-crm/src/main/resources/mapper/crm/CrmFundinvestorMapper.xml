@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crm.mapper.CrmFundinvestorMapper">
+    
+    <resultMap type="CrmFundinvestor" id="CrmFundinvestorResult">
+        <result property="investorId"    column="investor_id"    />
+        <result property="relateType"    column="relate_type"    />
+        <result property="relateId"    column="relate_id"    />
+        <result property="relateName"    column="relate_name"    />
+        <result property="accountId"    column="account_id"    />
+        <result property="accountName"    column="account_name"    />
+        <result property="claimAmount"    column="claim_amount"    />
+        <result property="claimPercentage"    column="claim_percentage"    />
+        <result property="claimDate"    column="claim_date"    />
+        <result property="investAmount"    column="invest_amount"    />
+        <result property="paidMgrfee"    column="paid_mgrfee"    />
+        <result property="sharedFee"    column="shared_fee"    />
+        <result property="accumulatedAmount"    column="accumulated_amount"    />
+        <result property="commentFile"    column="comment_file"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectCrmFundinvestorVo">
+        select investor_id, relate_type, relate_id, relate_name, account_id, account_name, claim_amount, claim_percentage, claim_date, invest_amount, paid_mgrfee, shared_fee, accumulated_amount, comment_file, create_by, create_time, update_by, update_time from crm_fundinvestor
+    </sql>
+
+    <select id="selectCrmFundinvestorList" parameterType="CrmFundinvestor" resultMap="CrmFundinvestorResult">
+        <include refid="selectCrmFundinvestorVo"/>
+        <where>  
+            <if test="relateType != null  and relateType != ''"> and relate_type = #{relateType}</if>
+            <if test="relateId != null  and relateId != ''"> and relate_id = #{relateId}</if>
+            <if test="relateName != null  and relateName != ''"> and relate_name like concat('%', #{relateName}, '%')</if>
+            <if test="accountId != null  and accountId != ''"> and account_id = #{accountId}</if>
+            <if test="accountName != null  and accountName != ''"> and account_name like concat('%', #{accountName}, '%')</if>
+            <if test="claimAmount != null "> and claim_amount = #{claimAmount}</if>
+            <if test="claimPercentage != null "> and claim_percentage = #{claimPercentage}</if>
+            <if test="claimDate != null "> and claim_date = #{claimDate}</if>
+            <if test="investAmount != null "> and invest_amount = #{investAmount}</if>
+            <if test="paidMgrfee != null "> and paid_mgrfee = #{paidMgrfee}</if>
+            <if test="sharedFee != null "> and shared_fee = #{sharedFee}</if>
+            <if test="accumulatedAmount != null "> and accumulated_amount = #{accumulatedAmount}</if>
+            <if test="commentFile != null  and commentFile != ''"> and comment_file = #{commentFile}</if>
+        </where>
+    </select>
+    
+    <select id="selectCrmFundinvestorByInvestorId" parameterType="String" resultMap="CrmFundinvestorResult">
+        <include refid="selectCrmFundinvestorVo"/>
+        where investor_id = #{investorId}
+    </select>
+        
+    <insert id="insertCrmFundinvestor" parameterType="CrmFundinvestor">
+        insert into crm_fundinvestor
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="investorId != null">investor_id,</if>
+            <if test="relateType != null">relate_type,</if>
+            <if test="relateId != null">relate_id,</if>
+            <if test="relateName != null">relate_name,</if>
+            <if test="accountId != null and accountId != ''">account_id,</if>
+            <if test="accountName != null">account_name,</if>
+            <if test="claimAmount != null">claim_amount,</if>
+            <if test="claimPercentage != null">claim_percentage,</if>
+            <if test="claimDate != null">claim_date,</if>
+            <if test="investAmount != null">invest_amount,</if>
+            <if test="paidMgrfee != null">paid_mgrfee,</if>
+            <if test="sharedFee != null">shared_fee,</if>
+            <if test="accumulatedAmount != null">accumulated_amount,</if>
+            <if test="commentFile != null">comment_file,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="investorId != null">#{investorId},</if>
+            <if test="relateType != null">#{relateType},</if>
+            <if test="relateId != null">#{relateId},</if>
+            <if test="relateName != null">#{relateName},</if>
+            <if test="accountId != null and accountId != ''">#{accountId},</if>
+            <if test="accountName != null">#{accountName},</if>
+            <if test="claimAmount != null">#{claimAmount},</if>
+            <if test="claimPercentage != null">#{claimPercentage},</if>
+            <if test="claimDate != null">#{claimDate},</if>
+            <if test="investAmount != null">#{investAmount},</if>
+            <if test="paidMgrfee != null">#{paidMgrfee},</if>
+            <if test="sharedFee != null">#{sharedFee},</if>
+            <if test="accumulatedAmount != null">#{accumulatedAmount},</if>
+            <if test="commentFile != null">#{commentFile},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateCrmFundinvestor" parameterType="CrmFundinvestor">
+        update crm_fundinvestor
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="relateType != null">relate_type = #{relateType},</if>
+            <if test="relateId != null">relate_id = #{relateId},</if>
+            <if test="relateName != null">relate_name = #{relateName},</if>
+            <if test="accountId != null and accountId != ''">account_id = #{accountId},</if>
+            <if test="accountName != null">account_name = #{accountName},</if>
+            <if test="claimAmount != null">claim_amount = #{claimAmount},</if>
+            <if test="claimPercentage != null">claim_percentage = #{claimPercentage},</if>
+            <if test="claimDate != null">claim_date = #{claimDate},</if>
+            <if test="investAmount != null">invest_amount = #{investAmount},</if>
+            <if test="paidMgrfee != null">paid_mgrfee = #{paidMgrfee},</if>
+            <if test="sharedFee != null">shared_fee = #{sharedFee},</if>
+            <if test="accumulatedAmount != null">accumulated_amount = #{accumulatedAmount},</if>
+            <if test="commentFile != null">comment_file = #{commentFile},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where investor_id = #{investorId}
+    </update>
+
+    <delete id="deleteCrmFundinvestorByInvestorId" parameterType="String">
+        delete from crm_fundinvestor where investor_id = #{investorId}
+    </delete>
+
+    <delete id="deleteCrmFundinvestorByInvestorIds" parameterType="String">
+        delete from crm_fundinvestor where investor_id in 
+        <foreach item="investorId" collection="array" open="(" separator="," close=")">
+            #{investorId}
+        </foreach>
+    </delete>
+</mapper>
